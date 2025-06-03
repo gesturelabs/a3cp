@@ -1,0 +1,7 @@
+Copyright (c) 2025 GestureLabs e.V. and The Open University.
+
+All rights reserved. This software is made available for research and development purposes only. Commercial use, redistribution, or modification outside of collaborative projects requires explicit written permission from the authors.
+
+This project is under active development. Future licensing terms may change as the system matures.
+
+For inquiries, please contact: dmitrikatz23@gmail.com
