@@ -14,3 +14,4 @@ __pycache__/
 a3cp-env/
 db.sqlite3
 *.tmp
+.env
