@@ -13,3 +13,4 @@ __pycache__/
 .vscode/
 a3cp-env/
 db.sqlite3
+*.tmp
