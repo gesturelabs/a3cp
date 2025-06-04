@@ -1,12 +1,20 @@
-import os
 from pathlib import Path
 from dotenv import load_dotenv
+import os
 
-# Load from .env in the project root
-load_dotenv()
+
+
+
+
 
 # Base directory
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent  # go up to project root
+# Load from .env in the project root
+load_dotenv(dotenv_path=BASE_DIR / ".env") 
+
+print("DEBUG:", os.getenv("DEBUG"))
+print("DB_ENGINE:", os.getenv("DB_ENGINE"))
+
 
 # Core settings
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-default")
@@ -34,7 +42,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'a3cp.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -52,16 +60,23 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'a3cp.wsgi:application'
+WSGI_APPLICATION = 'config.wsgi:application'
 
-# Database (using sqlite for now; replace with PostgreSQL later)
+# Database (PostgreSQL)
+db_engine = os.getenv("DB_ENGINE")
+if not db_engine:
+    raise RuntimeError("Missing DB_ENGINE in .env — check your database config.")
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': db_engine,
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
-
 # Static files (CSS, JS, images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'

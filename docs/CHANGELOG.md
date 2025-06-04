@@ -1,5 +1,22 @@
 # CHANGELOG.md
 
+
+## [2025-06-03] Environment & Import Resolution Fixes
+
+### Fixed
+- Resolved `ModuleNotFoundError: No module named 'a3cp'` by ensuring correct working directory (`/opt/a3cp-app`) and `DJANGO_SETTINGS_MODULE` usage.
+- Corrected Python path resolution and `sys.path` setup to include Django and local packages.
+- Verified `manage.py` works with `config.settings.prod` without crashing.
+- Confirmed all required packages are present in `/opt/a3cp-env/lib/python3.12/site-packages`.
+- Validated `python manage.py check` and `shell` execute cleanly in production settings.
+
+### Infra
+- Ensured active virtual environment is `/opt/a3cp-env/`
+- Confirmed Django 5.2.1 is installed and functional under Python 3.12.3
+
+System is now import-clean, Django apps resolve properly, and shell/check commands execute without issue.
+
+
 ## [2025-06-02] - Environment & VS Code Remote Setup
 
 ### Added
