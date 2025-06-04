@@ -2,20 +2,38 @@ name: Auto-Deploy to A3CP VPS
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
+    name: Deploy to VPS on Push
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate as GitHub App
+        id: auth
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
+          port: 22
           script: |
             cd /opt/a3cp-app
             git pull origin main
-            ./scripts/deploy.sh
+            source /opt/a3cp-env/bin/activate
+            pip install -r requirements.txt
+            python manage.py migrate --settings=config.settings.prod
+            python manage.py collectstatic --noinput --settings=config.settings.prod
+            sudo systemctl restart a3cp-gunicorn
