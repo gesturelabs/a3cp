@@ -1,0 +1,67 @@
+/opt/a3cp-app
+├── api
+│   ├── __init__.py
+│   ├── main.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   └── main.cpython-312.pyc
+│   └── routes
+│       ├── inference.py
+│       ├── __init__.py
+│       └── __pycache__
+├── apps
+│   ├── pages
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── streamer
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   └── ui
+│       ├── urls.py
+│       └── views.py
+├── config
+│   ├── asgi.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── settings.cpython-312.pyc
+│   │   ├── urls.cpython-312.pyc
+│   │   └── wsgi.cpython-312.pyc
+│   ├── settings
+│   │   ├── __init__.py
+│   │   ├── prod.py
+│   │   └── __pycache__
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── db.sqlite3
+├── docs
+│   ├── CHANGELOG.md
+│   ├── DEPLOYMENT.md
+│   └── SETUP.md
+├── LICENSE.txt
+├── manage.py
+├── __pycache__
+│   └── foo.pyc
+├── README.md
+├── requirements.txt
+├── scripts
+│   ├── deploy.sh
+│   └── dev.sh
+└── tree.txt
+
+20 directories, 45 files
