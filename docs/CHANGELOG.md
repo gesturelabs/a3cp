@@ -1,6 +1,28 @@
 # CHANGELOG.md
 
 
+## [2025-06-04] PostgreSQL Prep & Git Deployment Sync
+
+### Changed
+- Updated `config/settings/prod.py` to reference PostgreSQL via `.env`.
+- Committed local changes made on Hetzner to Git (hotfixes to `prod.py`, `manage.py`, `CHANGELOG.md`).
+
+### Infra
+- Installed PostgreSQL 16 on Hetzner VPS.
+- Created database `a3cp_pgsql` and user `a3cp_admin` with appropriate privileges.
+- Updated `.env` with PostgreSQL credentials and confirmed visibility from `prod.py`.
+- `python manage.py check` now passes, but `migrate` still fails due to `DATABASES` misconfiguration.
+
+### Git & CI
+- Aligned workflow to follow: local → GitHub → Hetzner.
+- Initial GitHub push triggered CI/CD but **deploy job failed**.
+- Deployment debugging pending.
+
+### Outstanding
+- PostgreSQL integration not yet functional — Django cannot connect.
+- Deployment pipeline must be fixed to support automatic syncing from GitHub.
+
+
 ## [2025-06-03] Environment & Import Resolution Fixes
 
 ### Fixed
