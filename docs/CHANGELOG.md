@@ -1,6 +1,30 @@
 # CHANGELOG.md
 
 
+## [2025-06-04] - Started GitHub App–Based Deploy Workflow Integration
+
+### Added
+- Created and registered **A3CP Deployer** GitHub App under `@gesturelabs`.
+- Generated GitHub App private key and stored it securely.
+- Stored GitHub App ID and private key (`GH_APP_ID`, `GH_APP_PRIVATE_KEY`) as GitHub Actions secrets.
+- Initialized updated GitHub Actions workflow using `tibdex/github-app-token@v2` for authentication.
+- Scoped GitHub App to specific repo (`a3cp`) with pending `Contents: Read & write` permission.
+
+### In Progress
+- Granting repository permissions to GitHub App.
+- Enabling `Only select repositories` mode and assigning access to `a3cp` repository.
+- Verifying token authentication and end-to-end deploy trigger via GitHub Actions on push to `main`.
+- Wiring in and confirming functionality of `VPS_HOST`, `VPS_USER`, and `VPS_KEY` secrets.
+
+### Blockers
+- GitHub App currently reports: **“No repositories”** and **“No permissions”**, preventing token retrieval.
+- Workflow fails at token generation due to missing installation access (`404` during `tibdex/github-app-token` run).
+
+
+
+
+
+
 ## [2025-06-04] PostgreSQL Prep & Git Deployment Sync
 
 ### Changed
