@@ -1,24 +1,52 @@
 # CHANGELOG.md
 
 
-## [2025-06-04] - Started GitHub App–Based Deploy Workflow Integration
+
+
+## [2025-06-04] GitHub App-Based Auto-Deploy Pipeline Operational
 
 ### Added
-- Created and registered **A3CP Deployer** GitHub App under `@gesturelabs`.
-- Generated GitHub App private key and stored it securely.
-- Stored GitHub App ID and private key (`GH_APP_ID`, `GH_APP_PRIVATE_KEY`) as GitHub Actions secrets.
-- Initialized updated GitHub Actions workflow using `tibdex/github-app-token@v2` for authentication.
-- Scoped GitHub App to specific repo (`a3cp`) with pending `Contents: Read & write` permission.
+- Created and installed GitHub App `A3CP Deployer` under `gesturelabs` org.
+- Generated and securely stored a `.pem` private key for GitHub App authentication.
+- Set appropriate **repository permissions** (`Contents: Read & Write`, `Metadata: Read`) for the app.
+- Restricted app installation to `gesturelabs/a3cp` repository.
+- Added the following repository secrets for deployment:
+  - `GH_APP_ID` — GitHub App ID
+  - `GH_APP_PRIVATE_KEY` — Base64-encoded private key for GitHub App
+  - `VPS_HOST` — IP/domain of Hetzner server
+  - `VPS_USER` — SSH username on VPS
+  - `VPS_KEY` — Base64-encoded private SSH key for access
 
-### In Progress
-- Granting repository permissions to GitHub App.
-- Enabling `Only select repositories` mode and assigning access to `a3cp` repository.
-- Verifying token authentication and end-to-end deploy trigger via GitHub Actions on push to `main`.
-- Wiring in and confirming functionality of `VPS_HOST`, `VPS_USER`, and `VPS_KEY` secrets.
+### Changed
+- Replaced `deploy_key` SSH workflow with GitHub App token authentication via `tibdex/github-app-token@v2`.
+- Updated `deploy.yml` GitHub Actions workflow:
+  - Triggers on `push` to `main`
+  - Authenticates as GitHub App
+  - SSHs into Hetzner VPS and performs:
+    - `git pull`
+    - `pip install -r requirements.txt`
+    - `python manage.py migrate`
+    - `python manage.py collectstatic`
+    - `sudo systemctl restart a3cp-gunicorn`
 
-### Blockers
-- GitHub App currently reports: **“No repositories”** and **“No permissions”**, preventing token retrieval.
-- Workflow fails at token generation due to missing installation access (`404` during `tibdex/github-app-token` run).
+### Verified
+- ✅ Workflow successfully triggers on push to `main`
+- ✅ Authentication via GitHub App works
+- ✅ VPS pulls latest code and redeploys cleanly
+
+### Notes
+- New workflow: **local → GitHub → Hetzner**
+  - No need for developer SSH key management
+  - GitHub App manages deployment auth
+- GitHub Actions are now decoupled from contributor local machines
+
+### Next Steps
+- [ ] Remove unused deploy keys (if any remain)
+- [ ] Rotate test/private credentials used during setup
+- [ ] Add fallback or notification for failed deployments (e.g., Slack, email)
+- [ ] Add rollback command to deployment script
+- [ ] Document `deploy.yml` and app install process for future maintainers
+
 
 
 
