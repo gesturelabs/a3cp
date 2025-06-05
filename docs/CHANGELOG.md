@@ -1,6 +1,64 @@
 # CHANGELOG.md
 
 
+## [2025-06-05] A3CP Deployment: Gunicorn + Nginx + Static Files
+
+### Summary
+Completed server-side production deployment of A3CP Django app using Gunicorn and Nginx on Hetzner VPS. Verified HTTPS, systemd service, static file delivery, and ownership best practices.
+
+### Changes
+- Created PostgreSQL DB and granted schema permissions to `a3cp_admin`
+- Created `a3cp` system user for running Gunicorn process securely
+- Configured `a3cp-gunicorn.service` systemd unit:
+  - Bound Gunicorn to `127.0.0.1:8000`
+  - Set working directory, user, and environment file
+  - Enabled daemon reload and auto-restart
+- Ensured ownership of app and virtualenv:
+  - `chown -R a3cp:www-data /opt/a3cp-app /opt/a3cp-env`
+- Generated and verified SSL certificates with Certbot for `gesturelabs.org`
+- Configured Nginx reverse proxy:
+  - Redirect HTTP to HTTPS
+  - Proxied `/` to Gunicorn and `/api/infer/` to FastAPI stub
+  - Set up `/static/` via `collectstatic` and verified file serving
+- Verified application home page and static assets load correctly via `curl` and browser
+- Confirmed Nginx config is syntactically valid with `nginx -t`
+
+### Next Steps
+- Add support for `/media/` file uploads
+- Set up `/api/infer/` FastAPI routing and WSGI/ASGI integration
+- Enable production logging and harden error handling
+
+
+## [2025-06-05] CI/CD Ruleset Lockdown & Workflow Transition
+
+### Added
+- Enforced GitHub branch protection ruleset on `main`:
+  - Require pull request before merging
+  - Require linear history (no merge commits)
+  - Require 1 approving review
+  - Require conversation resolution before merge
+  - Require CI Checks status to pass before merge
+- Restored `.github/workflows/ci.yml` to run:
+  - `python manage.py check`
+  - `pytest`
+- Made repository public
+- Verified `.gitignore` excludes private credentials (`private-key.b64`, `.env`)
+- Confirmed `private-key.b64` no longer exists in git history
+- Confirmed no deploy keys remain active in repository
+
+### Changed
+- Development workflow changed:
+  - From: direct development and deployment on Hetzner VPS
+  - To: commit locally → push to GitHub → auto-deploy to Hetzner via GitHub Actions
+- Deployment authentication now uses GitHub App credentials, not user SSH keys
+- All changes to `main` must go through pull request + CI + approval
+
+### Outstanding
+- [ ] PostgreSQL integration incomplete (Django cannot connect)
+- [ ] Add simple rollback command (`rollback.sh`) for production
+- [ ] Document `deploy.yml` and GitHub App install/config process
+- [ ] Improve `prod.py` and `.env` PostgreSQL configuration
+- [ ] Add notification or fallback for failed deployments
 
 
 ## [2025-06-04] GitHub App-Based Auto-Deploy Pipeline Operational
@@ -41,10 +99,8 @@
 - GitHub Actions are now decoupled from contributor local machines
 
 ### Next Steps
-- [ ] Remove unused deploy keys (if any remain)
-- [ ] Rotate test/private credentials used during setup
-- [ ] Add fallback or notification for failed deployments (e.g., Slack, email)
-- [ ] Add rollback command to deployment script
+- [ x] Remove unused deploy keys (if any remain)
+
 - [ ] Document `deploy.yml` and app install process for future maintainers
 
 

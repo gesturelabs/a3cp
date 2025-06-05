@@ -215,6 +215,70 @@ Tip: After any command, check the app in the browser to confirm it's working.
  DO NOT use `python manage.py runserver` unless explicitly debugging.
 
 
+## Deployment Workflow (2025-06-05 Update)
+
+### Overview
+As of June 2025, deployment is handled via GitHub Actions and a GitHub App. Manual server development is deprecated.
+
+### Workflow Summary
+1. Developer commits locally and pushes to GitHub `main` (via PR and CI).
+2. GitHub Actions workflow (`.github/workflows/deploy.yml`) triggers.
+3. The workflow:
+   - Authenticates using the `A3CP Deployer` GitHub App.
+   - SSHs into the Hetzner VPS using a base64-encoded private key.
+   - Executes remote deployment script:
+     - `git pull`
+     - `pip install -r requirements.txt`
+     - `python manage.py migrate`
+     - `python manage.py collectstatic`
+     - `sudo systemctl restart a3cp-gunicorn`
+
+### Repository Secrets
+The following secrets must be present in the GitHub repo:
+- `GH_APP_ID`: GitHub App ID (integer)
+- `GH_APP_PRIVATE_KEY`: Base64-encoded `.pem` private key
+- `VPS_HOST`: IP or domain of production server
+- `VPS_USER`: SSH username (e.g., `deploy`)
+- `VPS_KEY`: Base64-encoded private SSH key with access to VPS
+
+### Notes
+- No manual SSH access is required for deployments.
+- Deployments are fully automated from GitHub `main` branch commits.
+- Deployment can fail silently if not monitored; alerting will be added later.
+
+
+
+### Usage
+SSH into the server and run:
+
+### Usage
+SSH into the server and run:
+
+
+This script should:
+- Reset repo to previous known-good commit
+- Restart application services
+
+**NOTE:** The script is not yet implemented.
+
+---
+
+## Future Improvements
+- Add Slack/email notifications on deployment failure
+- Add automatic backup of current commit hash before redeploy
+- Versioned release tagging and rollback automation
+
+
+---
+
+## Rollback Procedure (Planned)
+
+A simple rollback script is planned to allow reversion to the previous release in the event of a failure.
+
+### Path
+
+
+
 --------------------------------------------------------------------
  8. TO DO (POST-DEPLOYMENT)
 --------------------------------------------------------------------
