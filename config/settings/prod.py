@@ -5,16 +5,16 @@ import os
 
 
 
-
-
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # go up to project root
 # Load from .env in the project root
 load_dotenv(dotenv_path=BASE_DIR / ".env") 
 
-print("DEBUG:", os.getenv("DEBUG"))
-print("DB_ENGINE:", os.getenv("DB_ENGINE"))
-
+ENV_PATH = Path(BASE_DIR) / ".env"
+if ENV_PATH.exists():
+    load_dotenv(dotenv_path=ENV_PATH)
+else:
+    print("WARNING: No .env found; using CI or fallback defaults")
 
 # Core settings
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-default")
@@ -64,8 +64,14 @@ WSGI_APPLICATION = 'config.wsgi:application'
 
 # Database (PostgreSQL)
 db_engine = os.getenv("DB_ENGINE")
+
 if not db_engine:
-    raise RuntimeError("Missing DB_ENGINE in .env — check your database config.")
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        # Fallback to dummy default for CI runs
+        db_engine = "django.db.backends.sqlite3"
+    else:
+        raise RuntimeError("Missing DB_ENGINE in .env — check your database config.")
+
 
 DATABASES = {
     'default': {
