@@ -1,17 +1,26 @@
-# .gitignore
+# Python artifacts
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
 *.pyd
-*.db
-*.sqlite3
-*.env
-*.log
-*.DS_Store
-*.swp
-.env/
-.vscode/
-a3cp-env/
-db.sqlite3
-*.tmp
+
+# Environment + Secrets
 .env
+.env.*
+!.env.example
+
+# Databases
+*.sqlite3
+*.db
+db.sqlite3
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# macOS and editor metadata
+.DS_Store
+.vscode/
+
+# Local virtual environment
+a3cp-env/
