@@ -24,3 +24,4 @@ db.sqlite3
 
 # Local virtual environment
 a3cp-env/
+private-key.b64
