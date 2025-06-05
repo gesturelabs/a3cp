@@ -1,6 +1,29 @@
 # CHANGELOG.md
 
 
+
+## [2025-06-05] Deployment CI Setup and Documentation Overhaul
+
+### Added
+- `.env.example.prod`: Sample production environment file with PostgreSQL config.
+- `scripts/rollback.sh`: Stub script for future rollback automation.
+- `docs/DEPLOYMENT.md`: Rewritten deployment guide for CI-based workflow via GitHub Actions.
+
+### Changed
+- Updated `.gitignore` to include deployment-specific paths (`/staticfiles/`, `/media/`, `/opt/a3cp-*`, etc.).
+- Revised `config/settings/prod.py` to raise explicit error if `DB_ENGINE` is missing in production.
+- Drafted clear instructions for FastAPI deployment placeholder in deployment docs.
+
+### Fixed
+- Prevented accidental staging of `.env.example.prod` by retaining `.gitignore` rule but manually added for clarity via `git add -f`.
+
+### Notes
+- GitHub Actions deployment workflow now supports end-to-end CI/CD via GitHub App and server-side SSH keys.
+- Direct `main` pushes are rejected unless passing CI and following workflow rules.
+- Staging pipeline planned as next step, with FastAPI service integration pending.
+
+
+
 ## [2025-06-05] A3CP Deployment: Gunicorn + Nginx + Static Files
 
 ### Summary

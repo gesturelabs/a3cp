@@ -1,296 +1,143 @@
+# DEPLOYMENT.md — A3CP Production Deployment (2025)
+
+This document describes how the A3CP platform is deployed to the production server using GitHub Actions and a GitHub App. Manual server administration is deprecated except for debugging, rollback, or service monitoring.
+
 ====================================================================
- DEPLOYMENT.md — A3CP Production Server Setup (Hetzner VPS)
+ OVERVIEW
 ====================================================================
 
-This document describes how to set up and maintain the production server
-for A3CP hosted on a Hetzner VPS. It includes system requirements,
-firewall settings, Nginx config, Gunicorn setup, and HTTPS certificate
-renewal.
+A3CP is deployed from the `main` branch on GitHub to a Hetzner VPS.
 
---------------------------------------------------------------------
- 1. SYSTEM REQUIREMENTS
---------------------------------------------------------------------
+- Server OS: Ubuntu 24.04 LTS
+- Domain: gesturelabs.org
+- Stack: Django (port 8000), FastAPI (port 9000)
+- Web server: Nginx with HTTPS via Certbot
+- App server: Gunicorn (Django) + systemd
+- DB: PostgreSQL (localhost)
 
- - OS: Ubuntu 24.04 LTS (x86_64)
- - CPU: 2+ cores
- - RAM: 4 GB minimum
- - Disk: 40 GB SSD minimum
- - Access: SSH root login with key
- - Domain: gesturelabs.org
+All deployments are handled through CI/CD.
 
---------------------------------------------------------------------
- 2. INITIAL SERVER PREPARATION
---------------------------------------------------------------------
+====================================================================
+ DEPLOYMENT WORKFLOW
+====================================================================
 
- A. SSH Key Setup (on local machine):
+1. Developer pushes to `main` (via PR with CI pass).
+2. GitHub Actions triggers `.github/workflows/deploy.yml`.
+3. Workflow does:
+   - Auth via GitHub App
+   - SSH into VPS
+   - Run deploy script:
+     ```
+     git pull
+     pip install -r requirements.txt
+     python manage.py migrate --settings=config.settings.prod
+     python manage.py collectstatic --noinput --settings=config.settings.prod
+     sudo systemctl restart a3cp-gunicorn
+     ```
 
-   ssh-keygen -t ed25519 -f ~/.ssh/hetzner_key
+====================================================================
+ REQUIRED GITHUB SECRETS
+====================================================================
 
-   Upload the public key when provisioning your Hetzner VPS.
+Set these in GitHub → Settings → Secrets → Actions:
 
- B. Basic Updates and Firewall:
+- `GH_APP_ID` — GitHub App ID
+- `GH_APP_PRIVATE_KEY` — Base64-encoded `.pem` private key
+- `VPS_HOST` — Domain or IP of VPS
+- `VPS_USER` — SSH user (e.g. `deploy`)
+- `VPS_KEY` — Base64-encoded private key for VPS access
 
-   apt update && apt upgrade -y
-   apt install ufw -y
-   ufw allow OpenSSH
-   ufw enable
-   ufw status verbose
+====================================================================
+ SERVER DIRECTORY STRUCTURE
+====================================================================
 
---------------------------------------------------------------------
- 3. NGINX INSTALLATION AND CONFIGURATION
---------------------------------------------------------------------
-
- A. Install Nginx:
-
-   apt install nginx -y
-   systemctl enable nginx
-   systemctl start nginx
-
- B. Basic Nginx Config:
-
- Edit the file: /etc/nginx/sites-available/default
-
-   server {
-       listen 80;
-       server_name gesturelabs.org www.gesturelabs.org;
-       return 301 https://$host$request_uri;
-   }
-
-   server {
-       listen 443 ssl;
-       server_name gesturelabs.org www.gesturelabs.org;
-
-       ssl_certificate /etc/letsencrypt/live/gesturelabs.org/fullchain.pem;
-       ssl_certificate_key /etc/letsencrypt/live/gesturelabs.org/privkey.pem;
-
-       location / {
-           proxy_pass http://127.0.0.1:8000;
-           include proxy_params;
-       }
-
-       location /api/infer/ {
-           proxy_pass http://127.0.0.1:9000;
-           include proxy_params;
-       }
-   }
-
- Restart Nginx:
-
-   systemctl restart nginx
-
---------------------------------------------------------------------
- 4. PYTHON ENVIRONMENT AND GUNICORN
---------------------------------------------------------------------
-
- A. Install Python venv tools:
-
-   apt install python3-venv -y
-
- B. Create virtual environment:
-
-   python3 -m venv /opt/a3cp-env
-   source /opt/a3cp-env/bin/activate
-
- C. Install Gunicorn:
-
-   pip install gunicorn
-   /opt/a3cp-env/bin/gunicorn --version
-
---------------------------------------------------------------------
- 5. OPTIONAL: GUNICORN SYSTEMD SERVICE
---------------------------------------------------------------------
-
- Create file: /etc/systemd/system/a3cp-gunicorn.service
-
-   [Unit]
-   Description=Gunicorn service for A3CP Django app
-   After=network.target
-
-   [Service]
-   User=root
-   WorkingDirectory=/opt/a3cp-app
-   ExecStart=/opt/a3cp-env/bin/gunicorn a3cp.wsgi:application --bind 127.0.0.1:8000
-   Restart=always
-
-   [Install]
-   WantedBy=multi-user.target
-
- Activate the service:
-
-   systemctl daemon-reexec
-   systemctl enable a3cp-gunicorn
-   systemctl start a3cp-gunicorn
-
---------------------------------------------------------------------
- 6. HTTPS WITH CERTBOT (LET’S ENCRYPT)
---------------------------------------------------------------------
-
- A. Install Certbot:
-
-   apt install certbot python3-certbot-nginx -y
-
- B. Obtain Certificates:
-
-   certbot --nginx -d gesturelabs.org -d www.gesturelabs.org
-
- C. Verify HTTPS:
-
-   curl -I https://gesturelabs.org
-
---------------------------------------------------------------------
- 7. CERTIFICATE RENEWAL
---------------------------------------------------------------------
-
- A. Test Renewal:
-
-   certbot renew --dry-run
-
- B. Confirm Auto-Renewal Timer:
-
-   systemctl list-timers | grep certbot
+/opt/a3cp-app/ ← Cloned repo
+/opt/a3cp-env/ ← Python virtualenv
+/etc/systemd/system/ ← Contains a3cp-gunicorn.service
+/etc/nginx/sites-available/ ← Nginx config
 
 
-# A3CP Deployment: Essential Service Commands
+====================================================================
+ ENVIRONMENT VARIABLES (.env.production)
+====================================================================
 
-These are the three main commands for managing the A3CP deployment services:
+This file must exist on the server but is never committed.
 
-1. Restart Gunicorn (Django app server)
---------------------------------------------------
+Example:
+
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=a3cp
+DB_USER=a3cp_user
+DB_PASSWORD=example_password
+DB_HOST=localhost
+DB_PORT=5432
+
+SECRET_KEY=***
+DEBUG=False
+ALLOWED_HOSTS=gesturelabs.org,www.gesturelabs.org
+
+
+====================================================================
+ MANUAL SERVICE COMMANDS
+====================================================================
+
+Use these after SSHing into the VPS:
+
+sudo systemctl restart a3cp-gunicorn ← Restart Django app
+sudo systemctl restart nginx ← Restart web server
+sudo systemctl status a3cp-gunicorn ← View app logs
+
+
+====================================================================
+ ROLLBACK PROCEDURE (PLANNED)
+====================================================================
+
+For now:
+
+cd /opt/a3cp-app
+git reset --hard <previous_commit>
 sudo systemctl restart a3cp-gunicorn
 
-Use this when:
-- You change Python code (e.g., views.py, models.py, settings.py)
-- You install new Python packages
-- You want to restart the Django app without rebooting the server
 
-2. Check Gunicorn Status
---------------------------------------------------
-systemctl status a3cp-gunicorn
+Script `scripts/rollback.sh` is under development.
 
-Use this to:
-- See if the Django app server is running
-- Check for errors or recent logs from Gunicorn
-- Verify that a restart was successful
+====================================================================
+ LOCAL DEV NOTES
+====================================================================
 
-3. Restart Nginx (Web server / reverse proxy)
---------------------------------------------------
-sudo systemctl restart nginx
+- Use `.env.development` locally
+- Never use `runserver` in production
+- Use `./scripts/dev.sh <command>` to safely run Django CLI tools on production server
 
-Use this when:
-- You change the Nginx configuration (e.g., `/etc/nginx/sites-available/`)
-- You want to reload static files or domains
-- You suspect issues with routing or SSL
+====================================================================
+ FASTAPI DEPLOYMENT (PLANNED)
+====================================================================
 
-Tip: After any command, check the app in the browser to confirm it's working.
+FastAPI app will serve `/api/infer/` on port `9000`.
 
---------------------------------------------------------------------
- 8. DEVELOPMENT NOTES
---------------------------------------------------------------------
+To prepare:
 
- A. Avoiding `runserver` for Core Development
+- Reserve port in Nginx
+- Add `fastapi.service` under systemd
+- Document in `docs/deploy/FastAPI.md`
 
- The Django development server (`python manage.py runserver`) is NOT used
- in A3CP development. This is intentional.
+====================================================================
+ CI STATUS AND TESTING
+====================================================================
 
- Many A3CP features (e.g., HTMX, HTTPS-only APIs, FastAPI endpoints,
- browser media access) behave differently or fail under local HTTP.
+- CI uses `.github/workflows/test.yml`
+- CI expects `.env.example.prod` for required variables
+- `.env.production` must exist on VPS
 
- For consistency, all development is done directly on the production-like
- VPS environment (Ubuntu + Gunicorn + Nginx + HTTPS).
+====================================================================
+ FUTURE IMPROVEMENTS
+====================================================================
 
- B. Use `scripts/dev.sh` Instead
-
- A helper script is provided to activate the Python virtual environment
- and safely use Django CLI tools.
-
- Example usage:
-
-   ./scripts/dev.sh migrate
-   ./scripts/dev.sh createsuperuser
-   ./scripts/dev.sh test
-   ./scripts/dev.sh shell
-
- This ensures a clean, repeatable setup using production paths and env.
-
- DO NOT use `python manage.py runserver` unless explicitly debugging.
-
-
-## Deployment Workflow (2025-06-05 Update)
-
-### Overview
-As of June 2025, deployment is handled via GitHub Actions and a GitHub App. Manual server development is deprecated.
-
-### Workflow Summary
-1. Developer commits locally and pushes to GitHub `main` (via PR and CI).
-2. GitHub Actions workflow (`.github/workflows/deploy.yml`) triggers.
-3. The workflow:
-   - Authenticates using the `A3CP Deployer` GitHub App.
-   - SSHs into the Hetzner VPS using a base64-encoded private key.
-   - Executes remote deployment script:
-     - `git pull`
-     - `pip install -r requirements.txt`
-     - `python manage.py migrate`
-     - `python manage.py collectstatic`
-     - `sudo systemctl restart a3cp-gunicorn`
-
-### Repository Secrets
-The following secrets must be present in the GitHub repo:
-- `GH_APP_ID`: GitHub App ID (integer)
-- `GH_APP_PRIVATE_KEY`: Base64-encoded `.pem` private key
-- `VPS_HOST`: IP or domain of production server
-- `VPS_USER`: SSH username (e.g., `deploy`)
-- `VPS_KEY`: Base64-encoded private SSH key with access to VPS
-
-### Notes
-- No manual SSH access is required for deployments.
-- Deployments are fully automated from GitHub `main` branch commits.
-- Deployment can fail silently if not monitored; alerting will be added later.
-
-
-
-### Usage
-SSH into the server and run:
-
-### Usage
-SSH into the server and run:
-
-
-This script should:
-- Reset repo to previous known-good commit
-- Restart application services
-
-**NOTE:** The script is not yet implemented.
-
----
-
-## Future Improvements
-- Add Slack/email notifications on deployment failure
-- Add automatic backup of current commit hash before redeploy
-- Versioned release tagging and rollback automation
-
-
----
-
-## Rollback Procedure (Planned)
-
-A simple rollback script is planned to allow reversion to the previous release in the event of a failure.
-
-### Path
-
-
-
---------------------------------------------------------------------
- 8. TO DO (POST-DEPLOYMENT)
---------------------------------------------------------------------
-
- - Clone Django + FastAPI codebase from GitHub
- - Set up FastAPI app to run on port 9000
- - Create systemd or supervisor service for FastAPI
- - Connect PostgreSQL or other database if needed
+- Add rollback automation
+- Add Slack/email failure alerts
+- Enable staging branch deployment
+- Add versioned release tags
 
 ====================================================================
  END OF DEPLOYMENT INSTRUCTIONS
 ====================================================================
-
-Let me know when you're ready to add deployment notes for the FastAPI
-inference app or database configuration.
