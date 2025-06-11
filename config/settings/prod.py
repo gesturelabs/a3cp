@@ -64,13 +64,8 @@ WSGI_APPLICATION = 'config.wsgi:application'
 
 # Database (PostgreSQL)
 db_engine = os.getenv("DB_ENGINE")
-
 if not db_engine:
-    if os.getenv("GITHUB_ACTIONS") == "true":
-        # Fallback to dummy default for CI runs
-        db_engine = "django.db.backends.sqlite3"
-    else:
-        raise RuntimeError("Missing DB_ENGINE in .env — check your database config.")
+    raise RuntimeError("Missing DB_ENGINE in .env — PostgreSQL is required.")
 
 
 DATABASES = {
