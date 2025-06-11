@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_USER: str
     DB_PASSWORD: str
-    UVICORN_PORT: int = 8001  # fallback defaults
+    UVICORN_PORT: int = 8001
     GUNICORN_PORT: int = 8000
 
     class Config:

@@ -11,8 +11,11 @@ Maintainer: Dmitri Katz
 
 ## [0.1.1] - 2025-06-11
 
-### Added
-- `pyrightconfig.json` added to silence expected `.env` warnings in VS Code (Settings from Pydantic)
+### Refactor
+- Consolidated FastAPI environment configuration under `api/settings.py`
+- Implemented `get_settings()` with Pydantic `BaseSettings` and `.env` loading
+- Removed all direct `os.getenv` usage from FastAPI modules
+- Ensured Pyright/Pylance compatibility with `pyrightconfig.json`
 
 ### Changed
 - Unified FastAPI `Settings()` instantiation with `.env` loading
