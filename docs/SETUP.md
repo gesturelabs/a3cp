@@ -16,12 +16,14 @@ dependencies, environment variables, and useful scripts.
 Note: SSH key access is required. Ask an admin to add your key.
 
 ------------------------------------------------------------
- 2. PYTHON VIRTUAL ENVIRONMENT
+ 2. PYTHON ENVIRONMENT
 ------------------------------------------------------------
 
-A virtual environment isolates your Python dependencies.
+----------------------------
+ Server (Hetzner)
+----------------------------
 
-To activate the environment (after logging into the server):
+Activate the server environment:
 
     source /opt/a3cp-env/bin/activate
 
@@ -29,18 +31,25 @@ To deactivate:
 
     deactivate
 
-You must activate the virtualenv before running:
+----------------------------
+ Local (Recommended)
+----------------------------
 
-    - python manage.py ...
-    - pip install ...
-    - pytest
-    - scripts/dev.sh
+Use a virtual environment:
 
-If the environment does not exist yet (rare):
+    python3 -m venv .venv
+    source .venv/bin/activate
 
-    python3 -m venv /opt/a3cp-env
-    source /opt/a3cp-env/bin/activate
+Install dependencies:
+
     pip install -r requirements.txt
+
+You can work without a virtualenv, but this is discouraged.
+
+To deactivate:
+
+    deactivate
+
 
 ------------------------------------------------------------
  3. ENVIRONMENT VARIABLES
@@ -74,21 +83,42 @@ To freeze current packages into the requirements file:
 
     pip freeze > requirements.txt
 
+
 ------------------------------------------------------------
- 5. RUNNING THE DJANGO DEVELOPMENT SERVER
+ 4. RUNNING THE SERVER
 ------------------------------------------------------------
 
-Usually this is done on the live Hetzner instance for now.
+----------------------------
+ Locally
+----------------------------
 
-You can run locally (if needed):
+Run the Django dev server:
 
     python manage.py runserver
 
-Or use the development script (for production-like settings):
+Or use the wrapper script:
 
     ./scripts/dev.sh
 
-Note: HTTPS-only features may not behave correctly in local dev.
+Local URLs:
+    Django: http://localhost:8000
+    FastAPI (if running): http://localhost:9000
+
+Note: HTTPS-only logic may break locally.
+
+----------------------------
+ Production (Admins Only)
+----------------------------
+
+To check service status:
+
+    sudo systemctl status a3cp-gunicorn
+
+To restart services:
+
+    sudo systemctl restart a3cp-gunicorn
+    sudo systemctl restart nginx
+
 
 ------------------------------------------------------------
  6. GIT WORKFLOW
@@ -96,13 +126,14 @@ Note: HTTPS-only features may not behave correctly in local dev.
 
 Typical flow:
 
-    git pull origin main
+    git checkout -b feat/your-feature
     # make changes
     git add .
-    git commit -m "Your message here"
-    git push origin main
+    git commit -m "Describe your change"
+    git push origin feat/your-feature
+    # Open a pull request into `main`
 
-Only push to `main` if your code passes local checks.
+Never push directly to `main`.
 
 ------------------------------------------------------------
  7. TESTING
@@ -112,23 +143,29 @@ Run unit tests with:
 
     pytest
 
-Coverage reporting and CI will be added later.
+More structured coverage and CI integration is planned.
 
 ------------------------------------------------------------
- 8. TROUBLESHOOTING
+ 8. SIMULATED MESSAGE TESTING
 ------------------------------------------------------------
 
-Check Gunicorn status (if running live):
+You can simulate message input without deploying live:
 
-    systemctl status a3cp-gunicorn
+    python scripts/simulate_contextual_profiler.py
 
-Restart Gunicorn:
+This is useful for testing modules like the LLM Profiler offline.
 
-    systemctl restart a3cp-gunicorn
+------------------------------------------------------------
+ 9. TROUBLESHOOTING (FOR ADMINS)
+------------------------------------------------------------
 
-Restart Nginx:
+If working on the production server:
 
-    systemctl restart nginx
+    systemctl status a3cp-gunicorn     # View Django service status
+    systemctl restart a3cp-gunicorn    # Restart Django app
+    systemctl restart nginx            # Restart web server
+
+Only use these if explicitly permitted.
 
 ------------------------------------------------------------
  MAINTAINED BY: gesturelabs.org team

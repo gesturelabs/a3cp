@@ -1,5 +1,57 @@
 # CHANGELOG.md
 
+============================================================
+ A3CP CHANGELOG — Infrastructure + Dev Flow (2025-06-10)
+============================================================
+
+Tag: v0.2.1-dev
+Date: 2025-06-10
+Maintainer: Dmitri Katz
+
+------------------------------------------------------------
+ ✅ Revisions to Dev Workflow and Contributor Guide
+------------------------------------------------------------
+
+- Rewrote DEV_WORKFLOW.md as a simplified contributor guide:
+  - Removed staging branch references
+  - Clarified local testing process
+  - Emphasized CI/CD as the sole deploy path
+  - Added structured module development flow
+
+------------------------------------------------------------
+ ✅ Revisions to setup.md
+------------------------------------------------------------
+
+- Updated virtual environment section to reflect server-only usage
+- Rewrote local dev instructions for clarity
+- Added FastAPI local URLs to dev server notes
+- Added simulated message script usage for offline testing
+- Clarified Git branching and PR policy
+
+------------------------------------------------------------
+ ✅ Sprint 1 Backlog Reconciliation
+------------------------------------------------------------
+
+- Compared current Sprint 1 backlog to real infrastructure needs
+- Identified missing items and added:
+  - Fix for CI `ImportError` (FastAPI settings import)
+  - `.env.test` for FastAPI smoke testing
+  - Latency script (`scripts/test_comm_latency.py`)
+  - FastAPI port env vars (`UVICORN_PORT`) in `.env.example`
+  - Optional Makefile/script improvements
+  - Nginx example config block for FastAPI
+
+------------------------------------------------------------
+ ✅ Finalized Scope for Sprint 1
+------------------------------------------------------------
+
+- Reviewed and validated that all current tasks are aligned
+- Determined new items are minor but high-leverage
+- No further restructuring needed — ready to implement
+
+============================================================
+ END OF CHANGELOG
+============================================================
 
 
 ## [2025-06-05] Deployment CI Setup and Documentation Overhaul
@@ -21,7 +73,7 @@
 - GitHub Actions deployment workflow now supports end-to-end CI/CD via GitHub App and server-side SSH keys.
 - Direct `main` pushes are rejected unless passing CI and following workflow rules.
 - Staging pipeline planned as next step, with FastAPI service integration pending.
-
+-CI 
 
 
 ## [2025-06-05] A3CP Deployment: Gunicorn + Nginx + Static Files
@@ -79,7 +131,7 @@ Completed server-side production deployment of A3CP Django app using Gunicorn an
 ### Outstanding
 - [ ] PostgreSQL integration incomplete (Django cannot connect)
 - [ ] Add simple rollback command (`rollback.sh`) for production
-- [ ] Document `deploy.yml` and GitHub App install/config process
+- [ x] Document `deploy.yml` and GitHub App install/config process
 - [ ] Improve `prod.py` and `.env` PostgreSQL configuration
 - [ ] Add notification or fallback for failed deployments
 

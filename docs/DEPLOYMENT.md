@@ -133,9 +133,8 @@ To prepare:
  FUTURE IMPROVEMENTS
 ====================================================================
 
-- Add rollback automation
+- Rollback is currently manual. A rollback script is planned but not required for MVP.
 - Add Slack/email failure alerts
-- Enable staging branch deployment
 - Add versioned release tags
 
 ====================================================================
