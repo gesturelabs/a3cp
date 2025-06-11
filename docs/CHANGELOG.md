@@ -1,6 +1,67 @@
 # CHANGELOG.md
 
 
+============================================================
+ A3CP CHANGELOG — Infrastructure + Dev Flow (2025-06-10)
+============================================================
+
+Tag: v0.2.1-dev
+Date: 2025-06-10
+Maintainer: Dmitri Katz
+## [Unreleased]
+
+### Changed
+- Updated `.github/workflows/ci.yml` to use Postgres in CI with secrets for DB credentials.
+- Set up `fix/postgres-requirement` branch to satisfy new GitHub repository rules (PRs required for main).
+- Ensured `.env` is parsed via `load_dotenv()` in `config/settings/prod.py`.
+
+### Fixed
+- Prevented CI fallback to SQLite by enforcing presence of `DB_ENGINE` or CI-specific override.
+
+------------------------------------------------------------
+ ✅ Revisions to Dev Workflow and Contributor Guide
+------------------------------------------------------------
+
+- Rewrote DEV_WORKFLOW.md as a simplified contributor guide:
+  - Removed staging branch references
+  - Clarified local testing process
+  - Emphasized CI/CD as the sole deploy path
+  - Added structured module development flow
+
+------------------------------------------------------------
+ ✅ Revisions to setup.md
+------------------------------------------------------------
+
+- Updated virtual environment section to reflect server-only usage
+- Rewrote local dev instructions for clarity
+- Added FastAPI local URLs to dev server notes
+- Added simulated message script usage for offline testing
+- Clarified Git branching and PR policy
+
+------------------------------------------------------------
+ ✅ Sprint 1 Backlog Reconciliation
+------------------------------------------------------------
+
+- Compared current Sprint 1 backlog to real infrastructure needs
+- Identified missing items and added:
+  - Fix for CI `ImportError` (FastAPI settings import)
+  - `.env.test` for FastAPI smoke testing
+  - Latency script (`scripts/test_comm_latency.py`)
+  - FastAPI port env vars (`UVICORN_PORT`) in `.env.example`
+  - Optional Makefile/script improvements
+  - Nginx example config block for FastAPI
+
+------------------------------------------------------------
+ ✅ Finalized Scope for Sprint 1
+------------------------------------------------------------
+
+- Reviewed and validated that all current tasks are aligned
+- Determined new items are minor but high-leverage
+- No further restructuring needed — ready to implement
+
+============================================================
+ END OF CHANGELOG
+============================================================
 
 
 ## [2025-06-04] GitHub App-Based Auto-Deploy Pipeline Operational
