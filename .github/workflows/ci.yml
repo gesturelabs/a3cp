@@ -21,8 +21,21 @@ jobs:
       SECRET_KEY: dummy-key-for-ci
       DEBUG: "False"
 
-      
-    
+  
+    services:
+      postgres:
+        image: postgres:13
+        ports: ['5432:5432']
+        env:
+          POSTGRES_DB: a3cp
+          POSTGRES_USER: a3cp_admin
+          POSTGRES_PASSWORD:  ${{ secrets.DB_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+  
 
     steps:
       - name: Checkout Code
@@ -37,7 +50,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
+
       - name: Print environment for debugging
         run: env | sort
 
