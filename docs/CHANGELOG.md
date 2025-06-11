@@ -2,13 +2,35 @@
 
 
 ============================================================
- A3CP CHANGELOG — Infrastructure + Dev Flow (2025-06-10)
+ A3CP CHANGELOG — Infrastructure + Dev Flow (2025-06-11)
 ============================================================
 
 Tag: v0.2.1-dev
-Date: 2025-06-10
+Date: 2025-06-11
 Maintainer: Dmitri Katz
 ## [Unreleased]
+
+## [Unreleased] – 2025-06-11
+
+### Infrastructure
+
+- CI/CD: Restored GitHub Actions pipeline with PostgreSQL service and secret-based `DB_PASSWORD`.
+- Dependency: Added `python-dotenv` to `requirements.txt` for `.env` support in local/dev environments.
+- Branch Protections: Resolved merge block by adding `admin` to GitHub ruleset bypass list.
+- Git Workflow: Rebased and synchronized `main` after push was rejected due to divergence.
+- Validation: Verified presence of `ci.yml`, placeholder test suite, and working `pytest` setup.
+
+### Recovery
+
+- ⚠️ `.env` file was overwritten during branch switch; **actual project secrets not yet recovered**.
+- Restored `.env.example` and confirmed version tracking for `.env.example.prod`.
+- Manually reconstructed some local files; further recovery required for production `.env`.
+
+### Documentation
+
+- Versioning: Ensured `.env.example.prod` and `DEPLOYMENT.md` are committed.
+- Logs: Documented merge flow issues, GitHub secret setup, and local environment inconsistencies.
+
 
 ### Changed
 - Updated `.github/workflows/ci.yml` to use Postgres in CI with secrets for DB credentials.
