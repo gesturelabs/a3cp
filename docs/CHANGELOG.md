@@ -9,6 +9,23 @@ Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [0.1.1] - 2025-06-11
+
+### Added
+- `pyrightconfig.json` added to silence expected `.env` warnings in VS Code (Settings from Pydantic)
+
+### Changed
+- Unified FastAPI `Settings()` instantiation with `.env` loading
+- CI fixed by ensuring `get_settings()` is available and structured
+- PostgreSQL dev server restored and verified via `psql`
+- `.env` file restored and values verified (including `DB_PASSWORD`, `SECRET_KEY`)
+
+### Fixed
+- VS Code Pylance warning about missing Settings arguments
+- CI import error related to missing or mislocated settings modules
+
+
+
 ## [2025-06-11] – Local .env Integration Complete
 
 ### Fixed
