@@ -10,7 +10,7 @@ import os
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # go up to project root
 # Load from .env in the project root
-load_dotenv(dotenv_path=BASE_DIR / ".env") 
+load_dotenv(dotenv_path=BASE_DIR / ".env", override=False)
 
 
 # Core settings
