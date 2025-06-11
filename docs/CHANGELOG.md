@@ -8,6 +8,17 @@ Tag: v0.2.1-dev
 Date: 2025-06-10
 Maintainer: Dmitri Katz
 
+## [Unreleased]
+
+### Changed
+- Updated `.github/workflows/ci.yml` to use Postgres in CI with secrets for DB credentials.
+- Set up `fix/postgres-requirement` branch to satisfy new GitHub repository rules (PRs required for main).
+- Ensured `.env` is parsed via `load_dotenv()` in `config/settings/prod.py`.
+
+### Fixed
+- Prevented CI fallback to SQLite by enforcing presence of `DB_ENGINE` or CI-specific override.
+
+
 ------------------------------------------------------------
  ✅ Revisions to Dev Workflow and Contributor Guide
 ------------------------------------------------------------
