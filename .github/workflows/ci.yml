@@ -10,8 +10,32 @@ on:
 
 jobs:
   build-and-test:
-    name: Django & Pytest CI
     runs-on: ubuntu-latest
+    env:
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: a3cp
+      DB_USER: a3cp_admin
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      SECRET_KEY: dummy-key-for-ci
+      DEBUG: "False"
+
+  
+    services:
+      postgres:
+        image: postgres:13
+        ports: ['5432:5432']
+        env:
+          POSTGRES_DB: a3cp
+          POSTGRES_USER: a3cp_admin
+          POSTGRES_PASSWORD:  ${{ secrets.DB_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+  
 
     steps:
       - name: Checkout Code
@@ -26,6 +50,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Print environment for debugging
+        run: env | sort
 
       - name: Run Django system check
         run: |

@@ -10,10 +10,7 @@ import os
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # go up to project root
 # Load from .env in the project root
-load_dotenv(dotenv_path=BASE_DIR / ".env") 
-
-print("DEBUG:", os.getenv("DEBUG"))
-print("DB_ENGINE:", os.getenv("DB_ENGINE"))
+load_dotenv(dotenv_path=BASE_DIR / ".env", override=False)
 
 
 # Core settings
@@ -63,9 +60,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi:application'
 
 # Database (PostgreSQL)
-db_engine = os.getenv("DB_ENGINE")
+db_engine = os.getenv("DB_ENGINE") or os.environ.get("DB_ENGINE")
 if not db_engine:
-    raise RuntimeError("Missing DB_ENGINE in .env — check your database config.")
+    raise RuntimeError("Missing DB_ENGINE — set it in .env or CI environment variables.")
+
 
 DATABASES = {
     'default': {

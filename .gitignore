@@ -25,3 +25,20 @@ db.sqlite3
 
 # Local virtual environment
 a3cp-env/
+private-key.b64
+
+
+# Deployment configs — ALLOW tracked versions
+!config/settings/prod.py
+!systemd/
+!nginx/
+
+
+
+# Deployment: server-generated content
+/staticfiles/
+/media/
+/local_settings.py
+/deploy/
+/opt/a3cp-app/
+/opt/a3cp-env/
