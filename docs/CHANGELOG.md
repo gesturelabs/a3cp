@@ -8,7 +8,19 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
-## [Unreleased]
+
+## [2025-06-11] – Local .env Integration Complete
+
+### Fixed
+- Resolved local `.env` loading for Django dev and VS Code tools.
+- Verified `DB_PASSWORD` and other secrets now accessible via `load_dotenv()` in `config/settings/prod.py`.
+- Confirmed `python manage.py migrate --settings=config.settings.prod` executes cleanly using Homebrew PostgreSQL.
+- `.env` is now dev-usable and properly ignored from version control.
+
+### Added
+- Created `.env` manually in VS Code with correct credentials.
+- Verified local database shell access via `manage.py dbshell`.
+- Ensured `.env.example.prod` is tracked in Git for CI and contributor onboarding.
 
 ## [Unreleased] – 2025-06-11
 
