@@ -11,6 +11,17 @@ Maintainer: Dmitri Katz
 
 ## [0.1.1] - 2025-06-11
 
+## [Unreleased]
+
+### Infra
+- Unified FastAPI settings via `api/settings.py` using `get_settings()`
+- Added `pyrightconfig.json` to suppress false-positive Pylance errors for env vars
+- Verified `api/main.py` pulls settings correctly without duplication
+- Structured `api/main.py` to support multiple entrypoints:
+  - Production: `gunicorn -k uvicorn.workers.UvicornWorker api.main:app`
+  - Development: `python api/main.py` or `uvicorn api.main:app --reload`
+
+
 ### Refactor
 - Consolidated FastAPI environment configuration under `api/settings.py`
 - Implemented `get_settings()` with Pydantic `BaseSettings` and `.env` loading
