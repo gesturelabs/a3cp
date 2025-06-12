@@ -8,6 +8,19 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [0.1.1] - 2025-06-12
+### Added
+- `/api/sound/infer/` endpoint for sound-based intent classification
+- `api/schemas/sound_infer.py` defining A3CPMessage schema for modality='sound'
+- Test coverage in `tests/api/test_sound_infer.py` using `@pytest.mark.anyio`
+- Mounted `sound_infer.router` in `api.main`
+
+### Notes
+- Current implementation returns a placeholder response
+- Follows same structure as `gesture_infer` for consistency
+
+
+
 ## [Feature] Add `/api/gesture/infer/` stub endpoint returning dummy A3CPMessage
 
 - ID: API002  

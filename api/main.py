@@ -3,12 +3,14 @@ from api.settings import get_settings
 from api.routes.inference import router as inference_router
 from api.routes.streamer import router as streamer_router
 from api.routes import gesture_infer
+from api.routes import sound_infer
 
 settings = get_settings()
 app = FastAPI(title="A3CP Inference API", version="0.1.0")
 app.include_router(inference_router, prefix="/api")
 app.include_router(streamer_router, prefix="/api")
 app.include_router(gesture_infer.router, prefix="/api")
+app.include_router(sound_infer.router, prefix="/api") 
 
 
 if __name__ == "__main__":
