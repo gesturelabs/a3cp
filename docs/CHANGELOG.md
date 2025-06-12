@@ -8,6 +8,28 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [Feature] Add `/api/gesture/infer/` stub endpoint returning dummy A3CPMessage
+
+- ID: API002  
+- Date: 2025-06-12  
+- Scope: api.routes.gesture_infer, api.main, tests/api
+
+### Summary  
+Stub endpoint `/api/gesture/infer/` returns a dummy A3CPMessage-compatible JSON response.  
+Prepares groundwork for integrating the gesture classification model.
+
+### Changes  
+- Added `gesture_infer.py` route handler with `@router.post("/gesture/infer/")`
+- Mounted in `api.main` via `app.include_router(gesture_infer.router, prefix="/api")`
+- Wrote test module `test_gesture_infer.py` covering:
+  - HTTP 200 status response
+  - Expected A3CPMessage fields present in response
+  - Confidence scores in classifier_output are between 0.0 and 1.0
+- Set `pythonpath = .` in `pytest.ini` to simplify local test execution
+
+### Notes  
+- No real model inference yet — response is hardcoded  
+- Next step: load user-specific model and return real predictions
 
 ## [Fix] Pydantic v2 compliance and test import resolution
 
