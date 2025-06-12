@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from api.settings import get_settings
 from api.routes.inference import router as inference_router
+from api.routes.streamer import router as streamer_router
 
 settings = get_settings()
 app = FastAPI(title="A3CP Inference API", version="0.1.0")
-
 app.include_router(inference_router, prefix="/api")
+app.include_router(streamer_router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn

@@ -12,6 +12,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     env:
+      PYTHONPATH: .
       DB_ENGINE: django.db.backends.postgresql
       DB_NAME: a3cp
       DB_USER: a3cp_admin

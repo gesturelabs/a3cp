@@ -2,12 +2,67 @@
 
 
 ============================================================
- A3CP CHANGELOG — Infrastructure + Dev Flow (2025-06-11)
+ A3CP CHANGELOG — Infrastructure + Dev Flow 
 ============================================================
 
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+## [Fix] Pydantic v2 compliance and test import resolution
+
+- ID: DEV002
+- Date: 2025-06-12
+- Scope: settings, schemas, test infrastructure, CI
+
+### Summary
+Resolved `ValidationError` and `ModuleNotFoundError` during test runs caused by stricter validation rules in Pydantic v2 and missing module resolution under `pytest`.
+
+### Changes
+- Replaced deprecated `class Config` with `model_config = SettingsConfigDict(...)` in `api/settings.py`
+- Updated `RawInput` schema to use `model_config = ConfigDict(...)` and renamed `schema_extra` to `json_schema_extra`
+- Confirmed all Pydantic settings and schemas are v2-compliant
+- Removed invalid `pytest.ini` that included unsupported keys
+- Added `PYTHONPATH=.` requirement to run tests successfully
+- Verified no other use of deprecated `class Config` exists via recursive grep
+
+### DevOps
+- Updated CI pipeline to set `PYTHONPATH=.` at the job level
+- Validated `api.main` imports resolve during CI and local runs
+- Added documentation for testing procedure in `TESTING.md`
+
+### Notes
+- No functional changes to app logic or database interaction
+- Project is now stable under Pydantic 2.11.5 with clean test execution in both local and CI environments
+
+
+
+## [Feature] Add `/api/streamer/` endpoint for raw input simulation
+
+- ID: API001
+- Date: 2025-06-11
+- Scope: api.streamer, schemas, tests/api
+
+### Summary
+Simulated POST endpoint `/api/streamer/` added to accept raw gesture/audio input with validation.
+
+### Changes
+- `StreamerInputSchema` added under `api/schemas/streamer.py`
+- Endpoint mounted in `api/routes/streamer.py`
+- Included in FastAPI app via `main.py`
+- Basic test added at `tests/api/test_streamer.py` using httpx
+- Fields: `user_id`, `session_id`, `timestamp`, `modality`, `intent_label`, `consent_given`
+- Returns echo of validated input (mock behavior)
+
+### DevOps
+- `pytest.ini`: added `pythonpath = .`
+- Installed `httpx` for test client
+
+### Notes
+- No DB writes yet
+- Placeholder for future input capture logic
+
+
 
 ## [0.1.1] - 2025-06-11
 
