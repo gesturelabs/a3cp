@@ -1,3 +1,5 @@
+#scripts/dev.sh
+
 #!/bin/bash
 set -e
 

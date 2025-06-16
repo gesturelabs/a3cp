@@ -68,12 +68,30 @@ renewal.
            include proxy_params;
        }
 
-       location /api/infer/ {
-           proxy_pass http://127.0.0.1:9000;
-           include proxy_params;
-       }
+      # Proxy all FastAPI routes (e.g., /api/sound/infer/, /api/gesture/infer/)
+      location /api/ {
+          proxy_pass http://127.0.0.1:9000;
+          include proxy_params;
+          proxy_redirect off;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+          proxy_set_header Host $host;
+      }
+
    }
 
+
+FastAPI Reverse Proxy Notes:
+
+    The FastAPI app runs on port 9000 and exposes routes like /api/sound/infer/, /api/gesture/infer/, etc.
+
+    The /api/ location block proxies all such requests to the inference server.
+
+    proxy_redirect off and the upgrade headers ensure compatibility with future websocket-based endpoints (e.g., live input streaming).
+
+    The proxy_pass target must match the bind address of the FastAPI process (default is 127.0.0.1:9000 if using uvicorn or gunicorn -k uvicorn.workers.UvicornWorker).
+    
  Restart Nginx:
 
    systemctl restart nginx

@@ -8,6 +8,23 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+
+
+## [0.2.2-dev] - 2025-06-16
+### Added
+- `scripts/manage.sh` script to centralize common dev tasks (e.g., `dev-api`, `dev-django`, `test`, `lint`, `format`)
+- FastAPI `/openapi.json` smoke test in `test_main_smoke.py` to validate app import and route readiness
+- Nginx configuration example for routing all `/api/` traffic to FastAPI (port 9000) in `docs/DEPLOYMENT.md`
+
+### Deferred
+- Latency test for `/api/feedback/` moved to backlog, pending endpoint implementation and route exposure
+
+### Notes
+- `scripts/manage.sh` reads `.env` automatically to support port configuration (`UVICORN_PORT`, `GUNICORN_PORT`)
+- Smoke test uses `ASGITransport` and validates `/openapi.json` returns 200 with expected structure
+- Nginx `/api/` block now replaces narrower `/api/infer/` example for broader route coverage
+
 ## [0.1.1] - 2025-06-12
 ### Added
 - `/api/sound/infer/` endpoint for sound-based intent classification
