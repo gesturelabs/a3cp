@@ -6,7 +6,7 @@ from api.schemas.gesture_infer import A3CPMessage, IntentCandidate
 
 router = APIRouter()
 
-@router.post("/gesture/infer/", response_model=A3CPMessage)
+@router.post("/infer/", response_model=A3CPMessage)
 async def infer_gesture():
     # Return dummy A3CPMessage (placeholder for model inference output)
     return A3CPMessage(

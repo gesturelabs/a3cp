@@ -7,7 +7,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-@router.post("/streamer/", summary="Simulate raw input capture")
+@router.post("/", summary="Simulate raw input capture")
 async def simulate_raw_input(data: RawInput):
     if not data.consent_given:
         raise HTTPException(status_code=403, detail="Consent is required for input capture.")

@@ -6,7 +6,7 @@ from api.schemas.sound_infer import A3CPMessage, IntentCandidate
 
 router = APIRouter()
 
-@router.post("/sound/infer/", response_model=A3CPMessage)
+@router.post("/infer/", response_model=A3CPMessage)
 async def infer_sound():
     # Return dummy A3CPMessage (placeholder for actual sound model inference)
     return A3CPMessage(
