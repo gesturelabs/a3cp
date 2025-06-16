@@ -1,3 +1,4 @@
+#api/main.py
 from fastapi import FastAPI
 from api.settings import get_settings
 from api.routes.inference import router as inference_router
