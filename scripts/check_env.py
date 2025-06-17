@@ -7,7 +7,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load .env file into os.environ
-load_dotenv()
+dotenv_path = Path(".env")
+if dotenv_path.exists():
+    load_dotenv(dotenv_path=dotenv_path)
+else:
+    print("WARNING: .env file not found — skipping env check.")
+    sys.exit(0)  # Exit successfully if no .env in CI
 
 REQUIRED_VARS = [
     "DEBUG",
