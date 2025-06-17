@@ -56,4 +56,3 @@ at the job level. This ensures that test imports work the same way in CI as they
 - `Settings` classes use `model_config = ConfigDict(...)` instead of `class Config`.
 - Extra environment variables are ignored via `extra = "ignore"`.
 - Required fields such as `SECRET_KEY`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` must be available in the environment or `.env`.
-

@@ -1,10 +1,13 @@
-from pydantic import BaseModel, Field
-from typing import List, Literal
 from datetime import datetime
+from typing import List, Literal
+
+from pydantic import BaseModel
+
 
 class IntentCandidate(BaseModel):
     label: str
     confidence: float
+
 
 class A3CPMessage(BaseModel):
     classifier_output: List[IntentCandidate]
@@ -22,7 +25,7 @@ class A3CPMessage(BaseModel):
                 "classifier_output": [
                     {"label": "need-help", "confidence": 0.87},
                     {"label": "pain", "confidence": 0.11},
-                    {"label": "bored", "confidence": 0.02}
+                    {"label": "bored", "confidence": 0.02},
                 ],
                 "record_id": "rec-audio-001",
                 "user_id": "user-xyz",
@@ -30,7 +33,7 @@ class A3CPMessage(BaseModel):
                 "timestamp": "2025-06-12T12:34:56.789Z",
                 "modality": "sound",
                 "source": "microphone",
-                "vector": "vector-uuid-001"
+                "vector": "vector-uuid-001",
             }
         }
     }

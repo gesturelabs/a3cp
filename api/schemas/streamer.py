@@ -1,9 +1,10 @@
 # api/schemas/streamer.py
 
-from pydantic import BaseModel, Field
-from pydantic.config import ConfigDict
-from typing import Literal, Optional, List
 from datetime import datetime
+from typing import List, Literal, Optional
+
+from pydantic import BaseModel
+from pydantic.config import ConfigDict
 
 
 class RawInput(BaseModel):
@@ -27,7 +28,7 @@ class RawInput(BaseModel):
                 "source": "webcam",
                 "intent_label": "want-drink",
                 "consent_given": True,
-                "raw_input_video": [0.1, 0.2, 0.3, 0.4]
+                "raw_input_video": [0.1, 0.2, 0.3, 0.4],
             }
         }
     )

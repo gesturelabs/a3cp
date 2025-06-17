@@ -8,6 +8,17 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [0.2.3-dev] - 2025-06-17
+### Fixed
+- Resolved `ModuleNotFoundError` for `fastapi` and `pydantic_settings` by updating virtual environment dependencies.
+- Installed `pydantic-settings>=2.0,<3.0` to support Pydantic v2 settings API.
+- Verified `fastapi`, `uvicorn`, and all schema dependencies are installed and test-compatible.
+- All tests (`test_main_smoke.py`, `test_gesture_infer.py`, etc.) now pass cleanly in `.venv`.
+
+### DevOps
+- Ensured `.venv` is active and isolated from Anaconda conflicts.
+- Added `pydantic-settings` to `requirements-dev.txt` for consistency.
+
 
 ## [2025-06-16] CI/CD: Restore Reliable GitHub → Hetzner Deployment
 

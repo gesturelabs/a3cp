@@ -1,6 +1,6 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
-from datetime import datetime
+from httpx import ASGITransport, AsyncClient
+
 from api.main import app
 
 
@@ -9,7 +9,7 @@ async def test_sound_infer_stub():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.post("/api/sound/infer/")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "classifier_output" in data

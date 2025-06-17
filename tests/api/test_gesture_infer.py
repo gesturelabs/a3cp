@@ -1,7 +1,8 @@
 # tests/api/test_gesture_infer.py
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
+
 from api.main import app
 
 
@@ -11,6 +12,7 @@ async def test_infer_returns_200():
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.post("/api/gesture/infer/")
     assert response.status_code == 200
+
 
 @pytest.mark.anyio
 async def test_infer_returns_expected_fields():
@@ -27,7 +29,7 @@ async def test_infer_returns_expected_fields():
         "timestamp",
         "modality",
         "source",
-        "vector"
+        "vector",
     }
 
     assert expected_keys.issubset(data.keys())

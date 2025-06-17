@@ -75,4 +75,3 @@ Community involvement is welcome under academic, nonprofit, or personal-use scop
 - Lead Developer: Dmitri Katz (`dmitrikatz23@gmail.com`)
 - Maintainer: [GestureLabs e.V.](https://gesturelabs.org)
 - Affiliated Institutions: The Open University, JKU Linz
-

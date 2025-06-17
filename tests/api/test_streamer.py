@@ -1,10 +1,13 @@
 # tests/api/test_streamer.py
 
-from fastapi.testclient import TestClient
-from api.main import app
 import datetime
 
+from fastapi.testclient import TestClient
+
+from api.main import app
+
 client = TestClient(app)
+
 
 def test_streamer_valid_input():
     payload = {
@@ -15,7 +18,7 @@ def test_streamer_valid_input():
         "source": "webcam",
         "intent_label": "hello",
         "consent_given": True,
-        "raw_input_video": [0.1, 0.2, 0.3, 0.4]
+        "raw_input_video": [0.1, 0.2, 0.3, 0.4],
     }
     response = client.post("/api/streamer/", json=payload)
     assert response.status_code == 200
@@ -24,6 +27,7 @@ def test_streamer_valid_input():
     assert data["record_id"].startswith("rec-")
     assert data["modality"] == "gesture"
     assert data["input_size"] == 4
+
 
 def test_streamer_rejects_without_consent():
     payload = {
@@ -34,7 +38,7 @@ def test_streamer_rejects_without_consent():
         "source": "mic",
         "intent_label": "help",
         "consent_given": False,
-        "raw_input_audio": [0.1, 0.2]
+        "raw_input_audio": [0.1, 0.2],
     }
     response = client.post("/api/streamer/", json=payload)
     assert response.status_code == 403

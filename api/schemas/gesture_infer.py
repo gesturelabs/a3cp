@@ -1,12 +1,15 @@
 # api/schemas/gesture_infer.py
 
-from pydantic import BaseModel, Field
-from typing import List, Literal
 from datetime import datetime
+from typing import List, Literal
+
+from pydantic import BaseModel
+
 
 class IntentCandidate(BaseModel):
     label: str
     confidence: float
+
 
 class A3CPMessage(BaseModel):
     classifier_output: List[IntentCandidate]
@@ -23,7 +26,7 @@ class A3CPMessage(BaseModel):
             "example": {
                 "classifier_output": [
                     {"label": "want-drink", "confidence": 0.92},
-                    {"label": "need-help", "confidence": 0.07}
+                    {"label": "need-help", "confidence": 0.07},
                 ],
                 "record_id": "rec-12345",
                 "user_id": "user-abc",
@@ -31,7 +34,7 @@ class A3CPMessage(BaseModel):
                 "timestamp": "2025-06-12T12:34:56.789Z",
                 "modality": "gesture",
                 "source": "simulator",
-                "vector": "vector-uuid-001"
+                "vector": "vector-uuid-001",
             }
         }
     }

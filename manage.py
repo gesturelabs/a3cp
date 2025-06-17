@@ -3,14 +3,17 @@
 import os
 import sys
 from pathlib import Path
+
 sys.path.append(str(Path(__file__).resolve().parent))
-sys.path.append(str(Path(__file__).resolve().parent / 'apps'))
+sys.path.append(str(Path(__file__).resolve().parent / "apps"))
+
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     try:
         from django.core.management import execute_from_command_line
+
         execute_from_command_line(sys.argv)
     except ImportError as exc:
         raise ImportError(
@@ -18,8 +21,7 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
