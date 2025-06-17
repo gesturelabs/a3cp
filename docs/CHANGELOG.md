@@ -9,6 +9,38 @@ Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2025-06-16] CI/CD: Restore Reliable GitHub → Hetzner Deployment
+
+**Fixed:** Production server at Hetzner (`/opt/a3cp-app`) was out of sync with GitHub `main` despite functioning CI pipeline. Manual edits to server config had diverged the Git history, causing `git pull` to silently fail during deploy.
+
+**Changes:**
+
+- Ran `git fetch && git reset --hard origin/main` on Hetzner to force realignment with GitHub.
+- Verified missing files (`api/routes/sound_infer.py`) now present.
+- Reinstalled Python requirements and ran `migrate` to ensure app consistency.
+- Restarted `gunicorn` to apply changes.
+
+**Improvements:**
+
+- `.env.example`: Added missing deployment port variables:
+  - `GUNICORN_PORT=8000`
+  - `UVICORN_PORT=8001`
+- `.github/workflows/deploy.yml`: Verified correct steps for:
+  - `git pull origin main`
+  - Dependency install
+  - DB migration
+  - Static collection
+  - Gunicorn restart
+
+**SSH Key Fix:**
+
+- Git push requested SSH passphrase unexpectedly.
+- Diagnosed via `ssh-add -l` showing “The agent has no identities.”
+- Fixed by running `ssh-add --apple-use-keychain ~/.ssh/github_a3cp_dev_ed25519`.
+- Updated `~/.ssh/config` with:
+  ```ssh
+  AddKeysToAgent yes
+  UseKeychain yes
 
 
 ## [0.2.2-dev] - 2025-06-16
