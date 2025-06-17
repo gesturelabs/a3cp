@@ -59,9 +59,46 @@ This project is licensed under **[CC BY-NC 4.0](https://creativecommons.org/lice
 
 See `LICENSE` for full terms.
 
+
 ## 7. Contributing
 
-Community involvement is welcome under academic, nonprofit, or personal-use scopes. See `CONTRIBUTING.md` (upcoming) for guidelines on issue reporting, module contributions, and data compatibility.
+Community contributions are welcome, especially from those working in academic, nonprofit, or personal-use contexts.
+
+Before contributing, please ensure:
+
+- You are using the latest version of the repository.
+- Your code is clean, tested, and documented where appropriate.
+- You follow the project architecture and directory conventions.
+
+We enforce code quality using `pre-commit` hooks. These will automatically check formatting and linting before each commit.
+
+### Git Hook Setup
+
+1. Install developer dependencies:
+
+    pip install -r requirements-dev.txt
+
+2. Install pre-commit hooks:
+
+    pre-commit install
+
+This will enable automatic checks before every commit. The following tools are applied:
+
+- black: code formatting
+- ruff: linting and basic style enforcement
+- isort: import sorting
+
+### Manual Checks
+
+To manually run all checks on your current working directory:
+
+    pre-commit run --all-files
+
+Please ensure all hooks pass before pushing code.
+
+A full CONTRIBUTING.md with more guidelines is in preparation.
+
+
 
 ## 8. Status
 

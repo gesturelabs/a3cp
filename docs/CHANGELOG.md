@@ -9,6 +9,24 @@ Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
 ## [0.2.3-dev] - 2025-06-17
+
+### Added
+- Environment validation script `scripts/check_env.py` with required/optional variable checks.
+- `Makefile` target `check-env` to invoke the validation script easily.
+- CI integration: added `check_env.py` check to GitHub Actions workflow to enforce env consistency.
+
+### Changed
+- `.env.example` updated to remove duplicate keys and clarify intended usage.
+
+
+### Added
+- `.pre-commit-config.yaml` with hooks for black, ruff, isort, and EOF fixer
+- `.github/workflows/lint.yml` GitHub Actions workflow for linting
+- `pre-commit` added to `requirements-dev.txt`
+
+### Changed
+- Applied formatting, lint fixes, and import sorting across codebase
+
 ### Fixed
 - Resolved `ModuleNotFoundError` for `fastapi` and `pydantic_settings` by updating virtual environment dependencies.
 - Installed `pydantic-settings>=2.0,<3.0` to support Pydantic v2 settings API.
