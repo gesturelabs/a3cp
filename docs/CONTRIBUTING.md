@@ -82,6 +82,16 @@ Use imperative tone and describe what you did:
 ```text
 Add /api/sound/infer/ endpoint and test stub
 ```
+## Development Setup
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements-dev.txt
+    Install pre-commit hooks:
+pre-commit install
+Run on all files to verify:
+    pre-commit run --all-files
+
 
 ### Pull requests
 - Base branch: `main`
