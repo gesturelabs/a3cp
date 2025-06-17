@@ -4,7 +4,8 @@
 
 This guide explains how to set up your development environment
 for working on A3CP. It covers repo setup, virtualenv, Python
-dependencies, environment variables, and useful scripts.
+dependencies, environment variables, environment validation,
+Makefile usage, pre-commit hooks, and basic troubleshooting.
 
 ------------------------------------------------------------
  1. CLONE THE REPOSITORY
@@ -29,13 +30,6 @@ To deactivate:
 
     deactivate
 
-You must activate the virtualenv before running:
-
-    - python manage.py ...
-    - pip install ...
-    - pytest
-    - scripts/dev.sh
-
 If the environment does not exist yet (rare):
 
     python3 -m venv /opt/a3cp-env
@@ -50,13 +44,21 @@ Copy the example file and edit your local `.env`:
 
     cp .env.example .env
 
-Edit values as needed. This file is NOT committed to git.
+This file is NOT committed to git. Edit values as needed:
 
-Important variables:
-    SECRET_KEY=
-    DEBUG=
-    ALLOWED_HOSTS=
-    INFER_API_URL=
+    - SECRET_KEY=
+    - DEBUG=
+    - ALLOWED_HOSTS=
+    - INFER_API_URL=
+    - UVICORN_PORT=
+    - DB_USER=, DB_PASSWORD=, etc.
+
+To validate your `.env`:
+
+    make check-env
+
+This will check that all required variables are present and warn
+you about optional ones.
 
 ------------------------------------------------------------
  4. INSTALL DEPENDENCIES
@@ -70,65 +72,87 @@ Then install required packages:
 
     pip install -r requirements.txt
 
-To freeze current packages into the requirements file:
+To install dev tools (linters, tests, pre-commit):
 
-    pip freeze > requirements.txt
+    pip install -r requirements-dev.txt
 
 ------------------------------------------------------------
- 5. RUNNING THE DJANGO DEVELOPMENT SERVER
+ 5. PRE-COMMIT HOOKS (MANDATORY)
 ------------------------------------------------------------
 
-Usually this is done on the live Hetzner instance for now.
+To enforce code standards, run:
 
-You can run locally (if needed):
+    pre-commit install
+    pre-commit run --all-files
+
+This ensures Black, Ruff, isort, and other checks are run before each commit.
+
+Failing to do this may cause your PRs or CI jobs to fail.
+
+------------------------------------------------------------
+ 6. MAKEFILE COMMANDS
+------------------------------------------------------------
+
+Useful shortcuts:
+
+    make check-env     # Check required env vars
+    make test          # Run test suite
+    make lint          # Run formatters and linters
+    make devserver     # Run Django development server
+    make infer         # Run FastAPI inference server (if configured)
+
+------------------------------------------------------------
+ 7. RUNNING THE DJANGO DEVELOPMENT SERVER
+------------------------------------------------------------
+
+Usually done on the Hetzner server, but locally you can:
 
     python manage.py runserver
 
-Or use the development script (for production-like settings):
+Or, for prod-like config:
 
     ./scripts/dev.sh
 
-Note: HTTPS-only features may not behave correctly in local dev.
-
 ------------------------------------------------------------
- 6. GIT WORKFLOW
+ 8. GIT WORKFLOW
 ------------------------------------------------------------
 
-Typical flow:
+Typical development flow:
 
     git pull origin main
     # make changes
     git add .
-    git commit -m "Your message here"
+    git commit -m "Meaningful message"
     git push origin main
 
-Only push to `main` if your code passes local checks.
+Do not push to `main` if your code fails tests or pre-commit hooks.
 
 ------------------------------------------------------------
- 7. TESTING
+ 9. TESTING
 ------------------------------------------------------------
 
-Run unit tests with:
+Run tests with:
 
     pytest
 
-Coverage reporting and CI will be added later.
+Make sure your virtualenv is active and `.env` is loaded.
 
 ------------------------------------------------------------
- 8. TROUBLESHOOTING
+ 10. TROUBLESHOOTING
 ------------------------------------------------------------
 
-Check Gunicorn status (if running live):
+Check Gunicorn (if on Hetzner):
 
     systemctl status a3cp-gunicorn
-
-Restart Gunicorn:
-
     systemctl restart a3cp-gunicorn
 
 Restart Nginx:
 
     systemctl restart nginx
+
+Check environment vars:
+
+    make check-env
 
 ------------------------------------------------------------
  MAINTAINED BY: gesturelabs.org team
