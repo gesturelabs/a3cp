@@ -10,6 +10,9 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 ## [Unreleased] – 2025-06-18
+### Added
+- `DEVELOPMENT_FLOW.md`: Documents team Git workflow, branch protection rules, and deployment notes.
+
 
 ### Changed
 
