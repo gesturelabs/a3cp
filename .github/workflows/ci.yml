@@ -52,6 +52,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements-dev.txt
 
+      - name: Validate environment variables
+        run: |
+          python scripts/validate_env.py
+          
       - name: Print environment for debugging
         run: env | sort
 
