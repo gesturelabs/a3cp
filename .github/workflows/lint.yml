@@ -23,7 +23,7 @@ jobs:
       - name: Run environment variable check
         run: |
           pip install python-dotenv
-          python scripts/check_env.py
+          python scripts/validate_env.py
           
       - name: Run pre-commit checks
         run: pre-commit run --all-files
