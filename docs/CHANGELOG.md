@@ -8,7 +8,14 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
-## [Unreleased]
+
+## [Unreleased] – 2025-06-18
+
+### Changed
+
+- CI Pipeline: Updated `.github/workflows/ci.yml` to install both `requirements.txt` and `requirements-dev.txt`, ensuring development tools (e.g., `pytest`, `pre-commit`, `ruff`) are available during CI checks.
+- Dev Requirements: Added `requirements-dev.txt` to isolate development-only dependencies from production installs.
+
 
 ### Added
 - Environment validation script `scripts/check_env.py` with required/optional variable checks.
