@@ -61,6 +61,24 @@ This will check that all required variables are present and warn
 you about optional ones.
 
 ------------------------------------------------------------
+ WHY `make check-env` MATTERS
+------------------------------------------------------------
+
+A3CP includes multiple services (Django admin, FastAPI inference, etc.)
+that rely on a shared set of environment variables to function correctly.
+
+To avoid silent failures:
+
+- `make check-env` runs a validator script (`scripts/validate_env.py`)
+- It ensures required keys like SECRET_KEY, INFER_API_URL, etc., exist
+- If variables are missing or malformed, the check fails early
+- This helps catch misconfiguration before running the app
+
+This aligns with A3CP's principle of:
+
+    FAIL FAST – LOG ALWAYS
+
+------------------------------------------------------------
  4. INSTALL DEPENDENCIES
 ------------------------------------------------------------
 
