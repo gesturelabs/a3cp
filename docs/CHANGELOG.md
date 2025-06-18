@@ -10,6 +10,14 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 ## [Unreleased] – 2025-06-18
+### Documentation
+
+- Standardized `CONTRIBUTING.md` to align with `DEV_SETUP.md`
+- Clarified structure, branch naming, and setup guidance
+
+
+- Moved `SETUP.md` to `docs/DEV_SETUP.md` to align with development checklist structure.
+- No content changes made; this remains the canonical developer onboarding guide.
 ### Added
 - `DEVELOPMENT_FLOW.md`: Documents team Git workflow, branch protection rules, and deployment notes.
 
