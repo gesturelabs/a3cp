@@ -1,0 +1,260 @@
+.
+├── .DS_Store
+├── .env
+├── .env.example
+├── .env.test
+├── .github
+│   └── workflows
+│       ├── ci.yml
+│       ├── deploy.yml
+│       └── lint.yml
+├── .gitignore
+├── .pre-commit-config.yaml
+├── .pytest_cache
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   ├── README.md
+│   └── v
+│       └── cache
+│           ├── lastfailed
+│           ├── nodeids
+│           └── stepwise
+├── .ruff_cache
+│   ├── .gitignore
+│   ├── 0.4.1
+│   │   ├── 13853966973267422128
+│   │   ├── 14662693001621857933
+│   │   ├── 14796056815366910097
+│   │   ├── 15153567910469312231
+│   │   ├── 15747962448544705309
+│   │   ├── 17966911170574997115
+│   │   ├── 18179559772701967094
+│   │   ├── 2355555005983481674
+│   │   ├── 9221589230948741129
+│   │   └── 9452919837056613069
+│   └── CACHEDIR.TAG
+├── .vscode
+│   └── settings.json
+├── LICENSE.txt
+├── Makefile
+├── README.md
+├── api
+│   ├── __init__.py
+│   ├── main.py
+│   ├── routes
+│   │   ├── __init__.py
+│   │   ├── gesture_infer.py
+│   │   ├── inference.py
+│   │   ├── sound_infer.py
+│   │   └── streamer.py
+│   ├── schemas
+│   │   ├── gesture_infer.py
+│   │   ├── sound_infer.py
+│   │   └── streamer.py
+│   └── settings.py
+├── apps
+│   ├── pages
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── migrations
+│   │   │   └── __init__.py
+│   │   ├── models.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── streamer
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── migrations
+│   │   │   └── __init__.py
+│   │   ├── models.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   └── ui
+│       ├── urls.py
+│       └── views.py
+├── config
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings
+│   │   ├── __init__.py
+│   │   └── prod.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── docs
+│   ├── CHANGELOG.md
+│   ├── CONTRIBUTING.md
+│   ├── DEV_SETUP.md
+│   ├── FILE_TREE.txt
+│   ├── project_structure.txt
+│   └── subfiles
+│       ├── DEPLOYMENT.md
+│       ├── DEVELOPMENT_FLOW.md
+│       ├── TESTING.md
+│       └── VARIOUS_COMMANDS.md
+├── manage.py
+├── pyrightconfig.json
+├── pytest.ini
+├── requirements-dev.txt
+├── requirements.txt
+├── scripts
+│   ├── deploy.sh
+│   ├── dev.sh
+│   ├── manage.sh
+│   └── validate_env.py
+├── staticfiles
+│   └── admin
+│       ├── css
+│       │   ├── autocomplete.css
+│       │   ├── base.css
+│       │   ├── changelists.css
+│       │   ├── dark_mode.css
+│       │   ├── dashboard.css
+│       │   ├── forms.css
+│       │   ├── login.css
+│       │   ├── nav_sidebar.css
+│       │   ├── responsive.css
+│       │   ├── responsive_rtl.css
+│       │   ├── rtl.css
+│       │   ├── unusable_password_field.css
+│       │   ├── vendor
+│       │   │   └── select2
+│       │   │       ├── LICENSE-SELECT2.md
+│       │   │       ├── select2.css
+│       │   │       └── select2.min.css
+│       │   └── widgets.css
+│       ├── img
+│       │   ├── LICENSE
+│       │   ├── README.txt
+│       │   ├── calendar-icons.svg
+│       │   ├── gis
+│       │   │   ├── move_vertex_off.svg
+│       │   │   └── move_vertex_on.svg
+│       │   ├── icon-addlink.svg
+│       │   ├── icon-alert.svg
+│       │   ├── icon-calendar.svg
+│       │   ├── icon-changelink.svg
+│       │   ├── icon-clock.svg
+│       │   ├── icon-deletelink.svg
+│       │   ├── icon-hidelink.svg
+│       │   ├── icon-no.svg
+│       │   ├── icon-unknown-alt.svg
+│       │   ├── icon-unknown.svg
+│       │   ├── icon-viewlink.svg
+│       │   ├── icon-yes.svg
+│       │   ├── inline-delete.svg
+│       │   ├── search.svg
+│       │   ├── selector-icons.svg
+│       │   ├── sorting-icons.svg
+│       │   ├── tooltag-add.svg
+│       │   └── tooltag-arrowright.svg
+│       └── js
+│           ├── SelectBox.js
+│           ├── SelectFilter2.js
+│           ├── actions.js
+│           ├── admin
+│           │   ├── DateTimeShortcuts.js
+│           │   └── RelatedObjectLookups.js
+│           ├── autocomplete.js
+│           ├── calendar.js
+│           ├── cancel.js
+│           ├── change_form.js
+│           ├── core.js
+│           ├── filters.js
+│           ├── inlines.js
+│           ├── jquery.init.js
+│           ├── nav_sidebar.js
+│           ├── popup_response.js
+│           ├── prepopulate.js
+│           ├── prepopulate_init.js
+│           ├── theme.js
+│           ├── unusable_password_field.js
+│           ├── urlify.js
+│           └── vendor
+│               ├── jquery
+│               │   ├── LICENSE.txt
+│               │   ├── jquery.js
+│               │   └── jquery.min.js
+│               ├── select2
+│               │   ├── LICENSE.md
+│               │   ├── i18n
+│               │   │   ├── af.js
+│               │   │   ├── ar.js
+│               │   │   ├── az.js
+│               │   │   ├── bg.js
+│               │   │   ├── bn.js
+│               │   │   ├── bs.js
+│               │   │   ├── ca.js
+│               │   │   ├── cs.js
+│               │   │   ├── da.js
+│               │   │   ├── de.js
+│               │   │   ├── dsb.js
+│               │   │   ├── el.js
+│               │   │   ├── en.js
+│               │   │   ├── es.js
+│               │   │   ├── et.js
+│               │   │   ├── eu.js
+│               │   │   ├── fa.js
+│               │   │   ├── fi.js
+│               │   │   ├── fr.js
+│               │   │   ├── gl.js
+│               │   │   ├── he.js
+│               │   │   ├── hi.js
+│               │   │   ├── hr.js
+│               │   │   ├── hsb.js
+│               │   │   ├── hu.js
+│               │   │   ├── hy.js
+│               │   │   ├── id.js
+│               │   │   ├── is.js
+│               │   │   ├── it.js
+│               │   │   ├── ja.js
+│               │   │   ├── ka.js
+│               │   │   ├── km.js
+│               │   │   ├── ko.js
+│               │   │   ├── lt.js
+│               │   │   ├── lv.js
+│               │   │   ├── mk.js
+│               │   │   ├── ms.js
+│               │   │   ├── nb.js
+│               │   │   ├── ne.js
+│               │   │   ├── nl.js
+│               │   │   ├── pl.js
+│               │   │   ├── ps.js
+│               │   │   ├── pt-BR.js
+│               │   │   ├── pt.js
+│               │   │   ├── ro.js
+│               │   │   ├── ru.js
+│               │   │   ├── sk.js
+│               │   │   ├── sl.js
+│               │   │   ├── sq.js
+│               │   │   ├── sr-Cyrl.js
+│               │   │   ├── sr.js
+│               │   │   ├── sv.js
+│               │   │   ├── th.js
+│               │   │   ├── tk.js
+│               │   │   ├── tr.js
+│               │   │   ├── uk.js
+│               │   │   ├── vi.js
+│               │   │   ├── zh-CN.js
+│               │   │   └── zh-TW.js
+│               │   ├── select2.full.js
+│               │   └── select2.full.min.js
+│               └── xregexp
+│                   ├── LICENSE.txt
+│                   ├── xregexp.js
+│                   └── xregexp.min.js
+└── tests
+    ├── __init__.py 
+    ├── api
+    │   ├── test_gesture_infer.py
+    │   ├── test_main_smoke.py
+    │   ├── test_sound_infer.py
+    │   └── test_streamer.py
+    ├── conftest.py
+    └── test_placeholder.py
+
+39 directories, 219 files

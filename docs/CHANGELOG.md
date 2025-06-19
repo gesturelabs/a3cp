@@ -8,6 +8,17 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [1.0.1] - 2025-06-19
+
+### Added
+- **Section 11: Module Usage Matrix** to schema documentation.
+  - Maps field usage (read/write/update) across Streamer, Inference, Trainer, CARE Engine, and Feedback Logger modules.
+  - Clarifies interface responsibilities and prevents schema drift.
+  - Includes notes on composite fields (`context.*`) and forward compatibility.
+
+### Notes
+- No changes to field definitions; version remains backward-compatible (`MINOR` update).
+- Update intended to support development planning and QA traceability.
 
 ## [Unreleased] – 2025-06-18
 ### Documentation
