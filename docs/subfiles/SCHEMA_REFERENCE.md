@@ -139,10 +139,10 @@ These fields are grouped under the `context` object.
 
 | Field Name               | Type     | Req | Example                    | Description                                                                 |
 |--------------------------|----------|-----|----------------------------|-----------------------------------------------------------------------------|
-| `context.location`       | string   | ❌  | `"kitchen"`                | Coarse location or room tag.                                                |
-| `context.prompt_type`    | string   | ❌  | `"natural_use"`            | One of: `"prompted"`, `"natural_use"`, `"other"`.                          |
-| `context.partner_speech`| string   | ❌  | `"Are you hungry?"`        | Verbatim or paraphrased caregiver/partner utterance preceding the action.  |
-| `context.session_notes` | string   | ❌  | `"User distracted by noise"` | Freeform caregiver notes or environment annotations.                     |
+| `context_location`       | string   | ❌  | `"kitchen"`                | Coarse location or room tag.                                                |
+| `context_prompt_type`    | string   | ❌  | `"natural_use"`            | One of: `"prompted"`, `"natural_use"`, `"other"`.                          |
+| `context_partner_speech`| string   | ❌  | `"Are you hungry?"`        | Verbatim or paraphrased caregiver/partner utterance preceding the action.  |
+| `context_session_notes` | string   | ❌  | `"User distracted by noise"` | Freeform caregiver notes or environment annotations.                     |
 
 ---
 
@@ -152,9 +152,9 @@ These fields are typically computed post-recording by NLP or memory subsystems. 
 
 | Field Name                | Type           | Req | Example                         | Description                                                                |
 |---------------------------|----------------|-----|----------------------------------|----------------------------------------------------------------------------|
-| `context.topic_tag`       | string         | ❌  | `"food"`                         | Inferred topic derived from partner speech or other cues.                  |
-| `context.relevance_score` | float          | ❌  | `0.87`                           | Confidence score for relevance to expected/known intents.                  |
-| `context.flags`           | object          | ❌  | `{ "question_detected": true }`  | Map of boolean context flags. See below.                                   |
+| `context_topic_tag`       | string         | ❌  | `"food"`                         | Inferred topic derived from partner speech or other cues.                  |
+| `context_relevance_score` | float          | ❌  | `0.87`                           | Confidence score for relevance to expected/known intents.                  |
+| `context_flags`           | object          | ❌  | `{ "question_detected": true }`  | Map of boolean context flags. See below.                                   |
 
 #### `context.flags` may include:
 
@@ -213,7 +213,7 @@ This section captures the evolving interpretation of an input—from initial AI 
 | Field             | Origin         | Overwrites | Trust Level | Purpose                          |
 |------------------|----------------|------------|-------------|----------------------------------|
 | `intent_label`   | Human/User     | No         | Low-Med     | Initial input from user/human    |
-| `classifier_output.intent` | AI/Model | No     | Medium      | Initial system prediction        |
+| `classifier_output_intent` | AI/Model | No     | Medium      | Initial system prediction        |
 | `label_correction` | Caregiver    | Yes        | High        | Corrected label from caregiver   |
 | `final_decision` | CARE Engine    | Yes        | Final       | Outcome for audit/training/logs  |
 
@@ -502,13 +502,13 @@ This table summarizes which A3CP modules interact with each field group in the c
 | `intent_label`                | ✅ write | ✅ read    | ✅ read  | ✅ read      | ✅ write         |
 | `label_status`                | ✅ write | ❌        | ❌      | ✅ update    | ✅ update        |
 | `label_correction`            | ❌       | ❌        | ❌      | ✅ read      | ✅ write         |
-| `context.*`                   | ✅ write | ✅ read    | ✅ read  | ✅ update    | ✅ write         |
+| `context_*`                   | ✅ write | ✅ read    | ✅ read  | ✅ update    | ✅ write         |
 | `ASR_confidence_score`        | ✅ write | ✅ read    | ✅ read  | ✅ read      | ✅ read          |
 | `final_decision`              | ❌       | ❌        | ❌      | ✅ write     | ✅ write         |
 | `output_type`                 | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
-| `memory.intent_boosts`        | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
-| `memory.fallback_suggestions` | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
-| `memory.hint_used`            | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
+| `memory_intent_boosts`        | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
+| `memory_fallback_suggestions` | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
+| `memory_hint_used`            | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
 | `output_phrase`               | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
 | `output_mode`                 | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
 
