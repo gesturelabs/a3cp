@@ -2,12 +2,28 @@
 
 
 ============================================================
- A3CP CHANGELOG — Infrastructure + Dev Flow 
+ A3CP CHANGELOG — Infrastructure + Dev Flow
 ============================================================
 
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [Unreleased] – 2025-06-20
+
+### Added
+- Initial schema definition `schemas/raw_action_record.py` for A3CP input records using Pydantic v2 with strict validation (`extra="forbid"`), field annotations, and frozen versioning.
+- Unit test suite `tests/schemas/test_raw_action_record.py` covering:
+  - Valid instantiation
+  - Missing required fields
+  - Rejection of unexpected fields
+- `.vscode/settings.json` to enforce formatting on save and auto-linting.
+- `pyproject.toml` configuration with Black, Ruff, and isort alignment.
+- `pyrightconfig.json` with `"basic"` type checking and import validation.
+
+### Fixed
+- Rewrote test assertions to comply with Pydantic v2 error messages (`extra_forbidden`, `ValidationError`).
+- Ensured timezone-aware timestamps in all datetime fields for schema consistency.
+
 ## [1.0.1] - 2025-06-19
 
 ### Added
@@ -125,15 +141,15 @@ Maintainer: Dmitri Katz
 
 ## [Feature] Add `/api/gesture/infer/` stub endpoint returning dummy A3CPMessage
 
-- ID: API002  
-- Date: 2025-06-12  
+- ID: API002
+- Date: 2025-06-12
 - Scope: api.routes.gesture_infer, api.main, tests/api
 
-### Summary  
-Stub endpoint `/api/gesture/infer/` returns a dummy A3CPMessage-compatible JSON response.  
+### Summary
+Stub endpoint `/api/gesture/infer/` returns a dummy A3CPMessage-compatible JSON response.
 Prepares groundwork for integrating the gesture classification model.
 
-### Changes  
+### Changes
 - Added `gesture_infer.py` route handler with `@router.post("/gesture/infer/")`
 - Mounted in `api.main` via `app.include_router(gesture_infer.router, prefix="/api")`
 - Wrote test module `test_gesture_infer.py` covering:
@@ -142,8 +158,8 @@ Prepares groundwork for integrating the gesture classification model.
   - Confidence scores in classifier_output are between 0.0 and 1.0
 - Set `pythonpath = .` in `pytest.ini` to simplify local test execution
 
-### Notes  
-- No real model inference yet — response is hardcoded  
+### Notes
+- No real model inference yet — response is hardcoded
 - Next step: load user-specific model and return real predictions
 
 ## [Fix] Pydantic v2 compliance and test import resolution
