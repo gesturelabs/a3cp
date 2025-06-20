@@ -9,6 +9,23 @@ Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
 ## [Unreleased] – 2025-06-20
+## [2025-06-20] Refactor and Modularize Video Streamer
+
+### Changed
+- Removed legacy `streamer` module:
+  - `README.md`, `notes.md`, `sample_input.json`, `sample_output.json`, and `schema.json` deleted.
+
+### Added
+- New `video_streamer` module structure:
+  - `CameraFeedWorker.md`, `LandmarkExtractor.md`, `RecordingPipeline.md` specifications.
+  - `README.md` and `notes.md` for developer documentation.
+  - `schema.json`, `sample_input.json`, and `sample_output.json` for input/output modeling.
+  - `video_streamer_architecture.drawio` added under `diagrams/`.
+
+### Modified
+- `SCHEMA_REFERENCE.md` updated to reflect schema separation for `video_streamer`.
+
+
 
 ### Added
 - Initial schema definition `schemas/raw_action_record.py` for A3CP input records using Pydantic v2 with strict validation (`extra="forbid"`), field annotations, and frozen versioning.
