@@ -1,8 +1,11 @@
 {
+    "schema_version": "1.0.0",
+    "record_id": "07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56",
     "user_id": "elias01",
-    "session_id": "a3cp_sess_2025-06-15_elias01",
     "consent_given": true,
     "intent_label": "help",
+    "session_id": "a3cp_sess_2025-06-15_elias01",
+    "timestamp": "2025-06-15T12:34:56.789Z",
     "modality": "gesture",
     "source": "communicator"
 }

@@ -8,16 +8,16 @@ Each field is documented with its type, version history, required status, typica
 
 ## Table of Contents
 
-1. [Overview](#overview)  
-2. [Core Metadata Fields](#core-metadata-fields)  
-3. [Input & Stream Fields](#input--stream-fields)  
-4. [Contextual Tags](#contextual-tags)  
-5. [Classifier Output](#classifier-output)  
-6. [Clarification & Feedback](#clarification--feedback)  
-7. [Memory-Based Output](#memory-based-output)  
-8. [Vector & Feature Metadata](#vector--feature-metadata)  
-9. [AAC Output Fields](#aac-output-fields)  
-10. [Schema Versioning & Field History](#schema-versioning--field-history)  
+1. [Overview](#overview)
+2. [Core Metadata Fields](#core-metadata-fields)
+3. [Input & Stream Fields](#input--stream-fields)
+4. [Contextual Tags](#contextual-tags)
+5. [Classifier Output](#classifier-output)
+6. [Clarification & Feedback](#clarification--feedback)
+7. [Memory-Based Output](#memory-based-output)
+8. [Vector & Feature Metadata](#vector--feature-metadata)
+9. [AAC Output Fields](#aac-output-fields)
+10. [Schema Versioning & Field History](#schema-versioning--field-history)
 11. [Module Usage Matrix](#module-usage-matrix)
 
 ---
@@ -50,7 +50,7 @@ These fields form the foundation of every `A3CPMessage`. They are mandatory for 
 
 ### Allowed Values
 
-- `modality`: `"gesture"`, `"audio"`, `"speech"`, `"image"`, `"multimodal"`  
+- `modality`: `"gesture"`, `"audio"`, `"speech"`, `"image"`, `"multimodal"`
 - `source`: `"communicator"`, `"caregiver"`, `"system"`
 
 ### Notes
@@ -221,7 +221,7 @@ This section captures the evolving interpretation of an input—from initial AI 
 
 ### Warning
 
-Do **not** pre-fill `final_decision` or `output_type` before clarification is complete.  
+Do **not** pre-fill `final_decision` or `output_type` before clarification is complete.
 These fields should reflect **post-resolution** logic only. Pre-filling them may contaminate training labels or misrepresent system performance.
 
 ## 6. Clarification & Feedback
@@ -244,9 +244,9 @@ This section captures information related to interactive clarification, human co
 | `label_status`     | string  | ❌  | `"confirmed"`    | Label trust status. One of: `"unconfirmed"`, `"confirmed"`, `"corrected"`.  |
 | `label_correction` | string  | ❌  | `"drink"`        | Human override of the model or user label, applied post-inference.         |
 
-**Allowed values for `label_status`:**  
-- `"unconfirmed"`: Initial annotation without verification  
-- `"confirmed"`: Human-reviewed or validated  
+**Allowed values for `label_status`:**
+- `"unconfirmed"`: Initial annotation without verification
+- `"confirmed"`: Human-reviewed or validated
 - `"corrected"`: Model label has been overridden
 
 Only trusted sources (e.g., caregivers, expert annotators) should populate `label_correction`.
@@ -272,8 +272,8 @@ These flags may be used for **ethics compliance**, audit filtering, and exclusio
 | `output_type`     | string  | ❌  | `"intent"`  | Output category. One of: `"intent"`, `"clarification"`, `"none"`.            |
 
 **Allowed values for `output_type`:**
-- `"intent"`: Final user intent has been resolved  
-- `"clarification"`: Follow-up or request for disambiguation  
+- `"intent"`: Final user intent has been resolved
+- `"clarification"`: Follow-up or request for disambiguation
 - `"none"`: No output was generated (e.g., inconclusive input)
 
 **Warning:** Do not pre-populate `final_decision` or `output_type` before resolution is complete. These fields represent **post-clarification outcomes** and must be kept distinct from initial predictions.
@@ -286,7 +286,7 @@ These flags may be used for **ethics compliance**, audit filtering, and exclusio
 - Only one final interpretation (`final_decision`) should be used for training or rendering per message.
 - Feedback fields must be clearly traceable and audit-tagged to distinguish them from raw AI outputs.
 
-**Recommendation:**  
+**Recommendation:**
 Clarification is not ground truth. These fields reflect interactive resolution steps and should be logged **separately** from original classifier predictions to preserve provenance.
 
 
