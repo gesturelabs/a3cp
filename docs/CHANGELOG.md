@@ -8,8 +8,29 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+## [Unreleased] – 2025-06-23
+
+### Added
+- Added `schemas/inference_trace.py` schema for logging predictions, confidence, fallbacks, and decisions
+- Added test file `tests/schemas/test_inference_trace.py` for validation of `InferenceTrace`
+### Added
+- Initial schema definition `schemas/raw_action_record.py` for A3CP input records using Pydantic v2 with strict validation (`extra="forbid"`), field annotations, and frozen versioning.
+- Unit test suite `tests/schemas/test_raw_action_record.py` covering:
+  - Valid instantiation
+  - Missing required fields
+  - Rejection of unexpected fields
+- `.vscode/settings.json` to enforce formatting on save and auto-linting.
+- `pyproject.toml` configuration with Black, Ruff, and isort alignment.
+- `pyrightconfig.json` with `"basic"` type checking and import validation.
+
+### Fixed
+- Rewrote test assertions to comply with Pydantic v2 error messages (`extra_forbidden`, `ValidationError`).
+- Ensured timezone-aware timestamps in all datetime fields for schema consistency.
+
 ## [Unreleased] – 2025-06-20
 ## [2025-06-20] Refactor and Modularize Video Streamer
+
 
 ### Changed
 - Removed legacy `streamer` module:
@@ -27,19 +48,6 @@ Maintainer: Dmitri Katz
 
 
 
-### Added
-- Initial schema definition `schemas/raw_action_record.py` for A3CP input records using Pydantic v2 with strict validation (`extra="forbid"`), field annotations, and frozen versioning.
-- Unit test suite `tests/schemas/test_raw_action_record.py` covering:
-  - Valid instantiation
-  - Missing required fields
-  - Rejection of unexpected fields
-- `.vscode/settings.json` to enforce formatting on save and auto-linting.
-- `pyproject.toml` configuration with Black, Ruff, and isort alignment.
-- `pyrightconfig.json` with `"basic"` type checking and import validation.
-
-### Fixed
-- Rewrote test assertions to comply with Pydantic v2 error messages (`extra_forbidden`, `ValidationError`).
-- Ensured timezone-aware timestamps in all datetime fields for schema consistency.
 
 ## [1.0.1] - 2025-06-19
 
