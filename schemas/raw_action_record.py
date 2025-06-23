@@ -12,7 +12,7 @@ INTERFACE_SCHEMA_PATH = "interfaces/raw_action_record.schema.json"
 class RawActionRecord(BaseModel):
     model_config = ConfigDict(extra="forbid")  # Disallow undeclared fields
 
-    schema_version: Annotated[str, Field(default="1.0", frozen=True)]
+    schema_version: Annotated[str, Field(default="1.0.0", frozen=True)]
     record_id: Annotated[UUID, Field()]
     user_id: Annotated[str, Field()]
     session_id: Annotated[str, Field()]
