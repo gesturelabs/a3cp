@@ -11,8 +11,6 @@ This directory contains all runtime-validated pydantic models used internally by
 
 ## Usage Guidelines
 
-## Usage Guidelines
-
 - All files must define a top-level `BaseModel` from `pydantic`
 - Each model must include a `schema_version: str` field with a default or fixed value (e.g. `Field(default="1.0", frozen=True)`)
 - Use `Annotated[type, Field(...)]` (from `typing_extensions`) for newer syntax compatibility with Pydantic v2 and future-proof typing
@@ -22,6 +20,7 @@ This directory contains all runtime-validated pydantic models used internally by
 
   ```python
   INTERFACE_SCHEMA_PATH = "interfaces/<filename>.schema.json"
+  schema_version: str = Field(default="1.0", frozen=True)
 
     Every schemas/*.py model must be mirrored by:
 
