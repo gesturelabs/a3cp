@@ -11,6 +11,12 @@ Maintainer: Dmitri Katz
 
 ## [Unreleased] – 2025-06-23
 
+
+### Added
+- New schema: `schemas/clarification_event.py` for tracking disambiguation events in the CARE loop
+- Corresponding test: `tests/schemas/test_clarification_event.py`
+- Supports `clarification_type`, `trigger_reason`, options, response, and resolution metadata
+
 ### Added
 - Added `schemas/inference_trace.py` schema for logging predictions, confidence, fallbacks, and decisions
 - Added test file `tests/schemas/test_inference_trace.py` for validation of `InferenceTrace`
