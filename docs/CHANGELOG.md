@@ -12,6 +12,19 @@ Maintainer: Dmitri Katz
 ## [Unreleased] – 2025-06-23
 
 
+### Removed
+- Deleted all `schema.json` files from `docs/modules/*/` to eliminate redundant and outdated local schema definitions.
+- These modules now reference centralized schemas in `schemas/` and exported JSON Schemas in `interfaces/`.
+
+### Added
+- `scripts/schema_mapping_config.py`: Defines the canonical mapping from schema definitions to interfaces and example files.
+- `docs/schemas/`: New subdirectory for schema-related documentation and version tracking (e.g. SCHEMA_MAPPING.md, SCHEMA_CHANGELOG.md).
+
+### Changed
+- Reorganized `docs/` folder structure to separate schema documentation from module-specific notes and inputs.
+
+
+
 ### Added
 - New schema: `schemas/clarification_event.py` for tracking disambiguation events in the CARE loop
 - Corresponding test: `tests/schemas/test_clarification_event.py`

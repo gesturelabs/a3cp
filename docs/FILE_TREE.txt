@@ -30,6 +30,8 @@
 │   │   ├── 17966911170574997115
 │   │   ├── 18179559772701967094
 │   │   ├── 2355555005983481674
+│   │   ├── 3156529535504641386
+│   │   ├── 4896820134584812511
 │   │   ├── 9221589230948741129
 │   │   └── 9452919837056613069
 │   └── CACHEDIR.TAG
@@ -88,23 +90,166 @@
 ├── docs
 │   ├── CHANGELOG.md
 │   ├── CONTRIBUTING.md
-│   ├── DEV_SETUP.md
 │   ├── FILE_TREE.txt
-│   ├── project_structure.txt
-│   └── subfiles
-│       ├── DEPLOYMENT.md
-│       ├── DEVELOPMENT_FLOW.md
-│       ├── TESTING.md
-│       └── VARIOUS_COMMANDS.md
+│   ├── dev
+│   │   ├── DEPLOYMENT.md
+│   │   ├── DEVELOPMENT_FLOW.md
+│   │   ├── DEV_SETUP.md
+│   │   ├── TESTING.md
+│   │   └── VARIOUS_COMMANDS.md
+│   ├── modules
+│   │   ├── clarification_planner
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── confidence_evaluator
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── contextual_profiler
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── feedback_log
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── gesture_classifier
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── input_broker
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── landmark_visualizer
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── llm_clarifier
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── memory_integrator
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── memory_interface
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── model_registry
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── model_trainer
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── output_expander
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── output_planner
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── raw_input_log
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── session_manager
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── sound_classifier
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── sound_playback
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   ├── speech_transcriber
+│   │   │   ├── README.md
+│   │   │   ├── notes.md
+│   │   │   ├── sample_input.json
+│   │   │   ├── sample_output.json
+│   │   │   └── schema.json
+│   │   └── video_streamer
+│   │       ├── CameraFeedWorker.md
+│   │       ├── LandmarkExtractor.md
+│   │       ├── README.md
+│   │       ├── RecordingPipeline.md
+│   │       ├── diagrams
+│   │       │   └── video_streamer_architecture.drawio
+│   │       ├── notes.md
+│   │       ├── sample_input.json
+│   │       ├── sample_output.json
+│   │       └── schema.json
+│   ├── older version
+│   │   └── SCHEMA_REFERENCE.md
+│   └── schemas
+│       ├── SCHEMA_CHANGELOG.md
+│       ├── SCHEMA_EVOLUTION_POLICY.md
+│       ├── SCHEMA_MAPPING.md
+│       ├── SCHEMA_OVERVIEW.md
+│       └── SCHEMA_REFERENCE.md
+├── interfaces
+│   └── README.md
 ├── manage.py
+├── pyproject.toml
 ├── pyrightconfig.json
 ├── pytest.ini
 ├── requirements-dev.txt
 ├── requirements.txt
+├── schemas
+│   ├── README.md
+│   ├── a3cp_message.py
+│   ├── clarification_event.py
+│   ├── inference_trace.py
+│   └── raw_action_record.py
 ├── scripts
 │   ├── deploy.sh
 │   ├── dev.sh
 │   ├── manage.sh
+│   ├── schema_mapping_config.py
 │   └── validate_env.py
 ├── staticfiles
 │   └── admin
@@ -255,6 +400,11 @@
     │   ├── test_sound_infer.py
     │   └── test_streamer.py
     ├── conftest.py
+    ├── schemas
+    │   ├── test_a3cp_message.py
+    │   ├── test_clarification_event.py
+    │   ├── test_inference_trace.py
+    │   └── test_raw_action_record.py
     └── test_placeholder.py
 
-39 directories, 219 files
+66 directories, 342 files
