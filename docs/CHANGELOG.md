@@ -12,6 +12,10 @@ Maintainer: Dmitri Katz
 -----------
 
 ## [Unreleased] - Schema Refactor & Canonical Mapping-2025-06-24
+Docs Cleanup:
+- Removed legacy example files from docs/modules/*
+- Canonical example files now reside in schemas/examples/<schema_name>/
+
 
 ### Added
 - `scripts/schema_mapping_config.py`: Centralized config defining canonical mappings between source schemas, JSON Schema files, and input/output examples.
