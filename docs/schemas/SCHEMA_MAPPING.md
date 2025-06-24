@@ -10,12 +10,12 @@ This mapping ensures every schema is versioned, testable, and traceable across t
 
 ## Mapping Table
 
-| Pydantic Model (`schemas/`)    | JSON Schema (`interfaces/`)               | Example File(s) (`docs/modules/`)                     |
-|--------------------------------|-------------------------------------------|--------------------------------------------------------|
-| a3cp_message.py                | interfaces/a3cp_message.schema.json       | input_broker/sample_input.json                         |
-| raw_action_record.py          | interfaces/raw_action_record.schema.json  | raw_input_log/sample_input.json                        |
-| inference_trace.py            | interfaces/inference_trace.schema.json    | confidence_evaluator/sample_output.json               |
-| clarification_event.py        | interfaces/clarification_event.schema.json| clarification_planner/sample_output.json              |
+| Pydantic Model (`schemas/`) | JSON Schema (`interfaces/`)        | Input Example                         | Output Example                          |
+|-----------------------------|------------------------------------|----------------------------------------|------------------------------------------|
+| a3cp_message.py             | a3cp_message.schema.json           | input_broker/sample_input.json         | input_broker/sample_output.json          |
+| raw_action_record.py        | raw_action_record.schema.json      | raw_input_log/sample_input.json        | raw_input_log/sample_output.json         |
+| inference_trace.py          | inference_trace.schema.json        | confidence_evaluator/sample_input.json | confidence_evaluator/sample_output.json  |
+| clarification_event.py      | clarification_event.schema.json    | clarification_planner/sample_input.json| clarification_planner/sample_output.json |
 
 ---
 

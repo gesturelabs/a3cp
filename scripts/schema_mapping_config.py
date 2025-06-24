@@ -1,18 +1,34 @@
 SCHEMA_MAPPING = {
     "a3cp_message": {
-        "schema": "interfaces/a3cp_message.schema.json",
-        "examples": ["docs/modules/input_broker/sample_input.json"],
+        "source": "schemas/source/a3cp_message.py",
+        "schema": "schemas/outputs/a3cp_message.schema.json",
+        "examples": [
+            "schemas/examples/a3cp_message/sample_input.json",
+            "schemas/examples/a3cp_message/sample_output.json",
+        ],
     },
     "raw_action_record": {
-        "schema": "interfaces/raw_action_record.schema.json",
-        "examples": ["docs/modules/raw_input_log/sample_input.json"],
+        "source": "schemas/source/raw_action_record.py",
+        "schema": "schemas/outputs/raw_action_record.schema.json",
+        "examples": [
+            "schemas/examples/raw_action_record/sample_input.json",
+            "schemas/examples/raw_action_record/sample_output.json",
+        ],
     },
     "inference_trace": {
-        "schema": "interfaces/inference_trace.schema.json",
-        "examples": ["docs/modules/confidence_evaluator/sample_output.json"],
+        "source": "schemas/source/inference_trace.py",
+        "schema": "schemas/outputs/inference_trace.schema.json",
+        "examples": [
+            "schemas/examples/inference_trace/sample_input.json",
+            "schemas/examples/inference_trace/sample_output.json",
+        ],
     },
     "clarification_event": {
-        "schema": "interfaces/clarification_event.schema.json",
-        "examples": ["docs/modules/clarification_planner/sample_output.json"],
+        "source": "schemas/source/clarification_event.py",
+        "schema": "schemas/outputs/clarification_event.schema.json",
+        "examples": [
+            "schemas/examples/clarification_event/sample_input.json",
+            "schemas/examples/clarification_event/sample_output.json",
+        ],
     },
 }
