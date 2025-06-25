@@ -1,0 +1,32 @@
+{
+    "schema_version": "1.0.0",
+    "record_id": "0c2dba4d-7c7e-45c1-b876-dcbe578a5530",
+    "user_id": "elias01",
+    "session_id": "a3cp_sess_2025-06-25_elias01",
+    "timestamp": "2025-06-25T12:46:26.119Z",
+    "modality": "gesture",
+    "source": "communicator",
+    "context_location": "kitchen",
+    "context_prompt_type": "prompted",
+    "context_partner_speech": "Are you hungry?",
+    "raw_features_ref": {
+        "uri": "/data/elias01/gesture_000023.parquet",
+        "hash": "sha256:abcdef1234567890...",
+        "encoding": "landmark_v2.1",
+        "dims": 128,
+        "format": "parquet"
+    },
+    "vector_version": "v2.1",
+    "model_ref": {
+        "uri": "/models/u01/lstm_v3.2.h5",
+        "hash": "sha256:abc123def456...",
+        "version": "3.2",
+        "type": "model"
+    },
+    "encoder_ref": {
+        "uri": "/models/u01/label_encoder_v3.pkl",
+        "hash": "sha256:def456abc123...",
+        "version": "3.2",
+        "type": "encoder"
+    }
+}

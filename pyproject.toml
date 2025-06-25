@@ -1,23 +1,11 @@
-[tool.black]
-line-length = 88
-target-version = ["py311"]
-skip-string-normalization = false
-
-[tool.isort]
-profile = "black"
-line_length = 88
-multi_line_output = 3
-include_trailing_comma = true
-
 [tool.ruff]
 line-length = 88
-select = ["E", "F", "I", "B", "W", "C90"]
-ignore = ["E501"]  # Let black handle line length
 fix = true
 unsafe-fixes = false
 
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "W", "C90"]
+ignore = ["E501"]  # Let black handle line length
+
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D", "ANN"]
-
-[tool.endoffile]
-ensure_final_newline = true

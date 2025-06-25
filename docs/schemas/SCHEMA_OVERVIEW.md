@@ -1,6 +1,6 @@
 # SCHEMA_OVERVIEW.md
 
-> ⚠️ This document is a human-readable summary of the canonical schema.  
+> ⚠️ This document is a human-readable summary of the canonical schema.
 > The authoritative version is defined in `schemas/` and validated at runtime.
 
 ---
@@ -74,6 +74,41 @@
 | output_mode      | string  | ❌  | AAC output mode: "speech", "text", "symbol"        | "speech"          |
 
 ---
+## Model & Encoder References
+
+These fields are used by classifier modules (e.g., `gesture_classifier`, `sound_classifier`) to record the exact model and label encoder artifacts used for inference. They ensure reproducibility, integrity verification, and audit traceability.
+
+Each reference includes:
+- `uri`: Path or URI to the file (e.g., `.h5`, `.pkl`)
+- `hash`: SHA-256 content hash of the file
+- `version`: Semantic or internal version string
+- `type`: One of `"model"` or `"encoder"`
+
+| Field Name   | Type   | Req | Description                                         | Example                                |
+|--------------|--------|-----|-----------------------------------------------------|----------------------------------------|
+| model_ref    | object | ✅  | Reference to model file used for inference          | See structure below                    |
+| encoder_ref  | object | ✅  | Reference to label encoder used for class mapping   | See structure below                    |
+
+Example `model_ref` or `encoder_ref` object:
+
+```json
+{
+  "uri": "/models/u01/lstm_v3.2.h5",
+  "hash": "sha256:abc123def456...",
+  "version": "3.2",
+  "type": "model"
+}
+
+Notes:
+
+    These fields must be logged for every classifier inference.
+
+    type must be either "model" or "encoder" (case-sensitive).
+
+    version should follow semantic or internal artifact versioning (e.g., "1.0.0", "v3.2-r178").
+
+
+---
 
 ## Vector & Feature Metadata
 
@@ -111,5 +146,5 @@ Example `raw_features_ref`:
 
 ---
 
-**Note:** All optional fields should be omitted if not applicable.  
+**Note:** All optional fields should be omitted if not applicable.
 All fields are flat (no dot notation) for compatibility with JSONL and flat log systems.

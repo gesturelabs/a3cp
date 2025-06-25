@@ -11,6 +11,52 @@ Maintainer: Dmitri Katz
 
 -----------
 
+## ✨ Added: Schema Generation for `gesture_classifier` Module
+
+We completed the full schema and artifact generation process for the `gesture_classifier` module, establishing the standard pattern for all modules in A3CP. This includes:
+
+### Files Generated
+- `schemas/gesture_classifier.py`: Pydantic source file defining the `GestureClassifierInput` and `GestureClassifierOutput` models, along with reusable submodels (`FileReference`, `RawFeaturesRef`).
+- `gesture_classifier/gesture_classifier.schema.json`: JSON Schema file containing both input and output message formats using `oneOf`, generated from the Pydantic models.
+- `gesture_classifier/input.example.json`: Sample input message showing a realistic payload with feature vector reference and model/encoder artifacts.
+- `gesture_classifier/output.example.json`: Sample output message showing classification predictions and referenced artifacts.
+
+### Process Summary
+1. **Model Authoring**
+   Defined structured Pydantic models using `Annotated` and `Field(..., description=...)` for precise field metadata.
+
+2. **Schema Generation**
+   Used `model_json_schema()` from Pydantic to generate schemas. Combined input/output models manually using a `oneOf` union. Avoided unsupported JSON Schema features like `$dynamicRef`.
+
+3. **Example Generation**
+   Created realistic JSON instances for both input and output messages, referencing `.h5`, `.pkl`, and `.parquet` files with synthetic hashes.
+
+4. **Folder Convention**
+   All generated artifacts are stored under a flat `gesture_classifier/` directory:
+
+## [2025-06-25] Module Documentation Refactor
+
+### Added
+- `README.md` files for new modules:
+  - `audio_feed_worker`
+  - `camera_feed_worker`
+  - `schema_recorder`
+  - `speech_context_inferer`
+  - `landmark_extractor`
+  - `visual_environment_classifier`
+
+### Modified
+- Finalized `README.md` files for all previously drafted modules:
+  - `clarification_planner`, `confidence_evaluator`, `feedback_log`, `gesture_classifier`, `input_broker`,
+    `landmark_visualizer`, `llm_clarifier`, `memory_integrator`, `memory_interface`, `model_registry`,
+    `model_trainer`, `output_expander`, `output_planner`, `session_manager`, `sound_classifier`,
+    `sound_playback`, `speech_transcriber`
+
+### Removed
+- All `notes.md` files from module directories
+- Legacy `video_streamer` module and subcomponents:
+  - `CameraFeedWorker.md`, `RecordingPipeline.md`, `README.md`, diagrams, and notes
+
 ## [Unreleased] - Schema Refactor & Canonical Mapping-2025-06-24
 Docs Cleanup:
 - Removed legacy example files from docs/modules/*

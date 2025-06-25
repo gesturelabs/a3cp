@@ -1,0 +1,311 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://a3cp.org/schemas/gesture_classifier.schema.json",
+    "title": "Gesture Classifier Schema",
+    "description": "Pydantic-generated schema for gesture_classifier input and output message formats.",
+    "type": "object",
+    "$defs": {
+        "GestureClassifierInput": {
+            "$defs": {
+                "FileReference": {
+                    "properties": {
+                        "uri": {
+                            "description": "Path or URI to model or encoder file (e.g., .h5, .pkl)",
+                            "title": "Uri",
+                            "type": "string"
+                        },
+                        "hash": {
+                            "description": "SHA-256 hash of the referenced file",
+                            "title": "Hash",
+                            "type": "string"
+                        },
+                        "version": {
+                            "description": "Semantic or internal version string",
+                            "title": "Version",
+                            "type": "string"
+                        },
+                        "type": {
+                            "description": "Type of reference (model or encoder)",
+                            "enum": [
+                                "model",
+                                "encoder"
+                            ],
+                            "title": "Type",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "uri",
+                        "hash",
+                        "version",
+                        "type"
+                    ],
+                    "title": "FileReference",
+                    "type": "object"
+                },
+                "RawFeaturesRef": {
+                    "properties": {
+                        "uri": {
+                            "description": "Path to external feature vector file (e.g., .parquet)",
+                            "title": "Uri",
+                            "type": "string"
+                        },
+                        "hash": {
+                            "description": "SHA-256 content hash for file integrity",
+                            "title": "Hash",
+                            "type": "string"
+                        },
+                        "encoding": {
+                            "description": "Encoder type and version used (e.g., landmark_v2.1)",
+                            "title": "Encoding",
+                            "type": "string"
+                        },
+                        "dims": {
+                            "description": "Dimensionality of the feature vector",
+                            "title": "Dims",
+                            "type": "integer"
+                        },
+                        "format": {
+                            "description": "File format: parquet, npy, etc.",
+                            "title": "Format",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "uri",
+                        "hash",
+                        "encoding",
+                        "dims",
+                        "format"
+                    ],
+                    "title": "RawFeaturesRef",
+                    "type": "object"
+                }
+            },
+            "properties": {
+                "schema_version": {
+                    "const": "1.0.0",
+                    "default": "1.0.0",
+                    "enum": [
+                        "1.0.0"
+                    ],
+                    "title": "Schema Version",
+                    "type": "string"
+                },
+                "record_id": {
+                    "description": "UUID for this message",
+                    "title": "Record Id",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "Pseudonymous user ID",
+                    "title": "User Id",
+                    "type": "string"
+                },
+                "session_id": {
+                    "description": "Session identifier",
+                    "title": "Session Id",
+                    "type": "string"
+                },
+                "timestamp": {
+                    "description": "UTC ISO8601 timestamp",
+                    "title": "Timestamp",
+                    "type": "string"
+                },
+                "modality": {
+                    "const": "gesture",
+                    "enum": [
+                        "gesture"
+                    ],
+                    "title": "Modality",
+                    "type": "string"
+                },
+                "source": {
+                    "enum": [
+                        "communicator",
+                        "caregiver",
+                        "system"
+                    ],
+                    "title": "Source",
+                    "type": "string"
+                },
+                "context_location": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Context Location"
+                },
+                "context_prompt_type": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "prompted",
+                                "natural_use",
+                                "other"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Context Prompt Type"
+                },
+                "context_partner_speech": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Context Partner Speech"
+                },
+                "raw_features_ref": {
+                    "$ref": "#/$defs/RawFeaturesRef",
+                    "description": "Pointer to gesture vector"
+                },
+                "vector_version": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Vector Version"
+                },
+                "model_ref": {
+                    "$ref": "#/$defs/FileReference",
+                    "description": "Reference to model.h5 artifact to use"
+                },
+                "encoder_ref": {
+                    "$ref": "#/$defs/FileReference",
+                    "description": "Reference to encoder.pkl artifact to use"
+                }
+            },
+            "required": [
+                "record_id",
+                "user_id",
+                "session_id",
+                "timestamp",
+                "modality",
+                "source",
+                "raw_features_ref",
+                "model_ref",
+                "encoder_ref"
+            ],
+            "title": "GestureClassifierInput",
+            "type": "object"
+        },
+        "GestureClassifierOutput": {
+            "$defs": {
+                "FileReference": {
+                    "properties": {
+                        "uri": {
+                            "description": "Path or URI to model or encoder file (e.g., .h5, .pkl)",
+                            "title": "Uri",
+                            "type": "string"
+                        },
+                        "hash": {
+                            "description": "SHA-256 hash of the referenced file",
+                            "title": "Hash",
+                            "type": "string"
+                        },
+                        "version": {
+                            "description": "Semantic or internal version string",
+                            "title": "Version",
+                            "type": "string"
+                        },
+                        "type": {
+                            "description": "Type of reference (model or encoder)",
+                            "enum": [
+                                "model",
+                                "encoder"
+                            ],
+                            "title": "Type",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "uri",
+                        "hash",
+                        "version",
+                        "type"
+                    ],
+                    "title": "FileReference",
+                    "type": "object"
+                }
+            },
+            "properties": {
+                "schema_version": {
+                    "const": "1.0.0",
+                    "default": "1.0.0",
+                    "enum": [
+                        "1.0.0"
+                    ],
+                    "title": "Schema Version",
+                    "type": "string"
+                },
+                "record_id": {
+                    "description": "Copied from input",
+                    "title": "Record Id",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "Copied from input",
+                    "title": "User Id",
+                    "type": "string"
+                },
+                "session_id": {
+                    "description": "Copied from input",
+                    "title": "Session Id",
+                    "type": "string"
+                },
+                "timestamp": {
+                    "description": "UTC ISO8601 timestamp of prediction",
+                    "title": "Timestamp",
+                    "type": "string"
+                },
+                "classifier_output": {
+                    "additionalProperties": {
+                        "type": "number"
+                    },
+                    "description": "Map of intent label to confidence score (0.0\u20131.0)",
+                    "title": "Classifier Output",
+                    "type": "object"
+                },
+                "model_ref": {
+                    "$ref": "#/$defs/FileReference",
+                    "description": "Reference to model.h5 artifact used"
+                },
+                "encoder_ref": {
+                    "$ref": "#/$defs/FileReference",
+                    "description": "Reference to encoder.pkl artifact used"
+                }
+            },
+            "required": [
+                "record_id",
+                "user_id",
+                "session_id",
+                "timestamp",
+                "classifier_output",
+                "model_ref",
+                "encoder_ref"
+            ],
+            "title": "GestureClassifierOutput",
+            "type": "object"
+        }
+    }
+}
