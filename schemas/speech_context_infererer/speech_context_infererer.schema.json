@@ -1,0 +1,198 @@
+{
+    "SpeechContextInfererInput": {
+        "$defs": {
+            "IntentMapping": {
+                "properties": {
+                    "intent_label": {
+                        "description": "Canonical intent identifier",
+                        "title": "Intent Label",
+                        "type": "string"
+                    },
+                    "modality": {
+                        "description": "Modality of the signal",
+                        "enum": [
+                            "gesture",
+                            "vocalization"
+                        ],
+                        "title": "Modality",
+                        "type": "string"
+                    },
+                    "label": {
+                        "description": "User-defined or system-learned label",
+                        "title": "Label",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "intent_label",
+                    "modality",
+                    "label"
+                ],
+                "title": "IntentMapping",
+                "type": "object"
+            }
+        },
+        "properties": {
+            "schema_version": {
+                "const": "1.0.0",
+                "default": "1.0.0",
+                "enum": [
+                    "1.0.0"
+                ],
+                "title": "Schema Version",
+                "type": "string"
+            },
+            "record_id": {
+                "description": "UUID for this message",
+                "title": "Record Id",
+                "type": "string"
+            },
+            "user_id": {
+                "description": "Pseudonymous user ID",
+                "title": "User Id",
+                "type": "string"
+            },
+            "session_id": {
+                "description": "Session identifier",
+                "title": "Session Id",
+                "type": "string"
+            },
+            "timestamp": {
+                "description": "UTC ISO8601 timestamp",
+                "title": "Timestamp",
+                "type": "string"
+            },
+            "transcript": {
+                "description": "Transcribed partner speech segment",
+                "title": "Transcript",
+                "type": "string"
+            },
+            "history": {
+                "description": "List of prior utterances in dialog history",
+                "items": {
+                    "type": "string"
+                },
+                "title": "History",
+                "type": "array"
+            },
+            "vocabulary": {
+                "description": "User's known intents from gesture/audio training",
+                "items": {
+                    "$ref": "#/$defs/IntentMapping"
+                },
+                "title": "Vocabulary",
+                "type": "array"
+            }
+        },
+        "required": [
+            "record_id",
+            "user_id",
+            "session_id",
+            "timestamp",
+            "transcript",
+            "history",
+            "vocabulary"
+        ],
+        "title": "SpeechContextInfererInput",
+        "type": "object"
+    },
+    "SpeechContextInfererOutput": {
+        "properties": {
+            "schema_version": {
+                "const": "1.0.0",
+                "default": "1.0.0",
+                "enum": [
+                    "1.0.0"
+                ],
+                "title": "Schema Version",
+                "type": "string"
+            },
+            "record_id": {
+                "description": "Copied from input",
+                "title": "Record Id",
+                "type": "string"
+            },
+            "user_id": {
+                "description": "Copied from input",
+                "title": "User Id",
+                "type": "string"
+            },
+            "session_id": {
+                "description": "Copied from input",
+                "title": "Session Id",
+                "type": "string"
+            },
+            "timestamp": {
+                "description": "UTC ISO8601 timestamp of inference",
+                "title": "Timestamp",
+                "type": "string"
+            },
+            "prompt_type": {
+                "anyOf": [
+                    {
+                        "enum": [
+                            "question",
+                            "command",
+                            "unknown"
+                        ],
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "description": "Dialog act type",
+                "title": "Prompt Type"
+            },
+            "topic": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "description": "Extracted topic or named entity",
+                "title": "Topic"
+            },
+            "matched_intents": {
+                "description": "Subset of intent labels matched to prompt",
+                "items": {
+                    "type": "string"
+                },
+                "title": "Matched Intents",
+                "type": "array"
+            },
+            "relevance_scores": {
+                "additionalProperties": {
+                    "type": "number"
+                },
+                "description": "Mapping of intent label to confidence score",
+                "title": "Relevance Scores",
+                "type": "object"
+            },
+            "flags": {
+                "additionalProperties": {
+                    "type": "boolean"
+                },
+                "description": "Contextual flags, e.g., is_question, needs_clarification",
+                "title": "Flags",
+                "type": "object"
+            }
+        },
+        "required": [
+            "record_id",
+            "user_id",
+            "session_id",
+            "timestamp",
+            "prompt_type",
+            "topic",
+            "matched_intents",
+            "relevance_scores",
+            "flags"
+        ],
+        "title": "SpeechContextInfererOutput",
+        "type": "object"
+    }
+}

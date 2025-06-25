@@ -1,0 +1,21 @@
+{
+    "schema_version": "1.0.0",
+    "record_id": "7b21c6aa-1e3c-4c9b-bc25-2f4f5b1c913e",
+    "user_id": "anon_user_72",
+    "session_id": "sess_20250625_001",
+    "timestamp": "2025-06-25T14:03:12Z",
+    "prompt_type": "question",
+    "topic": "food",
+    "matched_intents": [
+        "want_food",
+        "request_snack"
+    ],
+    "relevance_scores": {
+        "want_food": 0.89,
+        "request_snack": 0.67
+    },
+    "flags": {
+        "is_question": true,
+        "needs_clarification": false
+    }
+}

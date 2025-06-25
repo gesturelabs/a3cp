@@ -10,6 +10,16 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 -----------
+## [v0.4.X] - 2025-06-25
+### Added
+- Implemented `speech_context_inferer.py` schema under `schemas/`
+  - Defines input/output structures for contextual inference of partner speech
+  - Handles transcript segments, partner dialog history, and user vocabulary mappings
+- Generated JSON Schema: `schemas_json/speech_context_inferer.schema.json`
+- Added validation examples:
+  - `examples/speech_context_inferer/input.example.json`
+  - `examples/speech_context_inferer/output.example.json`
+
 
 ## ✨ Added: Schema Generation for `gesture_classifier` Module
 
