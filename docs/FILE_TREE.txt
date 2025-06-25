@@ -22,6 +22,7 @@
 ├── .ruff_cache
 │   ├── .gitignore
 │   ├── 0.4.1
+│   │   ├── 12851961650417760919
 │   │   ├── 13853966973267422128
 │   │   ├── 14662693001621857933
 │   │   ├── 14796056815366910097
@@ -31,6 +32,7 @@
 │   │   ├── 18179559772701967094
 │   │   ├── 2355555005983481674
 │   │   ├── 3156529535504641386
+│   │   ├── 3283494096778484730
 │   │   ├── 4896820134584812511
 │   │   ├── 9221589230948741129
 │   │   └── 9452919837056613069
@@ -100,118 +102,64 @@
 │   ├── modules
 │   │   ├── clarification_planner
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── confidence_evaluator
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── contextual_profiler
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
+│   │   ├── environment_classifier
+│   │   │   ├── README.md
+│   │   │   └── notes.md
 │   │   ├── feedback_log
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── gesture_classifier
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── input_broker
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── landmark_visualizer
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── llm_clarifier
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── memory_integrator
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── memory_interface
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── model_registry
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── model_trainer
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── output_expander
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── output_planner
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── raw_input_log
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── session_manager
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── sound_classifier
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── sound_playback
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   ├── speech_transcriber
 │   │   │   ├── README.md
-│   │   │   ├── notes.md
-│   │   │   ├── sample_input.json
-│   │   │   ├── sample_output.json
-│   │   │   └── schema.json
+│   │   │   └── notes.md
 │   │   └── video_streamer
 │   │       ├── CameraFeedWorker.md
 │   │       ├── LandmarkExtractor.md
@@ -219,10 +167,7 @@
 │   │       ├── RecordingPipeline.md
 │   │       ├── diagrams
 │   │       │   └── video_streamer_architecture.drawio
-│   │       ├── notes.md
-│   │       ├── sample_input.json
-│   │       ├── sample_output.json
-│   │       └── schema.json
+│   │       └── notes.md
 │   ├── older version
 │   │   └── SCHEMA_REFERENCE.md
 │   └── schemas
@@ -241,13 +186,22 @@
 ├── requirements.txt
 ├── schemas
 │   ├── README.md
-│   ├── a3cp_message.py
-│   ├── clarification_event.py
-│   ├── inference_trace.py
-│   └── raw_action_record.py
+│   ├── examples
+│   │   ├── a3cp_message
+│   │   ├── clarification_event
+│   │   ├── inference_trace
+│   │   └── raw_action_record
+│   ├── outputs
+│   └── source
+│       ├── __init__.py
+│       ├── a3cp_message.py
+│       ├── clarification_event.py
+│       ├── inference_trace.py
+│       └── raw_action_record.py
 ├── scripts
 │   ├── deploy.sh
 │   ├── dev.sh
+│   ├── gen_schema_mapping.py
 │   ├── manage.sh
 │   ├── schema_mapping_config.py
 │   └── validate_env.py
@@ -407,4 +361,4 @@
     │   └── test_raw_action_record.py
     └── test_placeholder.py
 
-66 directories, 342 files
+74 directories, 288 files
