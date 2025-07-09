@@ -1,4 +1,4 @@
-# speech_context_infererer Pydantic model
+# speech_context_infererer.py
 
 from typing import Annotated, Dict, List, Literal, Optional
 

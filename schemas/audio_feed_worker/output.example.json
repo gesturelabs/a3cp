@@ -1,0 +1,10 @@
+{
+    "timestamp": "2025-07-09T09:12:34.567Z",
+    "device_id": "mic_usb_01",
+    "sample_rate": 16000,
+    "waveform_format": "base64",
+    "audio_payload": "UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YcAAAA==",
+    "modality": "audio",
+    "source": "communicator",
+    "error": null
+}

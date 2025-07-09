@@ -22,20 +22,53 @@
 ├── .ruff_cache
 │   ├── .gitignore
 │   ├── 0.4.1
+│   │   ├── 10026929515953940805
+│   │   ├── 10156782289484861020
+│   │   ├── 10517366000954724975
+│   │   ├── 11584514492622159539
+│   │   ├── 1168593188500689714
+│   │   ├── 12469937722784140890
 │   │   ├── 12851961650417760919
+│   │   ├── 12893687240914959691
+│   │   ├── 13493969706045370032
+│   │   ├── 13639732354132140088
 │   │   ├── 13853966973267422128
 │   │   ├── 14662693001621857933
+│   │   ├── 14668214541087217148
 │   │   ├── 14796056815366910097
+│   │   ├── 14812788096301426217
 │   │   ├── 15153567910469312231
+│   │   ├── 15288839632844210073
+│   │   ├── 15411224871274258882
 │   │   ├── 15747962448544705309
+│   │   ├── 16234443389686529399
+│   │   ├── 1623502459691925712
+│   │   ├── 16421181530683341674
+│   │   ├── 16928761314505404101
+│   │   ├── 17605531733203500846
 │   │   ├── 17966911170574997115
+│   │   ├── 17989229613976053143
 │   │   ├── 18179559772701967094
 │   │   ├── 2355555005983481674
+│   │   ├── 3123369318727437810
 │   │   ├── 3156529535504641386
 │   │   ├── 3283494096778484730
+│   │   ├── 3402874076499395521
+│   │   ├── 4101422673290892718
 │   │   ├── 4896820134584812511
+│   │   ├── 6130054448193481423
+│   │   ├── 6365096800713908559
+│   │   ├── 7075708282324108695
+│   │   ├── 7363739443695278356
+│   │   ├── 8266595168970342763
+│   │   ├── 8713019482422976037
 │   │   ├── 9221589230948741129
-│   │   └── 9452919837056613069
+│   │   ├── 9452919837056613069
+│   │   ├── 9547009930546502232
+│   │   ├── 9769305080156248823
+│   │   ├── 9793786473988902941
+│   │   ├── 9850746832596802884
+│   │   └── 9874522582504093209
 │   └── CACHEDIR.TAG
 ├── .vscode
 │   └── settings.json
@@ -100,76 +133,57 @@
 │   │   ├── TESTING.md
 │   │   └── VARIOUS_COMMANDS.md
 │   ├── modules
+│   │   ├── audio_feed_worker
+│   │   │   └── README.md
+│   │   ├── camera_feed_worker
+│   │   │   └── README.md
 │   │   ├── clarification_planner
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── confidence_evaluator
-│   │   │   ├── README.md
-│   │   │   └── notes.md
-│   │   ├── contextual_profiler
-│   │   │   ├── README.md
-│   │   │   └── notes.md
-│   │   ├── environment_classifier
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── feedback_log
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── gesture_classifier
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── input_broker
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
+│   │   ├── landmark_extractor
+│   │   │   └── README.md
 │   │   ├── landmark_visualizer
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── llm_clarifier
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── memory_integrator
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── memory_interface
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── model_registry
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── model_trainer
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── output_expander
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── output_planner
-│   │   │   ├── README.md
-│   │   │   └── notes.md
-│   │   ├── raw_input_log
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
+│   │   ├── schema_recorder
+│   │   │   └── README.md
 │   │   ├── session_manager
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── sound_classifier
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
 │   │   ├── sound_playback
-│   │   │   ├── README.md
-│   │   │   └── notes.md
+│   │   │   └── README.md
+│   │   ├── speech_context_infererer
+│   │   │   └── README.md
 │   │   ├── speech_transcriber
-│   │   │   ├── README.md
-│   │   │   └── notes.md
-│   │   └── video_streamer
-│   │       ├── CameraFeedWorker.md
-│   │       ├── LandmarkExtractor.md
-│   │       ├── README.md
-│   │       ├── RecordingPipeline.md
-│   │       ├── diagrams
-│   │       │   └── video_streamer_architecture.drawio
-│   │       └── notes.md
+│   │   │   └── README.md
+│   │   └── visual_environment_classifier
+│   │       └── README.md
 │   ├── older version
-│   │   └── SCHEMA_REFERENCE.md
+│   │   ├── SCHEMA_REFERENCE.md
+│   │   └── old_video_streamer
+│   │       ├── README.md
+│   │       └── notes.md
 │   └── schemas
 │       ├── SCHEMA_CHANGELOG.md
 │       ├── SCHEMA_EVOLUTION_POLICY.md
@@ -177,7 +191,12 @@
 │       ├── SCHEMA_OVERVIEW.md
 │       └── SCHEMA_REFERENCE.md
 ├── interfaces
-│   └── README.md
+│   └── source
+│       ├── __init__.py
+│       ├── a3cp_message.py
+│       ├── clarification_event.py
+│       ├── inference_trace.py
+│       └── raw_action_record.py
 ├── manage.py
 ├── pyproject.toml
 ├── pyrightconfig.json
@@ -186,18 +205,121 @@
 ├── requirements.txt
 ├── schemas
 │   ├── README.md
-│   ├── examples
-│   │   ├── a3cp_message
-│   │   ├── clarification_event
-│   │   ├── inference_trace
-│   │   └── raw_action_record
-│   ├── outputs
-│   └── source
-│       ├── __init__.py
-│       ├── a3cp_message.py
-│       ├── clarification_event.py
-│       ├── inference_trace.py
-│       └── raw_action_record.py
+│   ├── audio_feed_worker
+│   │   ├── audio_feed_worker.py
+│   │   ├── audio_feed_worker.schema.json
+│   │   ├── input.example.json
+│   │   └── output.example.json
+│   ├── camera_feed_worker
+│   │   ├── camera_feed_worker.py
+│   │   ├── camera_feed_worker.schema.json
+│   │   ├── input.example.json
+│   │   └── output.example.json
+│   ├── clarification_planner
+│   │   ├── clarification_planner.py
+│   │   ├── clarification_planner.schema.json
+│   │   ├── input.example.json
+│   │   └── output.example.json
+│   ├── confidence_evaluator
+│   │   ├── confidence_evaluator.py
+│   │   ├── confidence_evaluator.schema.json
+│   │   ├── input.example.json
+│   │   └── output.example.json
+│   ├── feedback_log
+│   │   ├── feedback_log.py
+│   │   ├── feedback_log.schema.json
+│   │   ├── input.example.json
+│   │   └── output.example.json
+│   ├── gesture_classifier
+│   │   ├── gesture_classifier.py
+│   │   ├── gesture_classifier.schema.json
+│   │   ├── input.example.json
+│   │   └── output.example.json
+│   ├── input_broker
+│   │   ├── input.example.json
+│   │   ├── input_broker.py
+│   │   ├── input_broker.schema.json
+│   │   └── output.example.json
+│   ├── landmark_extractor
+│   │   ├── input.example.json
+│   │   ├── landmark_extractor.py
+│   │   ├── landmark_extractor.schema.json
+│   │   └── output.example.json
+│   ├── landmark_visualizer
+│   │   ├── input.example.json
+│   │   ├── landmark_visualizer.py
+│   │   ├── landmark_visualizer.schema.json
+│   │   └── output.example.json
+│   ├── llm_clarifier
+│   │   ├── input.example.json
+│   │   ├── llm_clarifier.py
+│   │   ├── llm_clarifier.schema.json
+│   │   └── output.example.json
+│   ├── memory_integrator
+│   │   ├── input.example.json
+│   │   ├── memory_integrator.py
+│   │   ├── memory_integrator.schema.json
+│   │   └── output.example.json
+│   ├── memory_interface
+│   │   ├── input.example.json
+│   │   ├── memory_interface.py
+│   │   ├── memory_interface.schema.json
+│   │   └── output.example.json
+│   ├── model_registry
+│   │   ├── input.example.json
+│   │   ├── model_registry.py
+│   │   ├── model_registry.schema.json
+│   │   └── output.example.json
+│   ├── model_trainer
+│   │   ├── input.example.json
+│   │   ├── model_trainer.py
+│   │   ├── model_trainer.schema.json
+│   │   └── output.example.json
+│   ├── output_expander
+│   │   ├── input.example.json
+│   │   ├── output.example.json
+│   │   ├── output_expander.py
+│   │   └── output_expander.schema.json
+│   ├── output_planner
+│   │   ├── input.example.json
+│   │   ├── output.example.json
+│   │   ├── output_planner.py
+│   │   └── output_planner.schema.json
+│   ├── schema_recorder
+│   │   ├── input.example.json
+│   │   ├── output.example.json
+│   │   ├── schema_recorder.py
+│   │   └── schema_recorder.schema.json
+│   ├── session_manager
+│   │   ├── input.example.json
+│   │   ├── output.example.json
+│   │   ├── session_manager.py
+│   │   └── session_manager.schema.json
+│   ├── sound_classifier
+│   │   ├── input.example.json
+│   │   ├── output.example.json
+│   │   ├── sound_classifier.py
+│   │   └── sound_classifier.schema.json
+│   ├── sound_playback
+│   │   ├── input.example.json
+│   │   ├── output.example.json
+│   │   ├── sound_playback.py
+│   │   └── sound_playback.schema.json
+│   ├── speech_context_infererer
+│   │   ├── input.example.json
+│   │   ├── output.example.json
+│   │   ├── speech_context_infererer.py
+│   │   └── speech_context_infererer.schema.json
+│   ├── speech_transcriber
+│   │   ├── input.example.json
+│   │   ├── output.example.json
+│   │   ├── speech_transcriber.py
+│   │   └── speech_transcriber.schema.json
+│   └── visual_environment_classifier
+│       ├── input.example.json
+│       ├── output.example.json
+│       ├── visual_environment_classifier.py
+│       └── visual_environment_classifier.schema.json
 ├── scripts
 │   ├── deploy.sh
 │   ├── dev.sh
@@ -355,10 +477,6 @@
     │   └── test_streamer.py
     ├── conftest.py
     ├── schemas
-    │   ├── test_a3cp_message.py
-    │   ├── test_clarification_event.py
-    │   ├── test_inference_trace.py
-    │   └── test_raw_action_record.py
     └── test_placeholder.py
 
-74 directories, 288 files
+93 directories, 387 files

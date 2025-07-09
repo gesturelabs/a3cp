@@ -2,11 +2,11 @@
 
 ## Purpose
 Captures live audio from a local input device (e.g., microphone) and streams it to downstream modules in real time.
-Acts as the source for all audio-derived data such as waveform-based classification, transcription, and recording.
+Acts as the source for all audio-derived data such as waveform-based classification, transcription, and logging.
 
 ## Responsibilities
 - Open and manage access to the selected audio input device
-- Stream raw audio buffers with consistent sample rate and chunk size
+- Stream raw audio buffers with consistent sample rate and internal buffer size (`chunk_size`)
 - Timestamp each buffer accurately for synchronization
 - Forward audio chunks to downstream consumers (e.g., SoundClassifier, SpeechTranscriber)
 - Signal availability/failure of audio input to orchestrating modules
@@ -16,24 +16,29 @@ Acts as the source for all audio-derived data such as waveform-based classificat
 - Waveform visualization or playback
 - File I/O or schema-compliant recording
 - Inference logic or context interpretation
-- Session orchestration or storage
+- Session orchestration or final logging
 
 ## Inputs
 - Configuration parameters:
   - `device_index` (e.g., default mic, external mic index)
   - `sample_rate` (e.g., 16000, 44100)
   - `chunk_size` (e.g., 1024 samples per frame)
-- Optional metadata (forwarded if available):
-  - `session_id`, `user_id`, `pseudonym`
+
+> Note: `chunk_size` is an **internal buffer parameter** and is not part of any logged schema. Temporal alignment is handled downstream using timestamps and segment IDs.
+
+- Optional runtime metadata (forwarded if available):
+  - `session_id`, `user_id`, `device_id`
 
 ## Outputs
 - Timestamped audio chunks (e.g., `np.ndarray` or `bytes`)
-- Stream metadata (e.g., `chunk_id`, `timestamp`, `device_index`)
+- Metadata attached per chunk (e.g., `timestamp`, `device_index`)
 - Error signals (e.g., mic unavailable, buffer overrun)
+
+> This module does not emit `A3CPMessage`. Downstream modules (e.g., SchemaRecorder) are responsible for wrapping this output in a schema-compliant log entry.
 
 ## Runtime Considerations
 - Must support threaded or asynchronous capture to avoid blocking audio I/O
-- Exposes interface (e.g., generator, callback, queue) for downstream use
+- Exposes interface (e.g., generator, callback, or queue) for downstream use
 - Audio input failures must emit recoverable exceptions and diagnostics
 - Graceful shutdown and reinitialization between sessions
 - Optional silence detection or amplitude thresholding
@@ -76,7 +81,7 @@ This submodule specializes in continuous real-time waveform capture for multimod
 - [ ] Add silence detection and amplitude statistics
 - [ ] Implement `dev_mode` fallback using `.wav` file
 - [ ] Log mic detection, stream start/stop, buffer issues
-- [ ] Validate input/output schema compatibility with `RawActionRecord`
+- [ ] Validate compatibility with downstream `A3CPMessage` schema
 
 ---
 
@@ -89,18 +94,18 @@ This submodule specializes in continuous real-time waveform capture for multimod
 ---
 
 ## Integration Notes
-- **To SoundClassifier**: Streams chunks via buffer/pipe
-- **To SpeechTranscriber**: Streams waveform with timing metadata
-- **To SchemaRecorder**: Metadata attached downstream
-- **From Config Manager**: Pulls device index, rate, chunk size
-- **Output schema**: Raw waveform with frame-level timestamping
+- **To SoundClassifier**: Streams audio chunks via buffer/pipe
+- **To SpeechTranscriber**: Streams waveform with timestamp metadata
+- **To SchemaRecorder**: Metadata attached downstream for schema compliance
+- **From Config Manager**: Pulls device index, sample rate, chunk size
+- **Output format**: Raw waveform array + metadata; schema wrapping done downstream
 
 ---
 
 ## References
-- [`SCHEMA_REFERENCE.md`](../../schemas/SCHEMA_REFERENCE.md) — audio input field definitions
+- [`SCHEMA_REFERENCE.md`](../../schemas/SCHEMA_REFERENCE.md) — defines `modality`, `source`, `device_id`, `timestamp`, and logging expectations
 - [`sound_classifier/README.md`](../sound_classifier/README.md) — consumer expectations
 - [`audio_feed_architecture.drawio`](./diagrams/audio_feed_architecture.drawio) — architecture diagram (WIP)
 - A3CP Design Doc v3 – Section 6.3 (Audio Stream Stack)
-- SoundDevice: https://python-sounddevice.readthedocs.io/
-- PyAudio: https://people.csail.mit.edu/hubert/pyaudio/
+- [SoundDevice](https://python-sounddevice.readthedocs.io/)
+- [PyAudio](https://people.csail.mit.edu/hubert/pyaudio/)

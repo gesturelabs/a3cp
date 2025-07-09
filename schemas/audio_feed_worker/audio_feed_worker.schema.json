@@ -1,0 +1,143 @@
+{
+    "AudioFeedWorkerConfig": {
+        "title": "AudioFeedWorkerConfig",
+        "type": "object",
+        "properties": {
+            "device_index": {
+                "anyOf": [
+                    {
+                        "type": "integer"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Index of audio input device",
+                "title": "Device Index"
+            },
+            "sample_rate": {
+                "type": "integer",
+                "description": "Target sample rate in Hz, e.g., 16000",
+                "title": "Sample Rate"
+            },
+            "chunk_size": {
+                "type": "integer",
+                "description": "Internal buffer size in samples (not logged)",
+                "title": "Chunk Size"
+            },
+            "session_id": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Session identifier",
+                "title": "Session Id"
+            },
+            "user_id": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "User identifier",
+                "title": "User Id"
+            }
+        },
+        "required": [
+            "sample_rate",
+            "chunk_size"
+        ]
+    },
+    "AudioChunkMetadata": {
+        "title": "AudioChunkMetadata",
+        "type": "object",
+        "properties": {
+            "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "UTC ISO 8601 timestamp of audio capture",
+                "title": "Timestamp"
+            },
+            "device_id": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Device ID or label for hardware source",
+                "title": "Device Id"
+            },
+            "sample_rate": {
+                "type": "integer",
+                "description": "Sample rate used during capture",
+                "title": "Sample Rate"
+            },
+            "waveform_format": {
+                "type": "string",
+                "enum": [
+                    "bytes",
+                    "base64",
+                    "ndarray"
+                ],
+                "description": "Encoding format used for audio_payload",
+                "title": "Waveform Format"
+            },
+            "audio_payload": {
+                "type": "string",
+                "description": "Waveform data as encoded string or blob reference",
+                "title": "Audio Payload"
+            },
+            "modality": {
+                "type": "string",
+                "enum": [
+                    "audio"
+                ],
+                "const": "audio",
+                "default": "audio",
+                "title": "Modality"
+            },
+            "source": {
+                "type": "string",
+                "enum": [
+                    "communicator"
+                ],
+                "const": "communicator",
+                "default": "communicator",
+                "title": "Source"
+            },
+            "error": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Optional error message if capture failed",
+                "title": "Error"
+            }
+        },
+        "required": [
+            "timestamp",
+            "sample_rate",
+            "waveform_format",
+            "audio_payload"
+        ]
+    }
+}

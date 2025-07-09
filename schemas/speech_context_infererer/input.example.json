@@ -4,27 +4,36 @@
     "user_id": "anon_user_72",
     "session_id": "sess_20250625_001",
     "timestamp": "2025-06-25T14:02:58Z",
-    "transcript_text": "Do you want something to eat?",
-    "transcript_language": "en",
-    "context_partner_speech": [
-        "Are you hungry?",
-        "Do you want something to eat?"
+    "partner_speech": [
+        {
+            "transcript": "Do you want something to eat?",
+            "timestamp": "2025-06-25T14:02:56Z",
+            "language": "en"
+        },
+        {
+            "transcript": "Are you hungry?",
+            "timestamp": "2025-06-25T14:02:52Z",
+            "language": "en"
+        }
     ],
-    "user_known_intents": [
-        "want_food",
-        "request_snack",
-        "ask_help"
-    ],
-    "user_vocabulary_mappings": {
-        "want_food": [
-            "gesture_eat",
-            "audio_mmm"
-        ],
-        "request_snack": [
-            "gesture_snack"
-        ],
-        "ask_help": [
-            "gesture_help"
-        ]
-    }
+    "vocabulary": [
+        {
+            "label": "want_food",
+            "modality": "gesture",
+            "examples": [
+                "eat",
+                "food",
+                "snack"
+            ]
+        },
+        {
+            "label": "ask_help",
+            "modality": "vocalization",
+            "examples": [
+                "help",
+                "please",
+                "assist"
+            ]
+        }
+    ]
 }
