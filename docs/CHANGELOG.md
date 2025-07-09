@@ -8,6 +8,12 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [gesture_classifier] Schema Simplification & Boundary Correction – 2025-07-09
+
+- Removed `audit_log` field from `GestureClassifierOutput` model and schema.
+- Confirmed that `gesture_classifier` performs only ML inference and should not attempt context-aware explanation.
+- Updated `output.example.json` to reflect minimal, valid structure (label → confidence).
+- Cleaned Pydantic model and schema definitions to reinforce strict separation between classifier and downstream evaluators.
 
 -----------
 ## [2025-07-09] Schema Feedback Log

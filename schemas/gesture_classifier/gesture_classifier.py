@@ -1,19 +1,8 @@
-# gesture_classifier Pydantic model
-
 # schemas/gesture_classifier.py
 
 from typing import Annotated, Dict, Literal, Optional
 
 from pydantic import BaseModel, Field
-
-# -------------------------
-# FileReference: metadata for any model or encoder file
-# -------------------------
-# This structure captures essential details for reproducibility and auditing:
-# - URI to the file (e.g., .h5 for models, .pkl for encoders)
-# - SHA-256 hash for integrity checking
-# - Semantic version string (e.g., "1.0.0", "v2.3-r45")
-# - Type: must be "model" or "encoder" (case-sensitive)
 
 
 class FileReference(BaseModel):
@@ -33,64 +22,51 @@ class FileReference(BaseModel):
     ]
 
 
-# -------------------------
-# RawFeaturesRef: pointer to extracted input features
-# -------------------------
-# This object links to the external feature vector used as input to the classifier.
-# - URI: file path (e.g., a .parquet or .npy file)
-# - hash: for audit integrity
-# - encoding: e.g., "landmark_v2.1"
-# - dims: vector dimensionality
-# - format: storage format
-
-
 class RawFeaturesRef(BaseModel):
     uri: Annotated[
         str,
-        Field(..., description="Path to external feature vector file (e.g., .parquet)"),
+        Field(
+            ...,
+            description="Path to stored landmark time series (e.g., .parquet or .npy)",
+        ),
     ]
     hash: Annotated[
         str, Field(..., description="SHA-256 content hash for file integrity")
     ]
     encoding: Annotated[
         str,
-        Field(..., description="Encoder type and version used (e.g., landmark_v2.1)"),
+        Field(
+            ..., description="Landmark encoding spec used (e.g., mediapipe_pose_v1.2)"
+        ),
     ]
-    dims: Annotated[int, Field(..., description="Dimensionality of the feature vector")]
-    format: Annotated[str, Field(..., description="File format: parquet, npy, etc.")]
-
-
-# -------------------------
-# GestureClassifierInput: full input payload to gesture classifier
-# -------------------------
-# Includes metadata, raw features, and explicit model + encoder references.
+    dims: Annotated[
+        int, Field(..., description="Total dimensionality of the landmark vector")
+    ]
+    format: Annotated[
+        Literal["parquet", "npy"],
+        Field(..., description="Storage format of landmark series"),
+    ]
 
 
 class GestureClassifierInput(BaseModel):
-    schema_version: Literal["1.0.0"] = Field(default="1.0.0", frozen=True)
+    schema_version: Literal["1.0.0"] = Field(
+        default="1.0.0", description="Schema version"
+    )
 
-    # Core metadata
     record_id: Annotated[str, Field(..., description="UUID for this message")]
     user_id: Annotated[str, Field(..., description="Pseudonymous user ID")]
     session_id: Annotated[str, Field(..., description="Session identifier")]
     timestamp: Annotated[str, Field(..., description="UTC ISO8601 timestamp")]
 
-    # Input metadata
-    modality: Literal["gesture"]
-    source: Literal["communicator", "caregiver", "system"]
+    # modality omitted because always fixed to 'gesture' at API level
 
-    # Optional context
-    context_location: Optional[str] = None
-    context_prompt_type: Optional[Literal["prompted", "natural_use", "other"]] = None
-    context_partner_speech: Optional[str] = None
-
-    # Gesture input
     raw_features_ref: Annotated[
-        RawFeaturesRef, Field(..., description="Pointer to gesture vector")
+        RawFeaturesRef, Field(..., description="Reference to stored gesture landmarks")
     ]
-    vector_version: Optional[str] = None
+    vector_version: Optional[str] = Field(
+        default=None, description="Version of preprocessing pipeline used"
+    )
 
-    # Model & encoder needed for classification
     model_ref: Annotated[
         FileReference, Field(..., description="Reference to model.h5 artifact to use")
     ]
@@ -100,16 +76,11 @@ class GestureClassifierInput(BaseModel):
     ]
 
 
-# -------------------------
-# GestureClassifierOutput: prediction and traceability info
-# -------------------------
-# Carries model predictions and confirms exactly which artifacts were used.
-
-
 class GestureClassifierOutput(BaseModel):
-    schema_version: Literal["1.0.0"] = Field(default="1.0.0", frozen=True)
+    schema_version: Literal["1.0.0"] = Field(
+        default="1.0.0", description="Schema version"
+    )
 
-    # Core metadata
     record_id: Annotated[str, Field(..., description="Copied from input")]
     user_id: Annotated[str, Field(..., description="Copied from input")]
     session_id: Annotated[str, Field(..., description="Copied from input")]
@@ -117,13 +88,11 @@ class GestureClassifierOutput(BaseModel):
         str, Field(..., description="UTC ISO8601 timestamp of prediction")
     ]
 
-    # Prediction output
     classifier_output: Annotated[
-        Dict[str, float],
+        Dict[str, Annotated[float, Field(ge=0.0, le=1.0)]],
         Field(..., description="Map of intent label to confidence score (0.0–1.0)"),
     ]
 
-    # Model artifacts used
     model_ref: Annotated[
         FileReference, Field(..., description="Reference to model.h5 artifact used")
     ]
