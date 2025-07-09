@@ -10,7 +10,15 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 -----------
-## [2025-07-09] audio_feed_worker module finalized
+## [2025-07-09] camera_feed_worker models and schema added
+
+- ✨ Added camera_feed_worker.py with config and frame metadata models
+- ✅ Schema aligned with A3CP SCHEMA_REFERENCE.md (modality=image, source=communicator)
+- 🧪 Added input.example.json and output.example.json for validation
+- 📄 Generated camera_feed_worker.schema.json
+- 🔒 No raw frames are serialized; landmarks only are extracted downstream
+
+## [2025-07-09] audio_feed_worker module added
 
 - ✨ Added audio_feed_worker.schema.json (Config + Metadata models)
 - ✅ Removed pseudonym field for strict A3CP compliance

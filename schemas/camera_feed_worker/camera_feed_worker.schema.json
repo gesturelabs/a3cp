@@ -1,0 +1,156 @@
+{
+    "CameraFeedWorkerConfig": {
+        "title": "CameraFeedWorkerConfig",
+        "type": "object",
+        "properties": {
+            "device_id": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Video device path or index, e.g., '/dev/video0' or '0'",
+                "title": "Device Id"
+            },
+            "resolution": {
+                "type": "array",
+                "prefixItems": [
+                    {
+                        "type": "integer"
+                    },
+                    {
+                        "type": "integer"
+                    }
+                ],
+                "minItems": 2,
+                "maxItems": 2,
+                "description": "Target resolution as (width, height), e.g., (640, 480)",
+                "title": "Resolution"
+            },
+            "fps": {
+                "type": "integer",
+                "description": "Target capture frame rate in frames per second",
+                "title": "Fps"
+            },
+            "session_id": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Session identifier for downstream tagging",
+                "title": "Session Id"
+            },
+            "user_id": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "User identifier for downstream tagging",
+                "title": "User Id"
+            }
+        },
+        "required": [
+            "resolution",
+            "fps"
+        ]
+    },
+    "CameraFrameMetadata": {
+        "title": "CameraFrameMetadata",
+        "type": "object",
+        "properties": {
+            "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "UTC ISO 8601 timestamp of video frame capture",
+                "title": "Timestamp"
+            },
+            "device_id": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Device ID or index used for capture",
+                "title": "Device Id"
+            },
+            "modality": {
+                "type": "string",
+                "enum": [
+                    "image"
+                ],
+                "const": "image",
+                "default": "image",
+                "title": "Modality"
+            },
+            "source": {
+                "type": "string",
+                "enum": [
+                    "communicator"
+                ],
+                "const": "communicator",
+                "default": "communicator",
+                "title": "Source"
+            },
+            "frame_index": {
+                "anyOf": [
+                    {
+                        "type": "integer"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Index of the frame in the current stream or segment",
+                "title": "Frame Index"
+            },
+            "stream_segment_id": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Optional window or chunk ID for stream segmentation",
+                "title": "Stream Segment Id"
+            },
+            "error": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null,
+                "description": "Optional error message if frame read failed",
+                "title": "Error"
+            }
+        },
+        "required": [
+            "timestamp"
+        ]
+    }
+}

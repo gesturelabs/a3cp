@@ -1,0 +1,10 @@
+{
+    "device_id": "/dev/video0",
+    "resolution": [
+        640,
+        480
+    ],
+    "fps": 30,
+    "session_id": "a3cp_sess_2025-07-09_elias01",
+    "user_id": "elias01"
+}
