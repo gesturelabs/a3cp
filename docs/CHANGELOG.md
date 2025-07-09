@@ -10,6 +10,28 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 -----------
+## [2025-07-09] Schema Feedback Log
+[schemas] Added new module: feedback_log
+ - Defined FeedbackLogEntry Pydantic model with audit-safe fields
+ - Enforced enum-based label_status ("confirmed", "corrected", "rejected")
+ - Generated feedback_log.schema.json
+ - Added input.example.json and output.example.json with canonical test case
+ - Aligns with CARE feedback loop and audit export specs
+==============================
+
+## [2025-07-09] Schema Updates – Clarification & Confidence Modules
+
+- Refactored `clarification_planner.schema.json`:
+  - Removed legacy structure
+  - Added `$defs` for input/output schema separation
+  - Added compliant `input.example.json` and `output.example.json`
+
+- Added `confidence_evaluator.schema.json`:
+  - Defined `RankedIntent`, `ConfidenceEvaluatorInput`, `ConfidenceEvaluatorOutput`
+  - Supports weighted scoring, memory integration, and audit trail
+  - Added schema-compliant examples for input and output
+
+All schemas updated to use domain: https://gesturelabs.org
 
 ## 2025-07-09  clarification_planner
 - Added ClarificationPlannerInput and ClarificationPlannerOutput schemas

@@ -7,11 +7,7 @@ from pydantic import BaseModel, Field
 class AudioFeedWorkerConfig(BaseModel):
     device_index: Optional[int] = Field(None, description="Index of audio input device")
     sample_rate: int = Field(..., description="Target sample rate in Hz, e.g., 16000")
-    chunk_size: int = Field(
-        ..., description="Internal buffer size in samples (not logged)"
-    )
-    session_id: Optional[str] = Field(None, description="Session identifier")
-    user_id: Optional[str] = Field(None, description="User identifier")
+    chunk_size: int = Field(..., description="Internal buffer size (not logged)")
 
 
 class AudioChunkMetadata(BaseModel):

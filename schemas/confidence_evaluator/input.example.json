@@ -1,0 +1,25 @@
+{
+    "classifier_output": [
+        {
+            "intent": "eat",
+            "base_confidence": 0.62,
+            "memory_boost": 0.15,
+            "context_alignment": 0.10
+        },
+        {
+            "intent": "play",
+            "base_confidence": 0.60,
+            "memory_boost": 0.05,
+            "context_alignment": 0.02
+        }
+    ],
+    "memory_intent_boosts": {
+        "eat": 0.15,
+        "play": 0.05
+    },
+    "context_topic_tag": "food",
+    "context_relevance_score": 0.92,
+    "timestamp": "2025-07-09T09:45:12.789Z",
+    "session_id": "a3cp_sess_2025-07-09_elias01",
+    "user_id": "elias01"
+}

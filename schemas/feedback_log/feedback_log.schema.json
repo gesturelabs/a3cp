@@ -1,0 +1,73 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://gesturelabs.org/schemas/feedback_log/feedback_log.schema.json",
+    "title": "FeedbackLogEntry",
+    "description": "Schema for caregiver or partner feedback on clarification prompts.",
+    "type": "object",
+    "properties": {
+        "entry_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique ID for this clarification event"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "UTC ISO 8601 timestamp of caregiver feedback"
+        },
+        "session_id": {
+            "type": "string",
+            "description": "Session identifier for grouping"
+        },
+        "user_id": {
+            "type": "string",
+            "description": "Pseudonymous or actual user identifier"
+        },
+        "prompt_text": {
+            "type": "string",
+            "description": "Clarification prompt shown to the caregiver or partner"
+        },
+        "user_response": {
+            "type": "string",
+            "description": "Verbatim or normalized user/caregiver reply"
+        },
+        "intent_label": {
+            "type": "string",
+            "description": "Original intent label under review"
+        },
+        "label_correction": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "Corrected intent label, if caregiver provided one"
+        },
+        "label_status": {
+            "type": "string",
+            "enum": [
+                "confirmed",
+                "corrected",
+                "rejected"
+            ],
+            "description": "Label trust status: confirmed, corrected, or rejected"
+        },
+        "output_mode": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "Mode of AAC or system output (e.g., 'speech', 'symbol')"
+        }
+    },
+    "required": [
+        "entry_id",
+        "timestamp",
+        "session_id",
+        "user_id",
+        "prompt_text",
+        "user_response",
+        "intent_label",
+        "label_status"
+    ],
+    "additionalProperties": false
+}

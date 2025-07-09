@@ -1,0 +1,12 @@
+{
+    "entry_id": "3a1f9f4c-1c7e-4a0e-87d0-4a3b7b6b9d20",
+    "timestamp": "2025-07-09T10:24:56.123Z",
+    "session_id": "a3cp_session_elias01_2025_07_09",
+    "user_id": "elias01",
+    "prompt_text": "Did you mean 'water' or 'juice'?",
+    "user_response": "juice",
+    "intent_label": "water",
+    "label_correction": "juice",
+    "label_status": "corrected",
+    "output_mode": "symbol"
+}

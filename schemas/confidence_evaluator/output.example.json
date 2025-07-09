@@ -1,0 +1,29 @@
+{
+    "classifier_output": [
+        {
+            "intent": "eat",
+            "base_confidence": 0.62,
+            "memory_boost": 0.15,
+            "context_alignment": 0.10,
+            "final_score": 0.87
+        },
+        {
+            "intent": "play",
+            "base_confidence": 0.60,
+            "memory_boost": 0.05,
+            "context_alignment": 0.02,
+            "final_score": 0.67
+        }
+    ],
+    "context_flags": {
+        "high_confidence": true,
+        "tie_score": false
+    },
+    "final_decision": "eat",
+    "timestamp": "2025-07-09T09:45:12.902Z",
+    "audit_log": {
+        "scoring_method": "weighted_sum(v1)",
+        "threshold_applied": "final_score > 0.85",
+        "decision_rationale": "eat scored significantly above others"
+    }
+}

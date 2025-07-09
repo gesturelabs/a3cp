@@ -13,12 +13,6 @@ class CameraFeedWorkerConfig(BaseModel):
         ..., description="Target resolution as (width, height), e.g., (640, 480)"
     )
     fps: int = Field(..., description="Target capture frame rate in frames per second")
-    session_id: Optional[str] = Field(
-        None, description="Session identifier for downstream tagging"
-    )
-    user_id: Optional[str] = Field(
-        None, description="User identifier for downstream tagging"
-    )
 
 
 class CameraFrameMetadata(BaseModel):

@@ -1,9 +1,9 @@
 {
-    "timestamp": "2025-07-09T10:23:45.678Z",
+    "timestamp": "2025-07-09T09:15:23.456Z",
     "device_id": "/dev/video0",
     "modality": "image",
     "source": "communicator",
     "frame_index": 42,
-    "stream_segment_id": "elias01_2025-07-09T10:20:00Z",
+    "stream_segment_id": "elias01_segment_001",
     "error": null
 }
