@@ -1,0 +1,132 @@
+{
+    "ClarificationPlannerInput": {
+        "title": "ClarificationPlannerInput",
+        "type": "object",
+        "properties": {
+            "classifier_output": {
+                "title": "Classifier Output",
+                "type": "array",
+                "items": {
+                    "title": "RankedIntent",
+                    "type": "object",
+                    "properties": {
+                        "intent": {
+                            "title": "Intent",
+                            "type": "string"
+                        },
+                        "confidence": {
+                            "title": "Confidence",
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0
+                        }
+                    },
+                    "required": [
+                        "intent",
+                        "confidence"
+                    ]
+                },
+                "description": "Ranked intents with confidence scores"
+            },
+            "context_flags": {
+                "title": "Context Flags",
+                "type": "object",
+                "description": "Contextual flags (e.g., question_detected)",
+                "additionalProperties": {
+                    "type": "boolean"
+                },
+                "default": {}
+            },
+            "context_topic_tag": {
+                "title": "Context Topic Tag",
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Inferred topic tag"
+            },
+            "context_relevance_score": {
+                "title": "Context Relevance Score",
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Context relevance to known intents",
+                "minimum": 0.0,
+                "maximum": 1.0
+            },
+            "timestamp": {
+                "title": "Timestamp",
+                "type": "string",
+                "format": "date-time",
+                "description": "UTC ISO 8601 timestamp"
+            },
+            "session_id": {
+                "title": "Session Id",
+                "type": "string",
+                "description": "Unique session identifier"
+            },
+            "user_id": {
+                "title": "User Id",
+                "type": "string",
+                "description": "User identifier"
+            },
+            "unresolved_intents": {
+                "title": "Unresolved Intents",
+                "type": [
+                    "array",
+                    "null"
+                ],
+                "items": {
+                    "type": "string"
+                },
+                "description": "Recent unresolved or corrected intents"
+            }
+        },
+        "required": [
+            "classifier_output",
+            "timestamp",
+            "session_id",
+            "user_id"
+        ]
+    },
+    "ClarificationPlannerOutput": {
+        "title": "ClarificationPlannerOutput",
+        "type": "object",
+        "properties": {
+            "clarification_trigger": {
+                "title": "Clarification Trigger",
+                "type": "boolean",
+                "description": "Whether clarification should be requested"
+            },
+            "clarification_payload": {
+                "title": "Clarification Payload",
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "description": "Payload passed to LLM Clarifier"
+            },
+            "audit_log": {
+                "title": "Audit Log",
+                "type": "object",
+                "description": "Explanation and threshold criteria for decision",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "final_decision_override": {
+                "title": "Final Decision Override",
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Optional final decision suggestion if clarification is skipped"
+            }
+        },
+        "required": [
+            "clarification_trigger",
+            "audit_log"
+        ]
+    }
+}

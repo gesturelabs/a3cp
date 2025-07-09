@@ -1,0 +1,29 @@
+{
+    "classifier_output": [
+        {
+            "intent": "request_drink",
+            "confidence": 0.42
+        },
+        {
+            "intent": "request_bathroom",
+            "confidence": 0.41
+        },
+        {
+            "intent": "request_help",
+            "confidence": 0.17
+        }
+    ],
+    "context_flags": {
+        "question_detected": true,
+        "partner_attention": true
+    },
+    "context_topic_tag": "drink",
+    "context_relevance_score": 0.88,
+    "timestamp": "2025-07-09T08:43:00Z",
+    "session_id": "sess_28d4e3f7",
+    "user_id": "user_1234",
+    "unresolved_intents": [
+        "request_drink",
+        "request_sleep"
+    ]
+}

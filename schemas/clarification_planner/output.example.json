@@ -1,0 +1,20 @@
+{
+    "clarification_trigger": true,
+    "clarification_payload": {
+        "top_candidates": [
+            "request_drink",
+            "request_bathroom"
+        ],
+        "reason": "Low confidence delta between top-ranked intents",
+        "relevance_score": 0.88,
+        "context_topic": "drink"
+    },
+    "audit_log": {
+        "decision": "triggered",
+        "threshold_applied": "delta < 0.05",
+        "top_confidence": "0.42",
+        "second_confidence": "0.41",
+        "notes": "Ambiguous prediction — clarification advised"
+    },
+    "final_decision_override": null
+}

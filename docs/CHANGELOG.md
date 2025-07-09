@@ -10,6 +10,13 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 -----------
+
+## 2025-07-09  clarification_planner
+- Added ClarificationPlannerInput and ClarificationPlannerOutput schemas
+- Generated clarification_planner.schema.json and example input/output JSON
+- Supports audit-traceable clarification trigger decisions
+- Conforms to SCHEMA_REFERENCE.md structure and CARE loop contract
+
 ## [2025-07-09] camera_feed_worker models and schema added
 
 - ✨ Added camera_feed_worker.py with config and frame metadata models
