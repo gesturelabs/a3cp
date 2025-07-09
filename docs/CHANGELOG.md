@@ -10,6 +10,15 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 -----------
+## [2025-07-09] audio_feed_worker module finalized
+
+- ✨ Added audio_feed_worker.schema.json (Config + Metadata models)
+- ✅ Removed pseudonym field for strict A3CP compliance
+- 📦 Added input.example.json and output.example.json
+- 📝 Updated README to clarify role boundaries and schema alignment
+
+
+
 ## [v0.4.X] - 2025-06-25
 ### Added
 - Implemented `speech_context_inferer.py` schema under `schemas/`

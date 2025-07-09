@@ -22,13 +22,13 @@ Acts as the source for all video-derived data such as landmarks, classification,
   - `device_id` (e.g., `/dev/video0`, index 0)
   - Target resolution (e.g., 640x480)
   - Target FPS (e.g., 30)
-- Optional metadata (forwarded if available):
-  - `session_id`, `user_id`, `pseudonym`
+- Optional metadata (used for downstream schema attachment): session_id, user_id. These fields do not influence video capture, but are useful for tagging frames in downstream logs.
 
 ## Outputs
 - Timestamped video frames (e.g., OpenCV `np.ndarray`)
-- Stream metadata (e.g., `frame_id`, `timestamp`, `device_id`)
+- Stream metadata (e.g., timestamp, device_id, optional stream_segment_id, frame_index) — conforms to Section 3.1
 - Error signals (e.g., device unavailable, read failure)
+This module does not emit schema-compliant messages directly. Instead, it produces raw video frames (np.ndarray) and basic metadata. Schema wrapping (e.g., into RawActionRecord or A3CPMessage) is performed downstream (e.g., by the LandmarkExtractor or SchemaRecorder).
 
 ## Runtime Considerations
 - Should support threaded or asynchronous capture to avoid blocking I/O
@@ -72,7 +72,7 @@ The `camera_feed_worker` was split out of the former `video_streamer` module to 
 - [ ] Implement threaded frame capture with `cv2.VideoCapture`
 - [ ] Expose a generator/queue interface for downstream pull or push
 - [ ] Add logging for stream start/stop, errors, and dropped frames
-- [ ] Add schema stub for emitted frame metadata (for downstream use)
+- [ ] Define CameraFrameMetadata model aligned with A3CPMessage input structure (timestamp, device_id, modality="image", source="communicator", etc.)
 - [ ] Implement test camera fallback using pre-recorded sample
 - [ ] Add `dev_mode` CLI or config toggle
 - [ ] Validate device availability on startup
