@@ -8,6 +8,19 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [v0.5.0] - 2025-07-10
+### Added
+- New script `generate_schemas_from_master.py` in `scripts/` for automatic schema and example file generation.
+  - Iterates over all subdirectories of `schemas/`
+  - For each directory containing a single `.py` file with a `BaseModel` subclass:
+    - Generates `<module>_schema.json` using `model_json_schema()`
+    - Calls `example_input()` and `example_output()` static methods (if present) to generate:
+      - `<module>_input_example.json`
+      - `<module>_output_example.json`
+  - Supports `--module <name>` to restrict processing to a specific schema folder
+  - Designed for consistent, reproducible generation of Pydantic-based schemas and examples
+
+
 ## [gesture_classifier] Schema Simplification & Boundary Correction – 2025-07-09
 
 - Removed `audit_log` field from `GestureClassifierOutput` model and schema.

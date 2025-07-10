@@ -56,7 +56,7 @@ def generate_schema_file(model_cls: Type[BaseModel], folder: Path, folder_name: 
 def generate_input_example(model_cls: Type[BaseModel], folder: Path, folder_name: str):
     try:
         if hasattr(model_cls, "example_input"):
-            input_func = model_cls.example_input
+            input_func = model_cls.example_input  # type: ignore[attr-defined]
             if not callable(input_func):
                 print(
                     f"⚠️  example_input exists but is not callable in {model_cls.__name__}"
@@ -88,7 +88,7 @@ def generate_input_example(model_cls: Type[BaseModel], folder: Path, folder_name
 def generate_output_example(model_cls: Type[BaseModel], folder: Path, folder_name: str):
     try:
         if hasattr(model_cls, "example_output"):
-            output_func = model_cls.example_output
+            output_func = model_cls.example_output  # type: ignore[attr-defined]
             if not callable(output_func):
                 print(
                     f"⚠️  example_output exists but is not callable in {model_cls.__name__}"
