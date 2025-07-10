@@ -35,3 +35,23 @@ class FeedbackLogEntry(BaseModel):
         None,
         description="Mode of AAC or system output at time of prompt (e.g., 'speech', 'symbol')",
     )
+
+    @staticmethod
+    def example_input() -> dict:
+        return {
+            "entry_id": str(uuid4()),
+            "timestamp": "2025-07-10T12:00:00Z",
+            "session_id": "session_abc123",
+            "user_id": "user_xyz789",
+            "prompt_text": "Did you mean 'drink'?",
+            "user_response": "Yes, I did",
+            "intent_label": "drink",
+            "label_correction": None,
+            "label_status": "confirmed",
+            "output_mode": "speech",
+        }
+
+    @staticmethod
+    def example_output() -> dict:
+        # For now, assume output equals input; customize if needed later
+        return FeedbackLogEntry.example_input()

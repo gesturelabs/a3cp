@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/feedback_log_schema.json",
+  "title": "Feedback Log Schema",
+  "description": "Schema for feedback_log input and output messages.",
+  "type": "object",
+  "$defs": {
+    "FeedbackLogEntry": {
+      "properties": {
+        "entry_id": {
+          "description": "Unique ID for this clarification event",
+          "format": "uuid",
+          "title": "Entry Id",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "UTC ISO 8601 timestamp of caregiver feedback",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "Session identifier for grouping",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Pseudonymous or actual user identifier",
+          "title": "User Id",
+          "type": "string"
+        },
+        "prompt_text": {
+          "description": "Clarification prompt shown to the caregiver or partner",
+          "title": "Prompt Text",
+          "type": "string"
+        },
+        "user_response": {
+          "description": "Verbatim or normalized user/caregiver reply",
+          "title": "User Response",
+          "type": "string"
+        },
+        "intent_label": {
+          "description": "Original intent label under review",
+          "title": "Intent Label",
+          "type": "string"
+        },
+        "label_correction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Corrected intent label, if caregiver provided one",
+          "title": "Label Correction"
+        },
+        "label_status": {
+          "description": "Label trust status: confirmed, corrected, or rejected",
+          "enum": [
+            "confirmed",
+            "corrected",
+            "rejected"
+          ],
+          "title": "Label Status",
+          "type": "string"
+        },
+        "output_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mode of AAC or system output at time of prompt (e.g., 'speech', 'symbol')",
+          "title": "Output Mode"
+        }
+      },
+      "required": [
+        "timestamp",
+        "session_id",
+        "user_id",
+        "prompt_text",
+        "user_response",
+        "intent_label",
+        "label_status"
+      ],
+      "title": "FeedbackLogEntry",
+      "type": "object"
+    }
+  }
+}

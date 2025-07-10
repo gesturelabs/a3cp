@@ -1,0 +1,12 @@
+{
+  "entry_id": "43e3e6a3-63e9-487a-811c-b4515b73725b",
+  "intent_label": "drink",
+  "label_correction": null,
+  "label_status": "confirmed",
+  "output_mode": "speech",
+  "prompt_text": "Did you mean 'drink'?",
+  "session_id": "session_abc123",
+  "timestamp": "2025-07-10T12:00:00Z",
+  "user_id": "user_xyz789",
+  "user_response": "Yes, I did"
+}
