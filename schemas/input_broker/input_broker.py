@@ -61,3 +61,71 @@ class AlignedInputBundle(BaseModel):
         List[AlignedClassifierMessage],
         Field(..., description="List of aligned outputs from different modalities"),
     ]
+
+    @staticmethod
+    def example_input() -> dict:
+        return {
+            "schema_version": "1.0.0",
+            "stream_segment_id": "seg_20250709T120001Z",
+            "timestamp": "2025-07-09T12:00:01.110Z",
+            "session_id": "sess_20250709_e01",
+            "user_id": "elias01",
+            "aligned_messages": [
+                {
+                    "modality": "gesture",
+                    "timestamp": "2025-07-09T12:00:01.120Z",
+                    "session_id": "sess_20250709_e01",
+                    "user_id": "elias01",
+                    "classifier_output": {"play": 0.6, "eat": 0.4},
+                    "vector_version": "v1.2",
+                },
+                {
+                    "modality": "audio",
+                    "timestamp": "2025-07-09T12:00:01.110Z",
+                    "session_id": "sess_20250709_e01",
+                    "user_id": "elias01",
+                    "classifier_output": {"play": 0.7, "sleep": 0.3},
+                },
+                {
+                    "modality": "speech",
+                    "timestamp": "2025-07-09T12:00:01.100Z",
+                    "session_id": "sess_20250709_e01",
+                    "user_id": "elias01",
+                    "classifier_output": "I want to play outside",
+                },
+            ],
+        }
+
+    @staticmethod
+    def example_output() -> dict:
+        return {
+            "schema_version": "1.0.0",
+            "stream_segment_id": "seg_20250709T120001Z",
+            "timestamp": "2025-07-09T12:00:01.110Z",
+            "session_id": "sess_20250709_e01",
+            "user_id": "elias01",
+            "aligned_messages": [
+                {
+                    "modality": "gesture",
+                    "timestamp": "2025-07-09T12:00:01.120Z",
+                    "session_id": "sess_20250709_e01",
+                    "user_id": "elias01",
+                    "classifier_output": {"play": 0.6, "eat": 0.4},
+                    "vector_version": "v1.2",
+                },
+                {
+                    "modality": "audio",
+                    "timestamp": "2025-07-09T12:00:01.110Z",
+                    "session_id": "sess_20250709_e01",
+                    "user_id": "elias01",
+                    "classifier_output": {"play": 0.7, "sleep": 0.3},
+                },
+                {
+                    "modality": "speech",
+                    "timestamp": "2025-07-09T12:00:01.100Z",
+                    "session_id": "sess_20250709_e01",
+                    "user_id": "elias01",
+                    "classifier_output": "I want to play outside",
+                },
+            ],
+        }

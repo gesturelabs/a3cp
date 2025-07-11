@@ -1,0 +1,37 @@
+{
+  "aligned_messages": [
+    {
+      "classifier_output": {
+        "eat": 0.4,
+        "play": 0.6
+      },
+      "modality": "gesture",
+      "session_id": "sess_20250709_e01",
+      "timestamp": "2025-07-09T12:00:01.120Z",
+      "user_id": "elias01",
+      "vector_version": "v1.2"
+    },
+    {
+      "classifier_output": {
+        "play": 0.7,
+        "sleep": 0.3
+      },
+      "modality": "audio",
+      "session_id": "sess_20250709_e01",
+      "timestamp": "2025-07-09T12:00:01.110Z",
+      "user_id": "elias01"
+    },
+    {
+      "classifier_output": "I want to play outside",
+      "modality": "speech",
+      "session_id": "sess_20250709_e01",
+      "timestamp": "2025-07-09T12:00:01.100Z",
+      "user_id": "elias01"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "session_id": "sess_20250709_e01",
+  "stream_segment_id": "seg_20250709T120001Z",
+  "timestamp": "2025-07-09T12:00:01.110Z",
+  "user_id": "elias01"
+}
