@@ -1,0 +1,27 @@
+{
+  "encoder_ref": {
+    "hash": "9a488d967b47b770a5d4731876c96d5a0c278a776ddfbbaf05cc64d649b93e64",
+    "type": "encoder",
+    "uri": "registry://encoders/anon_user_17/gesture_encoder_v1.pkl",
+    "version": "1.0.0"
+  },
+  "model_ref": {
+    "hash": "44b3942e617eaaf82e39f61e0c2ebac969f71e79b1be74bc51e6b39d607d0b1c",
+    "type": "model",
+    "uri": "registry://models/anon_user_17/gesture_lstm_v1.4.h5",
+    "version": "1.4.0"
+  },
+  "raw_features_ref": {
+    "dims": 225,
+    "encoding": "mediapipe_pose_v1.2",
+    "format": "parquet",
+    "hash": "ce4f8f85b4dfb630f55e9bb27e3a04db1f9dc3d1947e86a2bc0f0d19074cf1ae",
+    "uri": "file://data/landmarks/anon_user_17/20250709_114300_pose.parquet"
+  },
+  "record_id": "5dcac6f8-51f9-4478-b601-dfa57eb9cacf",
+  "schema_version": "1.0.0",
+  "session_id": "sess_20250709T114300Z",
+  "timestamp": "2025-07-09T11:43:00Z",
+  "user_id": "anon_user_17",
+  "vector_version": "landmark_preproc_v1.2.0"
+}

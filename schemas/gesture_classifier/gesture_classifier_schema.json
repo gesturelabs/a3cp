@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/gesture_classifier_schema.json",
+  "title": "Gesture Classifier Schema",
+  "description": "Schema for gesture_classifier input and output messages.",
+  "type": "object",
+  "$defs": {
+    "RawFeaturesRef": {
+      "properties": {
+        "uri": {
+          "description": "Path to stored landmark time series (e.g., .parquet or .npy)",
+          "title": "Uri",
+          "type": "string"
+        },
+        "hash": {
+          "description": "SHA-256 content hash for file integrity",
+          "title": "Hash",
+          "type": "string"
+        },
+        "encoding": {
+          "description": "Landmark encoding spec used (e.g., mediapipe_pose_v1.2)",
+          "title": "Encoding",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Total dimensionality of the landmark vector",
+          "title": "Dims",
+          "type": "integer"
+        },
+        "format": {
+          "description": "Storage format of landmark series",
+          "enum": [
+            "parquet",
+            "npy"
+          ],
+          "title": "Format",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri",
+        "hash",
+        "encoding",
+        "dims",
+        "format"
+      ],
+      "title": "RawFeaturesRef",
+      "type": "object"
+    }
+  }
+}
