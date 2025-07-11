@@ -12,6 +12,15 @@ Maintainer: Dmitri Katz
 ## [v0.5.4] - 2025-07-11
 
 ### Added
+- Introduced `memory_integrator.py` schema:
+  - Defines `MemoryIntegratorInput` with classifier outputs, memory intent boosts, and hint flags.
+  - Defines `MemoryIntegratorOutput` with adjusted intent scores, optional final decision, and a logging summary.
+  - Supports recency-, frequency-, and correction-based score adjustments using per-user memory traces.
+
+
+## [v0.5.4] - 2025-07-11
+
+### Added
 - Introduced `llm_clarifier.py` schema:
   - Defines `LLMClarifierInput` with session metadata, intent candidates, topic tags, and CARE flags.
   - Defines `LLMClarifierOutput` with generated prompt string, prompt mode, updated flags, and logging summary.
