@@ -8,6 +8,26 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+## [v0.5.2] - 2025-07-10
+### Changed
+- Updated `generate_schemas_from_master.py` to support structured example generation:
+  - Generates `*_schema.json` from **all** `BaseModel` classes in the target `.py` file.
+  - Generates `*_input_example.json` and `*_output_example.json` from **only the first** class in the file that defines `example_input()` or `example_output()` methods.
+  - Prevents multiple example files from being generated per module.
+
+### Requirements for Schema Modules
+- Each schema folder (e.g. `schemas/audio_feed_worker/`) must contain exactly one `.py` file.
+- That file may define multiple `BaseModel` classes, but:
+  - Only one class should define `@staticmethod def example_input()` and/or `example_output()`.
+  - All other classes must **not** define example methods to avoid ambiguity.
+
+### Example Output
+For a module named `foo_bar`, the script will produce:
+- `schemas/foo_bar/foo_bar_schema.json`
+- `schemas/foo_bar/foo_bar_input_example.json` (if `example_input()` exists)
+- `schemas/foo_bar/foo_bar_output_example.json` (if `example_output()` exists)
+
 ## [v0.5.0] - 2025-07-10
 ### Added
 - New script `generate_schemas_from_master.py` in `scripts/` for automatic schema and example file generation.

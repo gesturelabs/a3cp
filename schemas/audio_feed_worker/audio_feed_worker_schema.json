@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/audio_feed_worker_schema.json",
+  "title": "Audio Feed Worker Schema",
+  "description": "Schema for audio_feed_worker input and output messages.",
+  "type": "object",
+  "$defs": {
+    "AudioFeedWorkerConfig": {
+      "properties": {
+        "device_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Index of audio input device",
+          "title": "Device Index"
+        },
+        "sample_rate": {
+          "description": "Target sample rate in Hz, e.g., 16000",
+          "title": "Sample Rate",
+          "type": "integer"
+        },
+        "chunk_size": {
+          "description": "Internal buffer size (not logged)",
+          "title": "Chunk Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sample_rate",
+        "chunk_size"
+      ],
+      "title": "AudioFeedWorkerConfig",
+      "type": "object"
+    }
+  }
+}

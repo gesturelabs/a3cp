@@ -119,44 +119,64 @@ def generate_output_example(model_cls: Type[BaseModel], folder: Path, folder_nam
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--module", help="Only process a specific schema folder", default=None
-    )
-    args = parser.parse_args()
+    args = parse_args()
 
     if not SCHEMAS_DIR.exists():
         print("❌ schemas/ directory not found", file=sys.stderr)
         sys.exit(1)
 
-    schema_targets = find_schema_files()
-
-    if args.module:
-        schema_targets = [t for t in schema_targets if t[0] == args.module]
-        if not schema_targets:
-            print(f"❌ No schema folder found named '{args.module}'", file=sys.stderr)
-            sys.exit(1)
+    schema_targets = get_schema_targets(args.module)
 
     for folder_name, folder_path, py_file in schema_targets:
-        try:
-            module = import_model_module(py_file, folder_name)
-        except Exception as e:
-            print(f"❌ Error importing {py_file}: {e}", file=sys.stderr)
-            continue
+        process_schema_module(folder_name, folder_path, py_file)
 
-        for attr_name in dir(module):
-            attr = getattr(module, attr_name)
-            if (
-                isinstance(attr, type)
-                and issubclass(attr, BaseModel)
-                and attr is not BaseModel
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--module", help="Only process a specific schema folder", default=None
+    )
+    return parser.parse_args()
+
+
+def get_schema_targets(module_filter: str | None):
+    schema_targets = find_schema_files()
+    if module_filter:
+        schema_targets = [t for t in schema_targets if t[0] == module_filter]
+        if not schema_targets:
+            print(f"❌ No schema folder found named '{module_filter}'", file=sys.stderr)
+            sys.exit(1)
+    return schema_targets
+
+
+def process_schema_module(folder_name: str, folder_path: Path, py_file: Path):
+    try:
+        module = import_model_module(py_file, folder_name)
+    except Exception as e:
+        print(f"❌ Error importing {py_file}: {e}", file=sys.stderr)
+        return
+
+    example_model_cls = None
+
+    for attr_name in dir(module):
+        attr = getattr(module, attr_name)
+        if (
+            isinstance(attr, type)
+            and issubclass(attr, BaseModel)
+            and attr is not BaseModel
+        ):
+            generate_schema_file(attr, folder_path, folder_name)
+
+            if example_model_cls is None and (
+                hasattr(attr, "example_input") or hasattr(attr, "example_output")
             ):
-                generate_schema_file(attr, folder_path, folder_name)
+                example_model_cls = attr
 
-                if hasattr(attr, "example_input"):
-                    generate_input_example(attr, folder_path, folder_name)
-                if hasattr(attr, "example_output"):
-                    generate_output_example(attr, folder_path, folder_name)
+    if example_model_cls:
+        if hasattr(example_model_cls, "example_input"):
+            generate_input_example(example_model_cls, folder_path, folder_name)
+        if hasattr(example_model_cls, "example_output"):
+            generate_output_example(example_model_cls, folder_path, folder_name)
 
 
 if __name__ == "__main__":
