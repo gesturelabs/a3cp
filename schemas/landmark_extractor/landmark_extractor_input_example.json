@@ -1,0 +1,29 @@
+{
+  "frame_id": "frame_000142",
+  "landmarks": {
+    "face_landmarks": {},
+    "left_hand_landmarks": {
+      "thumb_tip": {
+        "visibility": 0.95,
+        "x": 0.48,
+        "y": 0.52,
+        "z": -0.05
+      }
+    },
+    "pose_landmarks": {
+      "left_shoulder": {
+        "visibility": 0.98,
+        "x": 0.42,
+        "y": 0.58,
+        "z": -0.1
+      }
+    },
+    "right_hand_landmarks": {}
+  },
+  "modality": "vision",
+  "session_id": "sess_20250709_e01",
+  "source": "camera_feed_worker",
+  "timestamp": "2025-07-09T13:14:15.123Z",
+  "user_id": "elias01",
+  "vector_version": "v1.0.0"
+}

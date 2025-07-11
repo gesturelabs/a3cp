@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/landmark_extractor_schema.json",
+  "title": "Landmark Extractor Schema",
+  "description": "Schema for landmark_extractor input and output messages.",
+  "type": "object",
+  "$defs": {
+    "LandmarkVector": {
+      "$defs": {
+        "LandmarkPoint": {
+          "properties": {
+            "x": {
+              "description": "Normalized x-coordinate (0.0\u20131.0)",
+              "title": "X",
+              "type": "number"
+            },
+            "y": {
+              "description": "Normalized y-coordinate (0.0\u20131.0)",
+              "title": "Y",
+              "type": "number"
+            },
+            "z": {
+              "description": "Normalized z-coordinate (depth, -1.0\u20131.0)",
+              "title": "Z",
+              "type": "number"
+            },
+            "visibility": {
+              "description": "Visibility or confidence (0.0\u20131.0)",
+              "title": "Visibility",
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "z",
+            "visibility"
+          ],
+          "title": "LandmarkPoint",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "pose_landmarks": {
+          "additionalProperties": {
+            "$ref": "#/$defs/LandmarkPoint"
+          },
+          "description": "Named pose keypoints (e.g., 'left_shoulder', 'right_knee')",
+          "title": "Pose Landmarks",
+          "type": "object"
+        },
+        "left_hand_landmarks": {
+          "additionalProperties": {
+            "$ref": "#/$defs/LandmarkPoint"
+          },
+          "description": "Named left-hand keypoints (e.g., 'thumb_tip', 'index_finger_mcp')",
+          "title": "Left Hand Landmarks",
+          "type": "object"
+        },
+        "right_hand_landmarks": {
+          "additionalProperties": {
+            "$ref": "#/$defs/LandmarkPoint"
+          },
+          "description": "Named right-hand keypoints",
+          "title": "Right Hand Landmarks",
+          "type": "object"
+        },
+        "face_landmarks": {
+          "additionalProperties": {
+            "$ref": "#/$defs/LandmarkPoint"
+          },
+          "description": "Named facial keypoints (e.g., 'nose_tip', 'left_eye')",
+          "title": "Face Landmarks",
+          "type": "object"
+        }
+      },
+      "title": "LandmarkVector",
+      "type": "object"
+    }
+  }
+}

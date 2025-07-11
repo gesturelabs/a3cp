@@ -9,7 +9,32 @@ Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
 
-## [v0.5.2] - 2025-07-10
+## [v0.5.3] - 2025-07-11
+
+### Added
+- Implemented schema modules with structured examples and unified naming:
+  - `audio_feed_worker.py`: includes config model with `chunk_size`, `device_index`, and `sample_rate`.
+  - `camera_feed_worker.py`: defines config with `device_id`, `resolution`, `frame_rate`, `camera_type`.
+  - `clarification_planner.py`: defines `ClarificationPlannerInput` and output model for intent selection logic.
+  - `feedback_log.py`: `FeedbackLogEntry` schema for caregiver feedback with optional label correction.
+  - `gesture_classifier.py`: structured output of gesture inference results, including confidence distribution.
+  - `input_broker.py`: multimodal `AlignedMessageBundle` for temporally aligned gesture/audio/speech inputs.
+  - `landmark_extractor.py`: `HolisticLandmarkBundle` containing pose, face, and hand landmarks with normalized 3D coordinates.
+
+### Changed
+- Updated `generate_schemas_from_master.py` to:
+  - Generate `*_schema.json` for **all** `BaseModel` classes in each module.
+  - Extract examples (`*_input_example.json`, `*_output_example.json`) from the **first** class defining `example_input()` or `example_output()` methods.
+  - Enforce single `.py` per schema folder and single example-defining class to prevent ambiguity.
+  - Introduce static method convention for `example_input` and `example_output` to streamline inspection.
+
+### Notes
+- All schema modules are compliant with the canonical structure defined in `SCHEMA_REFERENCE.md`.
+- Z-coordinates from MediaPipe are retained for future processing despite current 2D-only use in downstream logic.
+- All generated examples are valid JSON and reflect realistic runtime payloads for each module’s role in the A3CP pipeline.
+
+
+## [v0.5.2] - 2025-07-11
 ### Changed
 - Updated `generate_schemas_from_master.py` to support structured example generation:
   - Generates `*_schema.json` from **all** `BaseModel` classes in the target `.py` file.
