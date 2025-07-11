@@ -1,0 +1,29 @@
+{
+  "audit_log": {
+    "decision_rationale": "eat scored significantly above others",
+    "scoring_method": "weighted_sum(v1)",
+    "threshold_applied": "final_score > 0.85"
+  },
+  "classifier_output": [
+    {
+      "base_confidence": 0.62,
+      "context_alignment": 0.1,
+      "final_score": 0.87,
+      "intent": "eat",
+      "memory_boost": 0.15
+    },
+    {
+      "base_confidence": 0.6,
+      "context_alignment": 0.02,
+      "final_score": 0.67,
+      "intent": "play",
+      "memory_boost": 0.05
+    }
+  ],
+  "context_flags": {
+    "high_confidence": true,
+    "tie_score": false
+  },
+  "final_decision": "eat",
+  "timestamp": "2025-07-09T09:45:12.902Z"
+}

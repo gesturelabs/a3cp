@@ -28,6 +28,22 @@ class ClarificationPlannerInput(BaseModel):
         None, description="Recent unresolved or corrected intents"
     )
 
+    @staticmethod
+    def example_input() -> dict:
+        return {
+            "classifier_output": [
+                {"intent": "eat", "confidence": 0.52},
+                {"intent": "play", "confidence": 0.48},
+            ],
+            "context_flags": {"question_detected": True, "ambiguous_intent": True},
+            "context_topic_tag": "food",
+            "context_relevance_score": 0.87,
+            "timestamp": "2025-07-09T09:32:45.123Z",
+            "session_id": "a3cp_sess_2025-07-09_elias01",
+            "user_id": "elias01",
+            "unresolved_intents": ["drink", "rest"],
+        }
+
 
 class ClarificationPlannerOutput(BaseModel):
     clarification_trigger: bool = Field(
@@ -43,3 +59,20 @@ class ClarificationPlannerOutput(BaseModel):
         None,
         description="Optional final decision suggestion if clarification is skipped",
     )
+
+    @staticmethod
+    def example_output() -> dict:
+        return {
+            "clarification_trigger": True,
+            "clarification_payload": {
+                "top_candidates": ["eat", "play"],
+                "confidence_gap": 0.04,
+                "ambiguous_reason": "tie_score_below_threshold",
+            },
+            "audit_log": {
+                "trigger_reason": "Confidence gap below threshold (0.05)",
+                "thresholds": "min_confidence=0.6, min_gap=0.05",
+                "detected_flags": "question_detected, ambiguous_intent",
+            },
+            "final_decision_override": None,
+        }

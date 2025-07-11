@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/confidence_evaluator_schema.json",
+  "title": "Confidence Evaluator Schema",
+  "description": "Schema for confidence_evaluator input and output messages.",
+  "type": "object",
+  "$defs": {
+    "RankedIntent": {
+      "properties": {
+        "intent": {
+          "description": "Predicted intent label",
+          "title": "Intent",
+          "type": "string"
+        },
+        "base_confidence": {
+          "description": "Raw classifier confidence",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Base Confidence",
+          "type": "number"
+        },
+        "memory_boost": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 0.0,
+          "description": "Score adjustment based on memory",
+          "title": "Memory Boost"
+        },
+        "context_alignment": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 0.0,
+          "description": "Score adjustment from context relevance",
+          "title": "Context Alignment"
+        },
+        "final_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Computed total score (used post-processing only)",
+          "title": "Final Score"
+        }
+      },
+      "required": [
+        "intent",
+        "base_confidence"
+      ],
+      "title": "RankedIntent",
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "classifier_output": [
+    {
+      "confidence": 0.52,
+      "intent": "eat"
+    },
+    {
+      "confidence": 0.48,
+      "intent": "play"
+    }
+  ],
+  "context_flags": {
+    "ambiguous_intent": true,
+    "question_detected": true
+  },
+  "context_relevance_score": 0.87,
+  "context_topic_tag": "food",
+  "session_id": "a3cp_sess_2025-07-09_elias01",
+  "timestamp": "2025-07-09T09:32:45.123Z",
+  "unresolved_intents": [
+    "drink",
+    "rest"
+  ],
+  "user_id": "elias01"
+}

@@ -38,6 +38,31 @@ class ConfidenceEvaluatorInput(BaseModel):
     session_id: str = Field(..., description="Session ID for traceability")
     user_id: str = Field(..., description="User identifier")
 
+    @staticmethod
+    def example_input() -> dict:
+        return {
+            "classifier_output": [
+                {
+                    "intent": "eat",
+                    "base_confidence": 0.62,
+                    "memory_boost": 0.15,
+                    "context_alignment": 0.10,
+                },
+                {
+                    "intent": "play",
+                    "base_confidence": 0.60,
+                    "memory_boost": 0.05,
+                    "context_alignment": 0.02,
+                },
+            ],
+            "memory_intent_boosts": {"eat": 0.15, "play": 0.05},
+            "context_topic_tag": "food",
+            "context_relevance_score": 0.92,
+            "timestamp": "2025-07-09T09:45:12.789Z",
+            "session_id": "a3cp_sess_2025-07-09_elias01",
+            "user_id": "elias01",
+        }
+
 
 class ConfidenceEvaluatorOutput(BaseModel):
     classifier_output: List[RankedIntent] = Field(
@@ -51,3 +76,32 @@ class ConfidenceEvaluatorOutput(BaseModel):
     )
     timestamp: datetime = Field(..., description="UTC timestamp of output")
     audit_log: Dict[str, str] = Field(..., description="Scoring breakdown for auditing")
+
+    @staticmethod
+    def example_output() -> dict:
+        return {
+            "classifier_output": [
+                {
+                    "intent": "eat",
+                    "base_confidence": 0.62,
+                    "memory_boost": 0.15,
+                    "context_alignment": 0.10,
+                    "final_score": 0.87,
+                },
+                {
+                    "intent": "play",
+                    "base_confidence": 0.60,
+                    "memory_boost": 0.05,
+                    "context_alignment": 0.02,
+                    "final_score": 0.67,
+                },
+            ],
+            "context_flags": {"high_confidence": True, "tie_score": False},
+            "final_decision": "eat",
+            "timestamp": "2025-07-09T09:45:12.902Z",
+            "audit_log": {
+                "scoring_method": "weighted_sum(v1)",
+                "threshold_applied": "final_score > 0.85",
+                "decision_rationale": "eat scored significantly above others",
+            },
+        }
