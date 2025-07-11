@@ -1,0 +1,8 @@
+{
+  "device_id": "/dev/video0",
+  "fps": 30,
+  "resolution": [
+    640,
+    480
+  ]
+}

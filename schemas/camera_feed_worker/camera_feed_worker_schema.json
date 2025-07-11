@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/camera_feed_worker_schema.json",
+  "title": "Camera Feed Worker Schema",
+  "description": "Schema for camera_feed_worker input and output messages.",
+  "type": "object",
+  "$defs": {
+    "CameraFrameMetadata": {
+      "properties": {
+        "timestamp": {
+          "description": "UTC ISO 8601 timestamp of video frame capture",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "device_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Device ID or index used for capture",
+          "title": "Device Id"
+        },
+        "modality": {
+          "const": "image",
+          "default": "image",
+          "title": "Modality",
+          "type": "string"
+        },
+        "source": {
+          "const": "communicator",
+          "default": "communicator",
+          "title": "Source",
+          "type": "string"
+        },
+        "frame_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Index of the frame in the current stream or segment",
+          "title": "Frame Index"
+        },
+        "stream_segment_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional window or chunk ID for stream segmentation",
+          "title": "Stream Segment Id"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional error message if frame read failed",
+          "title": "Error"
+        }
+      },
+      "required": [
+        "timestamp"
+      ],
+      "title": "CameraFrameMetadata",
+      "type": "object"
+    }
+  }
+}

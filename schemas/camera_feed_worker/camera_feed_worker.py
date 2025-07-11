@@ -14,6 +14,10 @@ class CameraFeedWorkerConfig(BaseModel):
     )
     fps: int = Field(..., description="Target capture frame rate in frames per second")
 
+    @staticmethod
+    def example_input() -> dict:
+        return {"device_id": "/dev/video0", "resolution": [640, 480], "fps": 30}
+
 
 class CameraFrameMetadata(BaseModel):
     timestamp: datetime = Field(
@@ -33,3 +37,15 @@ class CameraFrameMetadata(BaseModel):
     error: Optional[str] = Field(
         None, description="Optional error message if frame read failed"
     )
+
+    @staticmethod
+    def example_output() -> dict:
+        return {
+            "timestamp": "2025-07-09T09:15:23.456Z",
+            "device_id": "/dev/video0",
+            "modality": "image",
+            "source": "communicator",
+            "frame_index": 42,
+            "stream_segment_id": "elias01_segment_001",
+            "error": None,
+        }

@@ -156,7 +156,8 @@ def process_schema_module(folder_name: str, folder_path: Path, py_file: Path):
         print(f"❌ Error importing {py_file}: {e}", file=sys.stderr)
         return
 
-    example_model_cls = None
+    input_model_cls = None
+    output_model_cls = None
 
     for attr_name in dir(module):
         attr = getattr(module, attr_name)
@@ -167,16 +168,15 @@ def process_schema_module(folder_name: str, folder_path: Path, py_file: Path):
         ):
             generate_schema_file(attr, folder_path, folder_name)
 
-            if example_model_cls is None and (
-                hasattr(attr, "example_input") or hasattr(attr, "example_output")
-            ):
-                example_model_cls = attr
+            if input_model_cls is None and hasattr(attr, "example_input"):
+                input_model_cls = attr
+            if output_model_cls is None and hasattr(attr, "example_output"):
+                output_model_cls = attr
 
-    if example_model_cls:
-        if hasattr(example_model_cls, "example_input"):
-            generate_input_example(example_model_cls, folder_path, folder_name)
-        if hasattr(example_model_cls, "example_output"):
-            generate_output_example(example_model_cls, folder_path, folder_name)
+    if input_model_cls:
+        generate_input_example(input_model_cls, folder_path, folder_name)
+    if output_model_cls:
+        generate_output_example(output_model_cls, folder_path, folder_name)
 
 
 if __name__ == "__main__":

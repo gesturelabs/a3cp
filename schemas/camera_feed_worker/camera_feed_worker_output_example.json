@@ -1,0 +1,9 @@
+{
+  "device_id": "/dev/video0",
+  "error": null,
+  "frame_index": 42,
+  "modality": "image",
+  "source": "communicator",
+  "stream_segment_id": "elias01_segment_001",
+  "timestamp": "2025-07-09T09:15:23.456Z"
+}
