@@ -11,6 +11,16 @@ Maintainer: Dmitri Katz
 
 ## [v0.5.4] - 2025-07-11
 
+### Added
+- Introduced `landmark_visualizer.py` schema:
+  - Defines `LandmarkVisualizerInput` and `LandmarkVisualizerOutput` models.
+  - Supports rendering of landmark sequences from `.parquet` files.
+  - Includes options for render mode (`animation`, `static`, `preview`) and export format (`gif`, `mp4`, `png`).
+  - Designed for use in Streamlit UI and export pipelines.
+
+
+## [v0.5.4] - 2025-07-11
+
 ### Changed
 - Revised `landmark_extractor.py` schema to more accurately reflect MediaPipe Holistic output:
   - Clarified multi-stage inference process in module docstring.
