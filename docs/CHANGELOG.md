@@ -9,6 +9,23 @@ Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [v0.5.4] - 2025-07-11
+
+### Changed
+- Revised `landmark_extractor.py` schema to more accurately reflect MediaPipe Holistic output:
+  - Clarified multi-stage inference process in module docstring.
+  - Updated `z` description to note variable depth scale across body parts.
+  - Noted that `visibility` is only defined for pose and hand landmarks.
+  - Improved field-level descriptions for pose, hand, and face landmark sets.
+  - Expanded `example_input()` to include representative landmarks from all four regions:
+    pose, left hand, right hand, and face.
+  - Confirmed that `example_output()` mirrors `example_input()` as expected for single-output modules.
+
+### Notes
+- This schema models the structured output of a single RGB frame from the holistic landmark pipeline.
+- All fields in the example conform to the normalized coordinate system used by MediaPipe.
+
+
 ## [v0.5.3] - 2025-07-11
 
 ### Added

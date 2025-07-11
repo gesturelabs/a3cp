@@ -10,22 +10,22 @@
         "LandmarkPoint": {
           "properties": {
             "x": {
-              "description": "Normalized x-coordinate (0.0\u20131.0)",
+              "description": "Normalized x-coordinate (0.0\u20131.0), relative to image width",
               "title": "X",
               "type": "number"
             },
             "y": {
-              "description": "Normalized y-coordinate (0.0\u20131.0)",
+              "description": "Normalized y-coordinate (0.0\u20131.0), relative to image height",
               "title": "Y",
               "type": "number"
             },
             "z": {
-              "description": "Normalized z-coordinate (depth, -1.0\u20131.0)",
+              "description": "Normalized z-depth; scale varies by landmark type",
               "title": "Z",
               "type": "number"
             },
             "visibility": {
-              "description": "Visibility or confidence (0.0\u20131.0)",
+              "description": "Confidence score (0.0\u20131.0); only defined for pose and hands",
               "title": "Visibility",
               "type": "number"
             }
@@ -45,7 +45,7 @@
           "additionalProperties": {
             "$ref": "#/$defs/LandmarkPoint"
           },
-          "description": "Named pose keypoints (e.g., 'left_shoulder', 'right_knee')",
+          "description": "Named pose keypoints (e.g., 'left_shoulder', 'right_knee') from the pose model",
           "title": "Pose Landmarks",
           "type": "object"
         },
@@ -53,7 +53,7 @@
           "additionalProperties": {
             "$ref": "#/$defs/LandmarkPoint"
           },
-          "description": "Named left-hand keypoints (e.g., 'thumb_tip', 'index_finger_mcp')",
+          "description": "Named left-hand keypoints (e.g., 'thumb_tip', 'index_finger_mcp') from hand model",
           "title": "Left Hand Landmarks",
           "type": "object"
         },
@@ -61,7 +61,7 @@
           "additionalProperties": {
             "$ref": "#/$defs/LandmarkPoint"
           },
-          "description": "Named right-hand keypoints",
+          "description": "Named right-hand keypoints from hand model (e.g., 'thumb_tip')",
           "title": "Right Hand Landmarks",
           "type": "object"
         },
@@ -69,7 +69,7 @@
           "additionalProperties": {
             "$ref": "#/$defs/LandmarkPoint"
           },
-          "description": "Named facial keypoints (e.g., 'nose_tip', 'left_eye')",
+          "description": "Named facial keypoints (e.g., 'nose_tip', 'left_eye') from face model",
           "title": "Face Landmarks",
           "type": "object"
         }
