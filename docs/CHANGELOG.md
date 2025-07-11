@@ -12,6 +12,14 @@ Maintainer: Dmitri Katz
 ## [v0.5.4] - 2025-07-11
 
 ### Added
+- Introduced `llm_clarifier.py` schema:
+  - Defines `LLMClarifierInput` with session metadata, intent candidates, topic tags, and CARE flags.
+  - Defines `LLMClarifierOutput` with generated prompt string, prompt mode, updated flags, and logging summary.
+  - Supports clarification prompt generation using local quantized LLMs.
+
+## [v0.5.4] - 2025-07-11
+
+### Added
 - Introduced `landmark_visualizer.py` schema:
   - Defines `LandmarkVisualizerInput` and `LandmarkVisualizerOutput` models.
   - Supports rendering of landmark sequences from `.parquet` files.
