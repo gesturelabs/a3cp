@@ -12,6 +12,17 @@ Maintainer: Dmitri Katz
 ## [v0.5.5] - 2025-07-14
 
 ### Added
+- Introduced `model_trainer.py` schema module:
+  - `TrainingRequest`: defines input structure for per-user model training jobs
+  - `TrainingLogEntry`: defines structured output log with `status`, `metrics`, `artifact paths`, and `error_trace`
+  - Enforces controlled vocabulary for training `status` (`"success"`, `"failure"`, `"partial"`)
+  - Aligned field names with `model_registry` (e.g., `model_artifact_path`, `label_encoder_path`)
+  - Includes `example_input()` and `example_output()` for schema generator integration
+
+
+## [v0.5.5] - 2025-07-14
+
+### Added
 - Introduced `model_registry.py` schema module:
   - Defines `ModelRegistryEntry` for logging per-user model training events
   - Includes metadata fields: `user_id`, `modality`, `vector_version`, `timestamp`, `config`, `model_artifact_path`, `schema_version`, and optional `model_version`
