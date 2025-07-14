@@ -11,6 +11,12 @@ Maintainer: Dmitri Katz
 
 ## [v0.5.x] - 2025-07-14
 ### Schemas
+- Added `schemas/sound_playback/sound_playback.py` with `AudioPlaybackRequest` model
+- Defines structured metadata for reviewing previously recorded audio with playback controls
+- Includes consent status, label context, and file path for traceable review
+- Supports `example_input()` and `example_output()` for doc generation
+
+### Schemas
 - Added `schemas/sound_classifier/sound_classifier.py` with `SoundClassifierInput` and `SoundClassifierOutput` models
 - Includes encoded audio input metadata and ranked intent prediction results
 - Supports inference trace logging via structured schema with `example_input()` and `example_output()`
