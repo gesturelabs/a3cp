@@ -11,6 +11,11 @@ Maintainer: Dmitri Katz
 
 ## [v0.5.x] - 2025-07-14
 ### Schemas
+- Added `schemas/visual_environment_classifier/visual_environment_classifier.py` with `VisualEnvironmentPrediction` model
+- Defines structured scene classification output with environment label, confidence, and audit metadata
+- Includes example input/output for logging and downstream consumption
+
+### Schemas
 - Added `schemas/speech_transcriber/speech_transcriber.py` with `SpeechTranscriptSegment` model
 - Captures finalized or partial ASR output with timestamps, confidence, and session linkage
 - Supports transcript logging and streaming into context modules
