@@ -11,6 +11,12 @@ Maintainer: Dmitri Katz
 
 ## [v0.5.x] - 2025-07-14
 ### Schemas
+- Updated `schemas/speech_context_inferer/speech_context_inferer.py` to define `SpeechContextInfererInput` and `SpeechContextInfererOutput`
+- Includes `PartnerSpeechSegment` and `VocabularyItem` submodels
+- Preserves full structured context, relevance scoring, flags, and clarification triggers
+- Conforms to A3CP schema style with `example_input()` and `example_output()` methods
+
+### Schemas
 - Added `schemas/sound_playback/sound_playback.py` with `AudioPlaybackRequest` model
 - Defines structured metadata for reviewing previously recorded audio with playback controls
 - Includes consent status, label context, and file path for traceable review
