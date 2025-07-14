@@ -8,6 +8,17 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [v0.5.5] - 2025-07-14
+
+### Added
+- Introduced `memory_interface.py` schema module:
+  - `MemoryAuditEntry`: logs per-user memory interactions (`intent_label`, `label_status`, `final_decision`, etc.)
+  - `MemoryQueryResult`: structured output with `intent_boosts`, `fallback_suggestions`, and `hint_used`
+  - Nested `MemoryFields` model ensures compliance with `SCHEMA_REFERENCE.md` section 7 (memory-based output)
+  - Includes `example_input()` for audit logs and `example_output()` for inference hinting
+
+
+
 
 ## [v0.5.4] - 2025-07-11
 

@@ -7,7 +7,7 @@ The `memory_interface` module maintains lightweight, per-user interaction memory
 Without memory, the system treats every interaction as isolated. By remembering what worked (or failed) in previous sessions, the system can adapt its confidence scoring, reduce ambiguity, and personalize behavior—especially important for users with consistent communication patterns.
 
 ## Responsibilities
-- Store intent labels, outcomes (confirmed/rejected), and clarification results per pseudonym.
+- Store intent labels, outcomes (confirmed/rejected), and clarification results per user.
 - Track interaction frequency and recency for each intent.
 - Compute ranking modifiers (e.g., `intent_boosts`) used by `memory_integrator`.
 - Provide fallback suggestions for low-confidence situations (e.g., “often chosen intents”).
