@@ -10,6 +10,13 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 ## [v0.5.x] - 2025-07-14
+
+### Added
+- Added `schemas/output_planner/output_planner.py` with `OutputPlannerInput` and `OutputPlannerDecision` models
+- Includes `context` and `user_profile` echo fields for traceability
+- Aligned with `output_expander.py` and full `SCHEMA_REFERENCE.md` v1.0.0 structure
+- Added `example_input()` and `example_output()` for automated `.json` generation
+
 ### Added
 - Added `output_expander.py` schema module:
   - `OutputExpansionInput` with support for context and user tone/style
