@@ -10,6 +10,10 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 ## [v0.5.x] - 2025-07-14
+### Added
+- Added `schemas/schema_recorder/schema_recorder.py` with `RecorderConfig` model
+- Defines config options for structured logging (format, directory, hashing, rotation)
+- Includes example input/output for automated `.json` schema generation
 
 ### Added
 - Added `schemas/output_planner/output_planner.py` with `OutputPlannerInput` and `OutputPlannerDecision` models
