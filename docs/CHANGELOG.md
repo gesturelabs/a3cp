@@ -11,6 +11,10 @@ Maintainer: Dmitri Katz
 
 ## [v0.5.x] - 2025-07-14
 ### Schemas
+- Added `schemas/speech_transcriber/speech_transcriber.py` with `SpeechTranscriptSegment` model
+- Captures finalized or partial ASR output with timestamps, confidence, and session linkage
+- Supports transcript logging and streaming into context modules
+### Schemas
 - Updated `schemas/speech_context_inferer/speech_context_inferer.py` to define `SpeechContextInfererInput` and `SpeechContextInfererOutput`
 - Includes `PartnerSpeechSegment` and `VocabularyItem` submodels
 - Preserves full structured context, relevance scoring, flags, and clarification triggers
