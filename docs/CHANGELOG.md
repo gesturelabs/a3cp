@@ -11,6 +11,11 @@ Maintainer: Dmitri Katz
 
 ## [v0.5.x] - 2025-07-14
 ### Added
+- Added `schemas/session_manager/session_manager.py` with `SessionStartEvent` and `SessionEndEvent` models
+- Captures lifecycle of A3CP interaction sessions with user ID, timestamps, and optional context
+- Includes `example_input()` and `example_output()` for each model to support doc generation
+
+### Added
 - Added `schemas/schema_recorder/schema_recorder.py` with `RecorderConfig` model
 - Defines config options for structured logging (format, directory, hashing, rotation)
 - Includes example input/output for automated `.json` schema generation
