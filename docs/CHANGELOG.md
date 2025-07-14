@@ -9,6 +9,13 @@ Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [v0.5.x] - 2025-07-14
+### Added
+- Added `output_expander.py` schema module:
+  - `OutputExpansionInput` with support for context and user tone/style
+  - `OutputExpansionResult` with `output_phrase`, `output_mode`, and audit metadata
+
+
 ## [v0.5.5] - 2025-07-14
 
 ### Added
