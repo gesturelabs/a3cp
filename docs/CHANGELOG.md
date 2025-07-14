@@ -8,6 +8,16 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+## [v0.5.5] - 2025-07-14
+
+### Added
+- Introduced `model_registry.py` schema module:
+  - Defines `ModelRegistryEntry` for logging per-user model training events
+  - Includes metadata fields: `user_id`, `modality`, `vector_version`, `timestamp`, `config`, `model_artifact_path`, `schema_version`, and optional `model_version`
+  - Uses flexible `config: Dict[str, Any]` to support diverse training configurations
+  - Includes `example_input()` and `example_output()` for registry entry generation
+
 ## [v0.5.5] - 2025-07-14
 
 ### Added
