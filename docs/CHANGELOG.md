@@ -8,6 +8,21 @@
 Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [Unreleased]
+
+### Infrastructure
+- Added new module: `retraining_scheduler` for policy-based model retraining
+- Created `schemas/retraining_scheduler/` with Pydantic models for:
+  - `RetrainingRequest`
+  - `RetrainingDecisionLog`
+- Added `docs/modules/retraining_scheduler/README.md` with responsibilities, inputs/outputs, and trigger logic
+
+### Architecture
+- Updated `a3cp_pipeline.drawio` to reflect new `retraining_scheduler` module and directional conventions (input: top, output: bottom)
+
+### Documentation
+- Updated `inputs_outputs_json.md` to include `retraining_scheduler` in system schema map
+
 
 ## [v0.5.x] - 2025-07-17
 

@@ -152,7 +152,8 @@
     "module_name": "model_trainer",
     "inputs_from": [
         "recorded_schemas",
-        "user_profile_store"
+        "user_profile_store",
+        "retraining_scheduler"
     ],
     "outputs_to": [
         "model_registry"
@@ -182,6 +183,20 @@
         "aac_ui_layer"
     ]
 }
+
+{
+  "module_name": "retraining_scheduler",
+  "inputs_from": [
+    "recorded_schemas",
+    "feedback_log",
+    "model_registry"
+  ],
+  "outputs_to": [
+    "model_trainer"
+  ]
+}
+
+
 
 {
   "module_name": "schema_recorder",
