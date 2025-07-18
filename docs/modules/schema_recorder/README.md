@@ -23,7 +23,7 @@ This module forms the backbone of A3CP’s audit, reproducibility, and retrainin
 
 ## Inputs
 - Any object conforming to a registered `pydantic` schema
-  - e.g., `A3CPMessage`, `RawActionRecord`, `AuditEvent`
+
 - Required metadata (may be embedded or passed externally):
   - `record_id`, `timestamp`, `schema_version`
   - `user_id`, `session_id` (if available)
@@ -40,7 +40,7 @@ This module forms the backbone of A3CP’s audit, reproducibility, and retrainin
 The `schema_recorder` is invoked throughout the CARE pipeline wherever structured messages are finalized for storage. It is used to record:
 - Incoming classified `A3CPMessage` records
 - Annotated landmark sequences (`RawActionRecord`)
-- CARE events and interactions (`AuditEvent`, future extensions)
+- CARE events and interactions
 
 It ensures that all runtime data written to disk is schema-compliant, validated, and reproducible for audit, replay, and retraining.
 

@@ -1,0 +1,24 @@
+{
+  "flags": [
+    "low_confidence",
+    "ambiguous_gesture"
+  ],
+  "intent_candidates": [
+    {
+      "confidence": 0.42,
+      "label": "eat"
+    },
+    {
+      "confidence": 0.4,
+      "label": "help"
+    },
+    {
+      "confidence": 0.18,
+      "label": "play"
+    }
+  ],
+  "session_id": "sess_20250711_e01",
+  "timestamp": "2025-07-11T15:45:10.000Z",
+  "topic_tag": "meal",
+  "user_id": "elias01"
+}

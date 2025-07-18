@@ -1,0 +1,21 @@
+{
+  "inference_time_ms": 142,
+  "intent_predictions": [
+    {
+      "confidence": 0.84,
+      "intent": "play"
+    },
+    {
+      "confidence": 0.1,
+      "intent": "stop"
+    },
+    {
+      "confidence": 0.06,
+      "intent": "help"
+    }
+  ],
+  "model_version": "audio_v1.2_elias01",
+  "session_id": "sess_20250714_e01",
+  "timestamp": "2025-07-14T17:45:01.000Z",
+  "user_id": "elias01"
+}

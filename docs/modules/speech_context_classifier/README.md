@@ -1,4 +1,4 @@
-# Module: speech_context_inferer
+# Module: speech_context_classifier
 
 ## Purpose
 Analyzes transcribed partner speech and session metadata to infer likely communicative context. Narrows the intent space by matching partner prompts to the user's known gesture or vocalization mappings. Provides context priors to the CARE Engine and Clarification Planner.

@@ -1,0 +1,11 @@
+{
+  "annotation_context": "Caregiver unclear if user meant 'play' or 'music'",
+  "consent_given": true,
+  "file_uri": "./data/audio/elias01_20250714_175000.wav",
+  "intent_label": "play",
+  "is_demo": false,
+  "label_status": "confirmed",
+  "session_id": "sess_20250714_e01",
+  "timestamp": "2025-07-14T17:50:00.000Z",
+  "user_id": "elias01"
+}

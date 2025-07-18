@@ -1,0 +1,20 @@
+{
+  "logging_summary": {
+    "origin_flags": [
+      "low_confidence",
+      "ambiguous_gesture"
+    ],
+    "prompt": "Did you mean eat, help, or play?",
+    "top_candidates": [
+      "eat",
+      "help",
+      "play"
+    ],
+    "topic": "meal"
+  },
+  "output_mode": "multiple_choice",
+  "output_phrase": "Did you mean eat, help, or play?",
+  "updated_flags": [
+    "clarification_prompt_issued"
+  ]
+}

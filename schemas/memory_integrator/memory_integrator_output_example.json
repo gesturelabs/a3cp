@@ -1,0 +1,41 @@
+{
+  "adjusted_output": [
+    {
+      "adjusted_score": 0.52,
+      "base_score": 0.42,
+      "label": "eat"
+    },
+    {
+      "adjusted_score": 0.43,
+      "base_score": 0.38,
+      "label": "help"
+    },
+    {
+      "adjusted_score": 0.2,
+      "base_score": 0.2,
+      "label": "play"
+    }
+  ],
+  "final_decision": "eat",
+  "hint_used": [
+    "recency",
+    "correction_boost"
+  ],
+  "logging_summary": {
+    "adjusted_order": [
+      "eat",
+      "help",
+      "play"
+    ],
+    "applied_boosts": {
+      "eat": 0.1,
+      "help": 0.05
+    },
+    "original_order": [
+      "eat",
+      "help",
+      "play"
+    ],
+    "selected": "eat"
+  }
+}

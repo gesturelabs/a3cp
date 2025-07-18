@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/sound_classifier_schema.json",
+  "title": "Sound Classifier Schema",
+  "description": "Schema for sound_classifier input and output messages.",
+  "type": "object",
+  "$defs": {
+    "SoundClassifierOutput": {
+      "$defs": {
+        "IntentPrediction": {
+          "properties": {
+            "intent": {
+              "description": "Predicted intent label",
+              "title": "Intent",
+              "type": "string"
+            },
+            "confidence": {
+              "description": "Confidence score between 0 and 1",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            }
+          },
+          "required": [
+            "intent",
+            "confidence"
+          ],
+          "title": "IntentPrediction",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "timestamp": {
+          "description": "UTC ISO 8601 timestamp of inference result",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Pseudonymous user ID",
+          "title": "User Id",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "Interaction session ID",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "intent_predictions": {
+          "description": "Ranked list of predicted intents with confidence scores",
+          "items": {
+            "$ref": "#/$defs/IntentPrediction"
+          },
+          "title": "Intent Predictions",
+          "type": "array"
+        },
+        "model_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Version identifier of the model used for inference",
+          "title": "Model Version"
+        },
+        "inference_time_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Elapsed inference time in milliseconds",
+          "title": "Inference Time Ms"
+        }
+      },
+      "required": [
+        "timestamp",
+        "user_id",
+        "session_id",
+        "intent_predictions"
+      ],
+      "title": "SoundClassifierOutput",
+      "type": "object"
+    }
+  }
+}

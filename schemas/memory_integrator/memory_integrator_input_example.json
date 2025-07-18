@@ -1,0 +1,27 @@
+{
+  "classifier_output": [
+    {
+      "confidence": 0.42,
+      "label": "eat"
+    },
+    {
+      "confidence": 0.38,
+      "label": "help"
+    },
+    {
+      "confidence": 0.2,
+      "label": "play"
+    }
+  ],
+  "hint_used": [
+    "recency",
+    "correction_boost"
+  ],
+  "intent_boosts": {
+    "eat": 0.1,
+    "help": 0.05
+  },
+  "session_id": "sess_20250711_e01",
+  "timestamp": "2025-07-11T16:05:00.000Z",
+  "user_id": "elias01"
+}

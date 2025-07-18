@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/sound_playback_schema.json",
+  "title": "Sound Playback Schema",
+  "description": "Schema for sound_playback input and output messages.",
+  "type": "object",
+  "$defs": {
+    "AudioPlaybackRequest": {
+      "properties": {
+        "user_id": {
+          "description": "Pseudonymous user identifier",
+          "title": "User Id",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "Associated session identifier",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "Timestamp of original audio capture",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "file_uri": {
+          "description": "Path or URI to the audio file (e.g., .wav)",
+          "title": "File Uri",
+          "type": "string"
+        },
+        "consent_given": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether the user has consented to this recording being played",
+          "title": "Consent Given"
+        },
+        "is_demo": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether this is a demo/test file, not real data",
+          "title": "Is Demo"
+        },
+        "intent_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Intent label associated with the recording, if available",
+          "title": "Intent Label"
+        },
+        "label_status": {
+          "anyOf": [
+            {
+              "enum": [
+                "unconfirmed",
+                "confirmed",
+                "corrected"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Label trust status at review time",
+          "title": "Label Status"
+        },
+        "annotation_context": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Freeform notes, e.g., reason for review or clarification tag",
+          "title": "Annotation Context"
+        }
+      },
+      "required": [
+        "user_id",
+        "session_id",
+        "timestamp",
+        "file_uri"
+      ],
+      "title": "AudioPlaybackRequest",
+      "type": "object"
+    }
+  }
+}

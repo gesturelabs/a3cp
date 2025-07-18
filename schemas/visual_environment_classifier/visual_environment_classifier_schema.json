@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/visual_environment_classifier_schema.json",
+  "title": "Visual Environment Classifier Schema",
+  "description": "Schema for visual_environment_classifier input and output messages.",
+  "type": "object",
+  "$defs": {
+    "VisualEnvironmentPrediction": {
+      "properties": {
+        "environment_label": {
+          "description": "Predicted environment class (e.g., 'kitchen', 'bedroom')",
+          "title": "Environment Label",
+          "type": "string"
+        },
+        "confidence_score": {
+          "description": "Model confidence score for the predicted label",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence Score",
+          "type": "number"
+        },
+        "timestamp": {
+          "description": "UTC ISO8601 timestamp of frame capture or classification",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "Interaction session identifier",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "frame_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional identifier for the video frame",
+          "title": "Frame Id"
+        },
+        "device_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional hardware identifier of the camera",
+          "title": "Device Id"
+        },
+        "context_flags": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "boolean"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional map of derived context flags (e.g., {'is_public': true})",
+          "title": "Context Flags"
+        },
+        "model_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Version of the environment classification model used",
+          "title": "Model Version"
+        },
+        "input_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "SHA-256 hash of the input frame for audit/reproducibility",
+          "title": "Input Hash"
+        },
+        "source_module": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "visual_environment_classifier",
+          "description": "Module name generating the prediction",
+          "title": "Source Module"
+        }
+      },
+      "required": [
+        "environment_label",
+        "confidence_score",
+        "timestamp",
+        "session_id"
+      ],
+      "title": "VisualEnvironmentPrediction",
+      "type": "object"
+    }
+  }
+}

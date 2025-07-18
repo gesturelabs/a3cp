@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/memory_interface_schema.json",
+  "title": "Memory Interface Schema",
+  "description": "Schema for memory_interface input and output messages.",
+  "type": "object",
+  "$defs": {
+    "MemoryQueryResult": {
+      "$defs": {
+        "MemoryFields": {
+          "properties": {
+            "intent_boosts": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "description": "Per-intent confidence modifiers derived from memory traces",
+              "title": "Intent Boosts",
+              "type": "object"
+            },
+            "fallback_suggestions": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Ranked fallback intents in case of low classifier confidence",
+              "title": "Fallback Suggestions"
+            },
+            "hint_used": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Whether memory hints were used in current decision context",
+              "title": "Hint Used"
+            }
+          },
+          "required": [
+            "intent_boosts"
+          ],
+          "title": "MemoryFields",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "memory": {
+          "$ref": "#/$defs/MemoryFields",
+          "description": "Memory-derived hints for intent boosting and fallback support"
+        },
+        "final_decision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Final decision (if available), logged for downstream alignment",
+          "title": "Final Decision"
+        }
+      },
+      "required": [
+        "memory"
+      ],
+      "title": "MemoryQueryResult",
+      "type": "object"
+    }
+  }
+}

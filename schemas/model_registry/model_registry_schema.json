@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/model_registry_schema.json",
+  "title": "Model Registry Schema",
+  "description": "Schema for model_registry input and output messages.",
+  "type": "object",
+  "$defs": {
+    "ModelRegistryEntry": {
+      "properties": {
+        "user_id": {
+          "description": "Pseudonymous user ID for whom the model was trained",
+          "title": "User Id",
+          "type": "string"
+        },
+        "modality": {
+          "description": "Modality of model input, e.g., \"gesture\", \"sound\", \"speech\"",
+          "title": "Modality",
+          "type": "string"
+        },
+        "vector_version": {
+          "description": "Version of feature encoding (e.g., 'v2.1')",
+          "title": "Vector Version",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "UTC ISO 8601 timestamp of training completion",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "config": {
+          "additionalProperties": true,
+          "description": "Training configuration and hyperparameters",
+          "title": "Config",
+          "type": "object"
+        },
+        "model_artifact_path": {
+          "description": "Path or URI to saved model artifact (.pkl, .h5, etc.)",
+          "title": "Model Artifact Path",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Schema version used to validate this entry",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "model_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional hash, UUID, or label identifying this model version",
+          "title": "Model Version"
+        }
+      },
+      "required": [
+        "user_id",
+        "modality",
+        "vector_version",
+        "timestamp",
+        "config",
+        "model_artifact_path",
+        "schema_version"
+      ],
+      "title": "ModelRegistryEntry",
+      "type": "object"
+    }
+  }
+}

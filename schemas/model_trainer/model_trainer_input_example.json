@@ -1,0 +1,10 @@
+{
+  "modality": "gesture",
+  "training_config": {
+    "epochs": 10,
+    "input_dim": 128,
+    "model_type": "RandomForest",
+    "num_trees": 100
+  },
+  "user_id": "elias01"
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/output_expander_schema.json",
+  "title": "Output Expander Schema",
+  "description": "Schema for output_expander input and output messages.",
+  "type": "object",
+  "$defs": {
+    "UserProfile": {
+      "properties": {
+        "tone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Preferred communicative tone, e.g., 'polite', 'direct', 'playful'",
+          "title": "Tone"
+        },
+        "verbosity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Preferred verbosity level, e.g., 'short', 'verbose'",
+          "title": "Verbosity"
+        },
+        "mode_preference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Preferred output modality, e.g., 'speech', 'text', 'symbol'",
+          "title": "Mode Preference"
+        }
+      },
+      "title": "UserProfile",
+      "type": "object"
+    }
+  }
+}

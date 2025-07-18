@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/memory_integrator_schema.json",
+  "title": "Memory Integrator Schema",
+  "description": "Schema for memory_integrator input and output messages.",
+  "type": "object",
+  "$defs": {
+    "MemoryIntegratorOutput": {
+      "$defs": {
+        "AdjustedIntentCandidate": {
+          "properties": {
+            "label": {
+              "description": "Intent label after memory adjustment",
+              "title": "Label",
+              "type": "string"
+            },
+            "base_score": {
+              "description": "Original classifier confidence",
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Base Score",
+              "type": "number"
+            },
+            "adjusted_score": {
+              "description": "Adjusted confidence after applying memory boosts",
+              "maximum": 1.5,
+              "minimum": 0.0,
+              "title": "Adjusted Score",
+              "type": "number"
+            }
+          },
+          "required": [
+            "label",
+            "base_score",
+            "adjusted_score"
+          ],
+          "title": "AdjustedIntentCandidate",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "adjusted_output": {
+          "description": "Re-ranked or re-scored classifier outputs after memory influence",
+          "items": {
+            "$ref": "#/$defs/AdjustedIntentCandidate"
+          },
+          "title": "Adjusted Output",
+          "type": "array"
+        },
+        "hint_used": {
+          "description": "Memory hints actually applied during adjustment",
+          "items": {
+            "type": "string"
+          },
+          "title": "Hint Used",
+          "type": "array"
+        },
+        "final_decision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional top-ranked intent after memory adjustment",
+          "title": "Final Decision"
+        },
+        "logging_summary": {
+          "additionalProperties": true,
+          "description": "Trace of input vs adjusted scores and memory features used",
+          "title": "Logging Summary",
+          "type": "object"
+        }
+      },
+      "required": [
+        "adjusted_output",
+        "hint_used",
+        "logging_summary"
+      ],
+      "title": "MemoryIntegratorOutput",
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "error_trace": null,
+  "label_encoder_path": "/models/elias01_encoder_v2.pkl",
+  "modality": "gesture",
+  "model_artifact_path": "/models/elias01_gesture_v2.pkl",
+  "model_version": "model_20250714_162000_e01",
+  "sample_count": 936,
+  "schema_version": "1.0.0",
+  "status": "success",
+  "timestamp": "2025-07-14T16:20:00.000Z",
+  "training_config": {
+    "epochs": 10,
+    "input_dim": 128,
+    "model_type": "RandomForest",
+    "num_trees": 100
+  },
+  "training_metrics": {
+    "accuracy": 0.91,
+    "f1_macro": 0.89
+  },
+  "user_id": "elias01"
+}

@@ -9,6 +9,49 @@ Tag: v0.2.1-dev
 Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [v0.5.x] - 2025-07-17
+
+### Architecture
+- Updated `docs/architecture/a3cp_pipeline.drawio` to reflect revised module I/O structure
+- Updated `docs/FILE_TREE.txt` to match current file and module layout
+
+### Module Documentation
+- Renamed `speech_context_inferer/README.md` to `speech_context_classifier/README.md`
+- Added new module doc: `user_profile_store/README.md`
+- Added `inputs_outputs_json.md` for centralized JSON representation of module I/O
+
+### Schema Changes
+- Updated schemas and examples:
+  - `audio_feed_worker`
+  - `camera_feed_worker`
+  - `clarification_planner`
+  - `confidence_evaluator`
+  - `feedback_log`
+  - `gesture_classifier`
+  - `input_broker`
+  - `landmark_extractor`
+  - `schema_recorder`
+
+- Added schemas and examples:
+  - `landmark_visualizer`
+  - `llm_clarifier`
+  - `memory_integrator`
+  - `memory_interface`
+  - `model_registry`
+  - `model_trainer`
+  - `output_expander`
+  - `output_planner`
+  - `session_manager`
+  - `sound_classifier`
+  - `sound_playback`
+  - `speech_context_classifier`
+  - `speech_transcriber`
+  - `visual_environment_classifier`
+
+### Timestamp
+2025-07-17 18:14 CEST
+
+
 ## [v0.5.x] - 2025-07-14
 ### Schemas
 - Added `schemas/visual_environment_classifier/visual_environment_classifier.py` with `VisualEnvironmentPrediction` model

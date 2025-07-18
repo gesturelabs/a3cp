@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/schema_recorder_schema.json",
+  "title": "Schema Recorder Schema",
+  "description": "Schema for schema_recorder input and output messages.",
+  "type": "object",
+  "$defs": {
+    "RecorderConfig": {
+      "properties": {
+        "log_format": {
+          "default": "jsonl",
+          "description": "Log format for recorded schema data",
+          "enum": [
+            "jsonl",
+            "parquet"
+          ],
+          "title": "Log Format",
+          "type": "string"
+        },
+        "log_dir": {
+          "description": "Directory to write logs to (e.g., logs/users/)",
+          "format": "path",
+          "title": "Log Dir",
+          "type": "string"
+        },
+        "enable_hashing": {
+          "default": true,
+          "description": "Whether to hash each record for audit trace",
+          "title": "Enable Hashing",
+          "type": "boolean"
+        },
+        "max_file_size_mb": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional log rotation size in megabytes",
+          "title": "Max File Size Mb"
+        },
+        "allow_schema_override": {
+          "default": false,
+          "description": "Allow caller to override inferred schema name",
+          "title": "Allow Schema Override",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "log_dir"
+      ],
+      "title": "RecorderConfig",
+      "type": "object"
+    }
+  }
+}

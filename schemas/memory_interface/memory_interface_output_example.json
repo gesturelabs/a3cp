@@ -1,0 +1,14 @@
+{
+  "final_decision": "eat",
+  "memory": {
+    "fallback_suggestions": [
+      "rest",
+      "drink"
+    ],
+    "hint_used": true,
+    "intent_boosts": {
+      "eat": 0.12,
+      "play": 0.04
+    }
+  }
+}

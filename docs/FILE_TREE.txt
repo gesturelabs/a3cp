@@ -25,6 +25,7 @@
 │   │   ├── 10026929515953940805
 │   │   ├── 10156782289484861020
 │   │   ├── 10517366000954724975
+│   │   ├── 10850596518375484158
 │   │   ├── 11584514492622159539
 │   │   ├── 1168593188500689714
 │   │   ├── 12469937722784140890
@@ -126,6 +127,8 @@
 │   ├── CHANGELOG.md
 │   ├── CONTRIBUTING.md
 │   ├── FILE_TREE.txt
+│   ├── architecture
+│   │   └── a3cp_pipeline.drawio
 │   ├── dev
 │   │   ├── DEPLOYMENT.md
 │   │   ├── DEVELOPMENT_FLOW.md
@@ -147,6 +150,7 @@
 │   │   │   └── README.md
 │   │   ├── input_broker
 │   │   │   └── README.md
+│   │   ├── inputs_outputs_json.md
 │   │   ├── landmark_extractor
 │   │   │   └── README.md
 │   │   ├── landmark_visualizer
@@ -177,6 +181,7 @@
 │   │   │   └── README.md
 │   │   ├── speech_transcriber
 │   │   │   └── README.md
+│   │   ├── user_profile_store
 │   │   └── visual_environment_classifier
 │   │       └── README.md
 │   ├── older version
@@ -207,123 +212,124 @@
 │   ├── README.md
 │   ├── audio_feed_worker
 │   │   ├── audio_feed_worker.py
-│   │   ├── audio_feed_worker.schema.json
-│   │   ├── input.example.json
-│   │   └── output.example.json
+│   │   ├── audio_feed_worker_input_example.json
+│   │   ├── audio_feed_worker_output_example.json
+│   │   └── audio_feed_worker_schema.json
 │   ├── camera_feed_worker
 │   │   ├── camera_feed_worker.py
-│   │   ├── camera_feed_worker.schema.json
-│   │   ├── input.example.json
-│   │   └── output.example.json
+│   │   ├── camera_feed_worker_input_example.json
+│   │   ├── camera_feed_worker_output_example.json
+│   │   └── camera_feed_worker_schema.json
 │   ├── clarification_planner
 │   │   ├── clarification_planner.py
-│   │   ├── clarification_planner.schema.json
-│   │   ├── input.example.json
-│   │   └── output.example.json
+│   │   ├── clarification_planner_input_example.json
+│   │   ├── clarification_planner_output_example.json
+│   │   └── clarification_planner_schema.json
 │   ├── confidence_evaluator
 │   │   ├── confidence_evaluator.py
-│   │   ├── confidence_evaluator.schema.json
-│   │   ├── input.example.json
-│   │   └── output.example.json
+│   │   ├── confidence_evaluator_input_example.json
+│   │   ├── confidence_evaluator_output_example.json
+│   │   └── confidence_evaluator_schema.json
 │   ├── feedback_log
 │   │   ├── feedback_log.py
-│   │   ├── feedback_log.schema.json
-│   │   ├── input.example.json
-│   │   └── output.example.json
+│   │   ├── feedback_log_input_example.json
+│   │   ├── feedback_log_output_example.json
+│   │   └── feedback_log_schema.json
 │   ├── gesture_classifier
 │   │   ├── gesture_classifier.py
-│   │   ├── gesture_classifier.schema.json
-│   │   ├── input.example.json
-│   │   └── output.example.json
+│   │   ├── gesture_classifier_input_example.json
+│   │   ├── gesture_classifier_output_example.json
+│   │   └── gesture_classifier_schema.json
 │   ├── input_broker
-│   │   ├── input.example.json
 │   │   ├── input_broker.py
-│   │   ├── input_broker.schema.json
-│   │   └── output.example.json
+│   │   ├── input_broker_input_example.json
+│   │   ├── input_broker_output_example.json
+│   │   └── input_broker_schema.json
 │   ├── landmark_extractor
-│   │   ├── input.example.json
 │   │   ├── landmark_extractor.py
-│   │   ├── landmark_extractor.schema.json
-│   │   └── output.example.json
+│   │   ├── landmark_extractor_input_example.json
+│   │   ├── landmark_extractor_output_example.json
+│   │   └── landmark_extractor_schema.json
 │   ├── landmark_visualizer
-│   │   ├── input.example.json
 │   │   ├── landmark_visualizer.py
-│   │   ├── landmark_visualizer.schema.json
-│   │   └── output.example.json
+│   │   ├── landmark_visualizer_input_example.json
+│   │   ├── landmark_visualizer_output_example.json
+│   │   └── landmark_visualizer_schema.json
 │   ├── llm_clarifier
-│   │   ├── input.example.json
 │   │   ├── llm_clarifier.py
-│   │   ├── llm_clarifier.schema.json
-│   │   └── output.example.json
+│   │   ├── llm_clarifier_input_example.json
+│   │   ├── llm_clarifier_output_example.json
+│   │   └── llm_clarifier_schema.json
 │   ├── memory_integrator
-│   │   ├── input.example.json
 │   │   ├── memory_integrator.py
-│   │   ├── memory_integrator.schema.json
-│   │   └── output.example.json
+│   │   ├── memory_integrator_input_example.json
+│   │   ├── memory_integrator_output_example.json
+│   │   └── memory_integrator_schema.json
 │   ├── memory_interface
-│   │   ├── input.example.json
 │   │   ├── memory_interface.py
-│   │   ├── memory_interface.schema.json
-│   │   └── output.example.json
+│   │   ├── memory_interface_input_example.json
+│   │   ├── memory_interface_output_example.json
+│   │   └── memory_interface_schema.json
 │   ├── model_registry
-│   │   ├── input.example.json
 │   │   ├── model_registry.py
-│   │   ├── model_registry.schema.json
-│   │   └── output.example.json
+│   │   ├── model_registry_input_example.json
+│   │   ├── model_registry_output_example.json
+│   │   └── model_registry_schema.json
 │   ├── model_trainer
-│   │   ├── input.example.json
 │   │   ├── model_trainer.py
-│   │   ├── model_trainer.schema.json
-│   │   └── output.example.json
+│   │   ├── model_trainer_input_example.json
+│   │   ├── model_trainer_output_example.json
+│   │   └── model_trainer_schema.json
 │   ├── output_expander
-│   │   ├── input.example.json
-│   │   ├── output.example.json
 │   │   ├── output_expander.py
-│   │   └── output_expander.schema.json
+│   │   ├── output_expander_input_example.json
+│   │   ├── output_expander_output_example.json
+│   │   └── output_expander_schema.json
 │   ├── output_planner
-│   │   ├── input.example.json
-│   │   ├── output.example.json
 │   │   ├── output_planner.py
-│   │   └── output_planner.schema.json
+│   │   ├── output_planner_input_example.json
+│   │   ├── output_planner_output_example.json
+│   │   └── output_planner_schema.json
 │   ├── schema_recorder
-│   │   ├── input.example.json
-│   │   ├── output.example.json
 │   │   ├── schema_recorder.py
-│   │   └── schema_recorder.schema.json
+│   │   ├── schema_recorder_input_example.json
+│   │   ├── schema_recorder_output_example.json
+│   │   └── schema_recorder_schema.json
 │   ├── session_manager
-│   │   ├── input.example.json
-│   │   ├── output.example.json
 │   │   ├── session_manager.py
-│   │   └── session_manager.schema.json
+│   │   ├── session_manager_input_example.json
+│   │   ├── session_manager_output_example.json
+│   │   └── session_manager_schema.json
 │   ├── sound_classifier
-│   │   ├── input.example.json
-│   │   ├── output.example.json
 │   │   ├── sound_classifier.py
-│   │   └── sound_classifier.schema.json
+│   │   ├── sound_classifier_input_example.json
+│   │   ├── sound_classifier_output_example.json
+│   │   └── sound_classifier_schema.json
 │   ├── sound_playback
-│   │   ├── input.example.json
-│   │   ├── output.example.json
 │   │   ├── sound_playback.py
-│   │   └── sound_playback.schema.json
+│   │   ├── sound_playback_input_example.json
+│   │   ├── sound_playback_output_example.json
+│   │   └── sound_playback_schema.json
 │   ├── speech_context_infererer
-│   │   ├── input.example.json
-│   │   ├── output.example.json
 │   │   ├── speech_context_infererer.py
-│   │   └── speech_context_infererer.schema.json
+│   │   ├── speech_context_infererer_input_example.json
+│   │   ├── speech_context_infererer_output_example.json
+│   │   └── speech_context_infererer_schema.json
 │   ├── speech_transcriber
-│   │   ├── input.example.json
-│   │   ├── output.example.json
 │   │   ├── speech_transcriber.py
-│   │   └── speech_transcriber.schema.json
+│   │   ├── speech_transcriber_input_example.json
+│   │   ├── speech_transcriber_output_example.json
+│   │   └── speech_transcriber_schema.json
 │   └── visual_environment_classifier
-│       ├── input.example.json
-│       ├── output.example.json
 │       ├── visual_environment_classifier.py
-│       └── visual_environment_classifier.schema.json
+│       ├── visual_environment_classifier_input_example.json
+│       ├── visual_environment_classifier_output_example.json
+│       └── visual_environment_classifier_schema.json
 ├── scripts
 │   ├── deploy.sh
 │   ├── dev.sh
 │   ├── gen_schema_mapping.py
+│   ├── generate_schemas_from_master.py
 │   ├── manage.sh
 │   ├── schema_mapping_config.py
 │   └── validate_env.py
@@ -479,4 +485,4 @@
     ├── schemas
     └── test_placeholder.py
 
-93 directories, 387 files
+95 directories, 391 files

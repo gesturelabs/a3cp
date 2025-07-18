@@ -1,0 +1,9 @@
+{
+  "frame_skip": 2,
+  "modality": "vision",
+  "parquet_path": "/data/recordings/elias01_2025-07-09.parquet",
+  "render_mode": "animation",
+  "save_format": "gif",
+  "session_id": "sess_20250709_e01",
+  "user_id": "elias01"
+}

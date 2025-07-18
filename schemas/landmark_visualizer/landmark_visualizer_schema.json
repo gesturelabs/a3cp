@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/landmark_visualizer_schema.json",
+  "title": "Landmark Visualizer Schema",
+  "description": "Schema for landmark_visualizer input and output messages.",
+  "type": "object",
+  "$defs": {
+    "LandmarkVisualizerOutput": {
+      "properties": {
+        "success": {
+          "description": "True if rendering completed successfully",
+          "title": "Success",
+          "type": "boolean"
+        },
+        "artifact_type": {
+          "description": "Type of rendered artifact",
+          "enum": [
+            "image",
+            "animation"
+          ],
+          "title": "Artifact Type",
+          "type": "string"
+        },
+        "artifact_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Filesystem path to the exported image/video",
+          "title": "Artifact Path"
+        },
+        "display_inline": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": false,
+          "description": "Whether to display artifact in UI",
+          "title": "Display Inline"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Log/debug notes or warnings",
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "success",
+        "artifact_type"
+      ],
+      "title": "LandmarkVisualizerOutput",
+      "type": "object"
+    }
+  }
+}

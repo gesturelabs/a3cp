@@ -1,0 +1,18 @@
+{
+  "context": {
+    "context_location": "kitchen",
+    "context_partner_speech": "Are you hungry?",
+    "context_prompt_type": "natural_use"
+  },
+  "final_decision": "eat",
+  "output_phrase": "I want to eat",
+  "output_type": "intent",
+  "session_id": "sess_20250714_e01",
+  "timestamp": "2025-07-14T17:35:00.000Z",
+  "user_id": "elias01",
+  "user_profile": {
+    "mode_preference": "speech",
+    "tone": "polite",
+    "verbosity": "short"
+  }
+}

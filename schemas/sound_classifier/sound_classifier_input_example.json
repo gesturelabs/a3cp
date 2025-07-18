@@ -1,0 +1,12 @@
+{
+  "audio_format": "base64",
+  "audio_payload": "UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YcAAAA==",
+  "device_id": "mic_usb_01",
+  "error": null,
+  "modality": "audio",
+  "sample_rate": 16000,
+  "session_id": "sess_20250714_e01",
+  "source": "communicator",
+  "timestamp": "2025-07-14T17:45:00.000Z",
+  "user_id": "elias01"
+}

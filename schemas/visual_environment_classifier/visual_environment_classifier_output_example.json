@@ -1,0 +1,15 @@
+{
+  "confidence_score": 0.92,
+  "context_flags": {
+    "is_cooking_area": true,
+    "is_public": false
+  },
+  "device_id": "jetson_cam_01",
+  "environment_label": "kitchen",
+  "frame_id": "frame_000023",
+  "input_hash": "sha256:a1b2c3d4e5f678...",
+  "model_version": "scene_cnn_v2.3",
+  "session_id": "sess_20250714_e01",
+  "source_module": "visual_environment_classifier",
+  "timestamp": "2025-07-14T18:00:00.000Z"
+}

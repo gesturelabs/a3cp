@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/speech_transcriber_schema.json",
+  "title": "Speech Transcriber Schema",
+  "description": "Schema for speech_transcriber input and output messages.",
+  "type": "object",
+  "$defs": {
+    "SpeechTranscriptSegment": {
+      "properties": {
+        "transcript": {
+          "description": "Transcribed speech segment (finalized or partial)",
+          "title": "Transcript",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "UTC ISO8601 time of capture or segment end",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "Interaction session identifier",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Pseudonymous user identifier",
+          "title": "User Id",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional ASR confidence score (0.0\u20131.0)",
+          "title": "Confidence"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Language code (e.g., 'en', 'es') in BCP-47 format",
+          "title": "Language"
+        },
+        "segment_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional unique ID for this ASR segment",
+          "title": "Segment Id"
+        },
+        "is_partial": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": false,
+          "description": "True if this is a live/partial transcript; False if finalized",
+          "title": "Is Partial"
+        }
+      },
+      "required": [
+        "transcript",
+        "timestamp",
+        "session_id",
+        "user_id"
+      ],
+      "title": "SpeechTranscriptSegment",
+      "type": "object"
+    }
+  }
+}

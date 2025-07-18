@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/llm_clarifier_schema.json",
+  "title": "Llm Clarifier Schema",
+  "description": "Schema for llm_clarifier input and output messages.",
+  "type": "object",
+  "$defs": {
+    "LLMClarifierOutput": {
+      "properties": {
+        "output_phrase": {
+          "description": "Clarification prompt to be shown to user",
+          "title": "Output Phrase",
+          "type": "string"
+        },
+        "output_mode": {
+          "description": "Type of clarification prompt",
+          "enum": [
+            "multiple_choice",
+            "open_ended",
+            "yes_no"
+          ],
+          "title": "Output Mode",
+          "type": "string"
+        },
+        "updated_flags": {
+          "description": "Flags to carry forward or revise",
+          "items": {
+            "type": "string"
+          },
+          "title": "Updated Flags",
+          "type": "array"
+        },
+        "logging_summary": {
+          "additionalProperties": true,
+          "description": "Compact summary of input + generated prompt for logging",
+          "title": "Logging Summary",
+          "type": "object"
+        }
+      },
+      "required": [
+        "output_phrase",
+        "output_mode",
+        "updated_flags",
+        "logging_summary"
+      ],
+      "title": "LLMClarifierOutput",
+      "type": "object"
+    }
+  }
+}

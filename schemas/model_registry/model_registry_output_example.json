@@ -1,0 +1,15 @@
+{
+  "config": {
+    "epochs": 10,
+    "input_dim": 128,
+    "model_type": "RandomForest",
+    "num_trees": 100
+  },
+  "modality": "gesture",
+  "model_artifact_path": "/models/elias01_gesture_v2.1.pkl",
+  "model_version": "model_20250714_154500_e01",
+  "schema_version": "1.0.0",
+  "timestamp": "2025-07-14T15:45:00.000Z",
+  "user_id": "elias01",
+  "vector_version": "v2.1"
+}
