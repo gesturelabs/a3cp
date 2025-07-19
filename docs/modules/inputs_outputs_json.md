@@ -189,7 +189,8 @@
   "inputs_from": [
     "recorded_schemas",
     "feedback_log",
-    "model_registry"
+    "model_registry",
+    "communication_partner"
   ],
   "outputs_to": [
     "model_trainer"

@@ -31,6 +31,8 @@ a retraining request.
 
 - model_registry
   - Queried for latest training timestamp, vector version, and training config per user/modality
+-Communication Partner
+  -can initiate retraining if they see degradation
 
 ## Outputs
 - model_trainer
