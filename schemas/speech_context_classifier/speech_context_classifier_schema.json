@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/speech_context_classifier_schema.json",
+  "title": "Speech Context Classifier Schema",
+  "description": "Schema for speech_context_classifier input and output messages.",
+  "type": "object",
+  "$defs": {
+    "VocabularyItem": {
+      "properties": {
+        "label": {
+          "description": "Intent label trained by user (e.g., 'help', 'drink')",
+          "title": "Label",
+          "type": "string"
+        },
+        "modality": {
+          "description": "Modality of expression",
+          "enum": [
+            "gesture",
+            "vocalization"
+          ],
+          "title": "Modality",
+          "type": "string"
+        },
+        "examples": {
+          "description": "Example words or phrases mapped to this intent",
+          "items": {
+            "type": "string"
+          },
+          "title": "Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "label",
+        "modality",
+        "examples"
+      ],
+      "title": "VocabularyItem",
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "flags": {
+    "is_question": true,
+    "partner_engaged": true,
+    "topic_shift": true
+  },
+  "matched_intents": [
+    "play",
+    "music"
+  ],
+  "prompt_type": "question",
+  "record_id": "rec_1234567890",
+  "relevance_scores": {
+    "music": 0.75,
+    "play": 0.91
+  },
+  "schema_version": "1.0.0",
+  "session_id": "sess_20250714_e01",
+  "timestamp": "2025-07-14T17:56:01.500Z",
+  "topic": "play",
+  "user_id": "elias01"
+}

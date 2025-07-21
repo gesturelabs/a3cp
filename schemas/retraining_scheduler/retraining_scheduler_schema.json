@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/retraining_scheduler_schema.json",
+  "title": "Retraining Scheduler Schema",
+  "description": "Schema for retraining_scheduler input and output messages.",
+  "type": "object",
+  "$defs": {
+    "RetrainingTriggerMetadata": {
+      "properties": {
+        "trigger_reason": {
+          "description": "Human-readable explanation of why retraining was triggered (e.g., 'New sample threshold exceeded')",
+          "title": "Trigger Reason",
+          "type": "string"
+        },
+        "num_new_samples": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Number of new recorded schema entries since the last model version",
+          "title": "Num New Samples"
+        },
+        "clarification_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Observed clarification frequency since last training (e.g., 0.23)",
+          "title": "Clarification Rate"
+        },
+        "correction_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Proportion of corrected labels in feedback log, if available",
+          "title": "Correction Rate"
+        },
+        "model_version_before": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Latest known model version prior to retraining (e.g., 'gesture-elias01-20250701')",
+          "title": "Model Version Before"
+        },
+        "policy_config_version": {
+          "description": "Version of the retraining policy configuration applied",
+          "title": "Policy Config Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trigger_reason",
+        "policy_config_version"
+      ],
+      "title": "RetrainingTriggerMetadata",
+      "type": "object"
+    }
+  }
+}

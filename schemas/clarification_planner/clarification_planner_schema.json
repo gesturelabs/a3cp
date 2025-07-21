@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/clarification_planner_schema.json",
+  "title": "Clarification Planner Schema",
+  "description": "Schema for clarification_planner input and output messages.",
+  "type": "object",
+  "$defs": {
+    "RankedIntent": {
+      "properties": {
+        "intent": {
+          "description": "Predicted intent label",
+          "title": "Intent",
+          "type": "string"
+        },
+        "confidence": {
+          "description": "Confidence score",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        }
+      },
+      "required": [
+        "intent",
+        "confidence"
+      ],
+      "title": "RankedIntent",
+      "type": "object"
+    }
+  }
+}

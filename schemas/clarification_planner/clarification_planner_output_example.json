@@ -1,0 +1,21 @@
+{
+  "clarification": {
+    "candidates": [
+      "eat",
+      "play"
+    ],
+    "confidence_scores": [
+      0.52,
+      0.48
+    ],
+    "needed": true,
+    "reason": "confidence_gap_below_threshold",
+    "threshold_used": 0.05
+  },
+  "decision_metadata": {
+    "context_flags": "question_detected, ambiguous_intent",
+    "thresholds": "min_confidence=0.6, min_gap=0.05",
+    "trigger_reason": "Confidence gap below 0.05"
+  },
+  "final_decision": null
+}
