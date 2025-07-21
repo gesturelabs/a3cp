@@ -10,6 +10,43 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 ## [Unreleased]
 
+============================================================
+CHANGELOG ENTRY - 2025-07-21
+Category: Architecture, Validation, Schema Wiring
+============================================================
+
+✔ Verified and validated updated module I/O definitions
+   - Confirmed consistency of 30+ modules in the A3CP pipeline
+   - Checked symmetry of `inputs_from` and `outputs_to` across all modules
+   - Evaluated for acyclic structure, logical modularization, and integration coherence
+   -added module_type to input_outputs_json.md
+
+✘ Identified and resolved:
+   - [Syntax] Trailing comma in `partner_ui.inputs_from` → removed
+   - [Missing Definition] `user` listed as source for `session_manager` but not defined
+     → recommendation: define as external system boundary or dummy module
+
+🧠 Observations:
+   - Modular design cleanly separates sensory input, model inference, memory, clarification, and output
+   - All dataflow paths between classifiers, broker, planner, and UI layers are traceable and logically valid
+
+
+====================================================================
+CHANGELOG ENTRY - 2025-07-21 - Schema I/O Validation
+Category: Validation, Schemas, Developer Tooling
+====================================================================
+
+Fixes & Improvements:
+---------------------
+- Performed structural validation of module-level input/output links across A3CP schema.
+- Identified 9 modules with missing `outputs_to` links from expected upstream producers.
+- Identified 4 modules with `outputs_to` declarations that are not matched by any declared consumer.
+- Corrected previous typo: replaced `"recorded_schema"` with `"recorded_schemas"` in all affected modules.
+- Verified module count and interconnection completeness (25 modules total).
+- Confirmed cycles and loopbacks (e.g., `feedback_log -> memory_interface -> ...`) are valid in runtime DAG context.
+- Highlighted undefined external systems: `user_input_pipeline`, `config_man
+
+
 ### Infrastructure
 - Added new module: `retraining_scheduler` for policy-based model retraining
 - Created `schemas/retraining_scheduler/` with Pydantic models for:
