@@ -113,9 +113,6 @@ class SpeechContextInfererOutput(BaseModel):
             ..., description="Boolean flags (e.g., is_question, needs_clarification)"
         ),
     ]
-    needs_clarification: Annotated[
-        bool, Field(..., description="True if no matches found or low relevance")
-    ]
 
     @staticmethod
     def example_output() -> dict:
@@ -134,5 +131,4 @@ class SpeechContextInfererOutput(BaseModel):
                 "topic_shift": True,
                 "partner_engaged": True,
             },
-            "needs_clarification": False,
         }
