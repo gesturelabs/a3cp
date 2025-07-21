@@ -11,6 +11,39 @@ Maintainer: Dmitri Katz
 ## [Unreleased]
 
 ====================================================================
+CHANGELOG ENTRY – 2025-07-21
+Category: Documentation, Schema, Module Integration
+====================================================================
+
+Added:
+------
+- docs/modules/partner_ui/README.md
+  - Defined responsibilities, inputs, and outputs for partner-facing UI module
+  - Documents clarification prompt rendering, feedback routing, and session note handling
+
+- docs/modules/recorded_schemas/README.md
+  - Describes the persistent schema archive module
+  - Details append-only message storage, retrieval by session/user/modality, and integration with retraining, visualization, and playback modules
+
+- docs/modules/user_profile_store/README.md
+  - Defines the role of user-specific configuration and vocabulary memory
+  - Describes how preferences and mappings inform CARE Engine, clarification planner, and output planner
+
+- schemas/speech_context_classifier/speech_context_classifier.py
+  - Pydantic schema for input/output of `speech_context_classifier`
+  - Includes structured fields for prompt type, matched intents, relevance scores, context flags, and session/user metadata
+
+====================================================================
+Impact:
+--------
+- Introduces key documentation for partner-facing and memory-backed modules
+- Finalizes schema stub for speech context inference
+- Enables upcoming CARE integration and structured logging for partner feedback and training memory
+
+Version: v0.4.3-dev
+Author: core-dev
+
+====================================================================
 CHANGELOG ENTRY - 2025-07-21
 Category: Schema, Module Docs, Clarification Logic
 ====================================================================
