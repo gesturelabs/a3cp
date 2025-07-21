@@ -98,9 +98,11 @@
 {
     "module_name": "landmark_visualizer",
     "inputs_from": [
-        "recorded_schema_store"
+        "recorded_schemas"
     ],
-    "outputs_to": []
+    "outputs_to": [
+      "partner_ui"
+    ]
 }
 
 {
@@ -111,7 +113,8 @@
     ],
     "outputs_to": [
         "output_expander",
-        "feedback_log"
+        "feedback_log",
+        "partner_ui"
     ]
 }
 
@@ -180,9 +183,41 @@
         "user_profile_store"
     ],
     "outputs_to": [
-        "aac_ui_layer"
+        "partner_ui"
     ]
 }
+
+{
+    "module_name": "partner_ui",
+    "inputs_from": [
+        "output_planner",
+        "landmark_visualizer",
+        "sound_playback",
+        "llm_clarifier",
+    ],
+    "outputs_to": [
+        "session_manager",
+        "retraining_scheduler",
+        "feedback_log",
+        "user_profile_store",
+        "llm_clarifier"
+    ]
+}
+
+{
+  "module_name": "recorded_schemas",
+  "inputs_from": [
+    "schema_recorder"
+  ],
+  "outputs_to": [
+    "retraining_scheduler",
+    "model_trainer",
+    "sound_playback",
+    "landmark_visualizer"
+  ]
+}
+
+
 
 {
   "module_name": "retraining_scheduler",
@@ -190,7 +225,7 @@
     "recorded_schemas",
     "feedback_log",
     "model_registry",
-    "communication_partner"
+    "partner_ui"
   ],
   "outputs_to": [
     "model_trainer"
@@ -215,7 +250,9 @@
 {
   "module_name": "session_manager",
   "inputs_from": [
-    "user_input_pipeline"
+    "user",
+    "partner_ui",
+    "user_profile_store"
   ],
   "outputs_to": [
     "camera_feed_worker",
@@ -238,9 +275,11 @@
 {
   "module_name": "sound_playback",
   "inputs_from": [
-    "recorded_schema_store"
+    "recorded_schemas"
   ],
-  "outputs_to": []
+  "outputs_to": [
+    "partner_ui"
+  ]
 }
 
 {
@@ -266,7 +305,7 @@
 {
   "module_name": "user_profile_store",
   "inputs_from": [
-    "partner_profile_editor",
+    "partner_ui",
     "memory_interface"
   ],
   "outputs_to": [
@@ -274,7 +313,7 @@
     "output_expander",
     "output_planner",
     "llm_clarifier",
-    "model_trainer"
+    "session_manager"
   ]
 }
 {
