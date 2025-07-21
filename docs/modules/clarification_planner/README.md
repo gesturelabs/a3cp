@@ -1,5 +1,13 @@
 # Module: clarification_planner
 
+| Field             | Value                     |
+|------------------|---------------------------|
+| **Module Name**  | `clarification_planner`   |
+| **Module Type**  | `coordinator`             |
+| **Inputs From**  | `confidence_evaluator`, `memory_integrator` |
+| **Outputs To**   | `llm_clarifier`, `output_expander` |
+| **Produces A3CPMessage?** | ✅ (partial; logs clarification decisions) |
+
 ## Purpose
 Determines whether to trigger a clarification prompt based on confidence levels and ambiguity in predicted user intents.
 
@@ -28,11 +36,20 @@ The Clarification Planner ensures transparent and accurate communication by dete
 - `user_id`, `session_id`, `timestamp`: Provenance metadata
 - Optional: Memory features such as unresolved intents or recent predictions
 
+
+
 ## Outputs
-- `clarification_trigger`: Boolean indicating whether to ask for clarification
-- `clarification_payload`: Optional metadata for LLM Clarifier (if triggered)
-- `audit_log`: Justification and metadata for the decision
-- Optional: `final_decision_override` recommendation
+
+- clarification.needed              : Boolean indicating whether clarification is required
+- clarification.reason              : Short reason string (e.g., "low_confidence", "tie", "ambiguous_context")
+- clarification.candidates          : Optional list of top ambiguous intent predictions
+- clarification.confidence_scores   : Optional list of confidence values (must align with candidates)
+- clarification.threshold_used      : Optional float indicating the threshold applied for clarification
+- final_decision_override (optional): Proposed override if clarification is bypassed
+
+(Note: clarification metadata is forwarded to `memory_interface` and `feedback_log` for downstream reasoning and audit logging.)
+
+
 
 ## CARE Integration
 - **Upstream**: Receives inference results and context from Confidence Evaluator and memory modules

@@ -1,4 +1,3 @@
-# clarification_planner Pydantic model
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -15,17 +14,23 @@ class ClarificationPlannerInput(BaseModel):
         ..., description="Ranked intents with confidence scores"
     )
     context_flags: Optional[Dict[str, bool]] = Field(
-        default_factory=dict, description="Contextual flags (e.g., question_detected)"
+        default_factory=dict,
+        description="Contextual flags such as 'question_detected' or 'ambiguous_intent'",
     )
-    context_topic_tag: Optional[str] = Field(None, description="Inferred topic tag")
+    context_topic_tag: Optional[str] = Field(
+        None, description="Inferred topic or domain tag"
+    )
     context_relevance_score: Optional[float] = Field(
-        None, ge=0.0, le=1.0, description="Context relevance to known intents"
+        None,
+        ge=0.0,
+        le=1.0,
+        description="How relevant the current input is to expected context",
     )
-    timestamp: datetime = Field(..., description="UTC ISO 8601 timestamp")
-    session_id: str = Field(..., description="Unique session identifier")
-    user_id: str = Field(..., description="User identifier")
+    timestamp: datetime = Field(..., description="ISO 8601 UTC timestamp of decision")
+    session_id: str = Field(..., description="Session identifier")
+    user_id: str = Field(..., description="Pseudonymous user identifier")
     unresolved_intents: Optional[List[str]] = Field(
-        None, description="Recent unresolved or corrected intents"
+        None, description="Intents unresolved or corrected in recent memory"
     )
 
     @staticmethod
@@ -45,34 +50,51 @@ class ClarificationPlannerInput(BaseModel):
         }
 
 
+class ClarificationMetadata(BaseModel):
+    needed: bool = Field(..., description="Whether clarification is required")
+    reason: Optional[str] = Field(
+        None, description="Trigger reason (e.g. 'low_confidence', 'tie_score')"
+    )
+    candidates: Optional[List[str]] = Field(
+        None, description="Top ambiguous intent candidates"
+    )
+    confidence_scores: Optional[List[float]] = Field(
+        None, description="Confidence values aligned with candidates"
+    )
+    threshold_used: Optional[float] = Field(
+        None, description="Threshold value that triggered clarification"
+    )
+
+
 class ClarificationPlannerOutput(BaseModel):
-    clarification_trigger: bool = Field(
-        ..., description="Whether clarification should be requested"
+    clarification: ClarificationMetadata = Field(
+        ..., description="Clarification decision metadata"
     )
-    clarification_payload: Optional[Dict] = Field(
-        None, description="Payload passed to LLM Clarifier"
+    decision_metadata: Optional[Dict[str, str]] = Field(
+        default_factory=dict,
+        description=(
+            "Explanation for clarification decision (thresholds, context flags, "
+            "ambiguity reasons). Forwarded to feedback_log and memory_interface."
+        ),
     )
-    audit_log: Dict[str, str] = Field(
-        ..., description="Explanation and threshold criteria for decision"
-    )
-    final_decision_override: Optional[str] = Field(
-        None,
-        description="Optional final decision suggestion if clarification is skipped",
+    final_decision: Optional[str] = Field(
+        None, description="Optional resolved intent if clarification is bypassed"
     )
 
     @staticmethod
     def example_output() -> dict:
         return {
-            "clarification_trigger": True,
-            "clarification_payload": {
-                "top_candidates": ["eat", "play"],
-                "confidence_gap": 0.04,
-                "ambiguous_reason": "tie_score_below_threshold",
+            "clarification": {
+                "needed": True,
+                "reason": "confidence_gap_below_threshold",
+                "candidates": ["eat", "play"],
+                "confidence_scores": [0.52, 0.48],
+                "threshold_used": 0.05,
             },
-            "audit_log": {
-                "trigger_reason": "Confidence gap below threshold (0.05)",
+            "decision_metadata": {
+                "trigger_reason": "Confidence gap below 0.05",
                 "thresholds": "min_confidence=0.6, min_gap=0.05",
-                "detected_flags": "question_detected, ambiguous_intent",
+                "context_flags": "question_detected, ambiguous_intent",
             },
-            "final_decision_override": None,
+            "final_decision": None,
         }

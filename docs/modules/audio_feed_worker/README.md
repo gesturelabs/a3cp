@@ -1,5 +1,14 @@
 # Submodule: audio_feed_worker
 
+| Field             | Value                  |
+|------------------|------------------------|
+| **Module Name**  | `audio_feed_worker`    |
+| **Module Type**  | `worker`               |
+| **Inputs From**  | `config_manager`       |
+| **Outputs To**   | `sound_classifier`, `speech_transcriber`, `schema_recorder` |
+| **Produces A3CPMessage?** | ❌ No (metadata only, schema wrapping downstream) |
+
+
 ## Purpose
 Captures live audio from a local input device (e.g., microphone) and streams it to downstream modules in real time.
 Acts as the source for all audio-derived data such as waveform-based classification, transcription, and logging.

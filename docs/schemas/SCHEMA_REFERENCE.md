@@ -226,14 +226,9 @@ These fields should reflect **post-resolution** logic only. Pre-filling them may
 
 ## 6. Clarification & Feedback
 
-This section captures the system's capacity to refine or override intent classification through interactive clarification loops or caregiver intervention. It includes feedback pathways, label status transitions, consent markers, and decision finalization indicators.
+This section captures the system’s capacity to detect ambiguity (clarification), refine or override intent classification (label_correction), and finalize communicative output (final_decision). It includes structured metadata for triggering clarification, human intervention, and outcome tracking..
 
 All fields are optional unless required by a specific module (e.g., feedback logger or session manager).
-
----
-## 6. Clarification & Feedback
-
-This section captures information related to interactive clarification, human correction, and ethics-based filtering. It extends classifier and label metadata with clarification-aware annotations and outcome resolution logic.
 
 ---
 
@@ -288,6 +283,26 @@ These flags may be used for **ethics compliance**, audit filtering, and exclusio
 
 **Recommendation:**
 Clarification is not ground truth. These fields reflect interactive resolution steps and should be logged **separately** from original classifier predictions to preserve provenance.
+
+### 6.4 Clarification Metadata
+
+All clarification planning metadata is grouped under the optional `clarification` object. This object is typically written by the `clarification_planner` and read by downstream modules such as the `llm_clarifier`, `feedback_log`, or `memory_interface`.
+
+| Field                          | Type             | Req | Example                            | Description                                                                 |
+|-------------------------------|------------------|-----|------------------------------------|-----------------------------------------------------------------------------|
+| `clarification.needed`        | boolean           | ✅  | `true`                             | Whether clarification should be initiated for this input.                   |
+| `clarification.reason`        | string            | ❌  | `"low_confidence"`                 | Explanation for triggering clarification.                                  |
+| `clarification.candidates`    | list of strings   | ❌  | `["eat", "drink"]`                 | Top ambiguous or tied intent predictions.                                  |
+| `clarification.confidence_scores` | list of floats | ❌  | `[0.38, 0.36]`                      | Confidence values (aligned with `candidates`).                             |
+| `clarification.threshold_used`| float             | ❌  | `0.40`                             | Threshold that triggered clarification logic.                              |
+
+This object supports structured decision logging and LLM-based prompt construction. It should be emitted **only** when clarification is required (`clarification.needed == true`).
+
+**Notes:**
+- All fields are optional except `clarification.needed`.
+- If `clarification.needed` is `false`, this object may be omitted entirely.
+- `clarification.*` fields are not ground truth and must be treated as advisory metadata for interaction planning, not intent resolution.
+
 
 
 ## 7. Memory-Based Output
@@ -511,6 +526,8 @@ This table summarizes which A3CP modules interact with each field group in the c
 | `memory_hint_used`            | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
 | `output_phrase`               | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
 | `output_mode`                 | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
+| `clarification.*`             | ❌       | ❌        | ❌      | ✅ write     | ✅ read          |
+
 
 ---
 

@@ -10,6 +10,48 @@ Date: 2025-06-11
 Maintainer: Dmitri Katz
 ## [Unreleased]
 
+====================================================================
+CHANGELOG ENTRY - 2025-07-21
+Category: Schema, Module Docs, Clarification Logic
+====================================================================
+
+Modified:
+---------
+- docs/architecture/a3cp_pipeline.drawio
+  - Updated module flow to reflect `clarification_planner` outputs to `feedback_log` and `memory_interface`
+  - Corrected data flow arrows for context flags and memory metadata
+
+- docs/modules/clarification_planner/README.md
+  - Overhauled responsibilities to match schema and module manifest
+  - Added structured output fields: `clarification`, `final_decision`, and `decision_metadata`
+  - Removed reference to non-existent `audit_log`
+
+- docs/modules/inputs_outputs_json.md
+  - Refined `outputs_to` for multiple coordinator modules to reflect clarification updates
+  - Ensured consistency with `module_name` and `module_type` taxonomy
+
+- docs/schemas/SCHEMA_REFERENCE.md
+  - Updated Section 6.4: `clarification.*` object fields and downstream usage
+  - Added guidance on forwarding `decision_metadata` to `feedback_log` and `memory_interface`
+  - Removed legacy reference to `audit_log` as an output sink
+
+- schemas/clarification_planner/clarification_planner.py
+  - Refactored output model to match A3CP schema: uses `clarification`, `final_decision`, `decision_metadata`
+  - Deprecated ambiguous field `clarification_trigger`
+  - Introduced `ClarificationMetadata` object and removed legacy `clarification_payload`
+
+====================================================================
+Impact:
+--------
+- Schema and planner output now fully aligned with `SCHEMA_REFERENCE.md`
+- Clarification planner integrates cleanly into memory and feedback workflows
+- Removed outdated `audit_log` terminology across code and documentation
+
+Version: `v1.0.0-schema-sync`
+Author: core-dev
+====================================================================
+
+
 ============================================================
 CHANGELOG ENTRY - 2025-07-21
 Category: Architecture, Validation, Schema Wiring

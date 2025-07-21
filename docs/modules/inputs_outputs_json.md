@@ -283,7 +283,7 @@
 
 {
   "module_name": "sound_classifier",
-  "module_type": "classifier"
+  "module_type": "classifier",
   "inputs_from": [
     "audio_feed_worker",
     "model_registry"
@@ -305,7 +305,7 @@
 
 {
   "module_name": "speech_context_classifier",
-  "module_type": "classifier"
+  "module_type": "classifier",
   "inputs_from": [
     "speech_transcriber",
     "user_profile_store"
@@ -351,7 +351,7 @@
   "module_name": "visual_environment_classifier",
   "module_type": "classifier",
   "inputs_from": [
-    "camera_feed_worker",
+    "camera_feed_worker"
   ],
   "outputs_to": [
     "input_broker"

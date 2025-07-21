@@ -1,5 +1,14 @@
 # Submodule: camera_feed_worker
 
+| Field             | Value                  |
+|------------------|------------------------|
+| **Module Name**  | `camera_feed_worker`   |
+| **Module Type**  | `worker`               |
+| **Inputs From**  | `session_manager`, `config_manager` |
+| **Outputs To**   | `landmark_extractor`, `schema_recorder` |
+| **Produces A3CPMessage?** | ❌ No |
+
+
 ## Purpose
 Captures frames from a local video input device (e.g., webcam) and streams them to downstream modules in real time.
 Acts as the source for all video-derived data such as landmarks, classification, and recording.
