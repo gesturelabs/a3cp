@@ -27,7 +27,7 @@
     "module_name": "clarification_planner",
     "module_type": "coordinator",
     "inputs_from": [
-        "confidence_evaluator"
+        "confidence_evaluator",
     ],
     "outputs_to": [
         "llm_clarifier",
