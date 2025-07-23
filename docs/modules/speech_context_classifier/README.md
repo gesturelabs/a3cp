@@ -1,65 +1,57 @@
 # Module: speech_context_classifier
 
 ## Purpose
-Analyzes transcribed partner speech and session metadata to infer likely communicative context. Narrows the intent space by matching partner prompts to the user's known gesture or vocalization mappings. Provides context priors to the CARE Engine and Clarification Planner.
+Classifies partner speech against the user’s known intent vocabulary by computing the most likely referred intents using semantic inference. This is performed via a constrained large language model (LLM) that ranks candidate intents based on contextual alignment and example match. The module does not infer dialog acts, prompt types, or clarification needs. It enables downstream decision making by producing a relevance-ranked list of known user intents.
 
 ## Why It Matters
-Partner speech often implicitly signals what the user is expected to respond to. By analyzing these signals and intersecting them with the user's trained vocabulary, this module improves efficiency and accuracy in intent classification—reducing unnecessary clarifications and cognitive load.
+Partner speech often implicitly signals which user intents are being prompted, but those signals are often indirect, idiomatic, or context-sensitive. By leveraging an LLM constrained to the user's trained vocabulary, this module enables robust and flexible intent inference while keeping classification bounded, interpretable, and fast enough for real-time systems.
 
 ## Responsibilities
-- Receive live or batch transcript segments from `SpeechTranscriber`
-- Detect linguistic cues including:
-  - Question forms, commands, attention shifts
-  - Named entities and topic transitions
-- Look up user-specific mappings (gesture, audio) from vocabulary registry
-- Match partner prompt content to known mappings using:
-  - Lexical matching
-  - Semantic similarity (e.g., embedding distance)
-- Generate:
-  - Relevance scores for matching intents
-  - Context flags (e.g., `is_question=True`, `topic='object'`)
-- Forward enriched context object to CARE Engine
-- Trigger fallback to Clarification Planner if no candidate mapping matches
+- Receive live or batch transcript segments from `speech_transcriber`
+- Look up user-specific mappings (gesture, vocalization) from `user_profile_store`
+- Use LLM to semantically match partner utterance to user-known intents:
+  - Intents are described by their `label`, `modality`, and `examples`
+  - LLM is prompted to select the most likely labels with justification
+- Return top N (e.g. 3) highest scoring intent matches
+- Output only match scores; downstream modules determine clarification
 
 ## Not Responsible For
-- Making final intent decisions
-- Performing gesture/audio classification
-- Maintaining long-term session state (unless configured)
+- Inferring dialog acts or prompt types (e.g., questions, commands)
+- Determining if clarification is needed
+- Generating clarification prompts
+- Maintaining long-term session history
+- Translating or rephrasing utterances
 
 ## Inputs
-- Transcripts from `SpeechTranscriber`
+- Transcripts from `speech_transcriber`
 - Session/user metadata:
   - `timestamp`, `session_id`, `user_id`
-- Partner dialog history (`context.partner_speech`)
-- User vocabulary registry:
-  - List of trained gestures and vocalizations with intent labels
+- `vocabulary` list from `user_profile_store`:
+  - Each item includes `label`, `modality`, and `examples`
+  - These constrain and guide the LLM's reasoning
 
 ## Outputs
-- Structured context object:
-  - `prompt_type` (e.g., question, command, unknown)
-  - `topic` (e.g., food, help)
-  - `matched_intents` (list of known intent labels relevant to current prompt)
-  - `relevance_scores` (per intent)
-  - `flags` (e.g., `is_question=True`, `needs_clarification=True`)
-- If no matches found, sets `context.needs_clarification=True` to guide Clarification Planner
+- Structured output object:
+  - `matched_intents`: List of intent labels ordered by inferred relevance
+  - `relevance_scores`: Dict of intent → normalized score (0.0–1.0)
+  - `flags`: Optional markers such as `partner_engaged`, `topic_shift` (but not `needs_clarification`)
 
 ## CARE Integration
-Acts as a pre-filter and context provider before CARE Engine intent classification. Narrows the candidate intent space and determines whether clarification is required based on partner prompt relevance to user's known vocabulary.
+Acts as a scoped semantic classifier providing candidate intents for rule-based filtering in the `confidence_evaluator`. It supplies LLM-derived match confidence while ensuring that inference stays within the bounds of the user’s declared intent space.
 
 ## Functional Requirements
-- F1. Accept transcripts and user/session metadata
-- F2. Detect questions, topics, and dialogue act types using rules or LLMs
-- F3. Lookup user-specific gesture/audio-intent mappings
-- F4. Match prompt content against known intents and compute relevance scores
-- F5. Generate and forward structured context object to CARE Engine
-- F6. Set `needs_clarification=True` if no viable intent match is found
+- F1. Accept single or batch partner utterances
+- F2. Retrieve and cache user vocabulary (intent + examples)
+- F3. Construct and send constrained LLM prompt with utterance + vocabulary
+- F4. Parse and normalize scores for top-N matched intents
+- F5. Output results without performing clarification logic
 
 ## Non-Functional Requirements
-- NF1. Must complete processing in <200ms per update
-- NF2. Must support multilingual transcripts and degraded speech input
-- NF3. Must degrade gracefully if user vocabulary is missing or incomplete
-- NF4. Output must be schema-compliant and logged for audit/training
-- NF5. Must avoid over-restricting the candidate space when uncertain
+- NF1. Must complete inference in <200ms per utterance when accelerated (fallback allowed)
+- NF2. Must support multilingual input and example matching
+- NF3. Must degrade gracefully if vocabulary is empty
+- NF4. Output must conform to schema and be logged for audit/training
+- NF5. Must preserve user intent boundaries (no open intent generation)
 
 ## Developer(s)
 Unassigned
@@ -70,4 +62,4 @@ High
 ## Example Files
 - `examples/transcript_input.json`
 - `examples/context_output_with_matches.json`
-- `examples/context_output_needs_clarification.json`
+- `examples/context_output_empty.json`
