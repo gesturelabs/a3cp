@@ -3,11 +3,11 @@
     {
       "language": "en",
       "timestamp": "2025-07-14T17:55:58.000Z",
-      "transcript": "Do you want to play?"
+      "transcript": "Would you like to listen to a song or play a game now?"
     }
   ],
   "record_id": "rec_1234567890",
-  "schema_version": "1.0.0",
+  "schema_version": "1.0.1",
   "session_id": "sess_20250714_e01",
   "timestamp": "2025-07-14T17:56:00.000Z",
   "user_id": "elias01",
@@ -29,6 +29,33 @@
       ],
       "label": "music",
       "modality": "vocalization"
+    },
+    {
+      "examples": [
+        "water",
+        "juice",
+        "drink"
+      ],
+      "label": "drink",
+      "modality": "gesture"
+    },
+    {
+      "examples": [
+        "help",
+        "assist",
+        "support"
+      ],
+      "label": "help",
+      "modality": "vocalization"
+    },
+    {
+      "examples": [
+        "bathroom",
+        "toilet",
+        "pee"
+      ],
+      "label": "toilet",
+      "modality": "gesture"
     }
   ]
 }

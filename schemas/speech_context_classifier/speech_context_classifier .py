@@ -1,4 +1,4 @@
-from typing import Annotated, Dict, List, Literal, Optional
+from typing import Annotated, Dict, List, Literal
 
 from pydantic import BaseModel, Field
 
@@ -28,9 +28,9 @@ class VocabularyItem(BaseModel):
     ]
 
 
-class SpeechContextInfererInput(BaseModel):
-    schema_version: Literal["1.0.0"] = Field(
-        default="1.0.0", description="Schema version"
+class SpeechContextClassifierInput(BaseModel):
+    schema_version: Literal["1.0.1"] = Field(
+        default="1.0.1", description="Schema version"
     )
     record_id: Annotated[
         str, Field(..., description="Unique ID for this inference request")
@@ -52,14 +52,14 @@ class SpeechContextInfererInput(BaseModel):
     @staticmethod
     def example_input() -> dict:
         return {
-            "schema_version": "1.0.0",
+            "schema_version": "1.0.1",
             "record_id": "rec_1234567890",
             "user_id": "elias01",
             "session_id": "sess_20250714_e01",
             "timestamp": "2025-07-14T17:56:00.000Z",
             "partner_speech": [
                 {
-                    "transcript": "Do you want to play?",
+                    "transcript": "Would you like to listen to a song or play a game now?",
                     "timestamp": "2025-07-14T17:55:58.000Z",
                     "language": "en",
                 }
@@ -75,13 +75,28 @@ class SpeechContextInfererInput(BaseModel):
                     "modality": "vocalization",
                     "examples": ["sing", "music", "song"],
                 },
+                {
+                    "label": "drink",
+                    "modality": "gesture",
+                    "examples": ["water", "juice", "drink"],
+                },
+                {
+                    "label": "help",
+                    "modality": "vocalization",
+                    "examples": ["help", "assist", "support"],
+                },
+                {
+                    "label": "toilet",
+                    "modality": "gesture",
+                    "examples": ["bathroom", "toilet", "pee"],
+                },
             ],
         }
 
 
-class SpeechContextInfererOutput(BaseModel):
-    schema_version: Literal["1.0.0"] = Field(
-        default="1.0.0", description="Schema version"
+class SpeechContextClassifierOutput(BaseModel):
+    schema_version: Literal["1.0.1"] = Field(
+        default="1.0.1", description="Schema version"
     )
     record_id: Annotated[str, Field(..., description="Copied from input")]
     user_id: Annotated[str, Field(..., description="Copied from input")]
@@ -90,45 +105,33 @@ class SpeechContextInfererOutput(BaseModel):
         str, Field(..., description="UTC ISO8601 timestamp of prediction")
     ]
 
-    prompt_type: Annotated[
-        Optional[Literal["question", "command", "unknown"]],
-        Field(..., description="Type of communicative prompt inferred"),
-    ]
-    topic: Annotated[
-        Optional[str],
-        Field(
-            ..., description="High-level topic category (e.g., 'food', 'navigation')"
-        ),
-    ]
     matched_intents: Annotated[
         List[str],
         Field(..., description="List of relevant known intent labels matched"),
     ]
+
     relevance_scores: Annotated[
-        Dict[str, float], Field(..., description="Confidence scores per matched intent")
+        Dict[str, float],
+        Field(..., description="Confidence scores per matched intent"),
     ]
+
     flags: Annotated[
         Dict[str, bool],
         Field(
-            ..., description="Boolean flags (e.g., is_question, needs_clarification)"
+            ...,
+            description="Optional boolean flags (e.g., partner_engaged, topic_shift)",
         ),
     ]
 
     @staticmethod
     def example_output() -> dict:
         return {
-            "schema_version": "1.0.0",
+            "schema_version": "1.0.1",
             "record_id": "rec_1234567890",
             "user_id": "elias01",
             "session_id": "sess_20250714_e01",
             "timestamp": "2025-07-14T17:56:01.500Z",
-            "prompt_type": "question",
-            "topic": "play",
-            "matched_intents": ["play", "music"],
-            "relevance_scores": {"play": 0.91, "music": 0.75},
-            "flags": {
-                "is_question": True,
-                "topic_shift": True,
-                "partner_engaged": True,
-            },
+            "matched_intents": ["music", "play"],
+            "relevance_scores": {"music": 0.89, "play": 0.86},
+            "flags": {"partner_engaged": True, "topic_shift": True},
         }
