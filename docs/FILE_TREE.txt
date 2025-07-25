@@ -20,12 +20,52 @@
 │           ├── nodeids
 │           └── stepwise
 ├── .ruff_cache
+│   ├── .DS_Store
 │   ├── .gitignore
+│   ├── 0.12.5
+│   │   ├── 10126979663793983754
+│   │   ├── 10661662396623929092
+│   │   ├── 11105276669820271405
+│   │   ├── 11690262793559536149
+│   │   ├── 1217761892599599163
+│   │   ├── 12791259683822030800
+│   │   ├── 14314025729055249689
+│   │   ├── 15157886289481305969
+│   │   ├── 15221411613864338009
+│   │   ├── 15923234124796487113
+│   │   ├── 16161581575142862194
+│   │   ├── 16479554293883490119
+│   │   ├── 16872378724973949602
+│   │   ├── 1739392333635622288
+│   │   ├── 17536629053011997126
+│   │   ├── 18124039979818300413
+│   │   ├── 1982660099867819781
+│   │   ├── 2018126977611624410
+│   │   ├── 2641702571670910674
+│   │   ├── 2772962702546210910
+│   │   ├── 3794169943764487588
+│   │   ├── 4010186988924345941
+│   │   ├── 5362601261162180219
+│   │   ├── 5619621407797595450
+│   │   ├── 6023912814684000079
+│   │   ├── 6216797320827833905
+│   │   ├── 6597117211982348516
+│   │   ├── 7113833766012288744
+│   │   ├── 7535657925932994199
+│   │   ├── 8341068288047060450
+│   │   ├── 8423313527806305510
+│   │   ├── 8650162449906005436
+│   │   ├── 9102221887561305154
+│   │   ├── 9194151445994245692
+│   │   ├── 9392669383221422996
+│   │   └── 9591593620837751019
 │   ├── 0.4.1
 │   │   ├── 10026929515953940805
+│   │   ├── 10029074962946719991
 │   │   ├── 10156782289484861020
 │   │   ├── 10517366000954724975
 │   │   ├── 10850596518375484158
+│   │   ├── 11065696572551876142
 │   │   ├── 11584514492622159539
 │   │   ├── 1168593188500689714
 │   │   ├── 12469937722784140890
@@ -78,21 +118,40 @@
 ├── LICENSE.txt
 ├── Makefile
 ├── README.md
+├── Route
+├── Test.md
 ├── api
+│   ├── .DS_Store
 │   ├── __init__.py
 │   ├── main.py
 │   ├── routes
-│   │   ├── __init__.py
-│   │   ├── gesture_infer.py
-│   │   ├── inference.py
-│   │   ├── sound_infer.py
-│   │   └── streamer.py
-│   ├── schemas
-│   │   ├── gesture_infer.py
-│   │   ├── sound_infer.py
-│   │   └── streamer.py
+│   │   ├── audio_feed_worker_routes.py
+│   │   ├── camera_feed_worker_routes.py
+│   │   ├── clarification_planner_routes.py
+│   │   ├── confidence_evaluator_routes.py
+│   │   ├── feedback_log_routes.py
+│   │   ├── gesture_classifier_routes.py
+│   │   ├── input_broker_routes.py
+│   │   ├── landmark_extractor_routes.py
+│   │   ├── landmark_visualizer_routes.py
+│   │   ├── llm_clarifier_routes.py
+│   │   ├── memory_integrator_routes.py
+│   │   ├── memory_interface_routes.py
+│   │   ├── model_registry_routes.py
+│   │   ├── model_trainer_routes.py
+│   │   ├── output_expander_routes.py
+│   │   ├── output_planner_routes.py
+│   │   ├── retraining_scheduler_routes.py
+│   │   ├── schema_recorder_routes.py
+│   │   ├── session_manager_routes.py
+│   │   ├── sound_classifier_routes.py
+│   │   ├── sound_playback_routes.py
+│   │   ├── speech_context_classifier_routes.py
+│   │   ├── speech_transcriber_routes.py
+│   │   └── visual_environment_classifier_routes.py
 │   └── settings.py
 ├── apps
+│   ├── .DS_Store
 │   ├── pages
 │   │   ├── __init__.py
 │   │   ├── admin.py
@@ -126,6 +185,7 @@
 │   ├── urls.py
 │   └── wsgi.py
 ├── docs
+│   ├── .DS_Store
 │   ├── CHANGELOG.md
 │   ├── CONTRIBUTING.md
 │   ├── FILE_TREE.txt
@@ -137,9 +197,11 @@
 │   │   ├── DEPLOYMENT.md
 │   │   ├── DEVELOPMENT_FLOW.md
 │   │   ├── DEV_SETUP.md
+│   │   ├── Schema>Route>Test.md
 │   │   ├── TESTING.md
 │   │   └── VARIOUS_COMMANDS.md
 │   ├── modules
+│   │   ├── .DS_Store
 │   │   ├── audio_feed_worker
 │   │   │   └── README.md
 │   │   ├── camera_feed_worker
@@ -207,6 +269,7 @@
 │       ├── SCHEMA_OVERVIEW.md
 │       └── SCHEMA_REFERENCE.md
 ├── interfaces
+│   ├── .DS_Store
 │   └── source
 │       ├── __init__.py
 │       ├── a3cp_message.py
@@ -220,6 +283,7 @@
 ├── requirements-dev.txt
 ├── requirements.txt
 ├── schemas
+│   ├── .DS_Store
 │   ├── README.md
 │   ├── audio_feed_worker
 │   │   ├── audio_feed_worker.py
@@ -325,7 +389,7 @@
 │   │   ├── sound_playback_output_example.json
 │   │   └── sound_playback_schema.json
 │   ├── speech_context_classifier
-│   │   ├── speech_context_classifier .py
+│   │   ├── speech_context_classifier.py
 │   │   ├── speech_context_classifier_input_example.json
 │   │   ├── speech_context_classifier_output_example.json
 │   │   └── speech_context_classifier_schema.json
@@ -489,14 +553,33 @@
 │                   ├── xregexp.js
 │                   └── xregexp.min.js
 └── tests
+    ├── .DS_Store
     ├── __init__.py 
     ├── api
-    │   ├── test_gesture_infer.py
-    │   ├── test_main_smoke.py
-    │   ├── test_sound_infer.py
-    │   └── test_streamer.py
-    ├── conftest.py
-    ├── schemas
-    └── test_placeholder.py
+    │   ├── test_audio_feed_worker_routes.py
+    │   ├── test_camera_feed_worker_routes.py
+    │   ├── test_clarification_planner_routes.py
+    │   ├── test_confidence_evaluator_routes.py
+    │   ├── test_feedback_log_routes.py
+    │   ├── test_gesture_classifier_routes.py
+    │   ├── test_input_broker_routes.py
+    │   ├── test_landmark_extractor_routes.py
+    │   ├── test_landmark_visualizer_routes.py
+    │   ├── test_llm_clarifier_routes.py
+    │   ├── test_memory_integrator_routes.py
+    │   ├── test_memory_interface_routes.py
+    │   ├── test_model_registry_routes.py
+    │   ├── test_model_trainer_routes.py
+    │   ├── test_output_expander_routes.py
+    │   ├── test_output_planner_routes.py
+    │   ├── test_retraining_scheduler_routes.py
+    │   ├── test_schema_recorder_routes.py
+    │   ├── test_session_manager_routes.py
+    │   ├── test_sound_classifier_routes.py
+    │   ├── test_sound_playback_routes.py
+    │   ├── test_speech_context_classifier_routes.py
+    │   ├── test_speech_transcriber_routes.py
+    │   └── test_visual_environment_classifier_routes.py
+    └── conftest.py
 
-99 directories, 401 files
+98 directories, 485 files

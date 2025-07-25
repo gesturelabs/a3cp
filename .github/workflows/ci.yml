@@ -22,7 +22,7 @@ jobs:
       SECRET_KEY: dummy-key-for-ci
       DEBUG: "False"
 
-  
+
     services:
       postgres:
         image: postgres:13
@@ -36,7 +36,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-  
+
 
     steps:
       - name: Checkout Code
@@ -55,7 +55,7 @@ jobs:
       - name: Validate environment variables
         run: |
           python scripts/validate_env.py
-          
+
       - name: Print environment for debugging
         run: env | sort
 
@@ -65,4 +65,4 @@ jobs:
 
       - name: Run Pytest
         run: |
-          pytest --maxfail=5 --disable-warnings --tb=short
+          PYTHONPATH=. pytest --maxfail=5 --disable-warnings --tb=short

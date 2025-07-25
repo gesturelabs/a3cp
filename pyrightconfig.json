@@ -1,5 +1,11 @@
 {
   "typeCheckingMode": "basic",
   "reportMissingImports": true,
-  "reportMissingTypeStubs": false
+  "reportMissingTypeStubs": false,
+  "include": [
+    "."
+  ],
+  "extraPaths": [
+    "."
+  ]
 }

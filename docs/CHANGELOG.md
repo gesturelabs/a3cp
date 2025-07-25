@@ -8,7 +8,23 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
-## [Unreleased]
+
+
+
+
+## [Unreleased] - 2025-07-25
+
+### Fixed
+- Resolved Pylance `reportCallIssue` error on `from api.main import app` by adding `extraPaths: ["."]` to `pyrightconfig.json`.
+
+### Added
+- Added `__init__.py` files to all subdirectories in `schemas/` to ensure consistent package recognition by Python and static analyzers.
+
+### Changed
+- Updated `.github/workflows/ci.yml` to explicitly set `PYTHONPATH` using `${{ github.workspace }}` for reliable module resolution during CI runs.
+- Modified `docs/FILE_TREE.txt` to reflect addition of `__init__.py` files and confirm schema structure compliance.
+- Edited `tests/api/test_audio_feed_worker_routes.py` to ensure import of `app` from `api.main` functions correctly in both runtime and static analysis environments.
+
 ====================================================================
 CHANGELOG ENTRY – 2025-07-25
 Category: Recreating Documentation, Schema, Module Integration after serious error
