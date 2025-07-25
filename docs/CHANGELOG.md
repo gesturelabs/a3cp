@@ -9,6 +9,28 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [0.5.x] - 2025-07-25
+
+### Added
+- `AudioFeedWorkerConfig` POST test via `/api/audio_feed_worker/` with full request/response validation
+- New test fixture `async_client` using `httpx.AsyncClient` and `ASGITransport`
+
+### Changed
+- `api/main.py`: verified and updated router imports and app mounting
+- `tests/api/test_audio_feed_worker_routes.py`: converted to async + working integration test
+- `tests/conftest.py`: added reusable `async_client` fixture for FastAPI tests
+- `.github/workflows/ci.yml`: CI minor config changes
+- `api/settings.py`: config tweak
+- `pyrightconfig.json`: updated paths or type-checking scope
+- `docs/FILE_TREE.txt`: updated structure to match refactored layout
+- `docs/architecture/a3cp_pipeline.drawio`: added architecture diagram: user_profile to speech_context_module lost in disaster.
+
+### Removed
+- `docs/modules/inputs_outputs_json.md`: obsolete, replaced by `architecture/inputs_outputs_json.md`
+
+### Notes
+- CI now passes with fully working import paths (`PYTHONPATH=.` from `.env`)
+- `requirements.txt` updated — consider running `pip freeze > required.txt` if locked dependencies are needed
 
 
 

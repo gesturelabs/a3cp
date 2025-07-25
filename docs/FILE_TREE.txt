@@ -4,6 +4,7 @@
 ├── .env.example
 ├── .env.test
 ├── .github
+│   ├── .DS_Store
 │   └── workflows
 │       ├── ci.yml
 │       ├── deploy.yml
@@ -11,6 +12,7 @@
 ├── .gitignore
 ├── .pre-commit-config.yaml
 ├── .pytest_cache
+│   ├── .DS_Store
 │   ├── .gitignore
 │   ├── CACHEDIR.TAG
 │   ├── README.md
@@ -123,8 +125,10 @@
 ├── api
 │   ├── .DS_Store
 │   ├── __init__.py
+│   ├── import_test.py
 │   ├── main.py
 │   ├── routes
+│   │   ├── .DS_Store
 │   │   ├── audio_feed_worker_routes.py
 │   │   ├── camera_feed_worker_routes.py
 │   │   ├── clarification_planner_routes.py
@@ -192,7 +196,8 @@
 │   ├── architecture
 │   │   ├── a3cp_pipeline.drawio
 │   │   ├── a3cp_pipeline.png
-│   │   └── a3cp_pipeline.svg
+│   │   ├── a3cp_pipeline.svg
+│   │   └── inputs_outputs_json.md
 │   ├── dev
 │   │   ├── DEPLOYMENT.md
 │   │   ├── DEVELOPMENT_FLOW.md
@@ -216,7 +221,6 @@
 │   │   │   └── README.md
 │   │   ├── input_broker
 │   │   │   └── README.md
-│   │   ├── inputs_outputs_json.md
 │   │   ├── landmark_extractor
 │   │   │   └── README.md
 │   │   ├── landmark_visualizer
@@ -285,120 +289,169 @@
 ├── schemas
 │   ├── .DS_Store
 │   ├── README.md
+│   ├── __init__.py
 │   ├── audio_feed_worker
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── audio_feed_worker.py
 │   │   ├── audio_feed_worker_input_example.json
 │   │   ├── audio_feed_worker_output_example.json
 │   │   └── audio_feed_worker_schema.json
 │   ├── camera_feed_worker
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── camera_feed_worker.py
 │   │   ├── camera_feed_worker_input_example.json
 │   │   ├── camera_feed_worker_output_example.json
 │   │   └── camera_feed_worker_schema.json
 │   ├── clarification_planner
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── clarification_planner.py
 │   │   ├── clarification_planner_input_example.json
 │   │   ├── clarification_planner_output_example.json
 │   │   └── clarification_planner_schema.json
 │   ├── confidence_evaluator
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── confidence_evaluator.py
 │   │   ├── confidence_evaluator_input_example.json
 │   │   ├── confidence_evaluator_output_example.json
 │   │   └── confidence_evaluator_schema.json
 │   ├── feedback_log
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── feedback_log.py
 │   │   ├── feedback_log_input_example.json
 │   │   ├── feedback_log_output_example.json
 │   │   └── feedback_log_schema.json
 │   ├── gesture_classifier
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── gesture_classifier.py
 │   │   ├── gesture_classifier_input_example.json
 │   │   ├── gesture_classifier_output_example.json
 │   │   └── gesture_classifier_schema.json
 │   ├── input_broker
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── input_broker.py
 │   │   ├── input_broker_input_example.json
 │   │   ├── input_broker_output_example.json
 │   │   └── input_broker_schema.json
 │   ├── landmark_extractor
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── landmark_extractor.py
 │   │   ├── landmark_extractor_input_example.json
 │   │   ├── landmark_extractor_output_example.json
 │   │   └── landmark_extractor_schema.json
 │   ├── landmark_visualizer
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── landmark_visualizer.py
 │   │   ├── landmark_visualizer_input_example.json
 │   │   ├── landmark_visualizer_output_example.json
 │   │   └── landmark_visualizer_schema.json
 │   ├── llm_clarifier
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── llm_clarifier.py
 │   │   ├── llm_clarifier_input_example.json
 │   │   ├── llm_clarifier_output_example.json
 │   │   └── llm_clarifier_schema.json
 │   ├── memory_integrator
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── memory_integrator.py
 │   │   ├── memory_integrator_input_example.json
 │   │   ├── memory_integrator_output_example.json
 │   │   └── memory_integrator_schema.json
 │   ├── memory_interface
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── memory_interface.py
 │   │   ├── memory_interface_input_example.json
 │   │   ├── memory_interface_output_example.json
 │   │   └── memory_interface_schema.json
 │   ├── model_registry
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── model_registry.py
 │   │   ├── model_registry_input_example.json
 │   │   ├── model_registry_output_example.json
 │   │   └── model_registry_schema.json
 │   ├── model_trainer
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── model_trainer.py
 │   │   ├── model_trainer_input_example.json
 │   │   ├── model_trainer_output_example.json
 │   │   └── model_trainer_schema.json
 │   ├── output_expander
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── output_expander.py
 │   │   ├── output_expander_input_example.json
 │   │   ├── output_expander_output_example.json
 │   │   └── output_expander_schema.json
 │   ├── output_planner
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── output_planner.py
 │   │   ├── output_planner_input_example.json
 │   │   ├── output_planner_output_example.json
 │   │   └── output_planner_schema.json
 │   ├── retraining_scheduler
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── retraining_scheduler.py
 │   │   └── retraining_scheduler_schema.json
 │   ├── schema_recorder
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── schema_recorder.py
 │   │   ├── schema_recorder_input_example.json
 │   │   ├── schema_recorder_output_example.json
 │   │   └── schema_recorder_schema.json
 │   ├── session_manager
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── session_manager.py
 │   │   ├── session_manager_input_example.json
 │   │   ├── session_manager_output_example.json
 │   │   └── session_manager_schema.json
 │   ├── sound_classifier
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── sound_classifier.py
 │   │   ├── sound_classifier_input_example.json
 │   │   ├── sound_classifier_output_example.json
 │   │   └── sound_classifier_schema.json
 │   ├── sound_playback
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── sound_playback.py
 │   │   ├── sound_playback_input_example.json
 │   │   ├── sound_playback_output_example.json
 │   │   └── sound_playback_schema.json
 │   ├── speech_context_classifier
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── speech_context_classifier.py
 │   │   ├── speech_context_classifier_input_example.json
 │   │   ├── speech_context_classifier_output_example.json
 │   │   └── speech_context_classifier_schema.json
 │   ├── speech_transcriber
+│   │   ├── .DS_Store
+│   │   ├── __init__.py
 │   │   ├── speech_transcriber.py
 │   │   ├── speech_transcriber_input_example.json
 │   │   ├── speech_transcriber_output_example.json
 │   │   └── speech_transcriber_schema.json
 │   └── visual_environment_classifier
+│       ├── .DS_Store
+│       ├── __init__.py
 │       ├── visual_environment_classifier.py
 │       ├── visual_environment_classifier_input_example.json
 │       ├── visual_environment_classifier_output_example.json
@@ -556,6 +609,7 @@
     ├── .DS_Store
     ├── __init__.py 
     ├── api
+    │   ├── .DS_Store
     │   ├── test_audio_feed_worker_routes.py
     │   ├── test_camera_feed_worker_routes.py
     │   ├── test_clarification_planner_routes.py
@@ -582,4 +636,4 @@
     │   └── test_visual_environment_classifier_routes.py
     └── conftest.py
 
-98 directories, 485 files
+98 directories, 539 files

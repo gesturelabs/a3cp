@@ -24,5 +24,4 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings() -> Settings:
     settings = Settings()  # type: ignore
-    print(settings.model_dump())  # Debug only — remove in production
     return settings

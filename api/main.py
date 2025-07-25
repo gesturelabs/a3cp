@@ -38,6 +38,7 @@ from api.settings import get_settings
 settings = get_settings()
 app = FastAPI(title="A3CP Inference API", version="0.5.x")
 
+
 # Include all routers under the same prefix for now
 app.include_router(audio_feed_worker_router, prefix="/api/audio_feed_worker")
 app.include_router(camera_feed_worker_router, prefix="/api/camera_feed_worker")
@@ -72,7 +73,4 @@ app.include_router(
 if __name__ == "__main__":
     import uvicorn
 
-    print(
-        f"🔧 Starting FastAPI (DEV) | ENV={settings.ENVIRONMENT} | DB={settings.DB_NAME}"
-    )
     uvicorn.run("api.main:app", host="0.0.0.0", port=settings.UVICORN_PORT, reload=True)

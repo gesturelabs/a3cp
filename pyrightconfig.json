@@ -3,7 +3,10 @@
   "reportMissingImports": true,
   "reportMissingTypeStubs": false,
   "include": [
-    "."
+    "api",
+    "tests",
+    "schemas",
+    "interfaces"
   ],
   "extraPaths": [
     "."

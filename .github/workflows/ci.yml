@@ -64,5 +64,7 @@ jobs:
           python manage.py check --settings=config.settings.prod
 
       - name: Run Pytest
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          PYTHONPATH=. pytest --maxfail=5 --disable-warnings --tb=short
+          pytest --maxfail=5 --disable-warnings --tb=short

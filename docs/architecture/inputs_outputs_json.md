@@ -344,7 +344,8 @@
     "output_expander",
     "output_planner",
     "llm_clarifier",
-    "session_manager"
+    "session_manager",
+    "speech_context_classifier"
   ]
 }
 {
