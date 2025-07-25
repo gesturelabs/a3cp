@@ -1,8 +1,10 @@
 # api/routes/memory_interface_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.memory_interface.memory_interface import (MemoryAuditEntry,
-                                                       MemoryQueryResult)
+from schemas.memory_interface.memory_interface import (
+    MemoryAuditEntry,
+    MemoryQueryResult,
+)
 
 router = APIRouter()
 

@@ -2,7 +2,9 @@
 from fastapi import APIRouter, HTTPException
 
 from schemas.landmark_visualizer.landmark_visualizer import (
-    LandmarkVisualizerInput, LandmarkVisualizerOutput)
+    LandmarkVisualizerInput,
+    LandmarkVisualizerOutput,
+)
 
 router = APIRouter()
 

@@ -3,44 +3,36 @@
 from fastapi import FastAPI
 
 # Explicitly import routers from all *_routes.py files
-from api.routes.audio_feed_worker_routes import \
-    router as audio_feed_worker_router
-from api.routes.camera_feed_worker_routes import \
-    router as camera_feed_worker_router
-from api.routes.clarification_planner_routes import \
-    router as clarification_planner_router
-from api.routes.confidence_evaluator_routes import \
-    router as confidence_evaluator_router
+from api.routes.audio_feed_worker_routes import router as audio_feed_worker_router
+from api.routes.camera_feed_worker_routes import router as camera_feed_worker_router
+from api.routes.clarification_planner_routes import (
+    router as clarification_planner_router,
+)
+from api.routes.confidence_evaluator_routes import router as confidence_evaluator_router
 from api.routes.feedback_log_routes import router as feedback_log_router
-from api.routes.gesture_classifier_routes import \
-    router as gesture_classifier_router
+from api.routes.gesture_classifier_routes import router as gesture_classifier_router
 from api.routes.input_broker_routes import router as input_broker_router
-from api.routes.landmark_extractor_routes import \
-    router as landmark_extractor_router
-from api.routes.landmark_visualizer_routes import \
-    router as landmark_visualizer_router
+from api.routes.landmark_extractor_routes import router as landmark_extractor_router
+from api.routes.landmark_visualizer_routes import router as landmark_visualizer_router
 from api.routes.llm_clarifier_routes import router as llm_clarifier_router
-from api.routes.memory_integrator_routes import \
-    router as memory_integrator_router
-from api.routes.memory_interface_routes import \
-    router as memory_interface_router
+from api.routes.memory_integrator_routes import router as memory_integrator_router
+from api.routes.memory_interface_routes import router as memory_interface_router
 from api.routes.model_registry_routes import router as model_registry_router
 from api.routes.model_trainer_routes import router as model_trainer_router
 from api.routes.output_expander_routes import router as output_expander_router
 from api.routes.output_planner_routes import router as output_planner_router
-from api.routes.retraining_scheduler_routes import \
-    router as retraining_scheduler_router
+from api.routes.retraining_scheduler_routes import router as retraining_scheduler_router
 from api.routes.schema_recorder_routes import router as schema_recorder_router
 from api.routes.session_manager_routes import router as session_manager_router
-from api.routes.sound_classifier_routes import \
-    router as sound_classifier_router
+from api.routes.sound_classifier_routes import router as sound_classifier_router
 from api.routes.sound_playback_routes import router as sound_playback_router
-from api.routes.speech_context_classifier_routes import \
-    router as speech_context_classifier_router
-from api.routes.speech_transcriber_routes import \
-    router as speech_transcriber_router
-from api.routes.visual_environment_classifier_routes import \
-    router as visual_environment_classifier_router
+from api.routes.speech_context_classifier_routes import (
+    router as speech_context_classifier_router,
+)
+from api.routes.speech_transcriber_routes import router as speech_transcriber_router
+from api.routes.visual_environment_classifier_routes import (
+    router as visual_environment_classifier_router,
+)
 from api.settings import get_settings
 
 settings = get_settings()

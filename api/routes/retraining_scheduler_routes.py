@@ -2,7 +2,9 @@
 from fastapi import APIRouter, HTTPException
 
 from schemas.retraining_scheduler.retraining_scheduler import (
-    RetrainingDecisionLog, RetrainingRequest)
+    RetrainingDecisionLog,
+    RetrainingRequest,
+)
 
 router = APIRouter()
 

@@ -1,8 +1,7 @@
 # api/routes/landmark_extractor_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.landmark_extractor.landmark_extractor import \
-    LandmarkExtractorOutput
+from schemas.landmark_extractor.landmark_extractor import LandmarkExtractorOutput
 
 router = APIRouter()
 

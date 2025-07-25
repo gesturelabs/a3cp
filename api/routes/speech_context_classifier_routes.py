@@ -2,7 +2,9 @@
 from fastapi import APIRouter, HTTPException
 
 from schemas.speech_context_classifier.speech_context_classifier import (
-    SpeechContextClassifierInput, SpeechContextClassifierOutput)
+    SpeechContextClassifierInput,
+    SpeechContextClassifierOutput,
+)
 
 router = APIRouter()
 

@@ -1,8 +1,7 @@
 # api/routes/speech_transcriber_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.speech_transcriber.speech_transcriber import \
-    SpeechTranscriptSegment
+from schemas.speech_transcriber.speech_transcriber import SpeechTranscriptSegment
 
 router = APIRouter()
 

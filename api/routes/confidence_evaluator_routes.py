@@ -2,7 +2,9 @@
 from fastapi import APIRouter, HTTPException
 
 from schemas.confidence_evaluator.confidence_evaluator import (
-    ConfidenceEvaluatorInput, ConfidenceEvaluatorOutput)
+    ConfidenceEvaluatorInput,
+    ConfidenceEvaluatorOutput,
+)
 
 router = APIRouter()
 

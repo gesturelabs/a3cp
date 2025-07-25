@@ -1,8 +1,7 @@
 # api/routes/model_trainer_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.model_trainer.model_trainer import (TrainingLogEntry,
-                                                 TrainingRequest)
+from schemas.model_trainer.model_trainer import TrainingLogEntry, TrainingRequest
 
 router = APIRouter()
 

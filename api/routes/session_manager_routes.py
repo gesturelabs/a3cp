@@ -1,8 +1,7 @@
 # api/routes/session_manager_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.session_manager.session_manager import (SessionEndEvent,
-                                                     SessionStartEvent)
+from schemas.session_manager.session_manager import SessionEndEvent, SessionStartEvent
 
 router = APIRouter()
 

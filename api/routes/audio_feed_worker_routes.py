@@ -2,8 +2,10 @@
 
 from fastapi import APIRouter
 
-from schemas.audio_feed_worker.audio_feed_worker import (AudioChunkMetadata,
-                                                         AudioFeedWorkerConfig)
+from schemas.audio_feed_worker.audio_feed_worker import (
+    AudioChunkMetadata,
+    AudioFeedWorkerConfig,
+)
 
 router = APIRouter()
 

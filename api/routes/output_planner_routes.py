@@ -1,8 +1,10 @@
 # api/routes/output_planner_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.output_planner.output_planner import (OutputPlannerDecision,
-                                                   OutputPlannerInput)
+from schemas.output_planner.output_planner import (
+    OutputPlannerDecision,
+    OutputPlannerInput,
+)
 
 router = APIRouter()
 

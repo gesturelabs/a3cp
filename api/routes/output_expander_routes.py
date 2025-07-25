@@ -1,8 +1,10 @@
 # api/routes/output_expander_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.output_expander.output_expander import (OutputExpansionInput,
-                                                     OutputExpansionResult)
+from schemas.output_expander.output_expander import (
+    OutputExpansionInput,
+    OutputExpansionResult,
+)
 
 router = APIRouter()
 

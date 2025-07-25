@@ -2,7 +2,9 @@
 from fastapi import APIRouter, HTTPException
 
 from schemas.gesture_classifier.gesture_classifier import (
-    GestureClassifierInput, GestureClassifierOutput)
+    GestureClassifierInput,
+    GestureClassifierOutput,
+)
 
 router = APIRouter()
 

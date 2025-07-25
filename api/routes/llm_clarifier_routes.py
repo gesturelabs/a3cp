@@ -1,8 +1,7 @@
 # api/routes/llm_clarifier_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.llm_clarifier.llm_clarifier import (LLMClarifierInput,
-                                                 LLMClarifierOutput)
+from schemas.llm_clarifier.llm_clarifier import LLMClarifierInput, LLMClarifierOutput
 
 router = APIRouter()
 

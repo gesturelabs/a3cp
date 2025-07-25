@@ -1,8 +1,10 @@
 # api/routes/sound_classifier_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.sound_classifier.sound_classifier import (SoundClassifierInput,
-                                                       SoundClassifierOutput)
+from schemas.sound_classifier.sound_classifier import (
+    SoundClassifierInput,
+    SoundClassifierOutput,
+)
 
 router = APIRouter()
 

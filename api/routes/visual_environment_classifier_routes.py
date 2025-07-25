@@ -1,8 +1,9 @@
 # api/routes/visual_environment_classifier_routes.py
 from fastapi import APIRouter, HTTPException
 
-from schemas.visual_environment_classifier.visual_environment_classifier import \
-    VisualEnvironmentPrediction
+from schemas.visual_environment_classifier.visual_environment_classifier import (
+    VisualEnvironmentPrediction,
+)
 
 router = APIRouter()
 

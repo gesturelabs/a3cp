@@ -2,7 +2,9 @@
 from fastapi import APIRouter, HTTPException
 
 from schemas.clarification_planner.clarification_planner import (
-    ClarificationPlannerInput, ClarificationPlannerOutput)
+    ClarificationPlannerInput,
+    ClarificationPlannerOutput,
+)
 
 router = APIRouter()
 

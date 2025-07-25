@@ -2,7 +2,9 @@
 from fastapi import APIRouter, HTTPException
 
 from schemas.memory_integrator.memory_integrator import (
-    MemoryIntegratorInput, MemoryIntegratorOutput)
+    MemoryIntegratorInput,
+    MemoryIntegratorOutput,
+)
 
 router = APIRouter()
 

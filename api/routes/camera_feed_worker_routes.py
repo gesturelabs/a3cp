@@ -3,7 +3,9 @@
 from fastapi import APIRouter, HTTPException
 
 from schemas.camera_feed_worker.camera_feed_worker import (
-    CameraFeedWorkerConfig, CameraFrameMetadata)
+    CameraFeedWorkerConfig,
+    CameraFrameMetadata,
+)
 
 router = APIRouter()
 
