@@ -6,9 +6,45 @@
 ============================================================
 
 Tag: v0.2.1-dev
-Date: 2025-06-11
+Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 ## [Unreleased]
+====================================================================
+CHANGELOG ENTRY – 2025-07-25
+Category: Recreating Documentation, Schema, Module Integration after serious error
+====================================================================
+
+### Added
+- Created route stubs for all 24 core A3CP modules:
+  - `audio_feed_worker`, `camera_feed_worker`, `clarification_planner`, `confidence_evaluator`
+  - `feedback_log`, `gesture_classifier`, `input_broker`, `landmark_extractor`
+  - `landmark_visualizer`, `llm_clarifier`, `memory_integrator`, `memory_interface`
+  - `model_registry`, `model_trainer`, `output_expander`, `output_planner`
+  - `retraining_scheduler`, `schema_recorder`, `session_manager`
+  - `sound_classifier`, `sound_playback`, `speech_context_classifier`, `speech_transcriber`
+  - `visual_environment_classifier`
+
+- All routes are registered in `api/main.py` under `/api/<module_name>/`
+
+### Removed
+- Deprecated monolithic route handlers:
+  - `gesture_infer.py`, `sound_infer.py`, `streamer.py`, `inference.py`, and corresponding tests
+
+### Changed
+- Updated `docs/modules/inputs_outputs_json.md` and `a3cp_pipeline.drawio` to reflect modular architecture
+- Finalized schema placement and naming for `speech_context_classifier`
+
+### Notes
+- Module route stubs currently raise `501 Not Implemented`; test coverage to follow
+- Schema → Route → Test development workflow documented in `docs/dev/Schema → Route → Test Workflow.md`
+
+
+
+Removed:
+- Deprecated legacy schemas under `api/schemas/` after full migration to module-based schema structure.
+
+
+
 
 ====================================================================
 CHANGELOG ENTRY – 2025-07-21
