@@ -15,6 +15,14 @@ A3CP Changelog – 2025-07-28
 ## [0.5.x] - 2025-07-28
 
 ### Added
+- Scaffolded test for `/api/memory_integrator/` route
+  - Loads example input via `load_example()`
+  - Asserts 501 stub response
+  - Output comparison placeholder included
+
+## [0.5.x] - 2025-07-28
+
+### Added
 - Replaced hardcoded test for `/api/llm_clarifier/` with schema-based version
   - Uses `load_example()` for input consistency
   - Asserts 501 stub response
