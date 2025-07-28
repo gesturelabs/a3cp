@@ -12,6 +12,14 @@ Maintainer: Dmitri Katz
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================
+## [0.5.x] - 2025-07-28
+
+### Added
+- Scaffolded test for `/api/landmark_visualizer/` route
+  - Loads example input via `load_example()`
+  - Asserts 501 stub response
+  - Output validation stub included for future implementation
+
 
 ## [0.5.x] - 2025-07-28
 
