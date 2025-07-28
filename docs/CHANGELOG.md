@@ -12,6 +12,16 @@ Maintainer: Dmitri Katz
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================
+
+## [0.5.x] - 2025-07-28
+
+### Added
+- Scaffolded test for `/api/confidence_evaluator/` route
+  - Loads input via `load_example()`
+  - Asserts 501 error response
+  - Output validation stub included for future implementation
+
+
 ## [0.5.x] - 2025-07-28
 
 ### Added
