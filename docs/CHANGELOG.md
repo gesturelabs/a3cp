@@ -12,8 +12,21 @@ Maintainer: Dmitri Katz
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================
+## [0.5.x] - 2025-07-28
+
+### Added
+- Scaffolded test for `/api/clarification_planner/` route
+  - Uses `load_example()` for input
+  - Asserts 501 error response
+  - Output validation stub included, ready for future implementation
+
 
 ## [0.5.x] - 2025-07-28
+### Added
+- Scaffolded test for `/api/camera_feed_worker/` route
+  - Uses `load_example()` for input/output
+  - Asserts 501 response until implemented
+  - Includes commented output assertions for future enablement
 
 ### Changed
 - Refactored `test_audio_feed_worker_routes.py` to load input and output from JSON schema examples
