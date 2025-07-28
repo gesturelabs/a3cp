@@ -12,7 +12,11 @@ Maintainer: Dmitri Katz
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================
-## [0.5.x] - 2025-07-28
+### Added
+- Scaffolded test for `/api/model_registry/` route
+  - Loads input via `load_example()`
+  - Asserts 501 stub response
+  - Output assertion stub included for future implementation
 
 ### Added
 - Scaffolded test for `/api/memory_interface/` route
