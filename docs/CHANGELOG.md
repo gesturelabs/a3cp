@@ -10,8 +10,18 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 ===============================
-A3CP Changelog – 2025-07-26
+A3CP Changelog – 2025-07-28
 ===============================
+
+
+### Added
+- Test for `landmark_extractor` route with full schema compliance and image decoding
+- `tiny_jpeg_base64` fixture in `conftest.py` for use across image-processing module tests
+
+### Changed
+- Updated `landmark_extractor_routes.py` to decode base64 image input using Pillow
+- Added Pillow to `requirements.txt`
+
 
 [0.5.x] – Ongoing Development
 -----------------------------

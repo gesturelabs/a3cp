@@ -1,7 +1,11 @@
 # tests/conftest.py
+import base64
+from io import BytesIO
+
 import pytest
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
+from PIL import Image
 
 from api.main import app
 
@@ -12,3 +16,16 @@ async def async_client():
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             yield client
+
+
+@pytest.fixture(scope="session")
+def tiny_jpeg_base64() -> str:
+    """
+    Returns a base64-encoded 1x1 black JPEG image as a data URL.
+    Guaranteed to decode via Pillow.
+    """
+    img = Image.new("RGB", (1, 1), color="black")
+    buffer = BytesIO()
+    img.save(buffer, format="JPEG")
+    encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return f"data:image/jpeg;base64,{encoded}"
