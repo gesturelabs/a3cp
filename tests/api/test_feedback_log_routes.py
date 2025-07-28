@@ -1,1 +1,20 @@
 # tests/api/test_feedback_log_routes.py
+
+import pytest
+from asgi_lifespan import LifespanManager
+from httpx import ASGITransport, AsyncClient
+
+from api.main import app
+from schemas.feedback_log.feedback_log import FeedbackLogEntry
+
+
+@pytest.mark.anyio
+async def test_feedback_log_stub_returns_501():
+    async with LifespanManager(app):
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            payload = FeedbackLogEntry.example_input()  # replace if needed
+            response = await client.post("/api/feedback_log/", json=payload)
+
+            assert response.status_code == 501
+            assert response.json()["detail"] == "Not implemented yet"

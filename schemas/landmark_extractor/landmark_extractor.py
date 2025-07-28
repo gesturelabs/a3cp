@@ -1,16 +1,16 @@
 # schemas/landmark_extractor.py
 
 """
-Schema for structured output of the landmark extraction stage using MediaPipe Holistic.
+Schema for structured input/output of the landmark_extractor module using MediaPipe Holistic.
 
-This model represents the complete set of spatial landmarks inferred from an RGB frame.
-MediaPipe Holistic performs multi-stage inference: pose is detected first, followed by
-region-of-interest refinement for face and hand crops. Each region is processed by a
-dedicated model, and their outputs are merged into a unified landmark vector.
+This schema defines:
+- LandmarkExtractorInput: base64-encoded image + metadata from the camera_feed_worker.
+- LandmarkExtractorOutput: structured landmarks (pose, hand, face) inferred from the input frame.
 
-All coordinates are normalized to image dimensions, and `z`-values indicate approximate
-depth (scale varies between body parts). `visibility` is only present for pose and hand
-landmarks.
+The Holistic model detects body pose, refines hand/face regions, and outputs named landmarks
+as normalized coordinates. z-values approximate depth and visibility indicates confidence.
+
+Used by: gesture_classifier, schema_recorder
 """
 
 from typing import Annotated, Dict, Literal
@@ -18,6 +18,37 @@ from typing import Annotated, Dict, Literal
 from pydantic import BaseModel, Field
 
 
+# -------------------------------------
+# Input Schema
+# -------------------------------------
+class LandmarkExtractorInput(BaseModel):
+    frame_id: str = Field(..., description="Unique ID for the incoming video frame")
+    timestamp: str = Field(..., description="UTC ISO8601 timestamp of frame capture")
+    session_id: str = Field(..., description="Session ID for the current interaction")
+    user_id: str = Field(..., description="User ID or participant pseudonym")
+    modality: Literal["vision"] = Field("vision", description="Sensor modality")
+    source: Literal["camera_feed_worker"] = Field(..., description="Source module")
+    frame_data: str = Field(
+        ...,
+        description="Base64-encoded RGB frame image (JPEG or PNG), captured by upstream camera worker",
+    )
+
+    @staticmethod
+    def example_input() -> dict:
+        return {
+            "frame_id": "frame_000142",
+            "timestamp": "2025-07-09T13:14:15.123Z",
+            "session_id": "sess_20250709_e01",
+            "user_id": "elias01",
+            "modality": "vision",
+            "source": "camera_feed_worker",
+            "frame_data": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAAAAAAAD...",  # truncated
+        }
+
+
+# -------------------------------------
+# Landmark Point + Vector Schema
+# -------------------------------------
 class LandmarkPoint(BaseModel):
     x: float = Field(
         ..., description="Normalized x-coordinate (0.0–1.0), relative to image width"
@@ -52,6 +83,9 @@ class LandmarkVector(BaseModel):
     )
 
 
+# -------------------------------------
+# Output Schema
+# -------------------------------------
 class LandmarkExtractorOutput(BaseModel):
     schema_version: Literal["1.0.0"] = Field("1.0.0", description="Schema version")
     timestamp: Annotated[str, Field(..., description="UTC timestamp of frame")]
@@ -72,8 +106,9 @@ class LandmarkExtractorOutput(BaseModel):
     )
 
     @staticmethod
-    def example_input() -> dict:
+    def example_output() -> dict:
         return {
+            "schema_version": "1.0.0",
             "timestamp": "2025-07-09T13:14:15.123Z",
             "session_id": "sess_20250709_e01",
             "user_id": "elias01",
@@ -122,7 +157,3 @@ class LandmarkExtractorOutput(BaseModel):
                 },
             },
         }
-
-    @staticmethod
-    def example_output() -> dict:
-        return LandmarkExtractorOutput.example_input()

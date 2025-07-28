@@ -1,3 +1,4 @@
+# scripts/generate_schemas_from_master.py
 import argparse
 import importlib.util
 import json
@@ -15,9 +16,11 @@ def find_schema_files():
     schema_targets = []
     for folder in SCHEMAS_DIR.iterdir():
         if folder.is_dir():
-            py_files = list(folder.glob("*.py"))
-            if len(py_files) == 1:
-                schema_targets.append((folder.name, folder, py_files[0]))
+            expected_file = folder / f"{folder.name}.py"
+            if expected_file.exists():
+                schema_targets.append((folder.name, folder, expected_file))
+            else:
+                print(f"⚠️  Expected {expected_file.name} in {folder} not found.")
     return schema_targets
 
 

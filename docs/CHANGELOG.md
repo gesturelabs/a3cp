@@ -9,6 +9,63 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+===============================
+A3CP Changelog – 2025-07-26
+===============================
+
+[0.5.x] – Ongoing Development
+-----------------------------
+### Changed
+- Refactored `scripts/generate_schemas_from_master.py` to support schema folders with multiple `.py` files (e.g. `__init__.py`)
+- Regenerated all schema JSON files and input/output examples across existing modules
+
+
+ADDED
+-----
+- Stub FastAPI routes created:
+  - confidence_evaluator_routes.py
+  - feedback_log_routes.py
+  - gesture_classifier_routes.py
+  - input_broker_routes.py
+  - landmark_extractor_routes.py
+
+- Each route includes:
+  - POST / endpoint
+  - Typed input/output models (placeholders)
+  - Raises NotImplementedError (501)
+
+- Started work on realistic I/O for landmark_extractor:
+  - Identified expected input: frame or RGB image
+  - Identified expected output: structured landmark vectors (x, y, z)
+
+CHANGED
+-------
+- landmark_extractor_routes.py:
+  - Removed circular placeholder model use
+  - Planned schema model to reflect real MediaPipe-style output
+
+- generate_schemas_from_master.py:
+  - Script executes and finds all schema files
+  - Does not produce output → silent failure suspected
+  - Investigated issues in process_schema_module()
+
+DEBUGGING NOTES
+---------------
+- Hypothesis: model classes not detected due to:
+  - Missing subclassing from BaseModel
+  - Missing example_input or example_output
+- Inserted plan to add debug logs for:
+  - Model class discovery
+  - Attribute detection
+
+NEXT STEPS
+----------
+- New thread: debug and fix schema generation script
+- Finalize proper schema for:
+  - landmark_extractor input: image or frame metadata
+  - landmark_extractor output: normalized 3D landmarks
+
+
 ## [0.5.x] - 2025-07-25
 
 ### Added

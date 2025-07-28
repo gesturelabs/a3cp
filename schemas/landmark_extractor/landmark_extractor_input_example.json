@@ -1,79 +1,9 @@
 {
+  "frame_data": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAAAAAAAD...",
   "frame_id": "frame_000142",
-  "landmarks": {
-    "face_landmarks": {
-      "left_eye": {
-        "visibility": 0.0,
-        "x": 0.46,
-        "y": 0.4,
-        "z": -0.01
-      },
-      "nose_tip": {
-        "visibility": 0.0,
-        "x": 0.5,
-        "y": 0.42,
-        "z": -0.02
-      },
-      "right_eye": {
-        "visibility": 0.0,
-        "x": 0.54,
-        "y": 0.4,
-        "z": -0.01
-      }
-    },
-    "left_hand_landmarks": {
-      "index_finger_tip": {
-        "visibility": 0.94,
-        "x": 0.5,
-        "y": 0.51,
-        "z": -0.04
-      },
-      "thumb_tip": {
-        "visibility": 0.95,
-        "x": 0.48,
-        "y": 0.52,
-        "z": -0.05
-      }
-    },
-    "pose_landmarks": {
-      "left_shoulder": {
-        "visibility": 0.98,
-        "x": 0.42,
-        "y": 0.58,
-        "z": -0.1
-      },
-      "nose": {
-        "visibility": 0.99,
-        "x": 0.5,
-        "y": 0.4,
-        "z": -0.05
-      },
-      "right_shoulder": {
-        "visibility": 0.97,
-        "x": 0.58,
-        "y": 0.58,
-        "z": -0.1
-      }
-    },
-    "right_hand_landmarks": {
-      "index_finger_tip": {
-        "visibility": 0.94,
-        "x": 0.6,
-        "y": 0.51,
-        "z": -0.04
-      },
-      "thumb_tip": {
-        "visibility": 0.95,
-        "x": 0.62,
-        "y": 0.52,
-        "z": -0.05
-      }
-    }
-  },
   "modality": "vision",
   "session_id": "sess_20250709_e01",
   "source": "camera_feed_worker",
   "timestamp": "2025-07-09T13:14:15.123Z",
-  "user_id": "elias01",
-  "vector_version": "v1.0.0"
+  "user_id": "elias01"
 }
