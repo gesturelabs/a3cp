@@ -12,7 +12,11 @@ Maintainer: Dmitri Katz
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================
-
+### Added
+- Scaffolded test for `/api/schema_recorder/` route
+  - Loads input example from schema
+  - Asserts 501 stub response
+  - Placeholder for full output check post-implementation
 ### Added
 - Scaffolded test for `/api/model_trainer/` route
   - Loads input example from schema
