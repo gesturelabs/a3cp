@@ -1,4 +1,5 @@
 # tests/api/test_landmark_extractor_routes.py
+
 import pytest
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient

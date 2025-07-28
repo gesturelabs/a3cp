@@ -12,6 +12,15 @@ Maintainer: Dmitri Katz
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================
+
+## [0.5.x] - 2025-07-28
+
+### Added
+- Full test for `/api/landmark_extractor/` route
+  - Uses `LandmarkExtractorInput.example_input()` and `tiny_jpeg_base64`
+  - Verifies image decoding works
+  - Asserts frame ID, user ID, and landmark structure in response
+
 ## [0.5.x] - 2025-07-28
 
 ### Added
