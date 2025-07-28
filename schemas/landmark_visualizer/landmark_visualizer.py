@@ -35,6 +35,18 @@ class LandmarkVisualizerInput(BaseModel):
         "gif", description="File format for exported artifact"
     )
 
+    @staticmethod
+    def example_input() -> dict:
+        return {
+            "session_id": "sess_20250709_e01",
+            "user_id": "elias01",
+            "modality": "vision",
+            "parquet_path": "/data/recordings/elias01_2025-07-09.parquet",
+            "frame_skip": 2,
+            "render_mode": "animation",
+            "save_format": "gif",
+        }
+
 
 class LandmarkVisualizerOutput(BaseModel):
     success: bool = Field(..., description="True if rendering completed successfully")
@@ -48,18 +60,6 @@ class LandmarkVisualizerOutput(BaseModel):
         False, description="Whether to display artifact in UI"
     )
     notes: Optional[str] = Field(None, description="Log/debug notes or warnings")
-
-    @staticmethod
-    def example_input() -> dict:
-        return {
-            "session_id": "sess_20250709_e01",
-            "user_id": "elias01",
-            "modality": "vision",
-            "parquet_path": "/data/recordings/elias01_2025-07-09.parquet",
-            "frame_skip": 2,
-            "render_mode": "animation",
-            "save_format": "gif",
-        }
 
     @staticmethod
     def example_output() -> dict:

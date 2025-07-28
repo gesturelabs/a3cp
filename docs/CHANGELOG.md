@@ -12,6 +12,13 @@ Maintainer: Dmitri Katz
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================
+## [0.5.x] - 2025-07-28
+
+### Fixed
+- Moved `example_input()` to correct class (`LandmarkVisualizerInput`) for test compatibility
+
+### Added
+- Test for `landmark_visualizer` stub route using example input and response schema
 
 
 ### Added
