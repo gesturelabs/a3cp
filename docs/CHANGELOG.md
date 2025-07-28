@@ -12,6 +12,14 @@ Maintainer: Dmitri Katz
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================
+
+## [0.5.x] - 2025-07-28
+
+### Changed
+- Refactored `test_audio_feed_worker_routes.py` to load input and output from JSON schema examples
+- Replaced hardcoded test input with `load_example()` from `tests/utils.py`
+- Added `assert_valid_iso8601()` utility to validate timestamp format in dynamic responses
+
 ## [0.5.x] - 2025-07-28
 
 ### Fixed
