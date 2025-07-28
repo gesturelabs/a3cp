@@ -1,25 +1,17 @@
 # tests/api/test_llm_clarifier_routes.py
+
 import pytest
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
 
 from api.main import app
+from tests.utils import load_example
 
 
 @pytest.mark.anyio
-async def test_llm_clarifier_stub_returns_501():
-    input_payload = {
-        "flags": ["low_confidence", "ambiguous_gesture"],
-        "intent_candidates": [
-            {"confidence": 0.42, "label": "eat"},
-            {"confidence": 0.40, "label": "help"},
-            {"confidence": 0.18, "label": "play"},
-        ],
-        "session_id": "sess_20250711_e01",
-        "timestamp": "2025-07-11T15:45:10.000Z",
-        "topic_tag": "meal",
-        "user_id": "elias01",
-    }
+async def test_generate_clarification_prompt_returns_501():
+    input_payload = load_example("llm_clarifier", "input")
+    # expected_output = load_example("llm_clarifier", "output")  # Uncomment when 200 OK is returned
 
     async with LifespanManager(app):
         transport = ASGITransport(app=app)
@@ -28,3 +20,9 @@ async def test_llm_clarifier_stub_returns_501():
 
             assert response.status_code == 501
             assert response.json()["detail"] == "Not implemented yet"
+
+            # Uncomment below when implementation is added
+            # assert response.status_code == 200
+            # actual = response.json()
+            # for key in expected_output:
+            #     assert actual[key] == expected_output[key], f"{key} mismatch"
