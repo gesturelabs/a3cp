@@ -9,6 +9,23 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+v0.5.5 - 2025-07-29
+
+Changed
+- Rewrote `audio_feed_worker/README.md` for consistency with SCHEMA_REFERENCE.md v1.1.
+- Standardized runtime config description and output payload structure.
+
+Removed
+- Deprecated schema files moved to `docs/older version/`:
+  - SCHEMA_REFERENCE.md (pre-v1.1)
+  - SCHEMA_EVOLUTION_POLICY.md
+  - SCHEMA_MAPPING.md
+  - SCHEMA_OVERVIEW.md
+  - old_video_streamer/README.md and notes.md
+
+Fixed
+- test_session_manager_routes.py: adjusted schema example path to match new schema naming c
+
 ## v1.1.0 – 2025-07-29
 
 ### Added
