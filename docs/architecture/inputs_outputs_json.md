@@ -2,7 +2,7 @@
     "module_name": "audio_feed_worker",
     "module_type": "worker",
     "inputs_from": [
-        "config_manager"
+        "session_manager"
     ],
     "outputs_to": [
         "sound_classifier",

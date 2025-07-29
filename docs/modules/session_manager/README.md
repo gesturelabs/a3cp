@@ -24,9 +24,9 @@ By grouping related input, clarification, and output events under a common `sess
   - `context.partner_speech`, `context.session_notes`
 - CARE Engine messages:
   - `classifier_output`, `final_decision`, `output_phrase`
-- System events:
-  - `session_start`, `session_end`, `session_timeout`
-
+- Session event messages:
+  - session_id, timestamp, user_id
+  - The session phase (start or end) is determined by internal logic, not by schema
 ## Outputs
 - Structured session metadata logs:
   - `session_id`, `user_id`, `start_time`, `end_time`
@@ -35,11 +35,11 @@ By grouping related input, clarification, and output events under a common `sess
 - Optional summary or session index for review interfaces
 
 ## CARE Integration
-The `session_manager` wraps all CARE Engine input/output events into cohesive sessions. It ensures that every `A3CPMessage` logged by the system includes a `session_id`, allowing downstream modules (e.g., clarification, caregiver tools, retraining pipelines) to access a consistent timeline of related interactions.
+The `session_manager` wraps all CARE Engine input/output events into cohesive sessions. It ensures that every `A3CPMessage` logged by the system includes a `session_id`, allowing downstream modules (e.g., clarification, caregiver tools, retraining pipelines) to access a consistent timeline of related interactions. This module does not alter or classify messages. It assigns session_id values, records start/end markers, and links events chronologically for downstream consumption.
 
 ## Functional Requirements
 - F1. Must generate unique `session_id` values per user per session
-- F2. Must track and log `session_start` and `session_end` events with timestamps
+- F2. Must track and log session boundary events (start/end) using standardized SessionEvent payloads; classification of boundary is performed internally
 - F3. Must tag every `A3CPMessage`, clarification, and output with the correct `session_id`
 - F4. Must support chronological export or replay of all session-linked events
 - F5. Must record session notes and context when available
@@ -58,6 +58,6 @@ Unassigned
 High
 
 ## Example Files
-- [sample_session_start.json](./sample_session_start.json)
-- [sample_session_bundle.json](./sample_session_bundle.json)
-- [schema.json](./schema.json)
+- [session_manager_input_example.json](./session_manager_input_example.json)
+- [session_manager_output_example.json](./session_manager_output_example.json)
+- [session_manager_schema.json](./session_manager_schema.json)

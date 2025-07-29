@@ -9,6 +9,24 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## v1.1.0 – 2025-07-29
+
+### Added
+- Finalized and validated `audio_feed_worker.schema.md` with clarified output format, configuration source, and compliance disclaimer
+
+### Changed
+- `test_session_manager_routes.py`: updated to align with new schema linting expectations
+- `docs/modules/session_manager/README.md`: updated integration notes to reflect schema routing logic
+
+### Removed
+- `SCHEMA_EVOLUTION_POLICY.md`: folded into top of `SCHEMA_CHANGELOG.md` and schema architecture
+- `SCHEMA_MAPPING.md`: replaced by CI mapping test (`test_schema_mapping.py`)
+- `SCHEMA_OVERVIEW.md`: deprecated flat view of A3CPMessage schema
+- `docs/older version/SCHEMA_REFERENCE.md`: outdated copy removed
+- `docs/older version/old_video_streamer/README.md`: removed legacy video/audio module notes
+- `docs/older version/old_video_streamer/notes.md`: removed internal comments on defunct implementation
+
+
 ===============================
 A3CP Changelog – 2025-07-28
 ===============================

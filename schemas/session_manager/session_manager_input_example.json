@@ -1,7 +1,8 @@
 {
-  "duration_seconds": 750,
-  "end_time": "2025-07-14T17:52:30.000Z",
-  "event_count": 14,
-  "session_id": "sess_20250714_e01",
+  "is_training_data": true,
+  "modality": [
+    "gesture",
+    "sound"
+  ],
   "user_id": "elias01"
 }

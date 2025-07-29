@@ -1,74 +1,72 @@
-# session_manager Pydantic model
+# schemas/session_manager/session_manager.py
 from datetime import datetime
-from typing import Optional
+from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field
-
-
-class ContextInfo(BaseModel):
-    context_partner_speech: Optional[str] = Field(
-        None, description="Partner or caregiver speech that preceded the session"
-    )
-    session_notes: Optional[str] = Field(
-        None, description="Freeform notes describing user state or session context"
-    )
+from pydantic import BaseModel, Field, model_validator
 
 
-class SessionStartEvent(BaseModel):
-    session_id: str = Field(..., description="Globally unique session identifier")
+class SessionStartRequest(BaseModel):
+    """
+    Main input schema for the session_manager module.
+    Also defines the module-wide example_input / example_output pair.
+    """
+
     user_id: str = Field(..., description="Pseudonymous user identifier")
-    start_time: datetime = Field(
-        ..., description="UTC ISO 8601 timestamp of session start"
+
+    is_training_data: bool = Field(
+        default=False,
+        description="True if session is for labeled training data collection",
     )
-    modality: str = Field(
-        ...,
-        description="Input modality that initiated the session (e.g., gesture, speech)",
+
+    modality: Optional[List[Literal["gesture", "speech", "sound", "typing"]]] = Field(
+        default=None, description="Only required if is_training_data is true"
     )
-    context: Optional[ContextInfo] = Field(
-        None, description="Optional session context (speech prompt, caregiver notes)"
-    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_modality_if_training(cls, data):
+        if data.get("is_training_data") and not data.get("modality"):
+            raise ValueError("modality is required when is_training_data is true")
+        return data
 
     @staticmethod
     def example_input() -> dict:
         return {
-            "session_id": "sess_20250714_e01",
             "user_id": "elias01",
-            "start_time": "2025-07-14T17:40:00.000Z",
-            "modality": "gesture",
-            "context": {
-                "context_partner_speech": "Do you want to play?",
-                "session_notes": "User just finished snack, seemed alert",
-            },
+            "is_training_data": True,
+            "modality": ["gesture", "sound"],
         }
 
     @staticmethod
     def example_output() -> dict:
-        return SessionStartEvent.example_input()
+        return {
+            "session_id": "sess_20250728_001",
+            "user_id": "elias01",
+            "start_time": "2025-07-28T14:00:00Z",
+            "is_training_data": True,
+            "modality": ["gesture", "sound"],
+        }
+
+
+class SessionStartResponse(BaseModel):
+    session_id: str = Field(..., description="System-generated session identifier")
+    user_id: str = Field(..., description="Pseudonymous user identifier")
+    start_time: datetime = Field(..., description="UTC timestamp when session started")
+    is_training_data: bool = Field(
+        ..., description="Whether session was for training data"
+    )
+    modality: Optional[List[Literal["gesture", "speech", "sound", "typing"]]] = Field(
+        default=None, description="Included only if is_training_data is true"
+    )
 
 
 class SessionEndEvent(BaseModel):
     session_id: str = Field(..., description="Session identifier to close")
     user_id: str = Field(..., description="Pseudonymous user identifier")
-    end_time: datetime = Field(
-        ..., description="UTC ISO 8601 timestamp when session ended"
-    )
+    end_time: datetime = Field(..., description="UTC timestamp when session ended")
     duration_seconds: Optional[int] = Field(
         None, description="Optional duration of session in seconds"
     )
     event_count: Optional[int] = Field(
-        None, description="Optional count of logged events in this session"
+        None, description="Optional number of events recorded in session"
     )
-
-    @staticmethod
-    def example_input() -> dict:
-        return {
-            "session_id": "sess_20250714_e01",
-            "user_id": "elias01",
-            "end_time": "2025-07-14T17:52:30.000Z",
-            "duration_seconds": 750,
-            "event_count": 14,
-        }
-
-    @staticmethod
-    def example_output() -> dict:
-        return SessionEndEvent.example_input()

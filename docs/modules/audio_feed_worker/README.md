@@ -4,7 +4,7 @@
 |------------------|------------------------|
 | **Module Name**  | `audio_feed_worker`    |
 | **Module Type**  | `worker`               |
-| **Inputs From**  | `config_manager`       |
+| **Inputs From**  | `session_manager`       |
 | **Outputs To**   | `sound_classifier`, `speech_transcriber`, `schema_recorder` |
 | **Produces A3CPMessage?** | ❌ No (metadata only, schema wrapping downstream) |
 
@@ -28,22 +28,74 @@ Acts as the source for all audio-derived data such as waveform-based classificat
 - Session orchestration or final logging
 
 ## Inputs
-- Configuration parameters:
-  - `device_index` (e.g., default mic, external mic index)
-  - `sample_rate` (e.g., 16000, 44100)
-  - `chunk_size` (e.g., 1024 samples per frame)
+Configuration parameters (provided at runtime via `session_manager`):
 
-> Note: `chunk_size` is an **internal buffer parameter** and is not part of any logged schema. Temporal alignment is handled downstream using timestamps and segment IDs.
+- `device_index`    – Integer index of selected audio device (e.g., 0, 1, 2)
+- `sample_rate`     – Audio sample rate in Hz (e.g., 16000, 44100)
+- `chunk_size`      – Buffer size in samples per frame (e.g., 1024)
 
-- Optional runtime metadata (forwarded if available):
-  - `session_id`, `user_id`, `device_id`
+> Note: `chunk_size` is an **internal buffer parameter** used for stream I/O.
+> It is not part of any logged schema. Synchronization is handled downstream
+> using `timestamp` and `session_id`.
+
+Optional metadata (forwarded if available):
+
+- `session_id`      – Unique session identifier
+- `user_id`         – Pseudonymous user identifier
+- `device_id`       – Logical source identifier for the capture hardware
+
+## CONFIGURATION SOURCE
+
+`audio_feed_worker` does **not** manage its own configuration.
+
+All runtime parameters are passed to it by the `session_manager`, which may
+aggregate them from user profiles, static configs, or UI selections.
+
+This design ensures:
+
+- Configuration is decoupled from signal capture logic
+- The module is device-agnostic and reentrant
+- No persistent state or file I/O is required within the module
 
 ## Outputs
 - Timestamped audio chunks (e.g., `np.ndarray` or `bytes`)
 - Metadata attached per chunk (e.g., `timestamp`, `device_index`)
 - Error signals (e.g., mic unavailable, buffer overrun)
 
-> This module does not emit `A3CPMessage`. Downstream modules (e.g., SchemaRecorder) are responsible for wrapping this output in a schema-compliant log entry.
+⚠ SCHEMA COMPLIANCE DISCLAIMER
+This module does **not** emit `A3CPMessage` records.
+
+Instead, it streams raw audio data with lightweight metadata to downstream
+consumers (e.g., `sound_classifier`, `speech_transcriber`, `schema_recorder`).
+
+It is the responsibility of those downstream modules to:
+
+- Wrap each audio frame into a schema-compliant `A3CPMessage`
+- Ensure inclusion of required fields (`timestamp`, `session_id`, `modality`, etc.)
+- Validate compatibility with the canonical runtime schema (`SCHEMA_REFERENCE.md`)
+
+This design preserves modularity and ensures that schema constraints do not
+interfere with low-latency signal acquisition.
+
+### Output Payload Format (internal)
+
+While `audio_feed_worker` does not emit a schema-compliant `A3CPMessage`, it produces a structured data payload that is consumed by downstream modules. Each emitted frame includes:
+
+
+{
+  "audio_data": <bytes or np.ndarray>,     # Raw waveform buffer
+  "timestamp": <ISO 8601 string>,          # UTC time of frame capture
+  "sample_rate": <int>,                    # Sample rate in Hz
+  "device_index": <int>,                   # Audio device identifier
+  "session_id": <str, optional>,           # Pseudonymous session ID
+  "user_id": <str, optional>,              # Pseudonymous user ID
+  "device_id": <str, optional>             # Logical input source ID
+}
+
+This payload must be:
+-Passed via in-memory queue, callback, or stream pipe
+-Wrapped by downstream consumers (e.g., schema_recorder, speech_transcriber) into schema-compliant logs
+-Timestamped with millisecond precision and aligned with session context
 
 ## Runtime Considerations
 - Must support threaded or asynchronous capture to avoid blocking audio I/O
@@ -106,7 +158,7 @@ This submodule specializes in continuous real-time waveform capture for multimod
 - **To SoundClassifier**: Streams audio chunks via buffer/pipe
 - **To SpeechTranscriber**: Streams waveform with timestamp metadata
 - **To SchemaRecorder**: Metadata attached downstream for schema compliance
-- **From Config Manager**: Pulls device index, sample rate, chunk size
+- **From Session Manager**: Pulls device index, sample rate, chunk size
 - **Output format**: Raw waveform array + metadata; schema wrapping done downstream
 
 ---
