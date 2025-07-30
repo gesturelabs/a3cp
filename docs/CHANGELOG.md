@@ -11,6 +11,18 @@ Maintainer: Dmitri Katz
 
 ## [speech_context_classifier] - 2025-07-30
 
+### Added
+- Finalized `SpeechContextClassifierInput` model with partner speech and vocabulary fields
+- Finalized `SpeechContextClassifierOutput` model aligned with A3CPMessage structure
+- Defined nested `ClassifierOutput` and `ClassifierRankingItem` classes for result structure
+
+### Generated
+- `speech_context_classifier.schema.json` from validated Pydantic models
+- `input.example.json` and `output.example.json` for documentation and test use
+
+
+## [speech_context_classifier] - 2025-07-30
+
 ### Updated
 - Removed undocumented `classifier_output.flags` field to align with SCHEMA_REFERENCE.md
 - Deleted `relevance_scores` from Outputs section (not part of schema; replaced by `ranking`)

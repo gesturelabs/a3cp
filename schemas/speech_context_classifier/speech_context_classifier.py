@@ -1,4 +1,4 @@
-from typing import Annotated, Dict, List, Literal
+from typing import Annotated, List, Literal
 
 from pydantic import BaseModel, Field
 
@@ -28,6 +28,14 @@ class VocabularyItem(BaseModel):
     ]
 
 
+class ClassifierRankingItem(BaseModel):
+    intent: Annotated[str, Field(..., description="Matched intent label")]
+    confidence: Annotated[
+        float,
+        Field(..., ge=0.0, le=1.0, description="Normalized confidence score"),
+    ]
+
+
 class SpeechContextClassifierInput(BaseModel):
     schema_version: Literal["1.0.1"] = Field(
         default="1.0.1", description="Schema version"
@@ -35,7 +43,7 @@ class SpeechContextClassifierInput(BaseModel):
     record_id: Annotated[
         str, Field(..., description="Unique ID for this inference request")
     ]
-    user_id: Annotated[str, Field(..., description="User ID")]
+    user_id: Annotated[str, Field(..., description="Pseudonymous user ID")]
     session_id: Annotated[str, Field(..., description="Session ID")]
     timestamp: Annotated[str, Field(..., description="UTC ISO8601 timestamp")]
 
@@ -46,7 +54,7 @@ class SpeechContextClassifierInput(BaseModel):
 
     vocabulary: Annotated[
         List[VocabularyItem],
-        Field(..., description="User's gesture/vocalization intent mappings"),
+        Field(..., description="User’s intent vocabulary with examples"),
     ]
 
     @staticmethod
@@ -94,6 +102,35 @@ class SpeechContextClassifierInput(BaseModel):
         }
 
 
+class ClassifierOutput(BaseModel):
+    intent: Annotated[
+        str | None,
+        Field(..., description="Top matched intent label or null if no match"),
+    ]
+    confidence: Annotated[
+        float,
+        Field(..., ge=0.0, le=1.0, description="Confidence score for top intent"),
+    ]
+    ranking: Annotated[
+        List[ClassifierRankingItem],
+        Field(..., description="Ordered list of matched intents with confidence"),
+    ]
+    language_used: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Optional BCP-47 language code used for LLM prompt",
+        ),
+    ]
+    prompt_version: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Optional identifier for LLM prompt template",
+        ),
+    ]
+
+
 class SpeechContextClassifierOutput(BaseModel):
     schema_version: Literal["1.0.1"] = Field(
         default="1.0.1", description="Schema version"
@@ -104,23 +141,15 @@ class SpeechContextClassifierOutput(BaseModel):
     timestamp: Annotated[
         str, Field(..., description="UTC ISO8601 timestamp of prediction")
     ]
-
-    matched_intents: Annotated[
-        List[str],
-        Field(..., description="List of relevant known intent labels matched"),
-    ]
-
-    relevance_scores: Annotated[
-        Dict[str, float],
-        Field(..., description="Confidence scores per matched intent"),
-    ]
-
-    flags: Annotated[
-        Dict[str, bool],
-        Field(
-            ...,
-            description="Optional boolean flags (e.g., partner_engaged, topic_shift)",
-        ),
+    modality: Literal["speech"] = Field(
+        default="speech", description="Modality of source input"
+    )
+    source: Literal["caregiver"] = Field(
+        default="caregiver", description="Who produced the speech input"
+    )
+    classifier_output: Annotated[
+        ClassifierOutput,
+        Field(..., description="Inference result for partner speech intent mapping"),
     ]
 
     @staticmethod
@@ -131,7 +160,16 @@ class SpeechContextClassifierOutput(BaseModel):
             "user_id": "elias01",
             "session_id": "sess_20250714_e01",
             "timestamp": "2025-07-14T17:56:01.500Z",
-            "matched_intents": ["music", "play"],
-            "relevance_scores": {"music": 0.89, "play": 0.86},
-            "flags": {"partner_engaged": True, "topic_shift": True},
+            "modality": "speech",
+            "source": "caregiver",
+            "classifier_output": {
+                "intent": "music",
+                "confidence": 0.89,
+                "ranking": [
+                    {"intent": "music", "confidence": 0.89},
+                    {"intent": "play", "confidence": 0.86},
+                ],
+                "language_used": "en",
+                "prompt_version": "v2.1_en_semantic_vocabulary",
+            },
         }

@@ -1,19 +1,25 @@
 {
-  "flags": {
-    "partner_engaged": true,
-    "topic_shift": true
+  "classifier_output": {
+    "confidence": 0.89,
+    "intent": "music",
+    "language_used": "en",
+    "prompt_version": "v2.1_en_semantic_vocabulary",
+    "ranking": [
+      {
+        "confidence": 0.89,
+        "intent": "music"
+      },
+      {
+        "confidence": 0.86,
+        "intent": "play"
+      }
+    ]
   },
-  "matched_intents": [
-    "music",
-    "play"
-  ],
+  "modality": "speech",
   "record_id": "rec_1234567890",
-  "relevance_scores": {
-    "music": 0.89,
-    "play": 0.86
-  },
   "schema_version": "1.0.1",
   "session_id": "sess_20250714_e01",
+  "source": "caregiver",
   "timestamp": "2025-07-14T17:56:01.500Z",
   "user_id": "elias01"
 }

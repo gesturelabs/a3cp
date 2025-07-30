@@ -43,7 +43,7 @@ Mandatory metadata fields:
 - `schema_version`: Semantic version string, e.g., `"1.0.0"`
 - `record_id`: UUIDv4 string uniquely identifying this message
 Structured output object:
-  - `matched_intents`: List of intent labels ordered by inferred relevance
+- `classifier_output.ranking`: List of `{intent, confidence}` objects ordered by relevance
 Optional fields:
 - `classifier_output.language_used`: The detected or assumed language used in the LLM prompt (e.g., `"en"`, `"de"`)
 - `classifier_output.prompt_version`: Internal identifier for the LLM prompt template used for inference
@@ -73,7 +73,7 @@ Optional fields:
       { "intent": "drink", "confidence": 0.83 },
       { "intent": "eat",   "confidence": 0.75 },
       { "intent": "rest",  "confidence": 0.42 }
-    ],
+    ]
 
   }
 }
