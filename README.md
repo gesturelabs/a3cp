@@ -2,6 +2,8 @@
 
 **A3CP** is an open, modular framework for augmentative communication designed for individuals with complex communication needs who are not well served by conventional AAC systems. Funded by The Open University and developed in collaboration with GestureLabs e.V., A3CP prioritizes adaptability, explainability, and long-term personalization.
 
+[![Support us on Open Collective](https://opencollective.com/gesturelabs/tiers/backer/badge.svg?label=Support%20us&color=brightgreen)](https://opencollective.com/gesturelabs)
+
 ## 1. Introduction
 
 A3CP addresses the needs of users—such as children with cerebral palsy or adults with autism spectrum disorder—whose expressive behaviors (gestures, vocalizations, context-specific cues) do not map cleanly onto traditional AAC symbols or fixed-button interfaces.
