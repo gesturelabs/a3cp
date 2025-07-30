@@ -1,5 +1,33 @@
 # Module: landmark_extractor
 
+| Field                  | Value                                      |
+|------------------------|--------------------------------------------|
+| **Module Name**        | `landmark_extractor`                       |
+| **Module Type**        | `classifier`                               |
+| **Inputs From**        | `camera_feed_worker`                       |
+| **Outputs To**         | `gesture_classifier`, `schema_recorder`    |
+| **Produces A3CPMessage?** | ✅ Yes (via `raw_features_ref`)         |
+
+-------------------------------------------------------------------------------
+✅ SCHEMA COMPLIANCE SUMMARY
+-------------------------------------------------------------------------------
+
+This module emits schema-compliant records using `A3CPMessage` format with:
+
+- `modality = "image"`, `source = "communicator"`
+- `timestamp`, `user_id`, `session_id`, `device_id`
+- `raw_features_ref`: reference to external vector file (e.g., `.parquet`)
+- `vector_version`: version of encoding used (e.g., `"landmark_v2.1"`)
+
+All production logs must use `raw_features_ref` with:
+- Content hash
+- Feature dimensionality
+- Encoding type
+- External URI path
+
+Inline `vector` output is deprecated and may be used only in test mode.
+
+
 ## Purpose
 The `landmark_extractor` module processes timestamped video frames from the `camera_feed_worker` and uses the MediaPipe Holistic model to extract body, hand, and face landmarks. These structured vectors are passed to the `gesture_classifier` for inference and to the `schema_recorder` for logging and training purposes.
 
@@ -35,6 +63,27 @@ This module transforms raw visual input into structured, interpretable features 
 - Passed to:
   - `gesture_classifier` for intent prediction.
   - `schema_recorder` for logging into session training records.
+
+## Output Format (Feature Vector Record as A3CPMessage)
+{
+  "schema_version": "1.0.0",
+  "record_id": "uuid4-here",
+  "user_id": "elias01",
+  "session_id": "sess_2025-07-01_elias01",
+  "timestamp": "2025-07-01T13:21:11.654Z",
+  "modality": "image",
+  "source": "communicator",
+  "device_id": "cam_01",
+  "vector_version": "landmark_v2.1",
+  "raw_features_ref": {
+    "uri": "/data/elias01/frame_00023.parquet",
+    "hash": "sha256:abcdef1234567890...",
+    "encoding": "landmark_v2.1",
+    "dims": 128,
+    "format": "parquet"
+  }
+}
+
 
 ## CARE Integration
 - **Feeds**: `gesture_classifier` during inference sessions.

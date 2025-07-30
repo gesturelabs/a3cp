@@ -1,5 +1,25 @@
 # Module: speech_transcriber
 
+| **Inputs From**  | `audio_feed_worker` |
+| **Outputs To**   | `speech_context_classifier` |
+| **Produces A3CPMessage?** | ✅ Yes (finalized segments only) |
+
+-------------------------------------------------------------------------------
+✅ SCHEMA COMPLIANCE SUMMARY
+-------------------------------------------------------------------------------
+
+This module emits finalized transcripts as valid `A3CPMessage` records.
+
+Required fields:
+- `schema_version`, `record_id`, `timestamp`, `user_id`, `session_id`
+- `modality = "speech"`, `source = "caregiver"`
+- `context_partner_speech`
+Optional:
+- `ASR_confidence_score` (if ASR backend supports it)
+
+Partial transcripts are not schema-compliant and must not be logged.
+
+
 ## Purpose
 Captures and transcribes caregiver or partner speech in real time using streaming automatic speech recognition (ASR). Provides continuously updated transcripts to downstream modules, enabling contextual understanding, topic detection, and clarification planning.
 
@@ -36,6 +56,20 @@ Real-time partner speech provides crucial context for interpreting ambiguous ges
   - Confidence scores (if supported)
 - Streaming JSON messages to downstream consumers
 - Optional `.jsonl` transcript log file (e.g., `transcripts/session_<id>.jsonl`)
+
+## Output Format (Finalized Transcript as A3CPMessage)
+{
+  "schema_version": "1.0.0",
+  "record_id": "uuid4-here",
+  "user_id": "elias01",
+  "session_id": "sess_2025-07-01_elias01",
+  "timestamp": "2025-07-01T13:21:11.654Z",
+  "modality": "speech",
+  "source": "caregiver",
+  "context_partner_speech": "Are you hungry?",
+  "ASR_confidence_score": 0.92
+}
+
 
 ## CARE Integration
 Feeds transcripts into `speech_context_inferer`, which analyzes them for topic cues, questions, and prompt relevance. This context influences CARE Engine behavior and can trigger clarification if needed.

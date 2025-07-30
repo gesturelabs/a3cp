@@ -6,7 +6,7 @@
 | **Module Type**  | `coordinator`             |
 | **Inputs From**  | `confidence_evaluator`, `memory_integrator` |
 | **Outputs To**   | `llm_clarifier`, `output_expander` |
-| **Produces A3CPMessage?** | ✅ (partial; logs clarification decisions) |
+| **Produces A3CPMessage?** | ❌ No (emits structured clarification metadata, not full A3CPMessage; logging handled by downstream modules)
 
 ## Purpose
 Determines whether to trigger a clarification prompt based on confidence levels and ambiguity in predicted user intents.
