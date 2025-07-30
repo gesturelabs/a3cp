@@ -3,6 +3,16 @@
 ## Purpose
 The `sound_classifier` module converts short audio recordings into ranked intent predictions using a pre-trained, user-specific classification model. It extracts acoustic features (e.g., MFCCs), runs inference, and returns structured predictions to the CARE Engine for downstream decision-making.
 
+| Field                  | Value                                        |
+|------------------------|----------------------------------------------|
+| **Module Name**        | `sound_classifier`                           |
+| **Module Type**        | `classifier`                                 |
+| **Inputs From**        | `audio_feed_worker`, `model_registry`        |
+| **Outputs To**         | `input_broker`                               |
+| **Produces A3CPMessage?** | ✅ Yes (classifier_output only)           |
+
+
+
 ## Why It Matters
 For users with limited or non-traditional speech, vocalizations may carry intentional signals that are not captured through gesture alone. This module enables interpretation of such signals, broadening communication support and improving system responsiveness by incorporating audio-based intent inference alongside contextual and visual cues.
 
@@ -34,6 +44,23 @@ For users with limited or non-traditional speech, vocalizations may carry intent
 - Logged record in `inference_trace.jsonl` with:
   - `timestamp`, `user_id`, `session_id`, `modality`, `source`, `model_version`, and raw prediction
 
+
+{
+  "schema_version": "1.0.0",
+  "record_id": "uuid4-here",
+  "user_id": "elias01",
+  "session_id": "sess_2025-07-01_elias01",
+  "timestamp": "2025-07-01T13:21:11.654Z",
+  "modality": "audio",
+  "source": "communicator",
+  "classifier_output": {
+    "intent": "play",
+    "confidence": 0.87
+  },
+  "model_version": "sound_model_v2.3"
+}
+
+
 ## CARE Integration
 The `sound_classifier` is called through the unified `/api/infer/` endpoint. Its predictions populate the `classifier_output` field of the `A3CPMessage`, complementing inputs from gesture and contextual modules. It supports parallel multimodal inference and feeds directly into the CARE Engine’s fusion and clarification logic.
 
@@ -59,6 +86,21 @@ Unassigned
 
 ## Priority
 High
+
+-------------------------------------------------------------------------------
+✅ SCHEMA COMPLIANCE SUMMARY
+-------------------------------------------------------------------------------
+
+This module emits partial `A3CPMessage` records with the `classifier_output` field populated:
+
+Required fields:
+- `schema_version`, `record_id`, `timestamp`, `user_id`, `session_id`
+- `modality = "audio"`, `source = "communicator"`
+- `classifier_output = { "intent": <str>, "confidence": <float> }`
+Optional:
+- `model_version`, `inference_latency`, or other classifier metadata
+
+These messages must be valid under `SCHEMA_REFERENCE.md` and are passed to `input_broker`.
 
 ## Example Files
 - [sample_input_audio.wav](./sample_input_audio.wav)

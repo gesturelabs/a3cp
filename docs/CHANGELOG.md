@@ -9,6 +9,33 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## [2025-07-30] Schema Compliance: speech_context_classifier
+
+- Updated `speech_context_classifier` documentation to align with A3CP schema rules:
+  - Declared production of partial `A3CPMessage` with `classifier_output`
+  - Added support for `ranking` field: top-N intent-confidence pairs
+  - Ensured `intent` and `confidence` fields are always present for compatibility
+  - Included structured example with multiple ranked predictions
+  - Added Module Usage Matrix showing downstream field consumption
+
+Clarifies one-message-per-utterance design while supporting soft intent ranking.
+
+## [2025-07-30] Schema Compliance Updates — A3CPMessage Integration
+
+- Updated `speech_transcriber` module documentation:
+  - Declared output of finalized transcript segments as `A3CPMessage`
+  - Added schema compliance summary and example payload
+  - Inserted Module Usage Matrix for compatibility with downstream classifiers
+
+- Updated `landmark_extractor` module documentation:
+  - Confirmed schema-compliant output via `raw_features_ref`
+  - Declared required metadata fields (modality, source, vector_version, etc.)
+  - Added Module Usage Matrix covering `gesture_classifier` and `schema_recorder`
+  - Included example A3CPMessage with external vector reference
+
+
+
 v0.5.5 - 2025-07-29
 
 Changed

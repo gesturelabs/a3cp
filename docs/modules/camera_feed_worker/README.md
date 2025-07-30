@@ -1,5 +1,10 @@
 # Submodule: camera_feed_worker
 
+
+## Purpose
+Captures frames from a local video input device (e.g., webcam) and streams them to downstream modules in real time.
+Acts as the source for all video-derived data such as landmarks, classification, and recording.
+
 | Field             | Value                  |
 |------------------|------------------------|
 | **Module Name**  | `camera_feed_worker`   |
@@ -7,24 +12,6 @@
 | **Inputs From**  | `session_manager` |
 | **Outputs To**   | `landmark_extractor`, `schema_recorder` |
 | **Produces A3CPMessage?** | ❌ No |
-
--------------------------------------------------------------------------------
-⚠ SCHEMA COMPLIANCE DISCLAIMER
--------------------------------------------------------------------------------
-
-This module does **not** emit schema-compliant records (e.g., `A3CPMessage`).
-
-It streams raw video frames and metadata. Schema wrapping is the responsibility
-of downstream consumers such as `landmark_extractor` or `schema_recorder`.
-
-Consumers must:
-- Interpret the timestamp and ID metadata for alignment
-- Insert schema-required fields (`modality="image"`, `source="communicator"`)
-- Produce logs compatible with `SCHEMA_REFERENCE.md`
-
-## Purpose
-Captures frames from a local video input device (e.g., webcam) and streams them to downstream modules in real time.
-Acts as the source for all video-derived data such as landmarks, classification, and recording.
 
 ## Responsibilities
 - Open and manage access to the selected video device
@@ -158,6 +145,22 @@ The `camera_feed_worker` was split out of the former `video_streamer` module to 
 - **Output schema**: Frames are raw (`np.ndarray`) with metadata; downstream schema validation applies (e.g., `RawActionRecord`).
 
 ---
+
+
+-------------------------------------------------------------------------------
+⚠ SCHEMA COMPLIANCE DISCLAIMER
+-------------------------------------------------------------------------------
+
+This module does **not** emit schema-compliant records (e.g., `A3CPMessage`).
+
+It streams raw video frames and metadata. Schema wrapping is the responsibility
+of downstream consumers such as `landmark_extractor` or `schema_recorder`.
+
+Consumers must:
+- Interpret the timestamp and ID metadata for alignment
+- Insert schema-required fields (`modality="image"`, `source="communicator"`)
+- Produce logs compatible with `SCHEMA_REFERENCE.md`
+
 
 ## References
 - [`SCHEMA_REFERENCE.md`](../../schemas/SCHEMA_REFERENCE.md) — field definitions for video input records

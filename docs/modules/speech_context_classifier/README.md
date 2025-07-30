@@ -3,6 +3,14 @@
 ## Purpose
 Classifies partner speech against the user’s known intent vocabulary by computing the most likely referred intents using semantic inference. This is performed via a constrained large language model (LLM) that ranks candidate intents based on contextual alignment and example match. The module does not infer dialog acts, prompt types, or clarification needs. It enables downstream decision making by producing a relevance-ranked list of known user intents.
 
+| Field                  | Value                                              |
+|------------------------|----------------------------------------------------|
+| **Module Name**        | `speech_context_classifier`                        |
+| **Module Type**        | `classifier`                                       |
+| **Inputs From**        | `speech_transcriber`, `user_profile_store`        |
+| **Outputs To**         | `input_broker`                                     |
+| **Produces A3CPMessage?** | ✅ Yes (classifier_output only)                 |
+
 ## Why It Matters
 Partner speech often implicitly signals which user intents are being prompted, but those signals are often indirect, idiomatic, or context-sensitive. By leveraging an LLM constrained to the user's trained vocabulary, this module enables robust and flexible intent inference while keeping classification bounded, interpretable, and fast enough for real-time systems.
 
@@ -36,6 +44,30 @@ Partner speech often implicitly signals which user intents are being prompted, b
   - `relevance_scores`: Dict of intent → normalized score (0.0–1.0)
   - `flags`: Optional markers such as `partner_engaged`, `topic_shift` (but not `needs_clarification`)
 
+{
+  "schema_version": "1.0.0",
+  "record_id": "uuid4-here",
+  "user_id": "elias01",
+  "session_id": "sess_2025-07-01_elias01",
+  "timestamp": "2025-07-01T13:24:58.321Z",
+  "modality": "speech",
+  "source": "caregiver",
+  "classifier_output": {
+    "intent": "drink",
+    "confidence": 0.83,
+    "ranking": [
+      { "intent": "drink", "confidence": 0.83 },
+      { "intent": "eat",   "confidence": 0.75 },
+      { "intent": "rest",  "confidence": 0.42 }
+    ],
+    "flags": {
+      "partner_engaged": true,
+      "topic_shift": false
+    }
+  }
+}
+
+
 ## CARE Integration
 Acts as a scoped semantic classifier providing candidate intents for rule-based filtering in the `confidence_evaluator`. It supplies LLM-derived match confidence while ensuring that inference stays within the bounds of the user’s declared intent space.
 
@@ -58,6 +90,22 @@ Unassigned
 
 ## Priority
 High
+
+-------------------------------------------------------------------------------
+✅ SCHEMA COMPLIANCE SUMMARY
+-------------------------------------------------------------------------------
+
+This module emits partial `A3CPMessage` records with a `classifier_output` object.
+
+Populated fields:
+- `modality = "speech"`, `source = "caregiver"`
+- `classifier_output.intent`: Top-ranked matched intent label
+- `classifier_output.confidence`: Normalized confidence score
+Optional:
+- `classifier_output.ranking`: List of top-N matched labels
+- `classifier_output.flags`: e.g., `partner_engaged`, `topic_shift`
+
+These records are passed to `input_broker` for multimodal fusion.
 
 ## Example Files
 - `examples/transcript_input.json`
