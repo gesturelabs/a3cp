@@ -9,6 +9,14 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2025-07-30] Clarification of Routing and CARE Integration: confidence_evaluator
+
+- Corrected downstream flow in `CARE Integration` section:
+  - Now correctly routes through `clarification_planner` before reaching `output_expander`
+- Clarified that the module mutates existing `A3CPMessage` records with updated scoring fields
+- Confirmed compliance with `SCHEMA_REFERENCE.md` for `classifier_output`, `final_decision`, and `context.flags`
+
+
 ## [2025-07-30] Schema Pass-Through and Fusion Logic: input_broker
 
 - Declared `input_broker` as a non-emitting, schema-pass-through module
