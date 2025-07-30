@@ -62,7 +62,13 @@ For users with limited or non-traditional speech, vocalizations may carry intent
 
 
 ## CARE Integration
-The `sound_classifier` is called through the unified `/api/infer/` endpoint. Its predictions populate the `classifier_output` field of the `A3CPMessage`, complementing inputs from gesture and contextual modules. It supports parallel multimodal inference and feeds directly into the CARE Engine’s fusion and clarification logic.
+
+- **Upstream**: Receives buffered or streamed audio from `audio_feed_worker`
+- **Downstream**: Sends classifier predictions to `input_broker` for multimodal fusion
+- **Role in Pipeline**: Provides audio-based intent predictions via the `classifier_output` field in the `A3CPMessage`
+- **API Note**: May be invoked via `/api/sound/infer/`, but is typically called internally by the CARE system
+- **Integration Point**: Participates in early-stage inference, supporting parallel inputs from gesture and contextual classifiers
+
 
 ## Functional Requirements
 - F1. Accept and normalize live or buffered audio input (mono, 16-bit PCM)

@@ -9,6 +9,22 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2025-07-30] Schema Alignment & CARE Integration Fixes
+
+- `gesture_classifier`:
+  - Declared compliant output via `classifier_output` in `A3CPMessage`
+  - Added `ranking` field example for top-N predictions
+  - Corrected CARE Integration section to reflect actual graph:
+    - Receives input from `landmark_extractor`
+    - Outputs only to `input_broker`
+    - Removed incorrect links to `CARE Engine` or `clarification_planner`
+
+- `sound_classifier`:
+  - Revised CARE Integration section:
+    - Clarified output to `input_broker` for fusion
+    - Removed incorrect implication of direct CARE Engine interaction
+    - Documented optional API exposure (`/api/sound/infer/`)
+
 
 ## [2025-07-30] Schema Compliance: speech_context_classifier
 
