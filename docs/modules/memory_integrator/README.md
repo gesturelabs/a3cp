@@ -1,7 +1,17 @@
 # Module: memory_integrator
 
 ## Purpose
-The `memory_integrator` module personalizes intent inference by modifying candidate intent scores based on the user's interaction history. It uses features like recency, frequency, and correction logs to reweight classifier outputs before a final decision or clarification.
+The `memory_integrator` module personalizes intent inference by modifying candidate intent scores based on the user's interaction history. It uses features like recency, frequency, and correction logs to reweight classifier outputs before a final decision or clarification. This supports user-adaptive scoring and enhances the CARE Engine’s contextual accuracy by supplementing the `confidence_evaluator` with memory-based weights.
+
+
+| Field                  | Value                                                                  |
+|------------------------|------------------------------------------------------------------------|
+| **Module Name**        | `memory_integrator`                                                    |
+| **Module Type**        | `coordinator`                                                          |
+| **Inputs From**        | `memory_interface`, `confidence_evaluator`                             |
+| **Outputs To**         | `confidence_evaluator` (via `memory.intent_boosts`, `memory.hint_used`)|
+| **Produces A3CPMessage?** | ❌ No (modifies internal fields used by other modules)              |
+
 
 ## Why It Matters
 By incorporating learned patterns from past interactions, the system becomes more accurate, efficient, and user-adaptive. This helps minimize repeated misunderstandings, reduces clarification frequency, and supports adaptive learning over time for each individual user.
@@ -22,30 +32,51 @@ By incorporating learned patterns from past interactions, the system becomes mor
 - Generating natural language prompts or UI responses.
 
 ## Inputs
-- `classifier_output`: list of intent candidates with base scores.
-- `memory.intent_boosts`: prior-weighted modifiers derived from user memory (e.g., boost recent or frequent intents).
-- `memory.hint_used`: binary or categorical flags indicating use of memory features.
-- `user_id`, `session_id`, `timestamp`.
+- `classifier_output`: List of intent candidates with base scores
+- `memory_trace`: User-specific memory data retrieved via `memory_interface`, including:
+  - `memory.intent_boosts`: Per-label weighting factors
+  - `memory.hint_used`: Flags indicating memory strategies applied
+- `user_id`, `session_id`, `timestamp`
 
 ## Outputs
-- `classifier_output`: re-ranked or score-modified list of intent candidates.
-- `memory.hint_used`: updated indicators of memory influence (e.g., `"recency_boosted": true`).
-- `final_decision` (optional): top-ranked intent after memory adjustment (may still be passed to Clarification Planner).
-- Log entry noting:
-  - Original and adjusted scores
-  - Memory features applied
-  - Traceability to specific memory records used
+- Updated `memory.intent_boosts` and `memory.hint_used` fields passed to `confidence_evaluator`
+- Log entry capturing:
+  - Memory traces used
+  - Boosts applied
+  - Flags and rationale
+- Does **not** emit standalone A3CPMessages
+
 
 ## CARE Integration
-- **Follows**: Confidence Evaluator.
-- **Feeds**: Clarification Planner or Output Generator depending on confidence after memory adjustment.
-- **Logs for**: Memory reuse audit and retraining dataset.
-- **Does not perform**: Classification, fusion, or prompting.
+- **Upstream**: Pulls memory traces from `memory_interface`
+- **Downstream**: Modifies memory-derived weight inputs used by `confidence_evaluator`
+- **Logs**: Memory application decisions for retraining and audit
+- **Does Not**: Perform classification, prompting, or direct downstream handoff
+
+---
+
+## Output (JSON example)
+
+{
+  "memory": {
+    "intent_boosts": {
+      "go_to_bathroom": 1.3,
+      "want_to_eat": 0.9
+    },
+    "hint_used": {
+      "recency_boosted": true,
+      "correction_penalty": false
+    }
+  }
+}
+
 
 ## Functional Requirements
-- FR1. Must access and apply per-user memory traces (recency, frequency, correction history).
-- FR2. Must re-rank or re-score candidate intents based on memory influence.
-- FR3. Must log score modifications and memory hint usage.
+-FR1. Must access and apply per-user memory traces (recency, frequency, correction history).
+-FR1. Must retrieve per-user memory traces for intent frequency, recency, corrections
+-FR2. Must apply scoring modifiers and flags deterministically
+-FR3. Must support integration with confidence_evaluator without blocking
+-FR4. Must log traceable decision history per input set
 
 ## Non-Functional Requirements
 - NF1. Must complete within <30ms to avoid interaction delay.

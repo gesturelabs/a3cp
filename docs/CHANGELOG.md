@@ -9,6 +9,13 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2025-07-30  memory_integrator/README.md
+- Rewrote module doc to align with updated schema and coordination flow
+- Clarified that input comes from memory_interface and confidence_evaluator
+- Specified that it outputs modifiers, not standalone A3CPMessages
+- Added JSON output block with memory fields
+- Added schema compliance summary
+
 ## [2025-07-30] Clarification of Routing and CARE Integration: confidence_evaluator
 
 - Corrected downstream flow in `CARE Integration` section:
