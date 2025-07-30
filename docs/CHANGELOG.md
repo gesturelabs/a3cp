@@ -9,6 +9,15 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [speech_context_classifier] - 2025-07-30
+
+### Updated
+- Removed undocumented `classifier_output.flags` field to align with SCHEMA_REFERENCE.md
+- Deleted `relevance_scores` from Outputs section (not part of schema; replaced by `ranking`)
+- Clarified that `classifier_output.intent` may be `null` and `ranking` empty when no match is found
+- Explicitly listed `schema_version` and `record_id` as required fields in Outputs
+
+
 ## 2025-07-30  memory_integrator/README.md
 - Rewrote module doc to align with updated schema and coordination flow
 - Clarified that input comes from memory_interface and confidence_evaluator

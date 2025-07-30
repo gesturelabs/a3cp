@@ -39,10 +39,24 @@ Partner speech often implicitly signals which user intents are being prompted, b
   - These constrain and guide the LLM's reasoning
 
 ## Outputs
-- Structured output object:
+Mandatory metadata fields:
+- `schema_version`: Semantic version string, e.g., `"1.0.0"`
+- `record_id`: UUIDv4 string uniquely identifying this message
+Structured output object:
   - `matched_intents`: List of intent labels ordered by inferred relevance
-  - `relevance_scores`: Dict of intent → normalized score (0.0–1.0)
-  - `flags`: Optional markers such as `partner_engaged`, `topic_shift` (but not `needs_clarification`)
+Optional fields:
+- `classifier_output.language_used`: The detected or assumed language used in the LLM prompt (e.g., `"en"`, `"de"`)
+- `classifier_output.prompt_version`: Internal identifier for the LLM prompt template used for inference
+
+### Classifier Output Fields
+
+| Field                        | Type              | Required | Description                                      |
+|-----------------------------|-------------------|----------|--------------------------------------------------|
+| `classifier_output.intent`  | string \| null     | ✅       | Top matched intent label or `null` if no match   |
+| `classifier_output.confidence` | float [0–1]     | ✅       | Confidence score of the top intent               |
+| `classifier_output.ranking` | list of objects    | optional | Ordered list of `{intent, confidence}` pairs     |
+| `classifier_output.language_used` | string       | optional | Language of the prompt used (e.g., `"en"`)       |
+| `classifier_output.prompt_version` | string      | optional |
 
 {
   "schema_version": "1.0.0",
@@ -60,10 +74,7 @@ Partner speech often implicitly signals which user intents are being prompted, b
       { "intent": "eat",   "confidence": 0.75 },
       { "intent": "rest",  "confidence": 0.42 }
     ],
-    "flags": {
-      "partner_engaged": true,
-      "topic_shift": false
-    }
+
   }
 }
 
@@ -102,8 +113,15 @@ Populated fields:
 - `classifier_output.intent`: Top-ranked matched intent label
 - `classifier_output.confidence`: Normalized confidence score
 Optional:
-- `classifier_output.ranking`: List of top-N matched labels
-- `classifier_output.flags`: e.g., `partner_engaged`, `topic_shift`
+- `classifier_output.language_used` (e.g., `"en"`)
+- `classifier_output.prompt_version` (e.g., `"v2.1_german_prompt_focused"`)
+
+If no intent is matched (e.g., due to an empty or irrelevant vocabulary), the module may return:
+- `intent: null`
+- `confidence: 0.0`
+- `ranking: []`
+
+This is schema-compliant and signals a low-confidence or indeterminate classification.
 
 These records are passed to `input_broker` for multimodal fusion.
 
