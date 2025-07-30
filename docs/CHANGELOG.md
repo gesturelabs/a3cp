@@ -9,6 +9,20 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2025-07-30] Schema & Model Update: visual_environment_classifier
+
+- Declared `visual_environment_classifier` as schema-compliant (partial `A3CPMessage`)
+  - Emits `context_location`, `context.flags`, and standard metadata fields
+  - Sets `modality = "image"`, `source = "communicator"`
+  - Output consumed by `input_broker` for context fusion
+
+- Added Module Usage Matrix with downstream field mapping
+- Included structured JSON output example with location and flags
+- Clarified model design:
+  - Uses a shared, static environment classifier (e.g., CNN)
+  - Does not access or depend on `model_registry`
+
+
 ## [2025-07-30] Schema Alignment & CARE Integration Fixes
 
 - `gesture_classifier`:

@@ -3,6 +3,15 @@
 ## Purpose
 Classifies the user's physical environment (e.g., kitchen, classroom, bedroom, store) in real time using visual input from the camera stream.
 
+| Field                  | Value                                                |
+|------------------------|------------------------------------------------------|
+| **Module Name**        | `visual_environment_classifier`                      |
+| **Module Type**        | `classifier`                                         |
+| **Inputs From**        | `camera_feed_worker`                                 |
+| **Outputs To**         | `input_broker`                                       |
+| **Produces A3CPMessage?** | ✅ Yes (context field only)                        |
+
+
 ## Why It Matters
 Scene awareness enables more accurate disambiguation of user intents. Knowing whether the user is at home, in public, or in a specific functional space improves the relevance and safety of AAC outputs and CARE loop decisions.
 
@@ -30,6 +39,24 @@ Scene awareness enables more accurate disambiguation of user intents. Knowing wh
 - `context.flags`: Optional contextual tags (e.g., `is_public`, `is_cooking_area`)
 - `audit_metadata`: Includes model version, input hash, source module
 
+{
+  "schema_version": "1.0.0",
+  "record_id": "uuid4-here",
+  "user_id": "elias01",
+  "session_id": "sess_2025-07-01_elias01",
+  "timestamp": "2025-07-01T13:28:10.112Z",
+  "modality": "image",
+  "source": "communicator",
+  "context_location": "kitchen",
+  "context": {
+    "flags": {
+      "is_public": false,
+      "is_cooking_area": true
+    }
+  },
+  "model_version": "env_class_v1.2"
+}
+
 ## CARE Integration
 - **Upstream**: Receives frames from `camera_feed_worker` via shared interface
 - **Downstream**: Supplies context to `confidence_evaluator`, `output_planner`, or `clarification_planner`
@@ -51,6 +78,21 @@ Osama
 
 ## Priority
 Medium
+
+-------------------------------------------------------------------------------
+✅ SCHEMA COMPLIANCE SUMMARY
+-------------------------------------------------------------------------------
+
+This module emits valid `A3CPMessage` records with:
+
+- `modality = "image"`, `source = "communicator"`
+- `context_location`: Top scene label (e.g., `"kitchen"`)
+- `context.flags`: Optional tags such as `is_public`, `is_school_zone`
+- `timestamp`, `user_id`, `session_id`, `device_id`
+- Optional `model_version`, `confidence_score`, `input_hash` under audit metadata
+
+These are consumed by `input_broker` for fusion, and optionally logged.
+
 
 ## Example Files
 - [sample_input.json](./sample_input.json)
