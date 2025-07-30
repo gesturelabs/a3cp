@@ -9,6 +9,20 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2025-07-30] Schema Pass-Through and Fusion Logic: input_broker
+
+- Declared `input_broker` as a non-emitting, schema-pass-through module
+  - Receives validated `A3CPMessage` inputs from gesture, sound, speech, and visual classifiers
+  - Does not generate or mutate schema fields
+  - Optionally annotates message groups with `stream_segment_id`
+
+- Added Module Usage Matrix showing read-only access to all input fields
+- Clarified CARE Integration role as first multimodal fusion point
+- Documented internal output bundle format (not schema-validated, but traceable)
+
+Maintains strict compliance with `SCHEMA_ARCHITECTURE.md` one-message-per-input rule.
+
+
 ## [2025-07-30] Schema & Model Update: visual_environment_classifier
 
 - Declared `visual_environment_classifier` as schema-compliant (partial `A3CPMessage`)
