@@ -9,6 +9,20 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+### CHANGELOG ENTRY - 2025-07-31
+
+
+[Schema] Added Section 3.4: Classifier Output Components
+
+- Introduced optional `classifier_output_components` field to support multimodal intent tracing.
+- Allows downstream modules to inspect per-modality predictions (e.g., gesture, sound, speech).
+- Each entry includes `intent`, `confidence`, and optional `timestamp`.
+- Documented structure in Section 3.4 of the A3CPMessage specification.
+
+Reason: Enables transparent, auditable contribution tracking when multiple classifiers inform a single semantic intent.
+
+
 ## [speech_context_classifier] - 2025-07-30
 
 ### Added

@@ -1,4 +1,5 @@
 # SCHEMA_REFERENCE.md
+v 1.1
 
 This document defines the canonical runtime data schema used across all A3CP modules for internal communication and logging. The schema is represented as a `pydantic` model (`A3CPMessage`) under `schemas/a3cp_message.py` and is mirrored in `interfaces/a3cp_message.schema.json`.
 
@@ -24,34 +25,56 @@ Each field is documented with its type, version history, required status, typica
 
 ## 1. Overview
 
-All inter-module messages in A3CP are wrapped in a versioned, validated `A3CPMessage` structure. These messages are:
 
+All internal communication in A3CP uses a canonical structure: `A3CPMessage`.
+
+Each message is:
 - Serialized as JSON
-- Validated at runtime using `pydantic`
-- Mirrored by a public-facing JSON Schema in `interfaces/`
-- Logged in `.jsonl` format under `logs/users/` and `logs/sessions/`
+- Validated at runtime using Pydantic
+- Exported as JSON Schema to `interfaces/`
+- Logged as `.jsonl` under `logs/users/` and `logs/sessions/`
 
-The message format supports multimodal input (gesture, sound), contextual profiling, classifier decisions, clarification tracking, and memory-informed suggestions.
+The schema enables consistent interop across modules handling:
+- Multimodal input (gesture, speech, audio, image)
+- Classifier inference and confidence scoring
+- Clarification, memory-based adjustment, and AAC output
+
+Messages are versioned (`schema_version`), traceable (`record_id`), and grouped
+by session (`session_id`). All modules must validate version and handle optional
+fields gracefully.
+
 
 ---
 ## 2. Core Metadata Fields
 
-These fields form the foundation of every `A3CPMessage`. They are mandatory for all records and ensure global traceability, auditability, and runtime validation. All timestamps must be in UTC ISO 8601 format with milliseconds.
 
-| Field             | Type     | Req | Example                                  | Description                                                                 | Version |
-|------------------|----------|-----|------------------------------------------|-----------------------------------------------------------------------------|---------|
-| `schema_version` | string   | ✅  | `"1.0.0"`                                | Semantic version (`MAJOR.MINOR.PATCH`) of the schema used for validation.  | 1.0     |
-| `record_id`      | UUID     | ✅  | `"07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56"` | Globally unique identifier for this message (UUIDv4 recommended).          | 1.0     |
-| `user_id`        | string   | ✅  | `"elias01"`                              | Pseudonymous user identifier.                                               | 1.0     |
-| `session_id`     | string   | ✅  | `"a3cp_sess_2025-06-15_elias01"`         | Unique ID for a logically grouped interaction session.                     | 1.0     |
-| `timestamp`      | datetime | ✅  | `"2025-06-15T12:34:56.789Z"`             | UTC timestamp in ISO 8601 format with millisecond precision.               | 1.0     |
-| `modality`       | string   | ✅  | `"gesture"`                              | Input type: one of `"gesture"`, `"audio"`, `"speech"`, `"image"`, etc.     | 1.0     |
-| `source`         | string   | ✅  | `"communicator"`                         | Origin of input: `"communicator"`, `"caregiver"`, or `"system"`.           | 1.0     |
+These fields are required in every `A3CPMessage`. They provide version control,
+traceability, session grouping, modality tagging, and audit timestamps.
+
+All timestamps must use ISO 8601 format with millisecond precision and a "Z" suffix.
+
++----------------+----------------+-----+----------------------------------------------+---------------------------------------------------------------+
+| Field          | Type           | Req | Example                                      | Description                                                   |
++----------------+----------------+-----+----------------------------------------------+---------------------------------------------------------------+
+| schema_version | str            | ✅  | "1.0.0"                                      | Semantic version of the schema (MAJOR.MINOR.PATCH)            |
+| record_id      | UUID           | ✅  | "07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56"       | Unique ID for this message (UUIDv4, assigned at creation)     |
+| user_id        | str            | ✅  | "elias01"                                    | Pseudonymous user identifier                                  |
+| session_id     | str            | ✅  | "a3cp_sess_2025-06-15_elias01"               | Identifier for a session grouping related inputs              |
+| timestamp      | datetime       | ✅  | "2025-06-15T12:34:56.789Z"                   | ISO 8601 UTC timestamp with milliseconds and "Z" suffix       |
+| modality       | Literal[str]   | ✅  | "gesture"                                    | One of: "gesture", "audio", "speech", "image", "multimodal"   |
+| source         | Literal[str]   | ✅  | "communicator"                               | One of: "communicator", "caregiver", "system"                 |
++----------------+----------------+-----+----------------------------------------------+---------------------------------------------------------------+
+
+Notes:
+- `record_id` uniquely identifies a single message instance and must be a UUID.
+- `session_id` groups multiple related messages from the same interaction window.
+- `modality` and `source` must use controlled vocabularies (exact match only).
 
 ### Allowed Values
 
 - `modality`: `"gesture"`, `"audio"`, `"speech"`, `"image"`, `"multimodal"`
 - `source`: `"communicator"`, `"caregiver"`, `"system"`
+
 
 ### Notes
 
@@ -62,19 +85,33 @@ These fields form the foundation of every `A3CPMessage`. They are mandatory for 
 
 ## Section 3: Input & Stream Fields
 
-This section defines all fields related to raw input collection, temporal sequencing, stream segmentation, and modality-specific metadata. These fields are primarily used by the Streamer, Sensor Capture Interfaces, and Logger modules.
+This section defines fields related to raw input capture, temporal ordering,
+stream segmentation, and device-level metadata.
+
+These fields are primarily used by modules such as:
+- Streamers
+- Sensor workers (e.g., camera/audio feed)
+- Logging and schema recording components
 
 ### 3.1 Temporal Structure & Stream Windowing
 
-| Field Name          | Type     | Req | Example                                  | Description                                                                |
-|---------------------|----------|-----|------------------------------------------|----------------------------------------------------------------------------|
-| `timestamp`         | datetime | ✅  | "2025-05-05T12:31:46.123Z"               | ISO 8601 UTC timestamp of when the input was captured.                     |
-| `stream_segment_id` | string   | ❌  | "elias01_2025-05-05T12:31:45Z"           | Optional window or chunk ID for stream segmentation.                       |
-| `sequence_id`       | string   | ❌  | "elias01_000023"                         | Optional global sequence identifier for this input frame or utterance.    |
-| `frame_index`       | integer  | ❌  | 23                                       | Index of this frame in the current sequence or stream segment.            |
+These fields describe when and how the input was captured, and optionally place
+it within a structured sequence or stream segment. Used for aligning multi-frame
+inputs such as audio, video, or skeletal streams.
 
-- If `sequence_id` is present, it should be unique within the session.
-- `frame_index` is used for alignment of dense sensor streams (e.g., skeletal frames).
++---------------------+----------+-----+--------------------------------------------+-------------------------------------------------------------+
+| Field Name          | Type     | Req | Example                                    | Description                                                 |
++---------------------+----------+-----+--------------------------------------------+-------------------------------------------------------------+
+| timestamp           | datetime | ✅  | "2025-05-05T12:31:46.123Z"                 | ISO 8601 UTC timestamp of when the input was captured       |
+| stream_segment_id   | str      | ❌  | "elias01_2025-05-05T12:31:45Z"             | Optional ID grouping frames into a stream segment           |
+| sequence_id         | str      | ❌  | "elias01_000023"                           | Optional global identifier for this input frame or utterance|
+| frame_index         | int      | ❌  | 23                                         | Index of this frame within the segment or sequence          |
++---------------------+----------+-----+--------------------------------------------+-------------------------------------------------------------+
+
+Notes:
+- If `sequence_id` is present, it must be unique within the session.
+- `frame_index` is used for aligning dense input streams (e.g., video frames,
+  audio windows, skeletal keypoints).
 
 ---
 
@@ -124,6 +161,39 @@ This section defines all fields related to raw input collection, temporal sequen
 -vector is deprecated and should be used only for unit tests with vectors < 5 elements.
 -All production logs must use raw_features_ref with integrity hash.
 -Future schema versions may require vector_version to match encoding.
+
+
+### 3.4 CLASSIFIER OUTPUT COMPONENTS
+
+This section defines how to capture intent predictions from multiple modalities
+(e.g., gesture, sound, speech) when they contribute to a single semantic message.
+
+Used by: Classifier modules, Input Broker, Clarification Planner
+
++------------------------------+--------+-----+----------------------------+--------------------------------------------------------------+
+| Field Name                   | Type   | Req | Example                    | Description                                                  |
++------------------------------+--------+-----+----------------------------+--------------------------------------------------------------+
+| classifier_output_components | dict   | ❌  | see subfields              | Per-modality predictions contributing to the final decision  |
++------------------------------+--------+-----+----------------------------+--------------------------------------------------------------+
+
+Each key in `classifier_output_components` corresponds to a modality
+(e.g., `"gesture"`, `"sound"`, `"speech"`), and contains the following:
+
++------------+-----------+-----+----------------------------+-------------------------------------------------------------+
+| Subfield   | Type      | Req | Example                    | Description                                                 |
++------------+-----------+-----+----------------------------+-------------------------------------------------------------+
+| intent     | string    | ✅  | "I love you"               | Predicted intent label from this modality                   |
+| confidence | float     | ✅  | 0.82                       | Confidence score between 0.0 and 1.0                        |
+| timestamp  | datetime  | ❌  | "2025-07-31T10:15:01.123Z" | When the classifier received or generated this prediction   |
++------------+-----------+-----+----------------------------+-------------------------------------------------------------+
+
+Notes:
+- Only modalities present in the input should be included.
+- This structure enables traceable, multimodal contribution to intent resolution.
+- `classifier_output_components` does not replace the final `intent` decision.
+
+
+
 
 ## 4. Contextual Tags
 
