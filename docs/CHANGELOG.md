@@ -9,6 +9,18 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [a3cp_core] - 2025-07-31
+
+### Added
+- Defined canonical `A3CPMessage` schema in `schemas/a3cp_core/a3cp_message.py` based on Section 2 of `SCHEMA_REFERENCE.md`
+  - Includes required core metadata fields: `schema_version`, `record_id`, `user_id`, `session_id`, `timestamp`, `modality`, `source`
+  - Supports forward-compatible extension via `extra = "allow"`
+- Added schema validation utility in `schemas/utils/validate.py`
+  - Function `validate_a3cp_message(data: dict)` raises on malformed messages
+- Added unit test: `tests/schemas/test_a3cp_message.py`
+  - Validates correct messages pass
+  - Ensures missing or invalid fields are rejected
+
 
 ### CHANGELOG ENTRY - 2025-07-31
 

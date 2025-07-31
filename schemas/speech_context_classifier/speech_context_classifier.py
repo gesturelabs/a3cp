@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated, List, Literal
 
 from pydantic import BaseModel, Field
@@ -5,8 +6,9 @@ from pydantic import BaseModel, Field
 
 class PartnerSpeechSegment(BaseModel):
     transcript: Annotated[str, Field(..., description="Raw transcribed partner speech")]
+
     timestamp: Annotated[
-        str, Field(..., description="UTC ISO8601 timestamp of speech segment")
+        datetime, Field(..., description="UTC ISO8601 timestamp of speech segment")
     ]
     language: Annotated[
         str, Field(..., description="BCP-47 language code (e.g., 'en', 'es')")
@@ -45,7 +47,12 @@ class SpeechContextClassifierInput(BaseModel):
     ]
     user_id: Annotated[str, Field(..., description="Pseudonymous user ID")]
     session_id: Annotated[str, Field(..., description="Session ID")]
-    timestamp: Annotated[str, Field(..., description="UTC ISO8601 timestamp")]
+    timestamp: Annotated[
+        datetime,
+        Field(
+            ..., description="UTC ISO 8601 timestamp with 'Z' suffix and milliseconds"
+        ),
+    ]
 
     partner_speech: Annotated[
         List[PartnerSpeechSegment],
@@ -139,7 +146,10 @@ class SpeechContextClassifierOutput(BaseModel):
     user_id: Annotated[str, Field(..., description="Copied from input")]
     session_id: Annotated[str, Field(..., description="Copied from input")]
     timestamp: Annotated[
-        str, Field(..., description="UTC ISO8601 timestamp of prediction")
+        datetime,
+        Field(
+            ..., description="UTC ISO 8601 timestamp with 'Z' suffix and milliseconds"
+        ),
     ]
     modality: Literal["speech"] = Field(
         default="speech", description="Modality of source input"
