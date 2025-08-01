@@ -9,6 +9,29 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## [module_architecture] - 2025-08-01
+
+### Updated
+- Finalized MVP module selection (blue outline) based on system flow chart
+- Marked core (internal) modules with **magenta star** and Docker modules with **Docker icon**
+- Deferred post-MVP modules marked with **orange outline**
+
+### MVP Modules (Blue Outline)
+- ✅ Core (Magenta Star): `session_manager`, `input_broker`, `confidence_evaluator`, `memory_integrator`,
+  `output_expander`, `output_planner`, `partner_ui`, `schema_recorder`
+- 🐳 Dockerized: `audio_feed_worker`, `camera_feed_worker`, `speech_transcriber`, `landmark_extractor`,
+  `gesture_classifier`, `sound_classifier`, `speech_context_classifier`, `visual_environment_classifier`,
+  `model_trainer`, `sound_playback`, `landmark_visualizer`
+
+### Post-MVP (Orange Outline)
+- `llm_clarifier`, `feedback_log`, `retraining_scheduler`, `memory_interface`
+
+### Storage Modules
+- `model_registry` and `recorded_schemas` to remain internal on Hetzner, accessed via local endpoints
+
+
+
 ## [a3cp_core] - 2025-07-31
 
 ### Added
