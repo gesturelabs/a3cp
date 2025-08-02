@@ -1,7 +1,7 @@
 # Module: model_trainer
 
 ## Purpose
-The `model_trainer` module builds per-user, modality-specific machine learning models using validated, labeled input data. It processes gesture vectors, audio features, or other time-aligned inputs and outputs versioned model artifacts with associated metadata.
+The model_trainer module builds per-user, modality-specific machine learning models using validated, labeled input data. It processes gesture vectors, audio features, or other time-aligned inputs and outputs versioned model artifacts with associated metadata.
 
 ## Why It Matters
 This module enables adaptive learning in A3CP. Without personalized models, intent classification performance would degrade across diverse users and contexts. Training ensures tailored, accurate inference aligned with each user's communication patterns.
@@ -25,7 +25,7 @@ This module enables adaptive learning in A3CP. Without personalized models, inte
 
 ## Inputs
 - `user_id`: globally unique identifier (UUID or string)
-- `modality`: one of `"gesture"`, `"sound"`, `"speech"`
+- `modality`: one of `"gesture"`, `"sound"`, `"speech"`, `"visual_environment"`
 - `labeled_training_data`: pre-cleaned input-label pairs
 - `session_metadata`: timestamps, labeler info, modality version
 - `training_config`: model type, architecture, hyperparameters, feature set
@@ -55,6 +55,53 @@ This module enables adaptive learning in A3CP. Without personalized models, inte
 - NF4. All outputs must be versioned and written atomically
 - NF5. Errors must return structured JSON logs with tracebacks
 - NF6. Compatible with CPU-only environments
+
+## Dockerized Multi-Trainer Architecture
+
+Each modality-specific trainer is independently Dockerized under model_trainer/, allowing isolation of dependencies and algorithmic diversity. The top-level structure is:
+model_trainer/
+├── README.md                        # Overview of the training system, usage instructions, architecture
+├── shared/                          # Shared utilities across all trainer types
+│   ├── data_loader.py               # Handles loading, filtering, batching of labeled data
+│   ├── schema_utils.py              # Schema validation helpers for training inputs
+│   └── evaluation.py                # Metrics (accuracy, F1), confusion matrix generation, plotting tools
+├── gesture_trainer/                 # Dockerized trainer for gesture classification
+│   ├── Dockerfile                   # Defines container with necessary dependencies (e.g., MediaPipe, NumPy)
+│   ├── train.py                     # Entry script: loads data, runs training, saves model + logs
+│   ├── requirements.txt             # Dependencies (e.g., scikit-learn, matplotlib)
+│   ├── preprocessing/               # Modality-specific preprocessing (e.g., keyframe selection, smoothing)
+│   └── configs/                     # YAML or JSON configs for training parameters, model type
+├── sound_trainer/                   # Dockerized trainer for sound classification
+│   ├── Dockerfile                   # Includes librosa, PyTorch/TensorFlow, etc.
+│   ├── train.py
+│   ├── requirements.txt
+│   ├── preprocessing/               # Feature extraction like MFCC, spectrogram slicing
+│   └── configs/
+├── speech_context_trainer/          # Dockerized trainer for speech-to-context classification
+│   ├── Dockerfile                   # Likely includes ASR postprocessing and feature embeddings
+│   ├── train.py
+│   ├── requirements.txt
+│   ├── preprocessing/               # Includes tokenization, possibly transformer-based embeddings
+│   └── configs/
+├── visual_environment_trainer/      # Dockerized trainer for visual scene/context classifiers
+│   ├── Dockerfile                   # May require OpenCV, YOLO, CLIP dependencies
+│   ├── train.py
+│   ├── requirements.txt
+│   ├── preprocessing/               # Region-of-interest extraction, downsampling, etc.
+│   └── configs/
+└── orchestrator/                    # Launch, monitor, and upload utility for all trainers
+    ├── launch_all.sh                # Bash script to launch all trainers with correct arguments
+    ├── monitor.py                   # Optional real-time tracking of training progress or errors
+    └── registry_uploader.py         # Moves trained models + metadata into the model_registry (via API or FS)
+
+
+
+
+
+-Each trainer includes a Dockerfile, train.py, configs/, and optional preprocessing/
+-All write artifacts and metadata to the common model_registry/
+-Trainers are triggered via orchestrator/ script or job queue
+
 
 ## Developer(s)
 Unassigned
