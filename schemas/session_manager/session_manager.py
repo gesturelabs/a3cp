@@ -1,72 +1,64 @@
-# schemas/session_manager/session_manager.py
 from datetime import datetime
-from typing import List, Literal, Optional
+from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
+
+from schemas.base.base_schema import BaseSchema
 
 
 class SessionStartRequest(BaseModel):
     """
-    Main input schema for the session_manager module.
-    Also defines the module-wide example_input / example_output pair.
+    Canonical input schema from UI or other sources to start a session.
     """
 
     user_id: str = Field(..., description="Pseudonymous user identifier")
-
-    is_training_data: bool = Field(
+    is_training_data: Optional[bool] = Field(
         default=False,
-        description="True if session is for labeled training data collection",
+        description="Flag indicating if this session is for labeled training data",
     )
-
-    modality: Optional[List[Literal["gesture", "speech", "sound", "typing"]]] = Field(
-        default=None, description="Only required if is_training_data is true"
+    session_notes: Optional[str] = Field(
+        default=None,
+        description="Optional free-text notes or context about the session",
     )
-
-    @model_validator(mode="before")
-    @classmethod
-    def validate_modality_if_training(cls, data):
-        if data.get("is_training_data") and not data.get("modality"):
-            raise ValueError("modality is required when is_training_data is true")
-        return data
+    performer_id: Optional[str] = Field(
+        default=None,
+        description="Identifier for the actual input actor if different from user_id",
+    )
 
     @staticmethod
     def example_input() -> dict:
         return {
             "user_id": "elias01",
             "is_training_data": True,
-            "modality": ["gesture", "sound"],
+            "session_notes": "Training session with carer miming gestures",
+            "performer_id": "carer01",
         }
+
+
+class SessionStartResponse(BaseSchema):
+    """
+    Canonical output schema returned to UI or caller after session creation.
+    Inherits common metadata from BaseSchema.
+    """
+
+    start_time: datetime = Field(..., description="UTC timestamp when session started")
+    is_training_data: bool = Field(..., description="Flag indicating training session")
+    session_notes: Optional[str] = Field(
+        default=None, description="Echoed notes or context about the session"
+    )
+    # performer_id, modality, source inherited optionally from BaseSchema
 
     @staticmethod
     def example_output() -> dict:
         return {
-            "session_id": "sess_20250728_001",
+            "schema_version": "1.0.1",
+            "record_id": "a8c43e6e-4f1d-4b2f-b8ee-123456789abc",
             "user_id": "elias01",
-            "start_time": "2025-07-28T14:00:00Z",
+            "session_id": "sess_20250728_001",
+            "timestamp": "2025-07-28T14:00:00.000Z",
+            "source": "session_manager",
+            "performer_id": "carer01",
+            "start_time": "2025-07-28T14:00:00.000Z",
             "is_training_data": True,
-            "modality": ["gesture", "sound"],
+            "session_notes": "Training session with carer miming gestures",
         }
-
-
-class SessionStartResponse(BaseModel):
-    session_id: str = Field(..., description="System-generated session identifier")
-    user_id: str = Field(..., description="Pseudonymous user identifier")
-    start_time: datetime = Field(..., description="UTC timestamp when session started")
-    is_training_data: bool = Field(
-        ..., description="Whether session was for training data"
-    )
-    modality: Optional[List[Literal["gesture", "speech", "sound", "typing"]]] = Field(
-        default=None, description="Included only if is_training_data is true"
-    )
-
-
-class SessionEndEvent(BaseModel):
-    session_id: str = Field(..., description="Session identifier to close")
-    user_id: str = Field(..., description="Pseudonymous user identifier")
-    end_time: datetime = Field(..., description="UTC timestamp when session ended")
-    duration_seconds: Optional[int] = Field(
-        None, description="Optional duration of session in seconds"
-    )
-    event_count: Optional[int] = Field(
-        None, description="Optional number of events recorded in session"
-    )

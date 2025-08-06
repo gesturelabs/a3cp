@@ -9,6 +9,23 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+### CHANGELOG - 2025-08-06
+
+[docs/modules/session_manager/README.md]
+- Revised session_manager documentation for clarity on lifecycle, inputs, outputs, and responsibilities.
+- Expanded functional and non-functional requirements.
+- Aligned document structure with project standards.
+
+[schemas/base/base_schema.py]
+- Updated for Pydantic v2 compatibility.
+- Replaced deprecated enum validation with Literal.
+- Refined field descriptions and optionality.
+
+[schemas/session_manager/session_manager.py]
+- Corrected example_output in SessionStartResponse:
+  - Removed modality (unknown at session start).
+  - Set source to "session_manager".
+- Ensured SessionStartRequest and Response align with BaseSchema and schema design.
 
 
 ## [module_architecture] - 2025-08-01
