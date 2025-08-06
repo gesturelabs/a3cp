@@ -11,6 +11,30 @@ Maintainer: Dmitri Katz
 
 ### CHANGELOG - 2025-08-06
 
+[api/main.py]
+- Updated to import and include separate routers for session start and end.
+- Removed combined session_manager router.
+
+[api/routes/session_manager_routes.py]
+- Deleted combined session_manager routes file.
+
+[schemas/session_manager/]
+- Deleted combined session_manager schema files and examples.
+
+[api/routes/session_manager_start_routes.py]
+- Added route file for session start endpoint.
+
+[api/routes/session_manager_end_routes.py]
+- Added route file for session end endpoint.
+
+[schemas/session_manager_start/]
+- Added schema files for session start.
+
+[schemas/session_manager_end/]
+- Added schema files for session end.
+
+### CHANGELOG - 2025-08-06
+
 [docs/modules/session_manager/README.md]
 - Revised session_manager documentation for clarity on lifecycle, inputs, outputs, and responsibilities.
 - Expanded functional and non-functional requirements.

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -24,6 +24,10 @@ class SessionStartRequest(BaseModel):
         default=None,
         description="Identifier for the actual input actor if different from user_id",
     )
+    training_intent_label: Optional[str] = Field(
+        default=None,
+        description="Intent label or meaning of the gesture if this is a training session",
+    )
 
     @staticmethod
     def example_input() -> dict:
@@ -32,6 +36,7 @@ class SessionStartRequest(BaseModel):
             "is_training_data": True,
             "session_notes": "Training session with carer miming gestures",
             "performer_id": "carer01",
+            "training_intent_label": "help",
         }
 
 
@@ -46,7 +51,18 @@ class SessionStartResponse(BaseSchema):
     session_notes: Optional[str] = Field(
         default=None, description="Echoed notes or context about the session"
     )
+    training_intent_label: Optional[str] = Field(
+        default=None,
+        description="Echoed intent label if this is a training session",
+    )
     # performer_id, modality, source inherited optionally from BaseSchema
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.astimezone(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z"),
+        }
 
     @staticmethod
     def example_output() -> dict:
@@ -61,4 +77,5 @@ class SessionStartResponse(BaseSchema):
             "start_time": "2025-07-28T14:00:00.000Z",
             "is_training_data": True,
             "session_notes": "Training session with carer miming gestures",
+            "training_intent_label": "help",
         }
