@@ -37,12 +37,14 @@ from api.routes.visual_environment_classifier_routes import (
     router as visual_environment_classifier_router,
 )
 from api.settings import get_settings
+from apps.ui.main import router as ui_router
 
 settings = get_settings()
-app = FastAPI(title="A3CP Inference API", version="0.5.x")
+app = FastAPI(docs_url=None, redoc_url=None)
 
 
 # Include all routers under the same prefix for now
+app.include_router(ui_router)
 app.include_router(audio_feed_worker_router, prefix="/api/audio_feed_worker")
 app.include_router(camera_feed_worker_router, prefix="/api/camera_feed_worker")
 app.include_router(clarification_planner_router, prefix="/api/clarification_planner")

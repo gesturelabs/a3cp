@@ -11,6 +11,22 @@ Maintainer: Dmitri Katz
 
 ### CHANGELOG - 2025-08-06
 
+[api/main.py]
+- Disabled FastAPI built-in docs (Swagger and ReDoc) to avoid conflict with custom `/docs` page.
+
+[apps/ui/main.py]
+- Added route handlers for `/`, `/demonstrator`, `/docs`, and `/about` serving Jinja2 templates with navigation context.
+
+[apps/ui/templates/]
+- Added base layout with navigation menu including Home, Demonstrator, Docs, About links.
+- Created minimal HTML templates for landing, demonstrator, docs, and about pages.
+
+[requirements.txt]
+- Added `jinja2` and related dependencies for template rendering.
+
+
+### CHANGELOG - 2025-08-06
+
 - Removed legacy pages app (all files and migrations deleted)
 - Removed obsolete streamer app (all files deleted)
 - Deleted ui app routing files (urls.py, views.py) for UI refactor

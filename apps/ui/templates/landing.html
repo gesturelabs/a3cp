@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}A3CP MVP - Landing{% endblock %}
+
+{% block content %}
+<h1>A3CP Project</h1>
+<img src="/static/images/logo.png" alt="Project Logo" style="max-width:200px;" />
+
+<p>Welcome to the Ability-Adaptive Augmentative Communication Platform (A3CP).</p>
+
+<section>
+    <h2>CARE Pipeline Overview</h2>
+    <img src="/static/images/care_pipeline_placeholder.png" alt="CARE pipeline diagram" style="max-width:600px;" />
+</section>
+
+<section>
+    <h2>Demo Teaser</h2>
+    <img src="/static/images/demo_teaser.png" alt="Demo teaser" style="max-width:600px;" />
+</section>
+
+<nav>
+    <a href="/demonstrator">Start Demonstrator</a> |
+    <a href="/about">About</a> |
+    <a href="/docs">Docs</a>
+</nav>
+{% endblock %}

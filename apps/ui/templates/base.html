@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}A3CP MVP{% endblock %}</title>
+    <style>
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+            padding: 0;
+            margin: 0;
+            background: #f0f0f0;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: #333;
+        }
+
+        nav a.active {
+            font-weight: bold;
+            border-bottom: 2px solid #333;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="/" class="{% if current_page == 'landing' %}active{% endif %}">Home</a></li>
+            <li><a href="/demonstrator"
+                    class="{% if current_page == 'demonstrator' %}active{% endif %}">Demonstrator</a></li>
+            <li><a href="/docs" class="{% if current_page == 'docs' %}active{% endif %}">Docs</a></li>
+            <li><a href="/about" class="{% if current_page == 'about' %}active{% endif %}">About</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}
+        <!-- Page specific content goes here -->
+        {% endblock %}
+    </main>
+</body>
+
+</html>
