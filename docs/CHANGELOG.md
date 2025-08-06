@@ -11,6 +11,20 @@ Maintainer: Dmitri Katz
 
 ### CHANGELOG - 2025-08-06
 
+- Removed legacy pages app (all files and migrations deleted)
+- Removed obsolete streamer app (all files deleted)
+- Deleted ui app routing files (urls.py, views.py) for UI refactor
+- Updated docs/FILE_TREE.txt and docs/architecture/a3cp_pipeline.drawio for new structure
+- Added new app folders:
+  - apps/ui/ (initial files and README)
+  - apps/session_manager_start/ and apps/session_manager_end/ scaffolded
+- Created archival folders for legacy code:
+  - apps/old_pages/
+  - apps/old_ui/
+
+
+### CHANGELOG - 2025-08-06
+
 [api/main.py]
 - Updated to import and include separate routers for session start and end.
 - Removed combined session_manager router.

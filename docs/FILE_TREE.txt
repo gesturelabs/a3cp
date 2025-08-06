@@ -148,7 +148,8 @@
 │   │   ├── output_planner_routes.py
 │   │   ├── retraining_scheduler_routes.py
 │   │   ├── schema_recorder_routes.py
-│   │   ├── session_manager_routes.py
+│   │   ├── session_manager_end_routes.py
+│   │   ├── session_manager_start_routes.py
 │   │   ├── sound_classifier_routes.py
 │   │   ├── sound_playback_routes.py
 │   │   ├── speech_context_classifier_routes.py
@@ -158,16 +159,6 @@
 ├── apps
 │   ├── .DS_Store
 │   ├── pages
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── migrations
-│   │   │   └── __init__.py
-│   │   ├── models.py
-│   │   ├── tests.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── streamer
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── apps.py
@@ -417,13 +408,13 @@
 │   │   ├── schema_recorder_input_example.json
 │   │   ├── schema_recorder_output_example.json
 │   │   └── schema_recorder_schema.json
-│   ├── session_manager
+│   ├── session_manager_end
+│   │   ├── __init__.py
+│   │   └── session_manager_end.py
+│   ├── session_manager_start
 │   │   ├── .DS_Store
 │   │   ├── __init__.py
-│   │   ├── session_manager.py
-│   │   ├── session_manager_input_example.json
-│   │   ├── session_manager_output_example.json
-│   │   └── session_manager_schema.json
+│   │   └── session_manager_start.py
 │   ├── sound_classifier
 │   │   ├── .DS_Store
 │   │   ├── __init__.py
@@ -615,7 +606,6 @@
 │   ├── .DS_Store
 │   ├── __init__.py 
 │   ├── api
-│   │   ├── #test_session_manager_routes.py
 │   │   ├── .DS_Store
 │   │   ├── test_audio_feed_worker_routes.py
 │   │   ├── test_camera_feed_worker_routes.py
@@ -642,8 +632,7 @@
 │   │   └── test_visual_environment_classifier_routes.py
 │   ├── conftest.py
 │   ├── schemas
-│   │   └── test_a3cp_message.py
 │   └── utils.py
 └── tmp_requirements.txt
 
-101 directories, 546 files
+100 directories, 536 files
