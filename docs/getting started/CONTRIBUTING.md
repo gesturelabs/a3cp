@@ -62,7 +62,6 @@ Pull requests:
     apps/              Django apps (admin, upload, etc.)
     scripts/           Dev and deployment helpers
     schemas/           Pydantic runtime validation models
-    interfaces/        JSON-based schema specs
     tests/             Test suite
     requirements*.txt  Dependency files
     .env               Local environment config (not committed)

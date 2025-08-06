@@ -11,6 +11,16 @@ Maintainer: Dmitri Katz
 
 ### CHANGELOG - 2025-08-06
 
+[api/main.py, apps/ui/main.py, apps/ui/templates/landing.html]
+- Added FastAPI UI router serving core landing, demonstrator, docs, and about pages.
+- Included UI router in main FastAPI app without URL prefix for root path serving.
+- Verified template rendering with Jinja2 from apps/ui/templates.
+- Confirmed local server runs with uvicorn on port 8000 serving UI pages.
+- Deferred static file serving setup; currently no static assets mounted.
+
+
+### CHANGELOG - 2025-08-06
+
 [api/main.py]
 - Disabled FastAPI built-in docs (Swagger and ReDoc) to avoid conflict with custom `/docs` page.
 
