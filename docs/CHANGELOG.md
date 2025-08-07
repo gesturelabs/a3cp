@@ -9,6 +9,35 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+### CHANGELOG - 2025-08-07
+
+[Deployment]
+- Created systemd service files for FastAPI UI and inference apps
+- Stopped/disbled old Gunicorn and uvicorn services to free ports 8000, 9000
+- Started FastAPI services successfully with systemd
+- Updated Nginx config to proxy '/' to FastAPI UI (8000), '/api/' to inference (9000)
+- Reloaded Nginx and confirmed config syntax
+
+[FastAPI App]
+- Set docs_url="/docs" in api/main.py
+- Registered UI router for pages without prefix
+- Defined routes in apps/ui/main.py for '/', '/demonstrator', '/about', '/docs'
+- Renamed '/docs' route in UI router to avoid conflict with FastAPI docs
+
+[Templates]
+- Verified templates located in apps/ui/templates
+- Adjusted links in templates for '/docs' consistency
+
+[Fixes]
+- Diagnosed and resolved port conflicts causing service failures
+- Cleared stray uvicorn processes manually
+- Verified systemd service status and logs
+
+[Next]
+- Prepared for step-by-step page testing post deployment
+- Noted /docs route not found error pending final fix
+
+
 ### CHANGELOG - 2025-08-06
 
 [api/main.py, apps/ui/main.py, apps/ui/templates/landing.html]

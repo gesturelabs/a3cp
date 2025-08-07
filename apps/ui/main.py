@@ -21,10 +21,10 @@ async def demonstrator_view(request: Request):
     )
 
 
-@router.get("/docs", response_class=HTMLResponse)
+@router.get("/documentation", response_class=HTMLResponse)
 async def docs_view(request: Request):
     return templates.TemplateResponse(
-        "docs.html", {"request": request, "current_page": "docs"}
+        "docs.html", {"request": request, "current_page": "documentation"}
     )
 
 
