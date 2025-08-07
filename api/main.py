@@ -40,7 +40,7 @@ from api.settings import get_settings
 from apps.ui.main import router as ui_router
 
 settings = get_settings()
-app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI(docs_url="/docs", redoc_url=None)
 
 # Include all routers under the same prefix for now
 app.include_router(ui_router)
