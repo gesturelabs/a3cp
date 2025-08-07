@@ -11,6 +11,22 @@ Maintainer: Dmitri Katz
 
 ### CHANGELOG - 2025-08-07
 
+[.gitignore]
+- Added `.venv/`, `test-env/`, and `a3cp-env/` to ignore Python virtual environments
+
+[apps/old_pages/*, apps/old_ui/*]
+- Removed legacy pages and UI modules
+
+[docs/ui/]
+- Added `UI_SPEC.md` and `DEMONSTRATOR_UI_SPEC.md` to define design requirements for the web interface
+
+[test-env/]
+- Removed accidentally committed Python virtualenv files via `git reset`
+- Virtualenv now properly ignored via `.gitignore`
+
+
+### CHANGELOG - 2025-08-07
+
 [Fixes]
 - Diagnosed and resolved systemd startup failure for `a3cp-fastapi-ui`
 - Error was due to port 8000 already bound by legacy `gunicorn` service

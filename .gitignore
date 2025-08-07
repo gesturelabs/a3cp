@@ -1,49 +1,9 @@
-
-# Python artifacts
-__pycache__/
-*.py[cod]
-*.pyd
-
 # Environment + Secrets
 .env
 .env.*
 !.env.example
+
+# Virtual environments
 .venv/
-
-
-# Databases
-*.sqlite3
-*.db
-db.sqlite3
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
-# macOS and editor metadata
-.DS_Store
-.vscode/
-
-# Local virtual environment
+test-env/
 a3cp-env/
-private-key.b64
-
-
-# Deployment configs — ALLOW tracked versions
-!config/settings/prod.py
-!systemd/
-!nginx/
-
-
-
-# Deployment: server-generated content
-/staticfiles/
-/media/
-/local_settings.py
-/deploy/
-/opt/a3cp-app/
-/opt/a3cp-env/
-
-.ruff_cache/
-.pytest_cache/
