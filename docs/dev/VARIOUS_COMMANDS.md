@@ -2,4 +2,4 @@
 tree -a -I '__pycache__|.git|.venv|node_modules|*.pyc|*.log' > docs/FILE_TREE.txt
 
 #activate virtual env
-source .venv/bin/activate
+source a3cp-env/bin/activate

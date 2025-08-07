@@ -10,7 +10,6 @@ A3CP addresses the needs of users—such as children with cerebral palsy or adul
 
 At its core is the **CARE Engine** (Context-Aware Response Engine), which fuses multimodal input (gesture, sound, context), infers communicative intent, and generates symbolic, spoken, or textual output. A3CP scaffolds user expression over time, adapting to both the communicator and their caregivers.
 
-> ⚠️ A3CP is released under a **Creative Commons BY-NC 4.0** license. Commercial use is not permitted.
 
 ## 2. System Goals
 
@@ -45,7 +44,7 @@ Pages:
 - `/ui/docs/` – Schema and API reference
 
 ## 5. Project Structure
-- apps/ # Django apps (streamer, processors, CARE engine, UI)
+- apps/  (streamer, processors, CARE engine, UI)
 - api/ # FastAPI inference endpoints
 - schemas/ # Internal message and log schemas (pydantic)
 - interfaces/ # External schema definitions (JSON Schema)
@@ -56,8 +55,6 @@ Pages:
 
 
 ## 6. License and Use
-
-This project is licensed under **[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)**. You may use, adapt, and share the code **for non-commercial purposes only**. Commercial use requires explicit permission from The Open University and GestureLabs e.V.
 
 See `LICENSE` for full terms.
 

@@ -11,6 +11,29 @@ Maintainer: Dmitri Katz
 
 ### CHANGELOG - 2025-08-07
 
+[CI/CD]
+- Updated `.github/workflows/deploy.yml`:
+  - Uses `set -e` for fail-fast behavior
+  - Adds `pip install --upgrade pip`
+  - Restarts both FastAPI UI and inference services via systemd
+  - Ensures Nginx config is validated and reloaded
+
+[Environment]
+- Transitioned to Python 3.11 for consistency and dependency compatibility
+- Created new virtual environment `a3cp-env`
+- Re-pinned all dependencies in `requirements.txt` to exact versions
+- Removed dev-only tools (e.g., black, pytest) from production deps
+
+[Documentation]
+- Updated `README.md` and `docs/dev/DEPLOYMENT.md` to reflect FastAPI-based stack
+- Rewrote Nginx reverse proxy, systemd, and environment setup sections
+- Updated `docs/dev/VARIOUS_COMMANDS.md` to remove legacy Django references
+
+[Cleanup]
+- Ignored local `test-env/` used for verifying requirements on Python 3.11
+
+### CHANGELOG - 2025-08-07
+
 [Deployment]
 - Created systemd service files for FastAPI UI and inference apps
 - Stopped/disbled old Gunicorn and uvicorn services to free ports 8000, 9000

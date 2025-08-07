@@ -36,17 +36,17 @@ renewal.
    ufw enable
    ufw status verbose
 
---------------------------------------------------------------------
+---------------------------------------------------------------------
  3. NGINX INSTALLATION AND CONFIGURATION
 --------------------------------------------------------------------
 
  A. Install Nginx:
 
-   apt install nginx -y
-   systemctl enable nginx
-   systemctl start nginx
+   sudo apt install nginx -y
+   sudo systemctl enable nginx
+   sudo systemctl start nginx
 
- B. Basic Nginx Config:
+ B. Nginx Reverse Proxy Configuration:
 
  Edit the file: /etc/nginx/sites-available/default
 
@@ -63,81 +63,99 @@ renewal.
        ssl_certificate /etc/letsencrypt/live/gesturelabs.org/fullchain.pem;
        ssl_certificate_key /etc/letsencrypt/live/gesturelabs.org/privkey.pem;
 
+       # Proxy root path (UI) to FastAPI UI service on port 8000
        location / {
            proxy_pass http://127.0.0.1:8000;
            include proxy_params;
+           proxy_redirect off;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection "upgrade";
+           proxy_set_header Host $host;
        }
 
-      # Proxy all FastAPI routes (e.g., /api/sound/infer/, /api/gesture/infer/)
-      location /api/ {
-          proxy_pass http://127.0.0.1:9000;
-          include proxy_params;
-          proxy_redirect off;
-          proxy_http_version 1.1;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection "upgrade";
-          proxy_set_header Host $host;
-      }
-
+       # Proxy API endpoints to FastAPI inference service on port 9000
+       location /api/ {
+           proxy_pass http://127.0.0.1:9000;
+           include proxy_params;
+           proxy_redirect off;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection "upgrade";
+           proxy_set_header Host $host;
+       }
    }
 
+ C. Restart Nginx after changes:
 
-FastAPI Reverse Proxy Notes:
+   sudo nginx -t
+   sudo systemctl reload nginx
 
-    The FastAPI app runs on port 9000 and exposes routes like /api/sound/infer/, /api/gesture/infer/, etc.
+ Notes:
+ - Port 8000: FastAPI UI (e.g., `/`, `/about`, `/docs`)
+ - Port 9000: FastAPI inference API (e.g., `/api/gesture/infer/`, `/api/sound/infer/`)
+ - The upgrade headers ensure compatibility with future WebSocket-based endpoints.
+ - Make sure your systemd services bind to 127.0.0.1 on these ports.
 
-    The /api/ location block proxies all such requests to the inference server.
-
-    proxy_redirect off and the upgrade headers ensure compatibility with future websocket-based endpoints (e.g., live input streaming).
-
-    The proxy_pass target must match the bind address of the FastAPI process (default is 127.0.0.1:9000 if using uvicorn or gunicorn -k uvicorn.workers.UvicornWorker).
-    
- Restart Nginx:
-
-   systemctl restart nginx
 
 --------------------------------------------------------------------
- 4. PYTHON ENVIRONMENT AND GUNICORN
+--------------------------------------------------------------------
+ 4. PYTHON ENVIRONMENT AND FASTAPI DEPLOYMENT
 --------------------------------------------------------------------
 
- A. Install Python venv tools:
+ A. Install required tools (if not already installed):
 
-   apt install python3-venv -y
+   sudo apt update
+   sudo apt install python3.11 python3.11-venv -y
 
- B. Create virtual environment:
+ B. Create and activate virtual environment:
 
-   python3 -m venv /opt/a3cp-env
+   python3.11 -m venv /opt/a3cp-env
    source /opt/a3cp-env/bin/activate
 
- C. Install Gunicorn:
+ C. Upgrade pip and install production dependencies:
 
-   pip install gunicorn
+   pip install --upgrade pip
+   pip install -r /opt/a3cp-app/requirements.txt
+
+ D. (Optional) Confirm Gunicorn version:
+
    /opt/a3cp-env/bin/gunicorn --version
 
+ Notes:
+ - This environment is used by systemd to run both the UI and inference FastAPI apps.
+ - Ensure Python 3.11+ is available system-wide or specify absolute path to python3.11 in service files.
+
 --------------------------------------------------------------------
- 5. OPTIONAL: GUNICORN SYSTEMD SERVICE
+ 5. SYSTEMD SERVICE: FASTAPI UI APP (via Uvicorn)
 --------------------------------------------------------------------
 
- Create file: /etc/systemd/system/a3cp-gunicorn.service
+ Create file: /etc/systemd/system/a3cp-fastapi-ui.service
 
    [Unit]
-   Description=Gunicorn service for A3CP Django app
+   Description=FastAPI UI service for A3CP (served via Uvicorn)
    After=network.target
 
    [Service]
    User=root
    WorkingDirectory=/opt/a3cp-app
-   ExecStart=/opt/a3cp-env/bin/gunicorn a3cp.wsgi:application --bind 127.0.0.1:8000
+   ExecStart=/opt/a3cp-env/bin/uvicorn apps.ui.main:app --host 127.0.0.1 --port 8000
    Restart=always
+   Environment="PYTHONUNBUFFERED=1"
 
    [Install]
    WantedBy=multi-user.target
 
- Activate the service:
+ Activate and start the service:
 
-   systemctl daemon-reexec
-   systemctl enable a3cp-gunicorn
-   systemctl start a3cp-gunicorn
+   sudo systemctl daemon-reexec
+   sudo systemctl enable a3cp-fastapi-ui
+   sudo systemctl start a3cp-fastapi-ui
+
+ Notes:
+ - Replace `apps.ui.main:app` if your UI app is located elsewhere.
+ - Make sure `/opt/a3cp-env/` is your active Python 3.11 environment.
+
 
 --------------------------------------------------------------------
  6. HTTPS WITH CERTBOT (LET’S ENCRYPT)
@@ -170,25 +188,25 @@ FastAPI Reverse Proxy Notes:
 
 # A3CP Deployment: Essential Service Commands
 
-These are the three main commands for managing the A3CP deployment services:
+These are the core commands for managing the A3CP deployment services.
 
-1. Restart Gunicorn (Django app server)
+1. Restart FastAPI UI App (Uvicorn via systemd)
 --------------------------------------------------
-sudo systemctl restart a3cp-gunicorn
+sudo systemctl restart a3cp-fastapi-ui
 
 Use this when:
-- You change Python code (e.g., views.py, models.py, settings.py)
-- You install new Python packages
-- You want to restart the Django app without rebooting the server
+- You change Python code in the UI app (e.g., route handlers, templates)
+- You install or update Python packages used by the UI
+- You want to restart the FastAPI UI app without rebooting the server
 
-2. Check Gunicorn Status
+2. Check UI App Status
 --------------------------------------------------
-systemctl status a3cp-gunicorn
+systemctl status a3cp-fastapi-ui
 
 Use this to:
-- See if the Django app server is running
-- Check for errors or recent logs from Gunicorn
-- Verify that a restart was successful
+- See if the FastAPI UI app is running
+- Check for errors or recent logs
+- Confirm that a restart was successful
 
 3. Restart Nginx (Web server / reverse proxy)
 --------------------------------------------------
@@ -196,51 +214,61 @@ sudo systemctl restart nginx
 
 Use this when:
 - You change the Nginx configuration (e.g., `/etc/nginx/sites-available/`)
-- You want to reload static files or domains
-- You suspect issues with routing or SSL
+- You add or remove routes (e.g., `/api/`, `/docs/`)
+- You suspect issues with routing, headers, or SSL
 
-Tip: After any command, check the app in the browser to confirm it's working.
+Tip: After any command, test the deployment in the browser to confirm it's working:
+http://<your-server-ip>/ and http://<your-server-ip>/docs
+
 
 --------------------------------------------------------------------
  8. DEVELOPMENT NOTES
 --------------------------------------------------------------------
 
- A. Avoiding `runserver` for Core Development
+ A. No `runserver` — All Development Uses FastAPI + Uvicorn
 
- The Django development server (`python manage.py runserver`) is NOT used
- in A3CP development. This is intentional.
+ The Django development server (`python manage.py runserver`) is NO LONGER
+ USED in A3CP. Development has fully transitioned to FastAPI.
 
- Many A3CP features (e.g., HTMX, HTTPS-only APIs, FastAPI endpoints,
- browser media access) behave differently or fail under local HTTP.
+ Many A3CP features — including HTMX-based UI, API routing, browser media
+ access, and future WebSocket support — behave inconsistently under Django's
+ local development server or plain HTTP.
 
  For consistency, all development is done directly on the production-like
- VPS environment (Ubuntu + Gunicorn + Nginx + HTTPS).
+ VPS environment (Ubuntu + Uvicorn + Nginx + HTTPS).
 
- B. Use `scripts/dev.sh` Instead
+ B. Use `scripts/dev.sh` Instead (if retained)
 
- A helper script is provided to activate the Python virtual environment
- and safely use Django CLI tools.
+ If your project still includes Django components (e.g., admin utilities or
+ legacy data tooling), you can use the helper script `scripts/dev.sh` to
+ activate the correct environment and run safe management commands.
 
  Example usage:
 
    ./scripts/dev.sh migrate
    ./scripts/dev.sh createsuperuser
-   ./scripts/dev.sh test
    ./scripts/dev.sh shell
 
- This ensures a clean, repeatable setup using production paths and env.
+ This avoids hardcoded paths and ensures you are using the correct
+ Python 3.11+ environment.
 
- DO NOT use `python manage.py runserver` unless explicitly debugging.
-
+ DO NOT use `python manage.py runserver` unless you are debugging a legacy
+ Django component in isolation.
 
 --------------------------------------------------------------------
- 8. TO DO (POST-DEPLOYMENT)
+ 9. TO DO (POST-DEPLOYMENT)
 --------------------------------------------------------------------
 
- - Clone Django + FastAPI codebase from GitHub
- - Set up FastAPI app to run on port 9000
- - Create systemd or supervisor service for FastAPI
- - Connect PostgreSQL or other database if needed
+ - Verify all UI routes render correctly over HTTPS
+ - Confirm `/docs` now correctly serves FastAPI Swagger UI
+ - Finalize systemd services for:
+     - `a3cp-fastapi-ui` (serving on port 8000)
+     - `a3cp-fastapi-inference` (serving on port 9000)
+ - Ensure `/api/` routes proxy to inference service in Nginx config
+ - Replace all legacy references to Gunicorn + Django in scripts and docs
+ - Add healthcheck endpoints for monitoring integration
+ - Implement lightweight smoke tests for CI post-deploy validation
+
 
 ====================================================================
  END OF DEPLOYMENT INSTRUCTIONS

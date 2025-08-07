@@ -29,11 +29,14 @@ jobs:
           key: ${{ secrets.VPS_KEY }}
           port: 22
           script: |
+            set -e
             cd /opt/a3cp-app
             git fetch origin
             git reset --hard origin/main
             source /opt/a3cp-env/bin/activate
+            pip install --upgrade pip
             pip install -r requirements.txt
-            python manage.py migrate --settings=config.settings.prod
-            python manage.py collectstatic --noinput --settings=config.settings.prod
-            sudo systemctl restart a3cp-gunicorn
+            sudo nginx -t
+            sudo systemctl reload nginx
+            sudo systemctl restart a3cp-fastapi-ui
+            sudo systemctl restart a3cp-fastapi-inference
