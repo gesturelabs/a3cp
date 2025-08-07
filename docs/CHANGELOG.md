@@ -11,6 +11,30 @@ Maintainer: Dmitri Katz
 
 ### CHANGELOG - 2025-08-07
 
+[Fixes]
+- Diagnosed and resolved systemd startup failure for `a3cp-fastapi-ui`
+- Error was due to port 8000 already bound by legacy `gunicorn` service
+- Verified with: `sudo lsof -i :8000`
+- Stopped and disabled `a3cp-gunicorn` to free port:
+    sudo systemctl stop a3cp-gunicorn
+    sudo systemctl disable a3cp-gunicorn
+
+[Deployment]
+- Restarted `a3cp-fastapi-ui` successfully via systemd
+- Confirmed application starts cleanly and serves:
+    - `/`, `/about`, `/demonstrator`, `/docs` (UI)
+    - `/api/...` routes via FastAPI inference
+- All routes confirmed working over HTTPS
+
+[Next]
+- Optionally remove gunicorn systemd unit permanently:
+    sudo rm /etc/systemd/system/a3cp-gunicorn.service
+    sudo systemctl daemon-reload
+- Monitor future deploys to confirm no lingering port conflicts
+
+
+### CHANGELOG - 2025-08-07
+
 [CI/CD]
 - Updated `.github/workflows/deploy.yml`:
   - Uses `set -e` for fail-fast behavior
