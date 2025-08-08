@@ -1,0 +1,30 @@
+{
+  "name": "a3cp_gesturelabs_webapp",
+  "version": "1.0.0",
+  "description": "**A3CP** is an open, modular framework for augmentative communication designed for individuals with complex communication needs who are not well served by conventional AAC systems. Funded by The Open University and developed in collaboration with GestureLabs e.V., A3CP prioritizes adaptability, explainability, and long-term personalization.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gesturelabs/a3cp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gesturelabs/a3cp/issues"
+  },
+  "homepage": "https://github.com/gesturelabs/a3cp#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "tailwindcss-cli": "^0.1.2"
+  }
+}
