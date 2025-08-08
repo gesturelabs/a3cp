@@ -10,6 +10,14 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 ### CHANGELOG - 2025-08-07
+[landing.html]
+- Updated layout to apply mobile-friendly section containers using Tailwind
+- Styled CARE Pipeline and Demo Teaser sections with bg-gray-50, padding, rounded corners
+- Centered all content and images with responsive max-widths
+- Converted bottom nav links into proper CTA buttons for accessibility
+
+
+### CHANGELOG - 2025-08-07
 
 [.gitignore]
 - Added `.venv/`, `test-env/`, and `a3cp-env/` to ignore Python virtual environments
