@@ -9,6 +9,38 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+CHANGELOG — 2025-08-11
+
+Added
+- apps/session_manager/ (new unified module scaffold)
+  - __init__.py
+  - config.py
+  - idgen.py
+  - domain.py
+  - repository.py
+  - service.py
+  - routes/__init__.py
+  - routes/sessions.py
+  - tests/__init__.py
+  - tests/test_service.py
+  - tests/test_repository.py
+  - tests/test_routes.py
+- docs/modules/session_manager/todo_list.md
+
+Removed
+- apps/session_manager_start/ (deprecated split module)
+  - README.md, __init__.py, dependencies.py, main.py,
+    services.py, tests/__init__.py, utils.py
+- apps/session_manager_end/ (deprecated split module)
+  - README.md, __init__.py, dependencies.py, main.py,
+    services.py, tests/__init__.py, utils.py
+- required.txt (redundant; using requirements*.txt)
+
+Notes
+- Routes will be exposed via unified router: /session_manager/sessions.start, .heartbeat, .end
+- Central schemas remain the single source of truth; module imports them (no local copies).
+
+
 ### CHANGELOG - 2025-08-07
 [landing.html]
 - Updated layout to apply mobile-friendly section containers using Tailwind
