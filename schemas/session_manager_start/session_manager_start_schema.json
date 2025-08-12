@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/session_manager_start_schema.json",
+  "title": "Session Manager Start Schema",
+  "description": "Schema for session_manager_start input and output messages.",
+  "type": "object",
+  "$defs": {
+    "SessionStartResponse": {
+      "description": "Canonical output schema returned to UI or caller after session creation.\nInherits common metadata from BaseSchema.",
+      "properties": {
+        "schema_version": {
+          "description": "Semantic version of the schema (MAJOR.MINOR.PATCH)",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "description": "Unique ID for this message (UUIDv4)",
+          "format": "uuid",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Pseudonymous user identifier",
+          "title": "User Id",
+          "type": "string"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "description": "Session ID grouping related inputs; assigned by session_manager",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        },
+        "timestamp": {
+          "description": "UTC ISO 8601 timestamp with milliseconds and 'Z' suffix",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "modality": {
+          "anyOf": [
+            {
+              "description": "Modality of input or message",
+              "enum": [
+                "gesture",
+                "audio",
+                "speech",
+                "image",
+                "multimodal"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modality"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "description": "Originating module or component name (e.g., 'gesture_classifier', 'session_manager')",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "performer_id": {
+          "anyOf": [
+            {
+              "description": "Person performing input; required for human-originated data, may differ from user_id; use 'system' for system-generated inputs",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Performer Id"
+        },
+        "start_time": {
+          "description": "UTC timestamp when session started",
+          "format": "date-time",
+          "title": "Start Time",
+          "type": "string"
+        },
+        "is_training_data": {
+          "description": "Flag indicating training session",
+          "title": "Is Training Data",
+          "type": "boolean"
+        },
+        "session_notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Echoed notes or context about the session",
+          "title": "Session Notes"
+        },
+        "training_intent_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Echoed intent label if this is a training session",
+          "title": "Training Intent Label"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_id",
+        "user_id",
+        "timestamp",
+        "start_time",
+        "is_training_data"
+      ],
+      "title": "SessionStartResponse",
+      "type": "object"
+    }
+  }
+}

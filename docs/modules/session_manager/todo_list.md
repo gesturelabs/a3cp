@@ -17,7 +17,7 @@ PHASE 0 — Bootstrap & Scaffolding
       ensure api/main.py includes the router
 
 PHASE 1 — Schemas (single source of truth, central repo)
-[ ] SM-SCH-01: Implement/confirm central schemas:
+[x ] SM-SCH-01: Implement/confirm central schemas:
       schemas/session_manager_start/session_manager_start.py (StartRequest/Response)
       schemas/session_manager_end/session_manager_end.py (EndEvent with record_id)
       (optional MVP) schemas/session_manager_heartbeat.py (simple heartbeat)

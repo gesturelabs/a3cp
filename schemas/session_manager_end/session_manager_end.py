@@ -1,8 +1,10 @@
+# schemas/session_manager_end/session_manager_end.py
+
 from datetime import datetime, timezone
 
 from pydantic import Field
 
-from schemas.base.base_schema import BaseSchema
+from schemas.base.base import BaseSchema
 
 
 class SessionEndEvent(BaseSchema):

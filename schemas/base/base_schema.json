@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/base_schema.json",
+  "title": "Base Schema",
+  "description": "Schema for base input and output messages.",
+  "type": "object",
+  "$defs": {
+    "BaseSchema": {
+      "properties": {
+        "schema_version": {
+          "description": "Semantic version of the schema (MAJOR.MINOR.PATCH)",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "description": "Unique ID for this message (UUIDv4)",
+          "format": "uuid",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Pseudonymous user identifier",
+          "title": "User Id",
+          "type": "string"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "description": "Session ID grouping related inputs; assigned by session_manager",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        },
+        "timestamp": {
+          "description": "UTC ISO 8601 timestamp with milliseconds and 'Z' suffix",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "modality": {
+          "anyOf": [
+            {
+              "description": "Modality of input or message",
+              "enum": [
+                "gesture",
+                "audio",
+                "speech",
+                "image",
+                "multimodal"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modality"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "description": "Originating module or component name (e.g., 'gesture_classifier', 'session_manager')",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "performer_id": {
+          "anyOf": [
+            {
+              "description": "Person performing input; required for human-originated data, may differ from user_id; use 'system' for system-generated inputs",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Performer Id"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_id",
+        "user_id",
+        "timestamp"
+      ],
+      "title": "BaseSchema",
+      "type": "object"
+    }
+  }
+}

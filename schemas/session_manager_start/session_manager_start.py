@@ -1,9 +1,10 @@
+# schemas/session_manager_start/session_manager_start.py
 from datetime import datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from schemas.base.base_schema import BaseSchema
+from schemas.base.base import BaseSchema
 
 
 class SessionStartRequest(BaseModel):

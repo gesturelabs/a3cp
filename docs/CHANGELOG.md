@@ -9,6 +9,29 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2025-08-12] Schema import and structure fixes
+
+### Changed
+- scripts/generate_schemas_from_master.py
+  - Added repo root path injection to ensure absolute imports (`from schemas...`) work when loading modules by file path.
+
+- schemas/session_manager_start/session_manager_start.py
+  - Confirmed correct BaseSchema import path and kept one-input/one-output structure.
+
+- schemas/session_manager_end/session_manager_end.py
+  - Confirmed correct BaseSchema import path and kept one-input/one-output structure.
+
+### Removed
+- Deleted obsolete schemas/utils/ directory and validate.py helper — schema utilities are now handled outside the schemas package.
+- Removed compiled bytecode caches (`__pycache__`) from version control across multiple schema directories.
+- Deleted unused schemas/a3cp_core/a3cp_message.py in preparation for renaming to schemas/a3cp_message/.
+
+### Added
+- schemas/base/__init__.py to ensure base schema package is discoverable by generator and imports.
+- New schemas/a3cp_message/ folder (empty placeholder for renamed A3CPMessage schema).
+
+
+
 ## [2025-08-12] SM-API-00 – Central wiring files (thin integration)
 
 ### Added
@@ -57,7 +80,7 @@ Maintainer: Dmitri Katz
 - required.txt (redundant; using requirements*.txt)
 
 ### Notes
-- Routes will be exposed via unified router: /session_manager/sessions.start, .heartbeat, .end
+- Routes will be exposed via unified router: /session_manager/sessions.start, .heartbeat (post-mvp), .end
 - Central schemas remain the single source of truth; module imports them (no local copies).
 
 

@@ -8,14 +8,19 @@ from typing import Type
 
 from pydantic import BaseModel
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 SCHEMAS_DIR = Path("schemas")
 SCHEMA_BASE_URL = "https://gesturelabs.org/schemas/"
 
 
 def find_schema_files():
+    ignore = {"__pycache__", ".pytest_cache", ".DS_Store"}
     schema_targets = []
     for folder in SCHEMAS_DIR.iterdir():
-        if folder.is_dir():
+        if folder.is_dir() and folder.name not in ignore:
             expected_file = folder / f"{folder.name}.py"
             if expected_file.exists():
                 schema_targets.append((folder.name, folder, expected_file))

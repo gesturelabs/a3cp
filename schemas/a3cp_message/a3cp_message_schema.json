@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gesturelabs.org/schemas/a3cp_message_schema.json",
+  "title": "A3Cp Message Schema",
+  "description": "Schema for a3cp_message input and output messages.",
+  "type": "object",
+  "$defs": {
+    "A3CPMessage": {
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "default": "1.1.0",
+          "examples": [
+            "1.1.0"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "format": "uuid",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "user_id": {
+          "title": "User Id",
+          "type": "string"
+        },
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "modality": {
+          "enum": [
+            "gesture",
+            "audio",
+            "speech",
+            "image",
+            "multimodal"
+          ],
+          "title": "Modality",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "communicator",
+            "caregiver",
+            "system"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "record_id",
+        "user_id",
+        "session_id",
+        "timestamp",
+        "modality",
+        "source"
+      ],
+      "title": "A3CPMessage",
+      "type": "object"
+    }
+  }
+}
