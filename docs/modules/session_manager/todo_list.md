@@ -1,5 +1,5 @@
 PHASE 0 — Bootstrap & Scaffolding
-[ ] SM-APP-00: Create module scaffold
+[ x] SM-APP-00: Create module scaffold
       apps/session_manager/__init__.py
       apps/session_manager/config.py
       apps/session_manager/idgen.py
@@ -12,7 +12,7 @@ PHASE 0 — Bootstrap & Scaffolding
       apps/session_manager/tests/test_service.py
       apps/session_manager/tests/test_repository.py
       apps/session_manager/tests/test_routes.py
-[ ] SM-API-00: Central wiring files (thin integration)
+[ x] SM-API-00: Central wiring files (thin integration)
       api/routes/session_manager_routes.py
       ensure api/main.py includes the router
 

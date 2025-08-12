@@ -9,9 +9,29 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
-CHANGELOG — 2025-08-11
+## [2025-08-12] SM-API-00 – Central wiring files (thin integration)
 
-Added
+### Added
+- Unified `session_manager` API routes into a single file: `api/routes/session_manager_routes.py`.
+  - Includes both `/session_manager/sessions.start` and `/session_manager/sessions.end` endpoints.
+  - Added `prefix="/session_manager"` and `tags=["session_manager"]` to centralize namespace and documentation grouping.
+  - Updated `sessions.end` path to dot-style naming per backlog.
+
+### Changed
+- Updated `api/main.py` to include only the unified `session_manager_router` with no extra prefix.
+- Removed old `session_manager_start_routes.py` and `session_manager_end_routes.py` to avoid duplicate mounting.
+- Consolidated temporary in-memory `_sessions` store for start/end stubs.
+
+### Verification
+- Verified in Swagger UI:
+  - `/session_manager/sessions.start` and `/session_manager/sessions.end` each appear once under the `session_manager` tag.
+  - No duplicate `/session_manager/session_manager/...` paths.
+- Tested locally via `uvicorn api.main:app --reload` and confirmed schema rendering matches central schema files.
+
+
+### CHANGELOG — 2025-08-11
+
+### Added
 - apps/session_manager/ (new unified module scaffold)
   - __init__.py
   - config.py
@@ -27,7 +47,7 @@ Added
   - tests/test_routes.py
 - docs/modules/session_manager/todo_list.md
 
-Removed
+### Removed
 - apps/session_manager_start/ (deprecated split module)
   - README.md, __init__.py, dependencies.py, main.py,
     services.py, tests/__init__.py, utils.py
@@ -36,7 +56,7 @@ Removed
     services.py, tests/__init__.py, utils.py
 - required.txt (redundant; using requirements*.txt)
 
-Notes
+### Notes
 - Routes will be exposed via unified router: /session_manager/sessions.start, .heartbeat, .end
 - Central schemas remain the single source of truth; module imports them (no local copies).
 
