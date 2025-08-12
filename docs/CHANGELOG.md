@@ -9,6 +9,59 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2025-08-12 — Schema Import Refactor Discussion
+
+### Context
+- Goal: Adopt a best-practices, centralized schema import pattern for all API routes.
+- Trigger: Pylance errors after switching to importing from `schemas/__init__.py`.
+
+### Changes / Decisions
+- Discussed why to centralize schema imports:
+  - Stable public API for schemas.
+  - Refactor-proof route imports.
+  - Consistency and discoverability for new contributors.
+  - Easier to lint/enforce.
+- Identified strengths/weaknesses of approach:
+  - Strengths: predictable names, fewer breakages, clear contract.
+  - Weaknesses: potential hub bloat, naming churn, possible circular imports.
+- Reviewed `schemas/audio_feed_worker.py` as example:
+  - `AudioFeedWorkerConfig` = likely Input.
+  - `AudioChunkMetadata` = likely Output.
+  - Found misplaced `example_input()` method in `AudioChunkMetadata`.
+- Proposed public API naming pattern:
+  - Re-export internal model names as `<Module>Input` / `<Module>Output` in `schemas/__init__.py`.
+  - Keep legacy exports temporarily, mark as deprecated.
+- Example for audio feed worker:
+  ```python
+  from .audio_feed_worker.audio_feed_worker import (
+      AudioFeedWorkerConfig as AudioFeedWorkerInput,
+      AudioChunkMetadata    as AudioFeedWorkerOutput,
+  )
+
+    Route usage example updated:
+
+from schemas import AudioFeedWorkerInput, AudioFeedWorkerOutput
+
+Established enforcement rules:
+
+    Only import schemas in routes via from schemas import <Module>Input, <Module>Output.
+
+    CI/lint to forbid direct submodule imports in routes.
+
+    Document contributor guidelines for schema exposure.
+
+Action plan agreed:
+
+    Add alias exports for each schema module in schemas/__init__.py.
+
+    Remove misplaced example_input() from output models.
+
+    Update one route at a time; verify no Pylance errors.
+
+    Roll out to all modules.
+
+
+
 ## [2025-08-12] Schema import and structure fixes
 
 ### Changed
