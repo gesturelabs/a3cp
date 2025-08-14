@@ -1,6 +1,6 @@
 Schema Import Refactor Plan
 ===========================
-
+### policy and rational
 Objectives
 ----------
 1. Single public surface for schemas: from schemas import <Module>Input, <Module>Output only.
@@ -63,8 +63,11 @@ Pitfalls
 - Prevent shadowing by using unique public aliases.
 
 
-
+### ------------------------------
 # Per-Module Schema Refactor Workflow (ASCII Plan)
+### ------------------------------
+
+
 
 ## 0) Preconditions
 - Confirm module exists in `docs/modules/<module>.md` and `schemas/<module>/<module>.py`.

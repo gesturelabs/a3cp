@@ -9,6 +9,41 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2025-08-14] SM-SCHEMA-01 – Session Manager schema & API refactor
+
+### Changed
+- `schemas/session_manager_start/session_manager_start.py`
+  - Refactored to `SessionStartInput` / `SessionStartOutput` naming for spec compliance.
+  - Added explicit `session_id` handling per MVP rules.
+- `schemas/session_manager_end/session_manager_end.py`
+  - Updated for spec compliance and consistent example I/O.
+
+- `schemas/base/base.py`
+  - Hardened base schema imports and validation rules.
+
+- `schemas/audio_feed_worker/audio_feed_worker.py`
+  - Adjusted for consistent naming and spec alignment.
+
+- `api/routes/session_manager_routes.py`
+  - Merged start/end logic into unified session manager route file.
+  - Enforced in-memory store for MVP with explicit validation.
+- `api/routes/audio_feed_worker_routes.py`
+  - Updated imports for schema changes.
+
+- `api/main.py`
+  - Mounted only `session_manager_router` for MVP testing.
+- `api/__init__.py`
+  - Cleaned imports and package init logic.
+
+- `docs/modules/session_manager/schema_refactor.md`
+  - Updated to reflect new schema names and validation changes.
+- `docs/schemas/SCHEMA_REFACTOR_PLAN.md`
+  - Revised for single-source naming rules and compliance notes.
+
+### Removed
+- Deleted `.pycache` and `.DS_Store` artifacts across repo for cleanliness.
+
+
 ## [2025-08-14] SM-SCHEMA-01 — Session Manager Schema Refactor Planning
 
 ### Added

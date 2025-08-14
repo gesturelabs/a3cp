@@ -1,5 +1,6 @@
+# schemas/audio_feed_worker.py
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -9,49 +10,29 @@ class AudioFeedWorkerConfig(BaseModel):
     sample_rate: int = Field(..., description="Target sample rate in Hz, e.g., 16000")
     chunk_size: int = Field(..., description="Internal buffer size (not logged)")
 
-    @staticmethod
-    def example_input() -> dict:
-        return {"device_index": 0, "sample_rate": 16000, "chunk_size": 512}
-
-    @staticmethod
-    def example_output() -> dict:
-        # Config is not expected to produce output in normal flow
-        return AudioFeedWorkerConfig.example_input()
-
 
 class AudioChunkMetadata(BaseModel):
     timestamp: datetime = Field(
         ..., description="UTC ISO 8601 timestamp of audio capture"
     )
-    device_id: Optional[str] = Field(
-        None, description="Device ID or label for hardware source"
-    )
-    sample_rate: int = Field(..., description="Sample rate used during capture")
-    waveform_format: Literal["bytes", "base64", "ndarray"] = Field(
-        ..., description="Encoding format used for audio_payload"
-    )
-    audio_payload: str = Field(
-        ..., description="Waveform data as encoded string or blob reference"
-    )
-    modality: Literal["audio"] = "audio"
-    source: Literal["communicator"] = "communicator"
-    error: Optional[str] = Field(
-        None, description="Optional error message if capture failed"
-    )
+    device_id: Optional[str] = Field(None, description="Driver/device identifier")
+    sample_rate: int = Field(..., description="Sampling rate (Hz)")
+    num_frames: int = Field(..., description="Frames in this chunk")
+    dtype: str = Field(..., description="PCM dtype, e.g., int16")
+    channels: int = Field(..., description="Number of channels")
 
-    @staticmethod
-    def example_input() -> dict:
-        return {"device_index": 0, "sample_rate": 16000, "chunk_size": 512}
 
-    @staticmethod
-    def example_output() -> dict:
-        return {
-            "timestamp": "2025-07-09T09:12:34.567Z",
-            "device_id": "mic_usb_01",
-            "sample_rate": 16000,
-            "waveform_format": "base64",
-            "audio_payload": "UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YcAAAA==",
-            "modality": "audio",
-            "source": "communicator",
-            "error": None,
-        }
+# Single source of truth for examples (module-level)
+def example_input() -> dict:
+    return {"device_index": 0, "sample_rate": 16000, "chunk_size": 512}
+
+
+def example_output() -> dict:
+    return {
+        "timestamp": datetime.utcnow().isoformat(timespec="milliseconds") + "Z",
+        "device_id": "mic-0",
+        "sample_rate": 16000,
+        "num_frames": 512,
+        "dtype": "int16",
+        "channels": 1,
+    }

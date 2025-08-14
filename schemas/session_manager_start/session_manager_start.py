@@ -1,21 +1,22 @@
-# schemas/session_manager_start/session_manager_start.py
+# schemas/session_manager/session_manager_start.py
+
 from datetime import datetime, timezone
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field, field_validator
 
 from schemas.base.base import BaseSchema
 
 
-class SessionStartRequest(BaseModel):
+class SessionStartInput(BaseSchema):
     """
     Canonical input schema from UI or other sources to start a session.
+    Extends BaseSchema for versioning, record_id, user_id, timestamp, etc.
     """
 
-    user_id: str = Field(..., description="Pseudonymous user identifier")
     is_training_data: Optional[bool] = Field(
         default=False,
-        description="Flag indicating if this session is for labeled training data",
+        description="True if session is intended for labeled training data",
     )
     session_notes: Optional[str] = Field(
         default=None,
@@ -23,7 +24,8 @@ class SessionStartRequest(BaseModel):
     )
     performer_id: Optional[str] = Field(
         default=None,
-        description="Identifier for the actual input actor if different from user_id",
+        description="Identifier for the actor initiating the session; "
+        "defaults to user_id if omitted",
     )
     training_intent_label: Optional[str] = Field(
         default=None,
@@ -33,7 +35,10 @@ class SessionStartRequest(BaseModel):
     @staticmethod
     def example_input() -> dict:
         return {
+            "schema_version": "1.0.1",
+            "record_id": "07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56",
             "user_id": "elias01",
+            "timestamp": "2025-07-28T14:00:00.000Z",
             "is_training_data": True,
             "session_notes": "Training session with carer miming gestures",
             "performer_id": "carer01",
@@ -41,10 +46,11 @@ class SessionStartRequest(BaseModel):
         }
 
 
-class SessionStartResponse(BaseSchema):
+class SessionStartOutput(BaseSchema):
     """
-    Canonical output schema returned to UI or caller after session creation.
-    Inherits common metadata from BaseSchema.
+    Canonical output schema returned after session creation.
+    Inherits common metadata from BaseSchema and enforces that
+    session_id is always present in valid outputs.
     """
 
     start_time: datetime = Field(..., description="UTC timestamp when session started")
@@ -53,10 +59,16 @@ class SessionStartResponse(BaseSchema):
         default=None, description="Echoed notes or context about the session"
     )
     training_intent_label: Optional[str] = Field(
-        default=None,
-        description="Echoed intent label if this is a training session",
+        default=None, description="Echoed intent label if this is a training session"
     )
-    # performer_id, modality, source inherited optionally from BaseSchema
+
+    # Runtime enforcement: session_id must not be None
+    @field_validator("session_id")
+    @classmethod
+    def _require_session_id(cls, v: Optional[str]) -> str:
+        if not v:
+            raise ValueError("session_id is required in SessionStartOutput")
+        return v
 
     class Config:
         json_encoders = {

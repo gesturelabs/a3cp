@@ -13,8 +13,8 @@ Repo context (relevant paths):
 ---
 
 ## 0) Pre-flight (tidy + invariants)
-[ ] Remove transient files in tree (notably many `.DS_Store` under `/`, `/api`, `/apps`, `/docs`, `/schemas`, `/tests`, `/.github`, `/.ruff_cache`).
-[ ] Confirm the invariant: **one Python file per schema module drives generation** (true for session_manager_start/end).
+[ x] Remove transient files in tree (notably many `.DS_Store` under `/`, `/api`, `/apps`, `/docs`, `/schemas`, `/tests`, `/.github`, `/.ruff_cache`).
+[ x] Confirm the invariant: **one Python file per schema module drives generation** (true for session_manager_start/end).
 [ ] Ensure `api/main.py` boots (even with stub routes).
 
 **Exit criteria**
