@@ -9,6 +9,30 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2025-08-14] SM-SCHEMA-01 — Session Manager Schema Refactor Planning
+
+### Added
+- `docs/modules/session_manager/schema_refactor.md`:
+  - Full per-module refactor workflow for `session_manager` (start/end schemas → single public API).
+  - Gate-based execution plan from pre-flight to decommission.
+- `docs/schemas/SCHEMA_REFACTOR_PLAN.md`:
+  - Consolidated objectives and guardrail strategy for schema import pattern.
+  - Public aliasing rules, generator alignment notes, and CI guardrail test definitions.
+
+### Changed
+- `docs/modules/session_manager/todo_list.md`:
+  - Updated tasks to reflect new refactor sequence and consolidation of start/end into single `apps/session_manager`.
+- `docs/schemas/SCHEMA_CHANGELOG.md`:
+  - Noted upcoming changes to `session_manager_start` and `session_manager_end` schemas:
+    - Correct placement of `example_input()` and `example_output()` methods.
+    - Introduction of public aliases in `schemas/__init__.py` (`SessionManagerStartInput`, `SessionManagerStartOutput`, `SessionManagerEndInput`, `SessionManagerEndOutput`).
+    - Plan to retire deep imports from routes.
+
+### Notes
+- Refactor will be executed in a **scoped** manner, starting with `session_manager`, before widening guardrails project-wide.
+- Generator remains pointed at internal module files until migration complete.
+
+
 ## 2025-08-12 — Schema Import Refactor Discussion
 
 ### Context
