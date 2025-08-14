@@ -7,3 +7,4 @@
 .venv/
 test-env/
 a3cp-env/
+.DS_Store
