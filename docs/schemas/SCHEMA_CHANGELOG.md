@@ -33,7 +33,7 @@ All A3CP schemas must follow Semantic Versioning (MAJOR.MINOR.PATCH).
 
 Each change must include:
 
-```text
+text
 v1.1.0 - 2025-07-01
 Added:
   - output_mode (AAC output format) to A3CPMessage
@@ -46,9 +46,9 @@ Deprecated:
 
 
 
----
 
-## ✅ Action Summary
+
+###   Action Summary
 
 | Action | Recommendation |
 |--------|----------------|
@@ -59,10 +59,26 @@ Deprecated:
 
 ---
 
+## [2025-08-12] Schema directory cleanup and import fixes
+
+### Changed
+- Standardized BaseSchema import across session_manager_start and session_manager_end schemas.
+- Updated scripts/generate_schemas_from_master.py to inject repo root into sys.path,
+  ensuring schema imports resolve during file-based module loading.
+
+### Added
+- Added schemas/base/__init__.py to make base schema package importable.
+- Created schemas/a3cp_message/ folder (placeholder for renamed A3CPMessage schema).
+
+### Removed
+- Deleted schemas/utils/ directory and validate.py helper; schema utilities will
+  be maintained outside the schemas/ package.
+- Removed all tracked __pycache__/ directories and compiled .pyc files from schemas/.
+- Deleted obsolete schemas/a3cp_core/a3cp_message.py in preparation for rename.
 
 
 
-## v1.0.0 – 2025-06-22
+### v1.0.0 – 2025-06-22
 
 ### Added
 - Initial release of unified `A3CPMessage` schema (`schemas/a3cp_message.py`)

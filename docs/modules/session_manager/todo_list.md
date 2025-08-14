@@ -21,7 +21,7 @@ PHASE 1 — Schemas (single source of truth, central repo)
       schemas/session_manager_start/session_manager_start.py (StartRequest/Response)
       schemas/session_manager_end/session_manager_end.py (EndEvent with record_id)
       (optional MVP) schemas/session_manager_heartbeat.py (simple heartbeat)
-[ ] SM-SCH-02: Regenerate JSON Schemas; update SCHEMA_CHANGELOG.md
+[ x] SM-SCH-02: Regenerate JSON Schemas; update SCHEMA_CHANGELOG.md
 [ ] SM-SCH-03: Ensure module routes import these central schemas only (no local copies)
 
 PHASE 2 — Database Infrastructure
