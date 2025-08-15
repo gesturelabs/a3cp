@@ -9,116 +9,24 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
-## [2025-08-14] SM-SCHEMA-01 – Session Manager schema & API refactor
 
-### Changed
-- `schemas/session_manager_start/session_manager_start.py`
-  - Refactored to `SessionStartInput` / `SessionStartOutput` naming for spec compliance.
-  - Added explicit `session_id` handling per MVP rules.
-- `schemas/session_manager_end/session_manager_end.py`
-  - Updated for spec compliance and consistent example I/O.
-
-- `schemas/base/base.py`
-  - Hardened base schema imports and validation rules.
-
-- `schemas/audio_feed_worker/audio_feed_worker.py`
-  - Adjusted for consistent naming and spec alignment.
-
-- `api/routes/session_manager_routes.py`
-  - Merged start/end logic into unified session manager route file.
-  - Enforced in-memory store for MVP with explicit validation.
-- `api/routes/audio_feed_worker_routes.py`
-  - Updated imports for schema changes.
-
-- `api/main.py`
-  - Mounted only `session_manager_router` for MVP testing.
-- `api/__init__.py`
-  - Cleaned imports and package init logic.
-
-- `docs/modules/session_manager/schema_refactor.md`
-  - Updated to reflect new schema names and validation changes.
-- `docs/schemas/SCHEMA_REFACTOR_PLAN.md`
-  - Revised for single-source naming rules and compliance notes.
-
-### Removed
-- Deleted `.pycache` and `.DS_Store` artifacts across repo for cleanliness.
-
-
-## [2025-08-14] SM-SCHEMA-01 — Session Manager Schema Refactor Planning
+## [2025-08-15] API Routes & Tests — Session Manager execution check
 
 ### Added
-- `docs/modules/session_manager/schema_refactor.md`:
-  - Full per-module refactor workflow for `session_manager` (start/end schemas → single public API).
-  - Gate-based execution plan from pre-flight to decommission.
-- `docs/schemas/SCHEMA_REFACTOR_PLAN.md`:
-  - Consolidated objectives and guardrail strategy for schema import pattern.
-  - Public aliasing rules, generator alignment notes, and CI guardrail test definitions.
+- tests/api/test_session_manager_routes.py — added happy-path test for `sessions.start` and `sessions.end`.
+- Swagger UI verification instructions for live route testing.
 
 ### Changed
-- `docs/modules/session_manager/todo_list.md`:
-  - Updated tasks to reflect new refactor sequence and consolidation of start/end into single `apps/session_manager`.
-- `docs/schemas/SCHEMA_CHANGELOG.md`:
-  - Noted upcoming changes to `session_manager_start` and `session_manager_end` schemas:
-    - Correct placement of `example_input()` and `example_output()` methods.
-    - Introduction of public aliases in `schemas/__init__.py` (`SessionManagerStartInput`, `SessionManagerStartOutput`, `SessionManagerEndInput`, `SessionManagerEndOutput`).
-    - Plan to retire deep imports from routes.
+- schemas/__init__.py — re-exported `BaseSchema` for simplicity principle.
+- session_manager schema modules now import `BaseSchema` via `from schemas import BaseSchema`.
 
-### Notes
-- Refactor will be executed in a **scoped** manner, starting with `session_manager`, before widening guardrails project-wide.
-- Generator remains pointed at internal module files until migration complete.
+### Fixed
+- Test payloads updated to satisfy schema validators (semver, UUID, ISO8601 UTC).
+- Confirmed `session_manager` endpoints functional via Swagger UI.
 
-
-## 2025-08-12 — Schema Import Refactor Discussion
-
-### Context
-- Goal: Adopt a best-practices, centralized schema import pattern for all API routes.
-- Trigger: Pylance errors after switching to importing from `schemas/__init__.py`.
-
-### Changes / Decisions
-- Discussed why to centralize schema imports:
-  - Stable public API for schemas.
-  - Refactor-proof route imports.
-  - Consistency and discoverability for new contributors.
-  - Easier to lint/enforce.
-- Identified strengths/weaknesses of approach:
-  - Strengths: predictable names, fewer breakages, clear contract.
-  - Weaknesses: potential hub bloat, naming churn, possible circular imports.
-- Reviewed `schemas/audio_feed_worker.py` as example:
-  - `AudioFeedWorkerConfig` = likely Input.
-  - `AudioChunkMetadata` = likely Output.
-  - Found misplaced `example_input()` method in `AudioChunkMetadata`.
-- Proposed public API naming pattern:
-  - Re-export internal model names as `<Module>Input` / `<Module>Output` in `schemas/__init__.py`.
-  - Keep legacy exports temporarily, mark as deprecated.
-- Example for audio feed worker:
-  ```python
-  from .audio_feed_worker.audio_feed_worker import (
-      AudioFeedWorkerConfig as AudioFeedWorkerInput,
-      AudioChunkMetadata    as AudioFeedWorkerOutput,
-  )
-
-    Route usage example updated:
-
-from schemas import AudioFeedWorkerInput, AudioFeedWorkerOutput
-
-Established enforcement rules:
-
-    Only import schemas in routes via from schemas import <Module>Input, <Module>Output.
-
-    CI/lint to forbid direct submodule imports in routes.
-
-    Document contributor guidelines for schema exposure.
-
-Action plan agreed:
-
-    Add alias exports for each schema module in schemas/__init__.py.
-
-    Remove misplaced example_input() from output models.
-
-    Update one route at a time; verify no Pylance errors.
-
-    Roll out to all modules.
-
+### Next
+- Wire schema `example_input()`/`example_output()` into OpenAPI examples for `sessions.start` and `sessions.end`.
+- Extend route tests with negative cases and state leakage guard.
 
 
 ## [2025-08-12] Schema import and structure fixes

@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import Field, field_validator
 
-from schemas.base.base import BaseSchema
+from schemas import BaseSchema
 
 
 class SessionEndInput(BaseSchema):

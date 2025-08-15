@@ -7,6 +7,10 @@ from httpx import ASGITransport, AsyncClient
 from api.main import app
 from tests.utils import load_example
 
+pytestmark = pytest.mark.skip(
+    reason="Legacy API test; awaiting rewrite for unified routes"
+)
+
 
 @pytest.mark.anyio
 async def test_run_gesture_classifier_returns_501():

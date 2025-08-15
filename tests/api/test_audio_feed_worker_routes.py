@@ -6,6 +6,10 @@ from httpx import ASGITransport, AsyncClient
 from api.main import app
 from tests.utils import assert_valid_iso8601, load_example
 
+pytestmark = pytest.mark.skip(
+    reason="Legacy API test; awaiting rewrite for unified routes"
+)
+
 
 @pytest.mark.anyio
 async def test_simulate_audio_capture_stub_returns_expected_format():

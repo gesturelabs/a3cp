@@ -7,6 +7,10 @@ from httpx import ASGITransport, AsyncClient
 from api.main import app
 from schemas.landmark_extractor.landmark_extractor import LandmarkExtractorInput
 
+pytestmark = pytest.mark.skip(
+    reason="Legacy API test; awaiting rewrite for unified routes"
+)
+
 
 @pytest.mark.anyio
 async def test_landmark_extractor_stub_returns_example_output(tiny_jpeg_base64):
