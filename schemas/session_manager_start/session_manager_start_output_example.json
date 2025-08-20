@@ -1,7 +1,13 @@
 {
+  "is_training_data": true,
   "performer_id": "carer01",
-  "record_id": "07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56",
+  "record_id": "a8c43e6e-4f1d-4b2f-b8ee-123456789abc",
   "schema_version": "1.0.1",
-  "timestamp": "2025-06-15T12:34:56.789Z",
+  "session_id": "sess_20250728_001",
+  "session_notes": "Training session with carer miming gestures",
+  "source": "session_manager",
+  "start_time": "2025-07-28T14:00:00.000Z",
+  "timestamp": "2025-07-28T14:00:00.000Z",
+  "training_intent_label": "help",
   "user_id": "elias01"
 }

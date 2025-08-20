@@ -1,11 +1,11 @@
 PHASE 0 — Bootstrap & Scaffolding
-[ ] SM-APP-00  apps/session_manager scaffold
+[x ] SM-APP-00  apps/session_manager scaffold
 [x] SM-API-00  central wiring files in api/
 
 PHASE 1 — Schemas
 [x] SM-SCH-01  central schemas: start + end
 [ ] SM-SCH-Heartbeat (optional)
-[ ] SM-SCH-02 regenerate JSON schemas + changelog
+[ x] SM-SCH-02 regenerate JSON schemas + changelog
 [x] SM-SCH-03 routes import only from schemas/
 
 PHASE 2 — Database Infrastructure

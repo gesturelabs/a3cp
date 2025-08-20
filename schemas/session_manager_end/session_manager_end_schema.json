@@ -5,11 +5,11 @@
   "description": "Schema for session_manager_end input and output messages.",
   "type": "object",
   "$defs": {
-    "SessionEndEvent": {
-      "description": "Canonical input/output schema for ending a session.",
+    "SessionEndOutput": {
+      "description": "Canonical output after a session is ended.\nInherits BaseSchema; enforces session_id presence at runtime.",
       "properties": {
         "schema_version": {
-          "description": "Semantic version of the schema (MAJOR.MINOR.PATCH)",
+          "description": "Semantic version (MAJOR.MINOR.PATCH)",
           "title": "Schema Version",
           "type": "string"
         },
@@ -27,7 +27,7 @@
         "session_id": {
           "anyOf": [
             {
-              "description": "Session ID grouping related inputs; assigned by session_manager",
+              "description": "Session ID from session_manager",
               "type": "string"
             },
             {
@@ -38,7 +38,7 @@
           "title": "Session Id"
         },
         "timestamp": {
-          "description": "UTC ISO 8601 timestamp with milliseconds and 'Z' suffix",
+          "description": "UTC ISO 8601 with milliseconds and 'Z' suffix",
           "format": "date-time",
           "title": "Timestamp",
           "type": "string"
@@ -46,7 +46,7 @@
         "modality": {
           "anyOf": [
             {
-              "description": "Modality of input or message",
+              "description": "Input/message modality",
               "enum": [
                 "gesture",
                 "audio",
@@ -66,7 +66,7 @@
         "source": {
           "anyOf": [
             {
-              "description": "Originating module or component name (e.g., 'gesture_classifier', 'session_manager')",
+              "description": "Originating component (e.g., 'gesture_classifier')",
               "type": "string"
             },
             {
@@ -79,7 +79,7 @@
         "performer_id": {
           "anyOf": [
             {
-              "description": "Person performing input; required for human-originated data, may differ from user_id; use 'system' for system-generated inputs",
+              "description": "Actor producing input; 'system' for system-generated",
               "type": "string"
             },
             {
@@ -103,7 +103,7 @@
         "timestamp",
         "end_time"
       ],
-      "title": "SessionEndEvent",
+      "title": "SessionEndOutput",
       "type": "object"
     }
   }

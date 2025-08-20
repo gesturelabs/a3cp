@@ -9,6 +9,16 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+# CHANGELOG (Session Manager)
+
+## [2025-08-20]
+- [UPDATED] SM-SCH-02: Regenerated JSON Schemas for session_manager
+
+## [2025-08-20] (Session Manager)
+- [ADDED] SM-APP-00: Created scaffold for apps/session_manager/
+  - Added __init__.py, config.py, idgen.py, domain.py, repository.py, service.py, models.py
+  - Added tests/: __init__.py, test_service.py, test_repository.py
+  - Directory structure aligned with centralized api/routes (no per-app views)
 
 ## [2025-08-15] Starting DB work
 
