@@ -22,7 +22,7 @@ PHASE 1 — Schemas (single source of truth, central repo)
       schemas/session_manager_end/session_manager_end.py (EndEvent with record_id)
       (optional MVP) schemas/session_manager_heartbeat.py (simple heartbeat)
 [ x] SM-SCH-02: Regenerate JSON Schemas; update SCHEMA_CHANGELOG.md
-[ ] SM-SCH-03: Ensure module routes import these central schemas only (no local copies)
+[x ] SM-SCH-03: Ensure module routes import these central schemas only (no local copies)
 
 PHASE 2 — Database Infrastructure
 [ ] SM-DB-00: Shared infra
@@ -53,11 +53,12 @@ PHASE 4 — Service Layer (business rules)
 [ ] SM-APP-02: idgen.new_session_id() → "sess_<ulid|uuidv7>"
 
 PHASE 5 — Routes (API surface)
-[ ] SM-API-01: POST /session_manager/sessions.start → SessionStartResponse
-[ ] SM-API-02: POST /session_manager/sessions.end → SessionEndEvent
-[ ] SM-API-03: (optional MVP) POST /session_manager/sessions.heartbeat
-[ ] SM-API-URL: Keep dot-style endpoints for continuity
-[ ] SM-TST-04: API tests — happy path start/end; error on duplicate active session; schema conformance
+[ x] SM-API-01: POST /session_manager/sessions.start → SessionStartResponse
+[ x] SM-API-02: POST /session_manager/sessions.end → SessionEndEvent
+[ ] SM-API-03: (optional) sessions.heartbeat
+[~] SM-API-URL: Dot-style endpoints kept (OK)
+[~] SM-TST-04: API tests — happy-path exist; need error cases + schema asserts
+     (partially covered; more to add + integrate into CI)
 
 PHASE 6 — Observability & Security (MVP-minimal)
 [ ] SM-OBS-01: Log start/end with session_id and record_id (avoid PII)

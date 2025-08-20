@@ -10,11 +10,34 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## [2025-08-15] Starting DB work
+
+### Added
+- Introduced `db/engine.py` with centralized async database engine and sessionmaker factory.
+  - Provides `get_engine()` and `get_sessionmaker()` as lazy singletons.
+  - Reads DSN from `SESSION_DB_DSN` environment variable.
+  - Supports optional SQL echo logging with `SESSION_DB_ECHO`.
+
+### Removed
+- Deleted `Test.md` (temporary file).
+- Deleted `tmp_requirements.txt` (obsolete).
+
+## [2025-08-15] SM-API-01 – Session Manager schema alignment
+
+### Changed
+- Updated `schemas/__init__.py` to re-export `BaseSchema` for consistent, simplified imports (`from schemas import BaseSchema`).
+- Modified `schemas/session_manager/session_manager_start.py` to import `BaseSchema` via the public package API.
+- Verified `session_manager` routes are operational via Swagger UI with `.start` and `.end` flows.
+
+### Testing
+- Confirmed `.start` route returns valid `session_id` and server-generated timestamps.
+- Confirmed `.end` route accepts `session_id` from `.start` and closes active session.
+- Swagger manual test successful for both endpoints.
+
 ## [2025-08-15] API Routes & Tests — Session Manager execution check
 
 ### Added
 - tests/api/test_session_manager_routes.py — added happy-path test for `sessions.start` and `sessions.end`.
-- Swagger UI verification instructions for live route testing.
 
 ### Changed
 - schemas/__init__.py — re-exported `BaseSchema` for simplicity principle.
