@@ -492,11 +492,6 @@ These fields reflect the **final communicative act** as perceived by the user an
 A3CP schemas are versioned to ensure forward compatibility, clear migration paths, and traceability of field semantics. Every record must include a `schema_version` field. New fields are added non-destructively and must be documented with introduction version and rationale.
 
 ---
-## 10. Schema Versioning & Field History
-
-A3CP schemas are versioned to ensure forward compatibility, clear migration paths, and traceability of field semantics. Every record must include a `schema_version` field. New fields are added non-destructively and must be documented with introduction version and rationale.
-
----
 
 ### 10.1 Required Version Field
 

@@ -34,7 +34,7 @@ The MVP interface provides:
 
 - Real-time webcam/audio capture
 - Caregiver labeling and feedback loop
-- Per-user model training with Hugging Face integration
+- Per-user model training with
 - Symbolic/clarified output and confidence display
 
 Pages:
