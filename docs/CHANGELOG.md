@@ -9,6 +9,18 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+### 2025-11-07 Development environment and git hook restoration
+
+-Fixed pre-commit hook referencing incompatible Intel Python and failing on Apple Silicon
+-updated local environment to use Python 3.11.14 virtual environment
+-Removed old .venv and obsolete pre-commit configuration
+-Added setup instructions in README.md for .venv and developer dependencies
+-Reinstalled working pre-commit hook using black, ruff, and isort
+-Verified hooks run successfully on commit, restoring a stable macOS ARM development setup
+
+
+
+
 # CHANGELOG (Session Manager)
 
 ## [2025-08-20]

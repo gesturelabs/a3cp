@@ -73,19 +73,28 @@ We enforce code quality using `pre-commit` hooks. These will automatically check
 
 ### Git Hook Setup
 
-1. Install developer dependencies:
 
-    pip install -r requirements-dev.txt
+To enable automatic checks before each commit:
 
-2. Install pre-commit hooks:
+Activate your virtual environment:
+source .venv/bin/activate
 
-    pre-commit install
+Install developer dependencies:
+pip install -r requirements.txt -r requirements-dev.txt
 
-This will enable automatic checks before every commit. The following tools are applied:
+Install pre-commit hooks:
+pre-commit install
 
-- black: code formatting
-- ruff: linting and basic style enforcement
-- isort: import sorting
+After installation, each commit will automatically run:
+
+black – code formatting
+
+ruff – linting and style enforcement
+
+isort – import sorting
+
+To run all checks manually:
+pre-commit run --all-files
 
 ### Manual Checks
 
