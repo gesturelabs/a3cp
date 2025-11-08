@@ -12,8 +12,13 @@
             background-color: #f5f5f5;
             color: #222;
             line-height: 1.5;
-            margin: 2em auto;
-            max-width: 900px;
+            margin: 0;
+            padding: 1.5em 1em;
+        }
+
+        .page-wrap {
+            max-width: 960px;
+            margin: 0 auto;
         }
 
         a {
@@ -35,22 +40,26 @@
         nav {
             border-top: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
-            margin-bottom: 1.5em;
+            margin: 0 0 1.5em 0;
+            padding: 0.25em 0;
         }
 
         nav ul {
             list-style: none;
             display: flex;
-            gap: 1rem;
-            padding: 0.5rem 0;
+            flex-wrap: wrap;
+            /* key for mobile */
+            justify-content: center;
+            /* center items on all screens */
+            gap: 0.5rem;
+            padding: 0.25rem 0;
             margin: 0;
             background: #f0f0f0;
-            justify-content: center;
         }
 
         nav a {
             display: block;
-            padding: 0.5rem 1rem;
+            padding: 0.35rem 0.75rem;
             text-decoration: none;
             color: #333;
         }
@@ -68,52 +77,66 @@
             color: #555;
             text-align: center;
         }
+
+        /* Optional: tiny tweak for very narrow screens */
+        @media (max-width: 480px) {
+            body {
+                padding: 1em 0.75em;
+            }
+
+            nav a {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.9em;
+            }
+        }
     </style>
 </head>
 
 
 <body>
-    <nav class="nav">
-        <ul>
-            <li>
-                <a href="/" class="{{ 'active' if current_page == 'home' else '' }}">
-                    Home
-                </a>
-            </li>
-            <li>
-                <a href="/about" class="{{ 'active' if current_page == 'about' else '' }}">
-                    About
-                </a>
-            </li>
-            <li>
-                <a href="/technology" class="{{ 'active' if current_page == 'technology' else '' }}">
-                    Technology
-                </a>
-            </li>
-            <li>
-                <a href="/docs" class="{{ 'active' if current_page == 'docs' else '' }}">
-                    Docs
-                </a>
-            </li>
-            <li>
-                <a href="/get-involved" class="{{ 'active' if current_page == 'get-involved' else '' }}">
-                    Get Involved
-                </a>
-            </li>
-            <li>
-                <a href="/contact" class="{{ 'active' if current_page == 'contact' else '' }}">
-                    Contact
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <div class="page-wrap">
+        <nav class="nav">
+            <ul>
+                <li>
+                    <a href="/" class="{{ 'active' if current_page == 'home' else '' }}">
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a href="/about" class="{{ 'active' if current_page == 'about' else '' }}">
+                        About
+                    </a>
+                </li>
+                <li>
+                    <a href="/technology" class="{{ 'active' if current_page == 'technology' else '' }}">
+                        Technology
+                    </a>
+                </li>
+                <li>
+                    <a href="/docs" class="{{ 'active' if current_page == 'docs' else '' }}">
+                        Docs
+                    </a>
+                </li>
+                <li>
+                    <a href="/get-involved" class="{{ 'active' if current_page == 'get-involved' else '' }}">
+                        Get Involved
+                    </a>
+                </li>
+                <li>
+                    <a href="/contact" class="{{ 'active' if current_page == 'contact' else '' }}">
+                        Contact
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
 
-    <main>
-        {% block content %}
-        <!-- Page specific content goes here -->
-        {% endblock %}
-    </main>
+        <main>
+            {% block content %}
+            <!-- Page specific content goes here -->
+            {% endblock %}
+        </main>
+    </div>
 </body>
 
 </html>

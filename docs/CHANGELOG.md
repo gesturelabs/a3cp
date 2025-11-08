@@ -8,6 +8,16 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+### 2025-11-08 Responsive Layout and Mobile Fix (Courier Theme v0.1.1)
+
+- Updated inline stylesheet in `base.html` for full mobile responsiveness while keeping the retro Courier aesthetic.
+- Replaced fixed-width margins with a fluid `.page-wrap` container and `flex-wrap` navigation layout.
+- Added responsive padding and media query for screens under 480 px width.
+- Verified all pages render correctly on desktop, tablet, and mobile without horizontal scrolling.
+- Established mobile-friendly baseline prior to future Tailwind integration.
+
+
 ### 2025-11-08 Retro Styling Update (Courier Theme)
 
 - Added retro-inspired site styling directly in `base.html` using a Courier monospace font and minimalist 1990s layout aesthetic.
