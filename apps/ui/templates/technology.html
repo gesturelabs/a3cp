@@ -1,38 +1,134 @@
 {% extends "base.html" %}
 
-{% block title %}A3CP MVP - Demonstrator{% endblock %}
+{% block title %}Technology · A3CP by GestureLabs{% endblock %}
 
 {% block content %}
-<h1>Demonstrator</h1>
 
-<section id="record-section">
-    <h2>Record</h2>
-    <div>
-        <!-- Webcam/mic feed placeholder -->
-        <div
-            style="width:320px; height:240px; background:#ccc; display:flex; align-items:center; justify-content:center;">
-            Webcam/Mic Feed Placeholder
-        </div>
-    </div>
-
-    <div>
-        <button hx-post="/record/start" hx-swap="outerHTML">Start</button>
-        <button hx-post="/record/stop" hx-swap="outerHTML">Stop</button>
-    </div>
-
-    <form hx-post="/record/label" hx-swap="none">
-        <label for="label-input">Label:</label>
-        <input type="text" id="label-input" name="label" />
-        <button type="submit">Confirm/Save</button>
-    </form>
+<section class="page-intro">
+    <h1>Technology</h1>
+    <p>
+        The Ability-Adaptive Augmentative Communication Platform (A3CP) translates complex research into a practical,
+        open, and ethical communication system. This page outlines how the platform works — from signal capture to
+        reasoning and feedback — and explains the modular architecture that makes A3CP adaptable and transparent.
+    </p>
 </section>
 
-<section id="try-it-section" style="margin-top:2rem;">
-    <h2>Try It</h2>
-    <div>
-        <p>Inference Results: <span id="inference-result">No data yet</span></p>
-        <progress id="confidence-bar" value="0" max="100"></progress>
-        <button hx-post="/try-it/flag" hx-swap="none">Flag Incorrect</button>
-    </div>
+<section class="section">
+    <h2>Overview</h2>
+    <p>
+        A3CP combines gesture and sound recognition with human feedback to create an ability-adaptive communication
+        system.
+        Unlike traditional AAC tools that depend on symbol or text selection, A3CP learns directly from each person’s
+        expressive movements, sounds, and context. Its open-source design ensures transparency, ethical oversight, and
+        adaptability across care, education, and research environments.
+    </p>
 </section>
+
+<section class="section">
+    <h2>Modular Architecture</h2>
+    <p>
+        A3CP is built as a modular framework where each component operates independently but communicates through shared
+        data standards. This architecture makes the platform easy to adapt, extend, and audit.
+    </p>
+
+    <table class="architecture-table">
+        <thead>
+            <tr>
+                <th>Layer</th>
+                <th>Function</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Capture Layer</td>
+                <td>Collects gesture and sound data through cameras and microphones.</td>
+                <td>Enables low-latency, private data capture on local devices.</td>
+            </tr>
+            <tr>
+                <td>Feature Extraction</td>
+                <td>Converts raw input into structured feature vectors (e.g., hand, face, and body landmarks; sound
+                    features).</td>
+                <td>Provides standardized, compact data for classification.</td>
+            </tr>
+            <tr>
+                <td>Classification Layer</td>
+                <td>Learns how each user expresses meaning through gesture, sound, and context.</td>
+                <td>Produces per-user intent predictions with confidence scores.</td>
+            </tr>
+            <tr>
+                <td>CARE Engine</td>
+                <td>Integrates all inputs, checks confidence, and triggers caregiver clarification when needed.</td>
+                <td>Keeps humans in control of interpretation and learning.</td>
+            </tr>
+            <tr>
+                <td>Memory &amp; Learning Layer</td>
+                <td>Stores confirmed gestures and caregiver feedback for retraining.</td>
+                <td>Allows the system to adapt and improve with daily use.</td>
+            </tr>
+            <tr>
+                <td>Interface Layer</td>
+                <td>Displays messages (text, speech, or symbols) and asks for confirmation when uncertain.</td>
+                <td>Provides transparency and supports shared understanding.</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="section">
+    <h2>The CARE Engine</h2>
+    <p>
+        The CARE Engine — Clarification, Adaptation, Reasoning, and Explanation — is the reasoning core of A3CP.
+        It fuses information from gesture, sound, and contextual modules, computes confidence levels, and decides
+        when to ask for clarification. When confidence is low, it presents the most likely interpretations to
+        caregivers for confirmation. Each clarification becomes new training data, enabling the system to learn
+        and adapt to the individual user.
+    </p>
+</section>
+
+<section class="section">
+    <h2>Ethical and Edge-Capable Design</h2>
+    <p>
+        A3CP is engineered to run fully offline on affordable devices such as Raspberry Pi or Jetson Nano.
+        This ensures privacy and accessibility for families, schools, and care homes, without dependence on
+        commercial cloud services.
+    </p>
+    <p>
+        Only derived feature data are stored—never raw video or audio—making learning processes transparent
+        and explainable. All code and documentation are open-source so that anyone can review, replicate,
+        or improve the platform.
+    </p>
+</section>
+
+<section class="section">
+    <h2>Development Path</h2>
+    <ul>
+        <li><strong>Phase 1:</strong> Streamlit demonstrator validated feasibility of gesture capture, visualization,
+            and personalized training.</li>
+        <li><strong>Phase 2:</strong> Modular FastAPI architecture established a scalable foundation for real-world
+            deployment.</li>
+        <li><strong>Phase 3 (2026):</strong> Integration of gesture and sound classifiers, caregiver-in-the-loop
+            training, and pilot studies.</li>
+    </ul>
+</section>
+
+<section class="section">
+    <h2>Future Possibilities</h2>
+    <p>
+        The adaptive architecture of A3CP can support creative and educational uses — from composing music or art
+        through gestures to connecting with digital avatars or providing learning analytics for therapists.
+        Because every interaction is logged as structured, interpretable data, A3CP can also contribute to new
+        research on communication development and multimodal expression.
+    </p>
+</section>
+
+<section class="section section-muted">
+    <h3>Visual concepts</h3>
+    <ul>
+        <li>Architecture Diagram: Input → Classification → CARE Engine → Output → Feedback loop.</li>
+        <li>Clarification Loop Illustration: caregiver confirmation and model update cycle.</li>
+        <li>Edge Deployment Graphic: Raspberry Pi or tablet with local processing arrows (no cloud icons).</li>
+    </ul>
+</section>
+
 {% endblock %}

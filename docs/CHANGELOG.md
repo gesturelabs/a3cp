@@ -9,6 +9,14 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+### 2025-11-08 Website cleanup and route consolidation
+
+- Removed obsolete `landing.html` and `demonstrator.html` templates.
+- Replaced old landing route with `home.html` as the primary index page.
+- Cleaned up `apps/ui/main.py` to remove unused `/demonstrator` endpoint.
+- Verified all public routes (`/`, `/about`, `/technology`, `/docs`, `/get-involved`, `/contact`) render correctly.
+
+
 ### 2025-11-08 GestureLabs Website Routing Fix and UI Alignment
 
 - Resolved deployment issue where gesturelabs.org returned `application/json` at `/` by updating `a3cp-fastapi-ui.service` to run `uvicorn main:app`.
