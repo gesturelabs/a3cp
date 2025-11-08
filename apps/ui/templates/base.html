@@ -30,15 +30,41 @@
 </head>
 
 <body>
-    <nav>
+    <nav class="nav">
         <ul>
-            <li><a href="/" class="{% if current_page == 'landing' %}active{% endif %}">Home</a></li>
-            <li><a href="/demonstrator"
-                    class="{% if current_page == 'demonstrator' %}active{% endif %}">Demonstrator</a></li>
-            <li><a href="/documentation" class="{% if current_page == 'documentation' %}active{% endif %}">Docs</a></li>
-            <li><a href="/about" class="{% if current_page == 'about' %}active{% endif %}">About</a></li>
+            <li>
+                <a href="/" class="{{ 'active' if current_page == 'home' else '' }}">
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="/about" class="{{ 'active' if current_page == 'about' else '' }}">
+                    About
+                </a>
+            </li>
+            <li>
+                <a href="/technology" class="{{ 'active' if current_page == 'technology' else '' }}">
+                    Technology
+                </a>
+            </li>
+            <li>
+                <a href="/docs" class="{{ 'active' if current_page == 'docs' else '' }}">
+                    Docs
+                </a>
+            </li>
+            <li>
+                <a href="/get-involved" class="{{ 'active' if current_page == 'get-involved' else '' }}">
+                    Get Involved
+                </a>
+            </li>
+            <li>
+                <a href="/contact" class="{{ 'active' if current_page == 'contact' else '' }}">
+                    Contact
+                </a>
+            </li>
         </ul>
     </nav>
+
 
     <main>
         {% block content %}

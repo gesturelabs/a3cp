@@ -9,6 +9,17 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+### 2025-11-08 Website routing and UI structure
+
+- Implemented GestureLabs website MVP pages and navigation (Home, About, Technology, Docs, Get Involved, Contact).
+- Updated `apps/ui/main.py` to expose a dedicated FastAPI UI app with named routes for all public pages.
+- Updated `apps/ui/templates/base.html` to use the new navigation and active-page highlighting.
+- Added initial page templates: `home.html`, `about.html`, `technology.html`, `get_involved.html`, `contact.html`, `docs.html`.
+- Updated `main.py` to act as the root ASGI entrypoint, mounting the API under `/api` and the UI at `/`.
+- Regenerated `docs/FILE_TREE.txt` to reflect the current project layout.
+
+
 ### 2025-11-07 Development environment and git hook restoration
 
 -Fixed pre-commit hook referencing incompatible Intel Python and failing on Apple Silicon

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}A3CP MVP - Landing{% endblock %}
+
+{% block content %}
+<section class="text-center py-8 px-4">
+    <h1 class="text-4xl font-bold mb-4">A3CP Project</h1>
+    <img src="/static/images/logo.png" alt="Project Logo" class="mx-auto max-w-[200px] mb-6" />
+
+    <p class="text-lg max-w-2xl mx-auto">
+        Welcome to the Ability-Adaptive Augmentative Communication Platform (A3CP).
+    </p>
+</section>
+
+<section class="bg-gray-50 p-6 rounded-lg shadow-sm max-w-3xl mx-auto mb-6">
+    <h2 class="text-2xl font-semibold mb-4">CARE Pipeline Overview</h2>
+    <img src="/static/images/care_pipeline_placeholder.png" alt="CARE pipeline diagram"
+        class="w-full max-w-[600px] mx-auto" />
+</section>
+
+<section class="bg-gray-50 p-6 rounded-lg shadow-sm max-w-3xl mx-auto mb-6">
+    <h2 class="text-2xl font-semibold mb-4">Demo Teaser</h2>
+    <img src="/static/images/demo_teaser.png" alt="Demo teaser" class="w-full max-w-[600px] mx-auto" />
+</section>
+
+<section class="text-center py-6">
+    <a href="/demonstrator" class="bg-teal-600 text-white px-6 py-3 rounded-md m-2 inline-block">Start Demonstrator</a>
+    <a href="/about" class="bg-gray-200 text-black px-6 py-3 rounded-md m-2 inline-block">About</a>
+    <a href="/docs" class="bg-gray-200 text-black px-6 py-3 rounded-md m-2 inline-block">Docs</a>
+</section>
+{% endblock %}
