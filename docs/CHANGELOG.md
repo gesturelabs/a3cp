@@ -9,6 +9,16 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+### 2025-11-08 Website Baseline Stable (v0.1)
+
+- All six public pages (Home, About, Technology, Docs, Get Involved, Contact) implemented and verified live on gesturelabs.org.
+- Routing confirmed: `/` → UI, `/api` → backend services.
+- GitHub Actions CI/CD pipeline operational with successful auto-deploy to Hetzner VPS.
+- Legacy templates (`landing.html`, `demonstrator.html`) removed.
+- Systemctl, Nginx, and FastAPI services verified stable under production load.
+- Website declared baseline-stable (v0.1) for further UI enhancement and Tailwind/HTMX integration.
+
+
 ### 2025-11-08 Website cleanup and route consolidation
 
 - Removed obsolete `landing.html` and `demonstrator.html` templates.
