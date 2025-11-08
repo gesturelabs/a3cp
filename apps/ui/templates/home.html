@@ -1,31 +1,67 @@
 {% extends "base.html" %}
 
-{% block title %}A3CP MVP - Landing{% endblock %}
+{% block title %}Ability-Adaptive Augmentative Communication Platform (A3CP){% endblock %}
 
 {% block content %}
-<section class="text-center py-8 px-4">
-    <h1 class="text-4xl font-bold mb-4">A3CP Project</h1>
-    <img src="/static/images/logo.png" alt="Project Logo" class="mx-auto max-w-[200px] mb-6" />
+<section class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">GestureLabs · A3CP</p>
+        <h1>Open, ability-adaptive communication for people who cannot speak.</h1>
+        <p class="lead">
+            The Ability-Adaptive Augmentative Communication Platform (A3CP) is an open-source initiative by GestureLabs
+            in Berlin,
+            developed with academic and clinical partners. Our goal is to make communication accessible for people who
+            are not
+            well served by current assistive-communication tools, by building technology that adapts to human ability
+            rather than
+            forcing individuals to adapt to rigid interfaces.
+        </p>
+        <div class="hero-actions">
+            <a href="/about" class="btn primary">Learn more</a>
+            <a href="/get-involved" class="btn">Join us</a>
+        </div>
+    </div>
+</section>
 
-    <p class="text-lg max-w-2xl mx-auto">
-        Welcome to the Ability-Adaptive Augmentative Communication Platform (A3CP).
+<section class="partners">
+    <h2>Who is behind A3CP?</h2>
+    <p>
+        A3CP is being developed by GestureLabs together with international partners from research and practice.
+        The platform is built as public digital infrastructure: transparent, auditable, and independent of commercial
+        lock-in.
     </p>
+    <ul class="logo-list">
+        <li>GestureLabs (Berlin)</li>
+        <li>The Open University (UK)</li>
+        <li>Johannes Kepler University – Assistive Technologies Group</li>
+        <li>Supported by social-impact and EU innovation networks</li>
+    </ul>
 </section>
 
-<section class="bg-gray-50 p-6 rounded-lg shadow-sm max-w-3xl mx-auto mb-6">
-    <h2 class="text-2xl font-semibold mb-4">CARE Pipeline Overview</h2>
-    <img src="/static/images/care_pipeline_placeholder.png" alt="CARE pipeline diagram"
-        class="w-full max-w-[600px] mx-auto" />
+<section class="summary">
+    <h2>What A3CP does</h2>
+    <p>
+        A3CP learns how each person communicates through gestures, sounds, and context, and translates those signals
+        into expressive output such as speech or text. Caregivers remain in control: they confirm or correct suggested
+        meanings so the system can adapt safely and ethically over time.
+    </p>
+    <ul class="bullets">
+        <li>Treats idiosyncratic gestures and sounds as valid input signals.</li>
+        <li>Runs on open, affordable, and locally deployable infrastructure.</li>
+        <li>Stores derived features instead of raw video/audio to protect privacy.</li>
+        <li>Designed for welfare institutions, therapy centers, schools, and families.</li>
+    </ul>
 </section>
 
-<section class="bg-gray-50 p-6 rounded-lg shadow-sm max-w-3xl mx-auto mb-6">
-    <h2 class="text-2xl font-semibold mb-4">Demo Teaser</h2>
-    <img src="/static/images/demo_teaser.png" alt="Demo teaser" class="w-full max-w-[600px] mx-auto" />
-</section>
-
-<section class="text-center py-6">
-    <a href="/demonstrator" class="bg-teal-600 text-white px-6 py-3 rounded-md m-2 inline-block">Start Demonstrator</a>
-    <a href="/about" class="bg-gray-200 text-black px-6 py-3 rounded-md m-2 inline-block">About</a>
-    <a href="/docs" class="bg-gray-200 text-black px-6 py-3 rounded-md m-2 inline-block">Docs</a>
+<section class="status">
+    <h2>Current status</h2>
+    <p>
+        Core architecture and schemas are defined, and the first modular pipeline is under active development.
+        We are preparing pilot collaborations with welfare and research partners for 2026.
+    </p>
+    <p class="note">
+        If your organization is interested in co-designing or evaluating A3CP, please visit
+        <a href="/get-involved">Get Involved</a> or contact us directly.
+    </p>
 </section>
 {% endblock %}

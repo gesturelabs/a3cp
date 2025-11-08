@@ -9,6 +9,17 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+### 2025-11-08 GestureLabs Website Routing Fix and UI Alignment
+
+- Resolved deployment issue where gesturelabs.org returned `application/json` at `/` by updating `a3cp-fastapi-ui.service` to run `uvicorn main:app`.
+- Committed new `main.py` mounting the UI app at `/` and the API under `/api`.
+- Verified on Hetzner: `/` now serves HTML, `/api/docs` returns Swagger UI.
+- Standardized website page structure: Home, About, Technology, Docs, Get Involved, Contact.
+- Updated `apps/ui/main.py` and `apps/ui/templates/base.html` for new navigation and active-page logic.
+- Added new public templates (`home.html`, `about.html`, `technology.html`, `get_involved.html`, `contact.html`, `docs.html`).
+- Generated new `docs/FILE_TREE.txt` to reflect current repository state.
+- Prepared production push to restore gesturelabs.org HTML landing page.
+
 
 ### 2025-11-08 Website routing and UI structure
 
