@@ -8,6 +8,14 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+### 2025-11-08 Retro Styling Update (Courier Theme)
+
+- Added retro-inspired site styling directly in `base.html` using a Courier monospace font and minimalist 1990s layout aesthetic.
+- Preserved modern navigation layout and spacing while adopting light grey background and classic blue links.
+- Updated base stylesheet to improve readability, consistent margins, and footer formatting.
+- Declared stable “Courier Retro” baseline prior to Tailwind/HTMX phase.
+
+
 
 ### 2025-11-08 Website Baseline Stable (v0.1)
 
