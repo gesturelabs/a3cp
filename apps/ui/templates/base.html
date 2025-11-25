@@ -7,133 +7,353 @@
     <title>{% block title %}A3CP MVP{% endblock %}</title>
 
     <style>
+        /* ===== Global typography and layout ===== */
+
+        :root {
+            --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --color-text: #111827;
+            --color-muted: #4b5563;
+            --color-bg: #f9fafb;
+            --color-surface: #ffffff;
+            --color-border: #e5e7eb;
+
+            --radius: 0.75rem;
+            --max-width: 960px;
+        }
+
         body {
-            font-family: "Courier New", Courier, monospace;
-            background-color: #f5f5f5;
-            color: #222;
-            line-height: 1.5;
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            line-height: 1.6;
             margin: 0;
-            padding: 1.5em 1em;
+            padding: 0;
         }
 
         .page-wrap {
-            max-width: 960px;
+            max-width: var(--max-width);
             margin: 0 auto;
+            padding: 1.5rem 1rem 3rem;
         }
 
         a {
-            color: #0033cc;
+            color: #1f3a8a;
             text-decoration: underline;
         }
 
         h1,
         h2,
         h3 {
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 0.25em;
+            font-weight: 600;
+            margin: 0 0 0.5rem;
         }
 
         p {
-            margin-bottom: 1em;
+            margin-bottom: 1rem;
         }
 
+
+        /* ===== Navigation ===== */
+
         nav {
-            border-top: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            margin: 0 0 1.5em 0;
-            padding: 0.25em 0;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 2rem;
+            background-color: var(--color-surface);
         }
 
         nav ul {
             list-style: none;
             display: flex;
-            flex-wrap: wrap;
-            /* key for mobile */
             justify-content: center;
-            /* center items on all screens */
-            gap: 0.5rem;
-            padding: 0.25rem 0;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
             margin: 0;
-            background: #f0f0f0;
         }
 
         nav a {
             display: block;
-            padding: 0.35rem 0.75rem;
+            padding: 0.4rem 0.9rem;
             text-decoration: none;
-            color: #333;
+            color: var(--color-text);
+            border-radius: 0.4rem;
         }
 
         nav a.active {
-            font-weight: bold;
-            border-bottom: 2px solid #333;
+            font-weight: 600;
+            background-color: #e0e7ff;
+            color: #1e3a8a;
         }
 
-        footer {
-            margin-top: 2em;
-            border-top: 1px solid #ccc;
-            padding-top: 0.5em;
-            font-size: 0.9em;
-            color: #555;
+
+        /* ===== Main content area ===== */
+
+        main {
+            margin-top: 2rem;
+        }
+
+
+        /* ===== Buttons (shared) ===== */
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.15rem;
+            font-size: 0.95rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            cursor: pointer;
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn.primary {
+            background-color: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .btn.secondary {
+            background-color: #e5e7eb;
+            border-color: #e5e7eb;
+        }
+
+        /* Responsive tweak */
+        @media (max-width: 480px) {
+            nav ul {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* ===== Layout primitives ===== */
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #111827;
+            background-color: #f9fafb;
+        }
+
+        main {
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        .hero,
+        .three-card-row,
+        .centered-text,
+        .partners,
+        .cta-band {
+            max-width: 960px;
+            margin: 0 auto 3rem auto;
+        }
+
+        /* ===== Hero section ===== */
+
+        .hero {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .hero-inner {
+            max-width: 720px;
+        }
+
+        .hero .eyebrow {
+            font-size: 0.875rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero-title {
+            font-size: 2.25rem;
+            line-height: 1.15;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero-lead {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        /* small tweak assuming you already have .btn and .btn.primary */
+        .hero .btn {
+            padding: 0.6rem 1.1rem;
+            font-size: 0.95rem;
+        }
+
+        /* ===== Three-card row (“What A3CP does”) ===== */
+
+        .three-card-row-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .three-card-row-intro {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #4b5563;
+            margin-bottom: 1.75rem;
+        }
+
+        .three-card-row-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        .three-card-row-card {
+            border-radius: 0.9rem;
+            padding: 1.1rem 1.2rem;
+            background-color: #f3f4f6;
+        }
+
+        .three-card-row-card-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .three-card-row-card-body {
+            font-size: 0.96rem;
+            line-height: 1.6;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+
+        .three-card-row-card-link a {
+            font-size: 0.9rem;
+            text-decoration: underline;
+            color: #111827;
+        }
+
+        /* two or three columns on wider screens */
+        @media (min-width: 800px) {
+            .three-card-row-cards {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        /* ===== Centered text block (“Who is behind A3CP?”) ===== */
+
+        .centered-text {
+            text-align: center;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .centered-text-inner {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .centered-text-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .centered-text-body {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #4b5563;
+        }
+
+        /* ===== Partners list ===== */
+
+        .partners .logo-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            margin-top: 0.75rem;
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .partners .logo-list li {
+            font-size: 0.98rem;
+            color: #374151;
+        }
+
+        /* ===== CTA band at bottom ===== */
+
+        .cta-band {
+            border-radius: 1.25rem;
+            padding: 2.25rem 1.75rem;
+            background-color: #e5e7eb;
+            margin-top: 3rem;
+        }
+
+        .cta-band-inner {
+            max-width: 720px;
+            margin: 0 auto;
             text-align: center;
         }
 
-        /* Optional: tiny tweak for very narrow screens */
-        @media (max-width: 480px) {
-            body {
-                padding: 1em 0.75em;
-            }
+        .cta-band-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
 
-            nav a {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.9em;
-            }
+        .cta-band-text {
+            font-size: 0.98rem;
+            line-height: 1.7;
+            color: #4b5563;
+            margin-bottom: 1.25rem;
+        }
+
+        .cta-band-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .cta-band .btn {
+            padding: 0.55rem 1.15rem;
+            font-size: 0.95rem;
         }
     </style>
 </head>
-
 
 <body>
     <div class="page-wrap">
         <nav class="nav">
             <ul>
                 <li>
-                    <a href="/" class="{{ 'active' if current_page == 'home' else '' }}">
-                        Home
-                    </a>
+                    <a href="/" class="{{ 'active' if current_page == 'home' else '' }}">Home</a>
                 </li>
                 <li>
-                    <a href="/about" class="{{ 'active' if current_page == 'about' else '' }}">
-                        About
-                    </a>
+                    <a href="/about" class="{{ 'active' if current_page == 'about' else '' }}">About</a>
                 </li>
                 <li>
-                    <a href="/technology" class="{{ 'active' if current_page == 'technology' else '' }}">
-                        Technology
-                    </a>
+                    <a href="/technology" class="{{ 'active' if current_page == 'technology' else '' }}">Technology</a>
                 </li>
                 <li>
-                    <a href="/docs" class="{{ 'active' if current_page == 'docs' else '' }}">
-                        Docs
-                    </a>
+                    <a href="/docs" class="{{ 'active' if current_page == 'docs' else '' }}">Docs</a>
                 </li>
                 <li>
-                    <a href="/get-involved" class="{{ 'active' if current_page == 'get-involved' else '' }}">
-                        Get Involved
-                    </a>
+                    <a href="/get-involved" class="{{ 'active' if current_page == 'get-involved' else '' }}">Get
+                        Involved</a>
                 </li>
                 <li>
-                    <a href="/contact" class="{{ 'active' if current_page == 'contact' else '' }}">
-                        Contact
-                    </a>
+                    <a href="/contact" class="{{ 'active' if current_page == 'contact' else '' }}">Contact</a>
                 </li>
             </ul>
         </nav>
 
-
         <main>
             {% block content %}
-            <!-- Page specific content goes here -->
             {% endblock %}
         </main>
     </div>
