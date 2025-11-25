@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}A3CP · GestureLabs{% endblock %}</title>
 
+    <!-- Typography: Inter (body) + Libre Baskerville (headings) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap"
+        rel="stylesheet">
+
+
     <style>
         /* ===============================
            Global variables & base styles
@@ -13,7 +21,10 @@
 
         :root {
             /* Typography */
-            --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            /* Typography */
+            --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font-heading: "Libre Baskerville", "Georgia", "Times New Roman", serif;
+
             --color-text: #111111;
             --color-muted: #5A5A5A;
 
@@ -52,7 +63,13 @@
 
         body {
             background: var(--color-bg);
+            font-family: var(--font-body);
+            color: var(--color-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
+
 
 
         a {
@@ -63,7 +80,9 @@
         h1,
         h2,
         h3 {
-            font-weight: 600;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            letter-spacing: -0.02em;
             margin: 0 0 0.5rem;
         }
 
