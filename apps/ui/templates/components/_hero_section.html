@@ -1,0 +1,50 @@
+{# apps/ui/templates/components/_hero_section.html #}
+
+<section class="hero">
+    <div class="hero-inner">
+
+        {# Eyebrow / label #}
+        {% if hero_eyebrow is defined %}
+        <p class="eyebrow">
+            {{ hero_eyebrow }}
+        </p>
+        {% endif %}
+
+        {# Main title #}
+        <h1 class="hero-title">
+            {{ hero_title | default("Open, ability-adaptive communication for people who cannot rely on speech.") }}
+        </h1>
+
+        {# Subtitle / lead paragraph #}
+        {% if hero_subtitle is defined %}
+        <p class="hero-lead">
+            {{ hero_subtitle }}
+        </p>
+        {% endif %}
+
+        {# Primary + secondary actions #}
+        {% if hero_primary_cta_label is defined or hero_secondary_cta_label is defined %}
+        <div class="hero-actions">
+            {% if hero_primary_cta_label is defined and hero_primary_cta_href is defined %}
+            <a href="{{ hero_primary_cta_href }}" class="btn primary">
+                {{ hero_primary_cta_label }}
+            </a>
+            {% endif %}
+
+            {% if hero_secondary_cta_label is defined and hero_secondary_cta_href is defined %}
+            <a href="{{ hero_secondary_cta_href }}" class="btn secondary">
+                {{ hero_secondary_cta_label }}
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# Optional illustration slot; you can pass in a simple URL or a block later #}
+        {% if hero_illustration_src is defined %}
+        <div class="hero-illustration">
+            <img src="{{ hero_illustration_src }}" alt="{{ hero_illustration_alt | default('Illustration') }}">
+        </div>
+        {% endif %}
+
+    </div>
+</section>

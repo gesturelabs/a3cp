@@ -93,7 +93,8 @@
 │   │   ├── a3cp_pipeline.drawio
 │   │   ├── a3cp_pipeline.png
 │   │   ├── a3cp_pipeline.svg
-│   │   └── inputs_outputs_json.md
+│   │   ├── inputs_outputs_json.md
+│   │   └── mvp.md
 │   ├── archive
 │   │   ├── old_video_streamer
 │   │   │   ├── notes.md
@@ -113,7 +114,9 @@
 │   │   └── DEV_SETUP.md
 │   ├── modules
 │   │   ├── audio_feed_worker
-│   │   │   └── README.md
+│   │   │   ├── INVARIANTS.md
+│   │   │   ├── README.md
+│   │   │   └── SYNCHRONIZATIONS.md
 │   │   ├── camera_feed_worker
 │   │   │   └── README.md
 │   │   ├── clarification_planner
@@ -174,6 +177,7 @@
 │   │   ├── SCHEMA_REFACTOR_PLAN.md
 │   │   └── SCHEMA_REFERENCE.md
 │   ├── ui
+│   │   ├── blocks.md
 │   │   ├── DEMONSTRATOR_UI_SPEC.md
 │   │   ├── PERSONAS.md
 │   │   └── WEBSITE_UI_SPEC.md
@@ -360,7 +364,7 @@
 │   ├── schema_mapping_config.py
 │   └── validate_env.py
 └── tests
-    ├── __init__.py 
+    ├── __init__.py
     ├── api
     │   ├── test_audio_feed_worker_routes.py
     │   ├── test_camera_feed_worker_routes.py
@@ -389,4 +393,4 @@
     ├── conftest.py
     └── utils.py
 
-83 directories, 307 files
+83 directories, 311 files
