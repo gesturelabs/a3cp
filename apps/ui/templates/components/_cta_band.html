@@ -1,0 +1,31 @@
+{# apps/ui/templates/components/_cta_band.html #}
+
+<section class="cta-band">
+    <div class="cta-band-inner">
+
+        <h2 class="cta-band-title">
+            {{ ctab_headline }}
+        </h2>
+
+        {% if ctab_subtext is defined %}
+        <p class="cta-band-text">
+            {{ ctab_subtext }}
+        </p>
+        {% endif %}
+
+        <div class="cta-band-actions">
+            {% if ctab_primary_label is defined and ctab_primary_href is defined %}
+            <a href="{{ ctab_primary_href }}" class="btn primary">
+                {{ ctab_primary_label }}
+            </a>
+            {% endif %}
+
+            {% if ctab_secondary_label is defined and ctab_secondary_href is defined %}
+            <a href="{{ ctab_secondary_href }}" class="btn secondary">
+                {{ ctab_secondary_label }}
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+</section>

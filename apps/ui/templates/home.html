@@ -45,14 +45,14 @@ communication needs.",
 
 {% include "components/_three_card_row.html" %}
 
-{# Keep partners and status sections for now #}
+{# Who is behind A3CP? #}
+{% set ct_headline = "Who is behind A3CP?" %}
+{% set ct_subheadline = "A3CP is being developed by GestureLabs together with international partners from research and
+practice. The platform is built as public digital infrastructure: transparent, auditable, and independent of commercial
+lock-in." %}
+{% include "components/_centered_text_block.html" %}
+
 <section class="partners">
-    <h2>Who is behind A3CP?</h2>
-    <p>
-        A3CP is being developed by GestureLabs together with international partners from research and practice.
-        The platform is built as public digital infrastructure: transparent, auditable, and independent of commercial
-        lock-in.
-    </p>
     <ul class="logo-list">
         <li>GestureLabs (Berlin)</li>
         <li>The Open University (UK)</li>
@@ -61,16 +61,15 @@ communication needs.",
     </ul>
 </section>
 
-<section class="status">
-    <h2>Current status</h2>
-    <p>
-        Core architecture and schemas are defined, and the first modular pipeline is under active development.
-        We are preparing pilot collaborations with welfare and research partners for 2026.
-    </p>
-    <p class="note">
-        If your organization is interested in co-designing or evaluating A3CP, please visit
-        <a href="/get-involved">Get Involved</a> or contact us directly.
-    </p>
-</section>
+{# CTA band at bottom of page #}
+{% set ctab_headline = "Want to help shape the future of ability-adaptive communication?" %}
+{% set ctab_subtext = "We are looking for institutions, researchers, and families interested in co-designing and
+evaluating A3CP." %}
+{% set ctab_primary_label = "Get involved" %}
+{% set ctab_primary_href = "/get-involved" %}
+{% set ctab_secondary_label = "Contact us" %}
+{% set ctab_secondary_href = "/contact" %}
+
+{% include "components/_cta_band.html" %}
 
 {% endblock %}
