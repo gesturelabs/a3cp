@@ -182,15 +182,15 @@
         }
 
         /* ===============================
-           Hero section
-           =============================== */
+   Hero section
+   =============================== */
 
         .hero {
             max-width: 100%;
             margin: 3rem 0 4rem;
-            padding: 0 0;
-            /* hero spans full width like Anthropic */
-            background-color: #f7f4ef;
+            padding: 2.5rem 0;
+            /* vertical breathing room */
+            background-color: var(--color-surface);
         }
 
         .hero-inner {
@@ -199,23 +199,14 @@
             padding: 0 1.25rem;
 
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: minmax(0, 1.6fr) auto;
             align-items: center;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
-        .hero-orbit {
-            margin-right: 0;
-            /* be explicit */
+        .hero-text {
+            max-width: 720px;
         }
-
-
-        .hero-visual {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
 
         .hero .eyebrow {
             font-size: 0.8rem;
@@ -249,16 +240,113 @@
             padding: 0.65rem 1.25rem;
         }
 
+        /* Right-side visual */
+
+        .hero-visual {
+            display: flex;
+            justify-content: flex-end;
+            /* align with right edge like Anthropic */
+            align-items: center;
+        }
+
+        /* If you pass an image, keep it neat */
+        .hero-visual img {
+            max-width: 260px;
+            height: auto;
+            display: block;
+        }
+
+        /* Animated orbit fallback */
+
+        .hero-orbit {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #e5e7eb);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+        }
+
+        /* central node */
+        .orbit-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 36px;
+            height: 36px;
+            transform: translate(-50%, -50%);
+            border-radius: 999px;
+            background: #1e3a8a;
+        }
+
+        /* orbit rings */
+
+        .orbit-ring {
+            position: absolute;
+            inset: 20px;
+            border-radius: 999px;
+            border: 1px dashed rgba(148, 163, 184, 0.7);
+            animation: orbit-rotate 18s linear infinite;
+        }
+
+        .orbit-ring-2 {
+            inset: 36px;
+            animation-duration: 24s;
+            animation-direction: reverse;
+        }
+
+        .orbit-ring-3 {
+            inset: 52px;
+            animation-duration: 30s;
+        }
+
+        /* dots moving on the orbits */
+
+        .orbit-dot {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            transform: translateX(-50%);
+            background: #111827;
+        }
+
+        /* rotation keyframes */
+
+        @keyframes orbit-rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Stack hero on smaller screens */
+
         @media (max-width: 900px) {
             .hero-inner {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 1fr);
             }
 
             .hero-visual {
                 justify-content: center;
                 margin-top: 1.5rem;
             }
+
+            .hero {
+                margin: 2.5rem 0 3rem;
+                padding: 2rem 0;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
         }
+
 
         /* ===============================
            Three-card row (“What A3CP does”)
