@@ -4,7 +4,7 @@
 
 {% block content %}
 
-{# Hero variables #}
+{# Hero via component #}
 {% set hero_eyebrow = "GestureLabs · A3CP" %}
 {% set hero_title = "Open, ability-adaptive communication for people who cannot speak." %}
 {% set hero_subtitle = "The Ability-Adaptive Augmentative Communication Platform (A3CP) is an open-source initiative by
@@ -18,8 +18,7 @@ ability rather than forcing individuals to adapt to rigid interfaces." %}
 
 {% include "components/_hero_section.html" %}
 
-
-{# "What A3CP does" as a three-card row #}
+{# What A3CP does via three-card row #}
 {% set tcr_title = "What A3CP does" %}
 {% set tcr_intro = "A3CP learns how each person communicates through gestures, sounds, and context, and translates those
 signals into expressive output such as speech or text. Caregivers remain in control: they confirm or correct suggested
@@ -46,7 +45,7 @@ communication needs.",
 
 {% include "components/_three_card_row.html" %}
 
-
+{# Keep partners and status sections for now #}
 <section class="partners">
     <h2>Who is behind A3CP?</h2>
     <p>
@@ -59,21 +58,6 @@ communication needs.",
         <li>The Open University (UK)</li>
         <li>Johannes Kepler University – Assistive Technologies Group</li>
         <li>Supported by social-impact and EU innovation networks</li>
-    </ul>
-</section>
-
-<section class="summary">
-    <h2>What A3CP does</h2>
-    <p>
-        A3CP learns how each person communicates through gestures, sounds, and context, and translates those signals
-        into expressive output such as speech or text. Caregivers remain in control: they confirm or correct suggested
-        meanings so the system can adapt safely and ethically over time.
-    </p>
-    <ul class="bullets">
-        <li>Treats idiosyncratic gestures and sounds as valid input signals.</li>
-        <li>Runs on open, affordable, and locally deployable infrastructure.</li>
-        <li>Stores derived features instead of raw video/audio to protect privacy.</li>
-        <li>Designed for welfare institutions, therapy centers, schools, and families.</li>
     </ul>
 </section>
 
