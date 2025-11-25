@@ -12,38 +12,48 @@
            =============================== */
 
         :root {
+            /* Typography */
             --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --color-text: #111111;
+            --color-muted: #5A5A5A;
 
-            --color-text: #111827;
-            --color-muted: #4b5563;
-            --color-bg: #ffffff;
-            /* light grey background */
-            --color-surface: #f7f2e9;
-            /* main cards/nav background */
-            --color-border: #e4ded2;
+            /* Global background (Anthropic beige) */
+            --color-bg: #F4F0EC;
 
-            --color-primary: #1e3a8a;
-            /* deep blue */
-            --color-primary-soft: #e0e7ff;
+            /* Surfaces */
+            --color-surface: #FFFFFF;
+            /* plain cards */
+            --color-surface-soft-1: #E9E1D7;
+            /* warm sand */
+            --color-surface-soft-2: #C9DCD6;
+            /* mint grey */
+            --color-surface-soft-3: #D9D6EB;
+            /* lavender */
 
+            /* Borders */
+            --color-border: #E6E2DD;
+
+            /* Accent (keep blue but soften saturation) */
+            --color-primary: #1C3D8C;
+            --color-primary-soft: #DDE3F8;
+
+            /* Radii */
             --radius-md: 0.75rem;
             --radius-lg: 1.25rem;
 
+            /* Layout */
             --max-width: 960px;
         }
+
 
         * {
             box-sizing: border-box;
         }
 
         body {
-            font-family: var(--font-body);
-            color: var(--color-text);
-            background-color: var(--color-bg);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
+            background: var(--color-bg);
         }
+
 
         a {
             color: #1f3a8a;
@@ -79,7 +89,7 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background-color: var(--color-surface);
+            background-color: transparent;
             border-bottom: 1px solid var(--color-border);
             box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
         }
