@@ -337,27 +337,21 @@
 <body>
     <div class="page-wrap">
         <nav class="nav">
-            <ul>
-                <li>
-                    <a href="/" class="{{ 'active' if current_page == 'home' else '' }}">Home</a>
-                </li>
-                <li>
-                    <a href="/about" class="{{ 'active' if current_page == 'about' else '' }}">About</a>
-                </li>
-                <li>
-                    <a href="/technology" class="{{ 'active' if current_page == 'technology' else '' }}">Technology</a>
-                </li>
-                <li>
-                    <a href="/docs" class="{{ 'active' if current_page == 'docs' else '' }}">Docs</a>
-                </li>
-                <li>
-                    <a href="/get-involved" class="{{ 'active' if current_page == 'get-involved' else '' }}">Get
-                        Involved</a>
-                </li>
-                <li>
-                    <a href="/contact" class="{{ 'active' if current_page == 'contact' else '' }}">Contact</a>
-                </li>
-            </ul>
+            <div class="nav-inner">
+
+                <a href="/" class="nav-logo">GestureLabs</a>
+
+                <ul class="nav-links">
+                    <li><a href="/about" class="{{ 'active' if current_page == 'about' else '' }}">About</a></li>
+                    <li><a href="/technology"
+                            class="{{ 'active' if current_page == 'technology' else '' }}">Technology</a></li>
+                    <li><a href="/docs" class="{{ 'active' if current_page == 'docs' else '' }}">Docs</a></li>
+                    <li><a href="/get-involved" class="{{ 'active' if current_page == 'get-involved' else '' }}">Get
+                            Involved</a></li>
+                    <li><a href="/contact" class="{{ 'active' if current_page == 'contact' else '' }}">Contact</a></li>
+                </ul>
+
+            </div>
         </nav>
 
         <main>
