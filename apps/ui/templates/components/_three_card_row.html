@@ -1,0 +1,39 @@
+{# apps/ui/templates/components/_three_card_row.html #}
+
+<section class="three-card-row">
+    <div class="three-card-row-inner">
+
+        {% if tcr_title is defined %}
+        <h2 class="three-card-row-title">
+            {{ tcr_title }}
+        </h2>
+        {% endif %}
+
+        {% if tcr_intro is defined %}
+        <p class="three-card-row-intro">
+            {{ tcr_intro }}
+        </p>
+        {% endif %}
+
+        <div class="three-card-row-cards">
+            {% for card in tcr_cards %}
+            <article class="three-card-row-card">
+                <h3 class="three-card-row-card-title">
+                    {{ card.title }}
+                </h3>
+                {% if card.description %}
+                <p class="three-card-row-card-body">
+                    {{ card.description }}
+                </p>
+                {% endif %}
+                {% if card.href %}
+                <p class="three-card-row-card-link">
+                    <a href="{{ card.href }}">Learn more</a>
+                </p>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>

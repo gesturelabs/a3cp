@@ -18,6 +18,35 @@ ability rather than forcing individuals to adapt to rigid interfaces." %}
 
 {% include "components/_hero_section.html" %}
 
+
+{# "What A3CP does" as a three-card row #}
+{% set tcr_title = "What A3CP does" %}
+{% set tcr_intro = "A3CP learns how each person communicates through gestures, sounds, and context, and translates those
+signals into expressive output such as speech or text. Caregivers remain in control: they confirm or correct suggested
+meanings so the system can adapt safely and ethically over time." %}
+{% set tcr_cards = [
+{
+"title": "Adaptive input",
+"description": "Treats idiosyncratic gestures and non-speech sounds as valid, modelled input signals.",
+"href": "/technology"
+},
+{
+"title": "Privacy by design",
+"description": "Stores derived features instead of raw video or audio, supporting local, privacy-preserving
+deployments.",
+"href": "/docs"
+},
+{
+"title": "Built for real settings",
+"description": "Designed for welfare institutions, therapy centers, schools, and families working with complex
+communication needs.",
+"href": "/get-involved"
+}
+] %}
+
+{% include "components/_three_card_row.html" %}
+
+
 <section class="partners">
     <h2>Who is behind A3CP?</h2>
     <p>
