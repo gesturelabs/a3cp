@@ -186,14 +186,36 @@
            =============================== */
 
         .hero {
-            max-width: var(--max-width);
-            margin: 3rem auto 4rem;
-            padding: 0 1.25rem;
+            max-width: 100%;
+            margin: 3rem 0 4rem;
+            padding: 0 0;
+            /* hero spans full width like Anthropic */
+            background-color: #f7f4ef;
         }
 
         .hero-inner {
-            max-width: 720px;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1.25rem;
+
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 2rem;
         }
+
+        .hero-orbit {
+            margin-right: 0;
+            /* be explicit */
+        }
+
+
+        .hero-visual {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
 
         .hero .eyebrow {
             font-size: 0.8rem;
@@ -225,6 +247,17 @@
 
         .hero .btn {
             padding: 0.65rem 1.25rem;
+        }
+
+        @media (max-width: 900px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-visual {
+                justify-content: center;
+                margin-top: 1.5rem;
+            }
         }
 
         /* ===============================
