@@ -4,25 +4,7 @@
 
 {% block content %}
 
-{% with
-hero_eyebrow = "GestureLabs · A3CP",
-hero_title = "Open, ability-adaptive communication for people who cannot speak.",
-hero_subtitle = "The Ability-Adaptive Augmentative Communication Platform (A3CP) is an open-source initiative by
-GestureLabs in Berlin, developed with academic and clinical partners. Our goal is to make communication accessible for
-people who are not well served by current assistive-communication tools, by building technology that adapts to human
-ability rather than forcing individuals to adapt to rigid interfaces.",
-hero_primary_cta_label = "Learn more",
-hero_primary_cta_href = "/about",
-hero_secondary_cta_label = "Join us",
-hero_secondary_cta_href = "/get-involved"
-%}
 {% include "components/_hero_section.html" %}
-{% endwith %}
-
-{# keep the rest of the sections for now, or comment them out while testing #}
-{# <section class="partners">...</section> #}
-{# <section class="summary">...</section> #}
-{# <section class="status">...</section> #}
 
 {% endblock %}
 
