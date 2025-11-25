@@ -1,7 +1,3 @@
-{% extends "base.html" %}
-
-{% block title %}Ability-Adaptive Augmentative Communication Platform (A3CP){% endblock %}
-
 {% block content %}
 
 {# Hero variables #}
@@ -18,14 +14,14 @@ ability rather than forcing individuals to adapt to rigid interfaces." %}
 
 {% include "components/_hero_section.html" %}
 
+{# "Who is behind A3CP?" as a centered text block #}
+{% set ct_headline = "Who is behind A3CP?" %}
+{% set ct_subheadline = "A3CP is being developed by GestureLabs together with international partners from research and
+practice. The platform is built as public digital infrastructure: transparent, auditable, and independent of commercial
+lock-in." %}
+{% include "components/_centered_text_block.html" %}
 
 <section class="partners">
-    <h2>Who is behind A3CP?</h2>
-    <p>
-        A3CP is being developed by GestureLabs together with international partners from research and practice.
-        The platform is built as public digital infrastructure: transparent, auditable, and independent of commercial
-        lock-in.
-    </p>
     <ul class="logo-list">
         <li>GestureLabs (Berlin)</li>
         <li>The Open University (UK)</li>
@@ -60,4 +56,5 @@ ability rather than forcing individuals to adapt to rigid interfaces." %}
         <a href="/get-involved">Get Involved</a> or contact us directly.
     </p>
 </section>
+
 {% endblock %}

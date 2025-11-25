@@ -1,0 +1,21 @@
+{# apps/ui/templates/components/_centered_text_block.html #}
+
+<section class="centered-text">
+    <div class="centered-text-inner">
+        {% if ct_eyebrow is defined %}
+        <p class="eyebrow">
+            {{ ct_eyebrow }}
+        </p>
+        {% endif %}
+
+        <h2 class="centered-text-title">
+            {{ ct_headline }}
+        </h2>
+
+        {% if ct_subheadline is defined %}
+        <p class="centered-text-body">
+            {{ ct_subheadline }}
+        </p>
+        {% endif %}
+    </div>
+</section>
