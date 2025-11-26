@@ -9,6 +9,29 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2025-11-26 — UI Static Assets & FastAPI Static Mount Fix
+
+### Added
+- Created `apps/ui/static/` directory structure for CSS, images, and logos.
+- Added `reset.css` and `site.css` as global stylesheets.
+- Added initial logo assets in `apps/ui/static/img/logos/`.
+
+### Changed
+- Updated `base.html` to load global CSS via Jinja `url_for('static', ...)`.
+- Added static file mount in `apps/ui/main.py` using:
+  - `from fastapi.staticfiles import StaticFiles`
+  - `StaticFiles(directory=Path(__file__).parent / "static")`
+
+### Fixed
+- Resolved template errors caused by missing static mount.
+- Fixed broken venv created on an older architecture by recreating `a3cp-env`.
+- Resolved Pylance false errors by pointing VS Code to the new interpreter.
+- Killed orphaned local uvicorn process occupying port 8000.
+
+### Notes
+- Local dev server now runs correctly via `uvicorn apps.ui.main:app --reload`.
+- Hetzner-side deployment unaffected; local changes now preview correctly.
+
 ### 2025-11-08 Responsive Layout and Mobile Fix (Courier Theme v0.1.1)
 
 - Updated inline stylesheet in `base.html` for full mobile responsiveness while keeping the retro Courier aesthetic.

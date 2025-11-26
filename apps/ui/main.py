@@ -1,6 +1,9 @@
 # apps/ui/main.py
+from pathlib import Path
+
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 templates = Jinja2Templates(directory="apps/ui/templates")
@@ -60,5 +63,14 @@ app = FastAPI(
     redoc_url=None,
     openapi_url=None,
 )
+
+STATIC_DIR = Path(__file__).parent / "static"
+
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_DIR),
+    name="static",
+)
+
 
 app.include_router(router)
