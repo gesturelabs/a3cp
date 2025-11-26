@@ -1,0 +1,27 @@
+.partners {
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.logo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.logo-list img {
+    height: 48px;
+    width: auto;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+}
+
+.logo-list img:hover {
+    opacity: 1;
+}

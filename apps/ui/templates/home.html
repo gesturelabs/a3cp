@@ -48,7 +48,7 @@ be.",
 {% include "components/_three_card_row.html" %}
 
 {# Who is behind GestureLabs? #}
-{% set ct_headline = "Who We Are?" %}
+{% set ct_headline = "Who Is Behind GestureLabs?" %}
 {% set ct_subheadline = "GestureLabs is an international team of researchers, developers, academics, and product
 managers commited to supporting the needs of people with complex needs. The platform is built as public digital
 infrastructure: transparent, auditable, and independent of
@@ -57,9 +57,8 @@ commercial lock-in." %}
 
 <section class="partners">
     <ul class="logo-list">
-        <li>GestureLabs (Berlin)</li>
-        <li>The Open University (UK)</li>
-        <li>Supported by social-impact and EU innovation networks</li>
+        <li><img src="{{ url_for('static', path='img/logos/OU_logo.png') }}" alt="The Open University"></li>
+        <li><img src="{{ url_for('static', path='img/logos/SocialImpact_logo.png') }}" alt="Social Impact Lab"></li>
     </ul>
 </section>
 
