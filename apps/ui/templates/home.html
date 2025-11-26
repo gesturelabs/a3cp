@@ -6,9 +6,9 @@
 
 {# Hero via component #}
 {% set hero_eyebrow = "GestureLabs · A3CP" %}
-{% set hero_title = "Adaptive communication technology for non-speaking people." %}
-{% set hero_subtitle = "Communication is a human right. GestureLabs is developing open-source AI tools to help those who
-have been left behind by current technologies" %}
+{% set hero_title = "Ability Adaptive Communication technology for Non-Speaking People." %}
+{% set hero_subtitle = "Communication is a human right. GestureLabs is developing open-source AI communication tools
+that adapt to the idividual and their abilities." %}
 {% set hero_primary_cta_label = "Learn more" %}
 {% set hero_primary_cta_href = "/about" %}
 {% set hero_secondary_cta_label = "Join us" %}
@@ -18,37 +18,41 @@ have been left behind by current technologies" %}
 
 {# What A3CP does via three-card row #}
 {% set tcr_title = "What is Ability Adaptive Communication?" %}
-{% set tcr_intro = "We are building AI based systems that learn to recognize an indivdiduals embodied communication,
-such as gesture, facial expressions, and sounds. The system adapts the user's abilities, ethical and privacy protecting
-by design" %}
+{% set tcr_intro = "Ability-adaptive communication is a new approach to Augmentative and Alternative Communication
+(AAC). Traditional AAC helps millions of non-speaking people, but many individuals with complex motor, sensory, or
+cognitive profiles cannot use these systems and are left without reliable ways to express themselves. We are building
+an AI-driven communication system that learns from the user’s own gestures, sounds, and patterns
+over time. Instead of forcing people to adapt to rigid interfaces, the system adapts to their abilities. It is designed
+from the start to protect privacy, support ethical use, and operate transparently." %}
 {% set tcr_cards = [
 {
-"title": "Adaptive input",
+"title": "Adaptive Input",
 "description": "Treats idiosyncratic gestures and non-speech sounds as valid, modelled input signals.",
 "href": "/technology"
 },
 {
-"title": "Privacy by design",
+"title": "Privacy by Design",
 "description": "Stores derived features instead of raw video or audio, supporting local, privacy-preserving
 deployments.",
 "href": "/docs"
 },
 {
-"title": "Built for real settings",
-"description": "Designed to operate remotely for use in homes, therapy centers, schools, and where the user wants to
-go.",
+"title": "Designed for Real Settings",
+"description": "Designed to operate with or without internet for use in homes, therapy centers, schools...where the user
+wants to
+be.",
 "href": "/get-involved"
 }
 ] %}
 
 {% include "components/_three_card_row.html" %}
 
-{# Who is behind A3CP? #}
-{% set ct_headline = "Who is behind A3CP?" %}
-{% set ct_subheadline = "A3CP is being developed by GestureLabs together with the Open University and other
-international partners from research and
-practice. The platform is built as public digital infrastructure: transparent, auditable, and independent of commercial
-lock-in." %}
+{# Who is behind GestureLabs? #}
+{% set ct_headline = "Who We Are?" %}
+{% set ct_subheadline = "GestureLabs is an international team of researchers, developers, academics, and product
+managers commited to supporting the needs of people with complex needs. The platform is built as public digital
+infrastructure: transparent, auditable, and independent of
+commercial lock-in." %}
 {% include "components/_centered_text_block.html" %}
 
 <section class="partners">
@@ -62,8 +66,7 @@ lock-in." %}
 {# CTA band at bottom of page #}
 {% set ctab_headline = "Want to help shape the future of ability-adaptive communication?" %}
 {% set ctab_subtext = "We are looking for institutions, developers, researchers, and families interested in
-co-designing, creating, and
-evaluating A3CP." %}
+co-designing, creating, and evaluating a new generation of ability adaptive communication." %}
 {% set ctab_primary_label = "Get involved" %}
 {% set ctab_primary_href = "/get-involved" %}
 {% set ctab_secondary_label = "Contact us" %}
