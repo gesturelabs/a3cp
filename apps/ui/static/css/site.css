@@ -27,6 +27,22 @@
     --color-surface-soft-3: #D9D6EB;
     /* lavender */
 
+    /* Six pastel surfaces (subtle, Anthropic-style) */
+    --color-six-1: #EFE7DB;
+    /* sand */
+    --color-six-2: #D8E8E2;
+    /* mint-grey */
+    --color-six-3: #E4E0F2;
+    /* lavender */
+    --color-six-4: #F0EDDF;
+    /* oat */
+    --color-six-5: #DDE7F0;
+    /* blue-grey */
+    --color-six-6: #F0E3EB;
+    /* rose-grey */
+
+
+
     /* Borders */
     --color-border: #E6E2DD;
 
@@ -962,7 +978,7 @@ nav {
 /* ---- Six Block Grid ---- */
 
 .six-block-grid {
-    padding: 2 rem 1.5rem;
+    padding: 2rem 1.5rem;
     background-color: var(--color-bg);
 }
 
@@ -1011,6 +1027,7 @@ nav {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .six-block-card-title {
