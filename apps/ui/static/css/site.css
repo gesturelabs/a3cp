@@ -767,11 +767,12 @@ main {
 }
 
 /* ---------------------------------------------
-   TWO COLUMN SECTION
+   TWO COLUMN SECTION (revised)
 --------------------------------------------- */
 
 .two-column-section {
-    padding: 2 rem 0;
+    padding: 3rem 0;
+    /* was 2rem — increased top padding */
 }
 
 .two-column-inner {
@@ -799,14 +800,21 @@ main {
 .two-column-lead {
     font-size: 1.125rem;
     color: var(--color-muted);
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    /* more space before body */
 }
 
 .two-column-body p+p {
-    margin-top: .75 rem;
+    margin-top: 0.75rem;
+    /* fixed syntax */
 }
 
 /* Aside column */
+.two-column-aside {
+    padding-top: 1.75rem;
+    /* Aligns aside heading with top of left column's first paragraph */
+}
+
 .two-column-aside-title {
     font-family: var(--font-heading);
     font-size: 1.125rem;
@@ -824,6 +832,7 @@ main {
     color: var(--color-muted);
     line-height: 1.4;
 }
+
 
 /* ---------------------------------------------
    THREE CARD ROW
