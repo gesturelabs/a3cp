@@ -8,6 +8,24 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+## [2025-11-26] Website static asset routing fix
+
+### Changed
+- Updated Nginx config for `gesturelabs.org` (`/etc/nginx/sites-available/default`):
+  - `location /static/` now uses
+    `alias /opt/a3cp-app/apps/ui/static/;`
+    instead of
+    `alias /opt/a3cp-app/staticfiles/;`.
+- Kept FastAPI `app.mount("/static", StaticFiles(...))` in `apps/ui/main.py` for local/dev runs; in production, `/static` is now handled solely by Nginx.
+
+### Verified
+- `ou_logo.png` and other assets under `apps/ui/static/img/logos/` are served correctly at
+  `https://gesturelabs.org/static/img/logos/ou_logo.png`.
+- `nginx -t` reports valid configuration; `systemctl reload nginx` applied changes without error.
+
+### Notes
+- The `staticfiles/` directory is no longer used for the GestureLabs website; it can remain as legacy or be removed in a later cleanup.
+- Going forward, all static assets should live under `apps/ui/static/`; no extra copy/collect step is required on deploy.
 
 ## 2025-11-26 — UI Static Assets & FastAPI Static Mount Fix
 
