@@ -106,7 +106,7 @@ nav {
 .section-spacing {
     margin: 0 auto 4rem;
     max-width: var(--max-width);
-    padding: 3rem 1rem;
+    padding: 1.5 rem 1rem;
 }
 
 .btn {
@@ -425,7 +425,7 @@ nav {
            Values List
            =============================== */
 .values-section {
-    padding: 3rem 1.5rem;
+    padding: 1rem 1 rem;
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     background-color: var(--color-bg);
@@ -527,7 +527,7 @@ nav {
 .status-inner {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 3rem 1.5rem;
+    padding: 1rem 1 rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -771,7 +771,7 @@ main {
 --------------------------------------------- */
 
 .two-column-section {
-    padding: 4rem 0;
+    padding: 2 rem 0;
 }
 
 .two-column-inner {
@@ -894,7 +894,7 @@ main {
     background: var(--color-surface);
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
-    padding: 3rem 0;
+    padding: 2 rem 0;
 }
 
 .section-muted h3 {
@@ -934,7 +934,7 @@ main {
 /* ---- Six Block Grid ---- */
 
 .six-block-grid {
-    padding: 3rem 1.5rem;
+    padding: 2 rem 1.5rem;
     background-color: var(--color-bg);
 }
 
