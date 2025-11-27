@@ -123,21 +123,42 @@ where appropriate. The modular FastAPI-based stack and documented schemas are de
 {# HOW WE WORK / PRINCIPLES #}
 {% set vl_label = "How we work" %}
 {% set vl_title = "What we value and how we design A3CP" %}
-{% set vl_intro = "Shaping an adaptive communication system for non-speaking people requires principled choices about
-data, design, and governance." %}
+
+{% set vl_intro %}
+Shaping an adaptive communication system for non-speaking people requires principled
+choices about data, design, and governance.
+{% endset %}
+
 {% set vl_values = [
-{"number": 1, "title": "Put the person first.", "text": "We design around individual abilities and contexts, not around
-standardised gestures or abstract user models."},
-{"number": 2, "title": "Caregiver-in-the-loop.", "text": "Caregivers label new actions, correct interpretations, and
-review how the system adapts over time."},
-{"number": 3, "title": "Open and inspectable.", "text": "Schemas, logs, and code are open so institutions can audit
-behaviour and adapt the platform to their needs."},
-{"number": 4, "title": "Privacy and safety by design.", "text": "We prioritise local processing, data minimisation, and
-clear documentation of how information flows."},
-{"number": 5, "title": "Scientific and clinical rigour.", "text": "We work with researchers, clinicians, and families
-using transparent methods and reproducible protocols."}
+{
+"number": 1,
+"title": "Put the person first.",
+"text": "We design around individual abilities and contexts, not around standardised gestures or abstract user models."
+},
+{
+"number": 2,
+"title": "Caregiver-in-the-loop.",
+"text": "Caregivers label new actions, correct interpretations, and review how the system adapts over time."
+},
+{
+"number": 3,
+"title": "Open and inspectable.",
+"text": "Schemas, logs, and code are open so institutions can audit behaviour and adapt the platform to their needs."
+},
+{
+"number": 4,
+"title": "Privacy and safety by design.",
+"text": "We prioritise local processing, data minimisation, and clear documentation of how information flows."
+},
+{
+"number": 5,
+"title": "Scientific and clinical rigour.",
+"text": "We work with researchers, clinicians, and families using transparent methods and reproducible protocols."
+}
 ] %}
+
 {% include "components/_values_list.html" %}
+
 
 
 
