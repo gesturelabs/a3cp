@@ -26,72 +26,6 @@
     opacity: 1;
 }
 
-/* ---- Six Block Grid ---- */
-
-.six-block-grid {
-    padding: 3rem 1.5rem;
-    background-color: var(--color-bg);
-}
-
-.six-block-grid-inner {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.six-block-grid-title {
-    margin: 0;
-    font-size: 1.75rem;
-    line-height: 1.25;
-}
-
-.six-block-grid-intro {
-    margin: 0;
-    max-width: 42rem;
-    color: var(--color-muted);
-}
-
-.six-block-grid-cards {
-    display: grid;
-    gap: 1.5rem;
-}
-
-@media (min-width: 640px) {
-    .six-block-grid-cards {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 1024px) {
-    .six-block-grid-cards {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-.six-block-card {
-    background-color: var(--color-surface);
-    padding: 1.5rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.six-block-card-title {
-    margin: 0;
-    font-size: 1.125rem;
-    line-height: 1.3;
-}
-
-.six-block-card-body {
-    margin: 0;
-    color: var(--color-muted);
-    line-height: 1.55;
-}
-
 /* ===============================
            Navigation (sticky header)
            =============================== */
@@ -172,7 +106,7 @@ nav {
 .section-spacing {
     margin: 0 auto 4rem;
     max-width: var(--max-width);
-    padding: 0 1.25rem;
+    padding: 3rem 1rem;
 }
 
 .btn {
@@ -830,4 +764,235 @@ main {
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 0 1.25rem 3rem;
+}
+
+/* ---------------------------------------------
+   TWO COLUMN SECTION
+--------------------------------------------- */
+
+.two-column-section {
+    padding: 4rem 0;
+}
+
+.two-column-inner {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 3rem;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+@media (max-width: 900px) {
+    .two-column-inner {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Main column */
+.two-column-title {
+    font-family: var(--font-heading);
+    font-size: 1.875rem;
+    margin-bottom: 1rem;
+}
+
+.two-column-lead {
+    font-size: 1.125rem;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+}
+
+.two-column-body p+p {
+    margin-top: 1rem;
+}
+
+/* Aside column */
+.two-column-aside-title {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+}
+
+.two-column-aside-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.two-column-aside-item {
+    margin-bottom: 0.75rem;
+    color: var(--color-muted);
+    line-height: 1.4;
+}
+
+/* ---------------------------------------------
+   THREE CARD ROW
+--------------------------------------------- */
+
+.three-card-row {
+    padding: 4rem 0;
+}
+
+.three-card-row-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.three-card-row-title {
+    font-family: var(--font-heading);
+    font-size: 1.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.three-card-row-intro {
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+}
+
+.three-card-row-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.75rem;
+}
+
+@media (max-width: 900px) {
+    .three-card-row-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+.three-card-row-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+}
+
+.three-card-row-card-title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.three-card-row-card-body {
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+}
+
+.three-card-row-card-link a {
+    color: var(--color-primary);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+/* ---------------------------------------------
+   MUTED SECTION / VISUAL CONCEPTS
+--------------------------------------------- */
+
+.section-muted {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding: 3rem 0;
+}
+
+.section-muted h3 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.section-muted-intro {
+    color: var(--color-muted);
+    margin-bottom: 1.5rem;
+}
+
+.visual-concepts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.visual-concepts-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+    line-height: 1.5;
+}
+
+.visual-concepts-list li:last-child {
+    border-bottom: none;
+}
+
+.visual-concepts-list strong {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+
+
+/* ---- Six Block Grid ---- */
+
+.six-block-grid {
+    padding: 3rem 1.5rem;
+    background-color: var(--color-bg);
+}
+
+.six-block-grid-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.six-block-grid-title {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.25;
+}
+
+.six-block-grid-intro {
+    margin: 0;
+    max-width: 42rem;
+    color: var(--color-muted);
+}
+
+.six-block-grid-cards {
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .six-block-grid-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .six-block-grid-cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.six-block-card {
+    background-color: var(--color-surface);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.six-block-card-title {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.3;
+}
+
+.six-block-card-body {
+    margin: 0;
+    color: var(--color-muted);
+    line-height: 1.55;
 }
