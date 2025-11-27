@@ -374,19 +374,20 @@ nav {
            Centered text block
            =============================== */
 /* ---------------------------------------------
-   CENTERED TEXT BLOCK — aligned with other sections
+   CENTERED TEXT BLOCK — aligned with sections
 --------------------------------------------- */
 
 .centered-text {
-    padding: 2.5rem 0;
-    /* vertical spacing only — consistent with other blocks */
+    padding: 2.75rem 0;
+    /* vertical spacing only */
 }
 
 .centered-text-inner {
     max-width: var(--max-width);
+    /* same as .section */
     margin: 0 auto;
     padding: 0 1rem;
-    /* <-- matches your .section padding exactly */
+    /* same horizontal padding as .section */
     text-align: center;
 }
 
@@ -401,10 +402,11 @@ nav {
     line-height: 1.7;
     color: var(--color-muted);
     max-width: 40rem;
-    /* readable line-length */
+    /* readable width for text */
     margin: 0 auto;
-    /* center the paragraph */
+    /* centers text within the grid */
 }
+
 
 /* ===============================
            Partners list
