@@ -4,120 +4,153 @@
 
 {% block content %}
 
-{# HERO #}
-{% set hero_eyebrow = "About GestureLabs · A3CP" %}
-{% set hero_title = "Adaptive communication technology for non-speaking people." %}
-{% set hero_subtitle %}
-A3CP is an open-source, ability-adaptive communication platform developed by GestureLabs in Berlin with academic and
-clinical partners. It is built on a simple principle: communication technology should adapt to human ability, not the
-other way around.
-{% endset %}
-{# If/when you have a dedicated illustration, set this; otherwise omit and you get the orbit animation #}
-{# {% set hero_illustration_src = "/static/img/illustrations/a3cp_flow.png" %}
-{% set hero_illustration_alt = "Gestures and sounds flowing into AI, then speech output" %} #}
-{% set hero_primary_cta_label = "Learn how A3CP works" %}
-{% set hero_primary_cta_href = "/technology" %}
-{% set hero_secondary_cta_label = "Get involved" %}
-{% set hero_secondary_cta_href = "/get-involved" %}
-{% include "components/_hero_section.html" %}
-
-
-{# SHORT CENTERED STORY / POSITIONING #}
-{% set ct_headline = "From lived experience to open infrastructure" %}
+{# PURPOSE #}
+{% set ct_headline = "Why GestureLabs is building the Ability-Adaptive Communication Platform (A3CP)" %}
 {% set ct_subheadline %}
-A3CP grew out of a family’s experience: Andrea’s son Eric, a bright and curious child with cerebral palsy, understands
-two languages and communicates through sound, movement, and expression—but does not yet speak. Existing AAC systems
-often asked him to adapt to rigid interfaces he could not reliably control.
-
-Early work at The Open University (UK) explored a different approach: combine affordable sensors, gesture recognition,
-and participatory design with families and therapists so that AI could learn each person’s way of communicating.
-GestureLabs was founded in Berlin to carry this vision forward as a non-profit initiative, building tools that are
-adaptive, transparent, and socially owned.
+A3CP is an open-source communication platform for people who cannot rely on speech. We work with families, clinicians,
+and care organisations to build systems that learn how each person communicates—through movement, sound, and
+context—rather than forcing them to adapt to rigid interfaces.
 {% endset %}
 {% include "components/_centered_text_block.html" %}
 
 
-{# THREE-CARD SUMMARY: CHALLENGE / APPROACH / IMPACT #}
-{% set tcr_title = "What A3CP is trying to solve" %}
+{# CHALLENGE / APPROACH / IMPACT #}
+{% set tcr_title = "What problem A3CP is trying to solve" %}
 {% set tcr_intro %}
-Across Europe, many people with severe motor or cognitive disabilities still lack reliable ways to communicate. A3CP is
-our attempt to close this gap with an ability-adaptive, open-source platform.
+Across Europe, many people with severe motor or cognitive disabilities still lack reliable ways to communicate. Current
+assistive-communication tools often assume abilities—precise pointing, eye-tracking, symbol selection—that many do not
+have. A3CP is our attempt to close this gap.
 {% endset %}
-
 {% set tcr_cards = [
 {
 "title": "The challenge",
-"description": "Many non-speaking people cannot use current assistive-communication systems because these tools assume
-precise pointing, eye-tracking, or symbol selection. Care organizations face staff shortages, digitalisation pressure,
-and systems that are hard to adapt to individual abilities.",
+"description": "Non-speaking people are often asked to fit into technology that was not designed for them. Systems built
+around fixed input methods can leave individuals isolated and caregivers overwhelmed, especially in understaffed welfare
+institutions.",
 "href": None
 },
 {
 "title": "Our approach",
-"description": "A3CP is a modular, FastAPI-based platform that learns how each person communicates—through gestures,
-sounds, and contextual cues—and turns these signals into speech, text, or symbols. Caregivers label new gestures,
-confirm meanings, and guide the system as it adapts over time.",
+"description": "A3CP is a modular, open-source platform that learns each person’s patterns of movement, sound, and
+context. Caregivers remain in the loop: they label gestures, confirm meanings, and guide how the system adapts over
+time.",
 "href": "/technology"
 },
 {
-"title": "Why it matters",
-"description": "Ability-adaptive communication can help non-speaking people express needs, preferences, and emotions;
-reduce caregiver stress; and support person-centred care in line with the UN Convention on the Rights of Persons with
-Disabilities. By being open-source and auditable, A3CP creates infrastructure that welfare organizations can extend and
-trust.",
+"title": "The impact we aim for",
+"description": "By making ability-adaptive communication infrastructure openly available, we want to enable non-speaking
+people to express needs and preferences, reduce caregiver stress, and give welfare organisations tools they can audit,
+extend, and trust.",
 "href": "/impact"
 }
 ] %}
 {% include "components/_three_card_row.html" %}
 
 
-{# MORE DETAILED STORY SECTION (KEPT AS REGULAR SECTION) #}
-<section class="section">
-    <h2>Our Story in More Detail</h2>
-    <p>
-        Everyday interactions with Eric highlighted both the richness of his non-verbal communication and the limits of
-        existing assistive systems, which often require users to adapt to fixed input methods. Andrea’s wish to give
-        her son a voice initiated a collaboration between technologists, designers, and researchers at The Open
-        University (UK).
-    </p>
-    <p>
-        Early prototypes combined simple sensors, computer vision, and gesture recognition with participatory design
-        sessions involving families and therapists. These experiments showed that even low-cost technology can capture
-        meaningful signals when it is designed around individual ability rather than around a standard user model.
-    </p>
-    <p>
-        With the founding of GestureLabs in Berlin, A3CP moved from a research project toward non-profit product
-        development. The goal is to deliver practical, ethical, and replicable tools that can be freely used, improved,
-        and shared by care organizations, researchers, and families.
-    </p>
-    <p>
-        A3CP is therefore more than software. It is a commitment to communication as a human right and to ensuring that
-        people with the least conventional access to technology are among the first to benefit from it.
-    </p>
+{# STORY WITH PHOTO #}
+<section class="section section-story">
+    <div class="story-inner">
+        <div class="story-text">
+            <h2>Where A3CP came from</h2>
+            <p>
+                A3CP began with a family’s experience. Andrea’s son Eric, a bright and curious child with cerebral
+                palsy,
+                understands two languages and communicates through sound, movement, and expression—but does not yet
+                speak.
+                Everyday interactions made two things clear: the richness of his non-verbal communication, and the
+                limits of
+                existing assistive systems that required him to adapt to fixed input methods he could not reliably
+                control.
+            </p>
+            <p>
+                Andrea’s wish to give her son a voice initiated a collaboration between technologists, designers, and
+                researchers at The Open University (UK). Early prototypes combined simple sensors, gesture recognition,
+                and
+                participatory design with families and therapists. These experiments showed that even low-cost
+                technology
+                can capture meaningful signals when it is designed around individual ability.
+            </p>
+            <p>
+                GestureLabs was founded in Berlin to carry this work forward as a non-profit initiative. A3CP is now
+                being
+                developed as open, transparent infrastructure that care organisations, researchers, and families can
+                freely
+                use, improve, and share.
+            </p>
+        </div>
+
+        <figure class="story-photo">
+            <img src="/static/img/photos/andrea_erik2.png"
+                alt="Andrea with her son Eric during a communication session">
+            <figcaption>
+                Andrea and her son Eric. Their experience helped shape the core ideas behind A3CP.
+            </figcaption>
+        </figure>
+    </div>
 </section>
+
+
+{# WHAT WE ARE BUILDING #}
+{% set tcr_title = "What we are building" %}
+{% set tcr_intro %}
+The Ability-Adaptive Augmentative Communication Platform is not a single app, but a stack of components that can be
+deployed in schools, care homes, therapy centres, and family homes.
+{% endset %}
+{% set tcr_cards = [
+{
+"title": "Inputs: gestures, sound, context",
+"description": "A3CP takes in signals from cameras, microphones, and other sensors, turning movement, vocalisation, and
+environmental context into structured representations. The goal is to work with affordable, widely available hardware.",
+"href": "/technology#inputs"
+},
+{
+"title": "Learning with caregivers",
+"description": "The platform learns over time how a specific person uses gestures and sounds to express meaning.
+Caregivers can label new actions, correct mistakes, and see how the system is changing—keeping humans in control of
+interpretation.",
+"href": "/technology#learning"
+},
+{
+"title": "Outputs and integration",
+"description": "Recognised intents can be rendered as speech, text, or symbols and integrated with existing AAC tools
+where appropriate. The modular FastAPI-based stack and documented schemas are designed for extension and audit.",
+"href": "/technology#outputs"
+}
+] %}
+{% include "components/_three_card_row.html" %}
+
+
+{# HOW WE WORK / PRINCIPLES #}
+{% set vl_label = "How we work" %}
+{% set vl_title = "What we value and how we design A3CP" %}
+{% set vl_intro = "Shaping an adaptive communication system for non-speaking people requires principled choices about
+data, design, and governance." %}
+{% set vl_values = [
+{"number": 1, "title": "Put the person first.", "text": "We design around individual abilities and contexts, not around
+standardised gestures or abstract user models."},
+{"number": 2, "title": "Caregiver-in-the-loop.", "text": "Caregivers label new actions, correct interpretations, and
+review how the system adapts over time."},
+{"number": 3, "title": "Open and inspectable.", "text": "Schemas, logs, and code are open so institutions can audit
+behaviour and adapt the platform to their needs."},
+{"number": 4, "title": "Privacy and safety by design.", "text": "We prioritise local processing, data minimisation, and
+clear documentation of how information flows."},
+{"number": 5, "title": "Scientific and clinical rigour.", "text": "We work with researchers, clinicians, and families
+using transparent methods and reproducible protocols."}
+] %}
+{% include "components/_values_list.html" %}
+
 
 
 {# CURRENT STATUS #}
 <section class="section">
-    <h2>Current Status</h2>
+    <h2>Where the project is today</h2>
     <ul>
         <li>Core architecture defined using a modular FastAPI-based stack.</li>
-        <li>Canonical data schemas validated with Pydantic v2.</li>
-        <li>Adaptive memory and caregiver-feedback framework designed.</li>
+        <li>Canonical data schemas validated with Pydantic v2 and documented for partners.</li>
+        <li>Adaptive memory and caregiver-feedback framework designed and under active implementation.</li>
         <li>Collaboration network forming in Berlin–Brandenburg and internationally.</li>
         <li>Pilot studies with care and research partners planned for 2026.</li>
     </ul>
-</section>
-
-
-{# VISUAL CONCEPT PLACEHOLDER #}
-<section class="section section-muted">
-    <h3>From signals to shared meaning</h3>
-    <p>
-        Visual concept placeholder: input (gesture and sound) → AI inference → output (speech/text) →
-        caregiver feedback loop. This illustrates how A3CP adapts to each individual over time while
-        keeping humans in control of interpretation and meaning.
-    </p>
 </section>
 
 
