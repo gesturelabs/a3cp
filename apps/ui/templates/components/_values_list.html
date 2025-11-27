@@ -2,6 +2,7 @@
 
 <section class="values-section">
     <div class="values-section-inner">
+
         {% if vl_label is defined %}
         <div class="values-section-label">
             {{ vl_label }}
@@ -9,37 +10,27 @@
         {% endif %}
 
         <div class="values-section-main">
+
             {% if vl_title is defined %}
-            <h2 class="values-section-title">
-                {{ vl_title }}
-            </h2>
+            <h2 class="values-section-title">{{ vl_title }}</h2>
             {% endif %}
 
             {% if vl_intro is defined %}
-            <p class="values-section-intro">
-                {{ vl_intro }}
-            </p>
+            <p class="values-section-intro">{{ vl_intro }}</p>
             {% endif %}
 
             <ol class="values-list">
                 {% for item in vl_values %}
                 <li class="values-item">
-                    {% if item.number is defined %}
-                    <div class="values-item-number">
-                        {{ "%02d"|format(item.number) }}
-                    </div>
-                    {% endif %}
+                    <div class="values-item-number">{{ "%02d"|format(item.number) }}</div>
                     <div class="values-item-body">
-                        <h3 class="values-item-title">
-                            {{ item.title }}
-                        </h3>
-                        <p class="values-item-text">
-                            {{ item.text }}
-                        </p>
+                        <h3 class="values-item-title">{{ item.title }}</h3>
+                        <p class="values-item-text">{{ item.text }}</p>
                     </div>
                 </li>
                 {% endfor %}
             </ol>
+
         </div>
     </div>
 </section>
