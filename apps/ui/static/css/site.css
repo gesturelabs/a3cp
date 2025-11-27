@@ -106,7 +106,7 @@ nav {
 .section-spacing {
     margin: 0 auto 4rem;
     max-width: var(--max-width);
-    padding: 1.5 rem 1rem;
+    padding: 2 rem 1rem;
 }
 
 .btn {
@@ -294,7 +294,7 @@ nav {
 
     .hero-visual {
         justify-content: center;
-        margin-top: 1.5rem;
+        margin-top: .75 rem;
     }
 
     .hero {
@@ -803,7 +803,7 @@ main {
 }
 
 .two-column-body p+p {
-    margin-top: 1rem;
+    margin-top: .75 rem;
 }
 
 /* Aside column */
@@ -830,7 +830,7 @@ main {
 --------------------------------------------- */
 
 .three-card-row {
-    padding: 4rem 0;
+    padding: 2 rem 0;
 }
 
 .three-card-row-inner {
