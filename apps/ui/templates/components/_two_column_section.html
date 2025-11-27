@@ -1,0 +1,59 @@
+{# Two-column content block
+Expected context:
+- tc_eyebrow (optional)
+- tc_title (required)
+- tc_lead (optional short lead paragraph)
+- tc_body (optional longer HTML/text block)
+- tc_aside_title (optional)
+- tc_aside_items (optional list of strings)
+#}
+
+<section class="two-column-section">
+    <div class="two-column-inner">
+
+        <div class="two-column-main">
+            {% if tc_eyebrow is defined %}
+            <p class="eyebrow">
+                {{ tc_eyebrow }}
+            </p>
+            {% endif %}
+
+            <h2 class="two-column-title">
+                {{ tc_title }}
+            </h2>
+
+            {% if tc_lead is defined %}
+            <p class="two-column-lead">
+                {{ tc_lead }}
+            </p>
+            {% endif %}
+
+            {% if tc_body is defined %}
+            <div class="two-column-body">
+                {{ tc_body }}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if tc_aside_title is defined or tc_aside_items is defined %}
+        <aside class="two-column-aside">
+            {% if tc_aside_title is defined %}
+            <h3 class="two-column-aside-title">
+                {{ tc_aside_title }}
+            </h3>
+            {% endif %}
+
+            {% if tc_aside_items is defined %}
+            <ul class="two-column-aside-list">
+                {% for item in tc_aside_items %}
+                <li class="two-column-aside-item">
+                    {{ item }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </aside>
+        {% endif %}
+
+    </div>
+</section>

@@ -63,60 +63,134 @@ standards. This makes the system easier to audit, extend, and deploy across care
 
 {# --- Existing sections below left unchanged for now --- #}
 
-<section class="section">
-    <h2>The CARE Engine</h2>
-    <p>
-        The CARE Engine — Clarification, Adaptation, Reasoning, and Explanation — is the reasoning core of A3CP.
-        It fuses information from gesture, sound, and contextual modules, computes confidence levels, and decides
-        when to ask for clarification. When confidence is low, it presents the most likely interpretations to
-        caregivers for confirmation. Each clarification becomes new training data, enabling the system to learn
-        and adapt to the individual user.
-    </p>
-</section>
+{# CARE Engine as a two-column block #}
+{% set tc_title = "The CARE Engine" %}
+{% set tc_lead = "The CARE Engine — Clarification, Adaptation, Reasoning, and Explanation — is the decision core that
+turns raw classifier outputs into safe, interpretable communication." %}
+{% set tc_body %}
+<p>
+    It fuses information from gesture, sound, and contextual modules, computes confidence, and decides when to ask for
+    clarification. When confidence is low, it surfaces the most plausible interpretations for caregivers instead of
+    committing to a single guess.
+</p>
+<p>
+    Each clarification becomes a structured training example, allowing the system to adapt to the individual user over
+    time while keeping humans in control of final decisions.
+</p>
+{% endset %}
 
-<section class="section">
-    <h2>Ethical and Edge-Capable Design</h2>
-    <p>
-        A3CP is engineered to run fully offline on affordable devices such as Raspberry Pi or Jetson Nano.
-        This ensures privacy and accessibility for families, schools, and care homes, without dependence on
-        commercial cloud services.
-    </p>
-    <p>
-        Only derived feature data are stored—never raw video or audio—making learning processes transparent
-        and explainable. All code and documentation are open-source so that anyone can review, replicate,
-        or improve the platform.
-    </p>
-</section>
+{% set tc_aside_title = "What the CARE Engine does" %}
+{% set tc_aside_items = [
+"Monitors confidence from gesture and sound classifiers.",
+"Defers to caregivers when predictions are uncertain.",
+"Logs each clarification as structured feedback data.",
+"Updates user-specific models via confirmed examples.",
+"Explains when and why it is unsure."
+] %}
 
-<section class="section">
-    <h2>Development Path</h2>
-    <ul>
-        <li><strong>Phase 1:</strong> Streamlit demonstrator validated feasibility of gesture capture,
-            visualization, and personalized training.</li>
-        <li><strong>Phase 2:</strong> Modular FastAPI architecture established a scalable foundation for real-world
-            deployment.</li>
-        <li><strong>Phase 3 (2026):</strong> Integration of gesture and sound classifiers, caregiver-in-the-loop
-            training, and pilot studies.</li>
-    </ul>
-</section>
+{% include "components/_two_column_section.html" %}
 
-<section class="section">
-    <h2>Future Possibilities</h2>
-    <p>
-        The adaptive architecture of A3CP can support creative and educational uses — from composing music or art
-        through gestures to connecting with digital avatars or providing learning analytics for therapists.
-        Because every interaction is logged as structured, interpretable data, A3CP can also contribute to new
-        research on communication development and multimodal expression.
-    </p>
-</section>
+
+{# Ethical + edge design as two-column block #}
+{% set tc_title = "Ethical and Edge-Capable Design" %}
+{% set tc_lead = "A3CP is engineered to run locally, preserve privacy, and stay open to inspection." %}
+{% set tc_body %}
+<p>
+    The platform is designed to run fully offline on affordable devices such as Raspberry Pi or Jetson Nano. This makes
+    it viable for families, schools, and care homes without relying on commercial cloud services or permanent internet
+    access.
+</p>
+<p>
+    Only derived feature data are stored — never raw video or audio — so that learning processes remain transparent and
+    explainable. All code and documentation are open source, allowing others to review, replicate, or improve the
+    platform.
+</p>
+{% endset %}
+
+{% set tc_aside_title = "Design guarantees" %}
+{% set tc_aside_items = [
+"Offline-first: runs on local, affordable hardware.",
+"No raw video/audio storage — only derived features.",
+"Transparent models and logs for audit and review.",
+"Open-source code and documentation.",
+"Deployable by schools, families, and clinics without vendor lock-in."
+] %}
+
+{% include "components/_two_column_section.html" %}
+
+
+{# Development Path as three-card row #}
+{% set tcr_title = "Development Path" %}
+{% set tcr_intro = "A3CP has progressed through successive prototypes toward a stable, deployable system." %}
+
+{% set tcr_cards = [
+{
+"title": "Phase 1",
+"description": "Streamlit demonstrator validated feasibility of gesture capture, landmark visualization, and
+personalized training.",
+"href": "/docs"
+},
+{
+"title": "Phase 2",
+"description": "Modular FastAPI architecture established a scalable foundation for real-world deployment.",
+"href": "/docs"
+},
+{
+"title": "Phase 3 (2026)",
+"description": "Integration of gesture and sound classifiers, caregiver-in-the-loop training, and early pilot studies.",
+"href": "/docs"
+}
+] %}
+
+{% include "components/_three_card_row.html" %}
+
+
+{# Future possibilities as two-column block #}
+{% set tc_title = "Future Possibilities" %}
+{% set tc_lead = "The adaptive architecture of A3CP creates new opportunities across creative, therapeutic, and research
+domains." %}
+{% set tc_body %}
+<p>
+    Because every interaction is logged as structured, interpretable data, A3CP can support new forms of learning,
+    creativity, and clinical insight. The same modular pipeline that enables communication support can also power
+    creative tools or research systems.
+</p>
+{% endset %}
+
+{% set tc_aside_title = "Potential directions" %}
+{% set tc_aside_items = [
+"Gesture-based music or art composition.",
+"Integration with digital avatars and embodied interfaces.",
+"Adaptive learning tools for therapy and education.",
+"Longitudinal analytics for clinical teams.",
+"Multimodal datasets for research on communication development."
+] %}
+
+{% include "components/_two_column_section.html" %}
 
 <section class="section section-muted">
     <h3>Visual concepts</h3>
-    <ul>
-        <li>Architecture Diagram: Input → Classification → CARE Engine → Output → Feedback loop.</li>
-        <li>Clarification Loop Illustration: caregiver confirmation and model update cycle.</li>
-        <li>Edge Deployment Graphic: Raspberry Pi or tablet with local processing arrows (no cloud icons).</li>
+    <p class="section-muted-intro">
+        These are suggested illustrations for this page and the broader GestureLabs visual language:
+    </p>
+    <ul class="visual-concepts-list">
+        <li>
+            <strong>Architecture diagram:</strong>
+            A clean left-to-right flow showing Input → Feature Extraction → Classifiers → CARE Engine → Output →
+            Feedback loop.
+        </li>
+        <li>
+            <strong>Clarification loop:</strong>
+            A small cycle diagram showing the system proposing an interpretation, caregiver confirmation/correction, and
+            the model updating.
+        </li>
+        <li>
+            <strong>Edge deployment graphic:</strong>
+            A Raspberry Pi or tablet icon with arrows indicating on-device processing and a subtle “no cloud”
+            implication (no cloud icon, no upload arrows).
+        </li>
     </ul>
 </section>
+
 
 {% endblock %}
