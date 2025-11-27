@@ -61,9 +61,27 @@
 │       ├── README.md
 │       ├── services.py
 │       ├── static
+│       │   ├── css
+│       │   │   ├── reset.css
+│       │   │   └── site.css
+│       │   └── img
+│       │       ├── icons
+│       │       ├── illustrations
+│       │       │   └── landmarks.png
+│       │       ├── logos
+│       │       │   ├── ou_logo.png
+│       │       │   └── social_impact_logo.png
+│       │       └── photos
 │       ├── templates
 │       │   ├── about.html
 │       │   ├── base.html
+│       │   ├── components
+│       │   │   ├── _centered_text_block.html
+│       │   │   ├── _cta_band.html
+│       │   │   ├── _hero_section.html
+│       │   │   ├── _six_block_grid.html
+│       │   │   ├── _three_card_row.html
+│       │   │   └── _values_list.html
 │       │   ├── contact.html
 │       │   ├── docs.html
 │       │   ├── get_involved.html
@@ -364,7 +382,7 @@
 │   ├── schema_mapping_config.py
 │   └── validate_env.py
 └── tests
-    ├── __init__.py
+    ├── __init__.py 
     ├── api
     │   ├── test_audio_feed_worker_routes.py
     │   ├── test_camera_feed_worker_routes.py
@@ -393,4 +411,4 @@
     ├── conftest.py
     └── utils.py
 
-83 directories, 311 files
+90 directories, 322 files
