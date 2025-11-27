@@ -373,17 +373,21 @@ nav {
 /* ===============================
            Centered text block
            =============================== */
+/* ---------------------------------------------
+   CENTERED TEXT BLOCK — aligned with other sections
+--------------------------------------------- */
 
 .centered-text {
-    max-width: var(--max-width);
-    margin: 0 auto 1.5rem;
-    padding: 0 1.25rem;
-    text-align: center;
+    padding: 2.5rem 0;
+    /* vertical spacing only — consistent with other blocks */
 }
 
 .centered-text-inner {
-    max-width: 720px;
+    max-width: var(--max-width);
     margin: 0 auto;
+    padding: 0 1rem;
+    /* <-- matches your .section padding exactly */
+    text-align: center;
 }
 
 .centered-text-title {
@@ -396,6 +400,10 @@ nav {
     font-size: 1rem;
     line-height: 1.7;
     color: var(--color-muted);
+    max-width: 40rem;
+    /* readable line-length */
+    margin: 0 auto;
+    /* center the paragraph */
 }
 
 /* ===============================
@@ -420,6 +428,12 @@ nav {
     font-size: 0.98rem;
     color: var(--color-muted);
 }
+
+
+
+/* ---------------------------------------------
+  Values
+--------------------------------------------- */
 
 .values-section {
     padding: 3rem 2rem;
