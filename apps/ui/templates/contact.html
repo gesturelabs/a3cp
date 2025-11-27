@@ -1,38 +1,59 @@
+{# apps/ui/templates/contact.html #}
 {% extends "base.html" %}
 
 {% block title %}Contact · GestureLabs{% endblock %}
 
 {% block content %}
 
-<section class="page-intro">
-    <h1>Contact GestureLabs</h1>
-    <p>
-        We welcome inquiries from care organizations, researchers, developers, and funders interested in the
-        Ability-Adaptive Augmentative Communication Platform (A3CP).
-        Please reach out with questions, collaboration ideas, or requests for information materials.
+{# Intro as centered block #}
+{% set ct_eyebrow = "Contact" %}
+{% set ct_headline = "Get in touch with GestureLabs." %}
+{% set ct_subheadline = "
+We welcome inquiries from care organizations, researchers, developers, and funders interested in the Ability-Adaptive
+Augmentative Communication Platform (A3CP). Reach out with questions, collaboration ideas, or requests for materials.
+" %}
+{% include "components/_centered_text_block.html" %}
+
+{# Two-column: contact info + guidance #}
+{% set tc_title = "Contact Information" %}
+{% set tc_body %}
+<address>
+    <p><strong>GestureLabs</strong><br>
+        (in registration as a non-profit association in Berlin)<br>
+        Rigaer Str. 16<br>
+        10247 Berlin, Germany
     </p>
-</section>
 
-<section class="section">
-    <h2>Contact Information</h2>
-    <address>
-        <p><strong>GestureLabs</strong><br>
-            (in registration as a non-profit association in Berlin)<br>
-            Rigaer Str. 16<br>
-            10247 Berlin, Germany</p>
-
-        <p>
-            Email: <a href="mailto:dmitrikatz23@gmail.com">dmitrikatz23@gmail.com</a>
-        </p>
-    </address>
-</section>
-
-<section class="section">
-    <h3>General Inquiries</h3>
     <p>
-        For collaboration or partnership inquiries, please include a brief description of your organization
-        and area of interest so we can connect you with the appropriate member of the team.
+        Email:
+        <a href="mailto:dmitrikatz23@gmail.com">
+            dmitrikatz23@gmail.com
+        </a>
     </p>
+</address>
+{% endset %}
+
+{% set tc_aside_title = "How we can help" %}
+{% set tc_aside_items = [
+"Care organizations: questions about pilots, ethical approvals, and deployment in practice.",
+"Researchers: collaboration on multimodal communication, AAC, or adaptive AI studies.",
+"Developers: contributions to A3CP infrastructure, tooling, or documentation.",
+"Funders & partners: information materials, project overviews, and cooperation models."
+] %}
+
+{% include "components/_two_column_section.html" %}
+
+{# Optional short guidance band #}
+<section class="section section-muted">
+    <h3>What to include in your email</h3>
+    <p class="section-muted-intro">
+        To help us respond efficiently, please include:
+    </p>
+    <ul class="visual-concepts-list">
+        <li><strong>Who you are:</strong> your role and organization (if applicable).</li>
+        <li><strong>Your focus:</strong> care practice, research, development, funding, or other.</li>
+        <li><strong>Your question or idea:</strong> a short description of what you would like to discuss.</li>
+    </ul>
 </section>
 
 {% endblock %}
