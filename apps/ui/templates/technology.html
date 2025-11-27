@@ -24,56 +24,21 @@
     </p>
 </section>
 
-<section class="section">
-    <h2>Modular Architecture</h2>
-    <p>
-        A3CP is built as a modular framework where each component operates independently but communicates through shared
-        data standards. This architecture makes the platform easy to adapt, extend, and audit.
-    </p>
-
-    <table class="architecture-table">
-        <thead>
-            <tr>
-                <th>Layer</th>
-                <th>Function</th>
-                <th>Purpose</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Capture Layer</td>
-                <td>Collects gesture and sound data through cameras and microphones.</td>
-                <td>Enables low-latency, private data capture on local devices.</td>
-            </tr>
-            <tr>
-                <td>Feature Extraction</td>
-                <td>Converts raw input into structured feature vectors (e.g., hand, face, and body landmarks; sound
-                    features).</td>
-                <td>Provides standardized, compact data for classification.</td>
-            </tr>
-            <tr>
-                <td>Classification Layer</td>
-                <td>Learns how each user expresses meaning through gesture, sound, and context.</td>
-                <td>Produces per-user intent predictions with confidence scores.</td>
-            </tr>
-            <tr>
-                <td>CARE Engine</td>
-                <td>Integrates all inputs, checks confidence, and triggers caregiver clarification when needed.</td>
-                <td>Keeps humans in control of interpretation and learning.</td>
-            </tr>
-            <tr>
-                <td>Memory &amp; Learning Layer</td>
-                <td>Stores confirmed gestures and caregiver feedback for retraining.</td>
-                <td>Allows the system to adapt and improve with daily use.</td>
-            </tr>
-            <tr>
-                <td>Interface Layer</td>
-                <td>Displays messages (text, speech, or symbols) and asks for confirmation when uncertain.</td>
-                <td>Provides transparency and supports shared understanding.</td>
-            </tr>
-        </tbody>
-    </table>
-</section>
+{% set sbg_title="Modular Architecture" %} {% set sbg_intro %} A3CP is built as a modular framework: each component
+operates independently and communicates through shared data standards. This makes the system easier to audit,
+extend, and deploy across care, therapy, and educational environments. {% endset %} {% set sbg_items=[
+{"title": "1. Capture Layer" , "text"
+: "Camera and microphone inputs collected locally for low-latency, private processing." },
+{"title": "2. Feature Extraction" , "text"
+: "Landmarks, movement features, and audio features converted into compact vectors." },
+{"title": "3. Classification" , "text" : "User-specific models generate intent predictions with confidence scores."
+}, {"title": "4. CARE Engine" , "text"
+: "Fuses predictions, checks uncertainty, and triggers caregiver clarification when needed." },
+{"title": "5. Memory & Learning" , "text"
+: "Stores caregiver-confirmed examples to continually adapt to the user’s patterns." },
+{"title": "6. Interface Layer" , "text"
+: "Outputs speech, text, or symbols; explains uncertainty; requests confirmation." } ] %} {%
+include "components/_six_block_grid.html" %}
 
 <section class="section">
     <h2>The CARE Engine</h2>
@@ -103,7 +68,8 @@
 <section class="section">
     <h2>Development Path</h2>
     <ul>
-        <li><strong>Phase 1:</strong> Streamlit demonstrator validated feasibility of gesture capture, visualization,
+        <li><strong>Phase 1:</strong> Streamlit demonstrator validated feasibility of gesture capture,
+            visualization,
             and personalized training.</li>
         <li><strong>Phase 2:</strong> Modular FastAPI architecture established a scalable foundation for real-world
             deployment.</li>

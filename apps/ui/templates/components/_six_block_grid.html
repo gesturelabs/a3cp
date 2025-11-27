@@ -1,0 +1,33 @@
+{# apps/ui/templates/components/_six_block_grid.html #}
+
+<section class="six-block-grid">
+    <div class="six-block-grid-inner">
+
+        {% if sbg_title is defined %}
+        <h2 class="six-block-grid-title">
+            {{ sbg_title }}
+        </h2>
+        {% endif %}
+
+        {% if sbg_intro is defined %}
+        <p class="six-block-grid-intro">
+            {{ sbg_intro }}
+        </p>
+        {% endif %}
+
+        <div class="six-block-grid-cards">
+            {% for item in sbg_items %}
+            <article class="six-block-card">
+                <h3 class="six-block-card-title">{{ item.title }}</h3>
+
+                {% if item.text %}
+                <p class="six-block-card-body">
+                    {{ item.text }}
+                </p>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
