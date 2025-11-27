@@ -1,44 +1,67 @@
+{# apps/ui/templates/technology.html #}
 {% extends "base.html" %}
 
 {% block title %}Technology · A3CP by GestureLabs{% endblock %}
 
 {% block content %}
 
-<section class="page-intro">
-    <h1>Technology</h1>
-    <p>
-        The Ability-Adaptive Augmentative Communication Platform (A3CP) translates complex research into a practical,
-        open, and ethical communication system. This page outlines how the platform works — from signal capture to
-        reasoning and feedback — and explains the modular architecture that makes A3CP adaptable and transparent.
-    </p>
-</section>
+{# --- Intro section via centered text block --- #}
+{% set ct_eyebrow = "Technology" %}
+{% set ct_headline = "How A3CP turns multimodal signals into adaptive communication." %}
+{% set ct_subheadline = "
+The Ability-Adaptive Augmentative Communication Platform (A3CP) translates complex research into a practical,
+open, and ethical communication system. It connects signal capture, classification, reasoning, and feedback
+in a modular way so that each part can be understood, audited, and improved over time.
+" %}
+{% include "components/_centered_text_block.html" %}
 
 <section class="section">
     <h2>Overview</h2>
     <p>
         A3CP combines gesture and sound recognition with human feedback to create an ability-adaptive communication
-        system.
-        Unlike traditional AAC tools that depend on symbol or text selection, A3CP learns directly from each person’s
-        expressive movements, sounds, and context. Its open-source design ensures transparency, ethical oversight, and
-        adaptability across care, education, and research environments.
+        system. Unlike traditional AAC tools that depend on symbol or text selection, A3CP learns directly from each
+        person’s expressive movements, sounds, and context. Its open-source design ensures transparency, ethical
+        oversight, and adaptability across care, education, and research environments.
     </p>
 </section>
 
-{% set sbg_title="Modular Architecture" %} {% set sbg_intro %} A3CP is built as a modular framework: each component
-operates independently and communicates through shared data standards. This makes the system easier to audit,
-extend, and deploy across care, therapy, and educational environments. {% endset %} {% set sbg_items=[
-{"title": "1. Capture Layer" , "text"
-: "Camera and microphone inputs collected locally for low-latency, private processing." },
-{"title": "2. Feature Extraction" , "text"
-: "Landmarks, movement features, and audio features converted into compact vectors." },
-{"title": "3. Classification" , "text" : "User-specific models generate intent predictions with confidence scores."
-}, {"title": "4. CARE Engine" , "text"
-: "Fuses predictions, checks uncertainty, and triggers caregiver clarification when needed." },
-{"title": "5. Memory & Learning" , "text"
-: "Stores caregiver-confirmed examples to continually adapt to the user’s patterns." },
-{"title": "6. Interface Layer" , "text"
-: "Outputs speech, text, or symbols; explains uncertainty; requests confirmation." } ] %} {%
-include "components/_six_block_grid.html" %}
+{# --- Modular architecture via six-block grid --- #}
+{% set sbg_title = "Modular Architecture" %}
+{% set sbg_intro = "
+A3CP is built as a modular framework: each component operates independently and communicates through shared data
+standards. This makes the system easier to audit, extend, and deploy across care, therapy, and educational environments.
+" %}
+
+{% set sbg_items = [
+{
+"title": "1. Capture Layer",
+"text": "Camera and microphone inputs collected locally for low-latency, privacy-preserving processing."
+},
+{
+"title": "2. Feature Extraction",
+"text": "Landmarks, movement features, and audio features converted into compact numeric vectors."
+},
+{
+"title": "3. Classification",
+"text": "User-specific models generate intent predictions with calibrated confidence scores."
+},
+{
+"title": "4. CARE Engine",
+"text": "Fuses predictions, checks uncertainty, and triggers caregiver clarification when needed."
+},
+{
+"title": "5. Memory & Learning",
+"text": "Stores caregiver-confirmed examples so the system gradually adapts to the user’s patterns."
+},
+{
+"title": "6. Interface Layer",
+"text": "Drives speech, text, or symbol output and can explain uncertainty or request confirmation."
+}
+] %}
+
+{% include "components/_six_block_grid.html" %}
+
+{# --- Existing sections below left unchanged for now --- #}
 
 <section class="section">
     <h2>The CARE Engine</h2>
@@ -69,8 +92,7 @@ include "components/_six_block_grid.html" %}
     <h2>Development Path</h2>
     <ul>
         <li><strong>Phase 1:</strong> Streamlit demonstrator validated feasibility of gesture capture,
-            visualization,
-            and personalized training.</li>
+            visualization, and personalized training.</li>
         <li><strong>Phase 2:</strong> Modular FastAPI architecture established a scalable foundation for real-world
             deployment.</li>
         <li><strong>Phase 3 (2026):</strong> Integration of gesture and sound classifiers, caregiver-in-the-loop
