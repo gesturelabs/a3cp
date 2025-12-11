@@ -14,6 +14,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-default")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
+
 # Installed apps
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -33,6 +34,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "apps.ui",
+    # "apps.pages",
+    # "apps.streamer",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -53,7 +57,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "config.wsgi:application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 # Database (PostgreSQL)
 db_engine = os.getenv("DB_ENGINE") or os.environ.get("DB_ENGINE")
@@ -73,6 +77,8 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
+
+
 # Static files (CSS, JS, images)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -84,3 +90,30 @@ SECURE_SSL_REDIRECT = not DEBUG
 
 # Default primary key field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Password validation
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/5.2/topics/i18n/
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True

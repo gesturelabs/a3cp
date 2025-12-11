@@ -8,6 +8,34 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+
+## Changelog – Restore Working Django Settings Architecture (2025-12-11)
+
+### Summary
+Repaired the broken Django settings configuration after migrating to Python 3.13 and restructuring the project. Restored a clean dev/prod split and ensured the local GestureLabs site runs correctly under the new environment.
+
+### Changes
+- Removed obsolete `config/settings.py` (was shadowed by `config/settings/` package).
+- Added `config/settings/dev.py` with:
+  - `from .prod import *` inheritance model
+  - Local overrides (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`)
+  - SQLite database for development
+  - Restored `sys.path.append(BASE_DIR / "apps")` for app imports
+- Updated `config/settings/__init__.py` to load `dev.py` for local development.
+- Fixed incorrect `WSGI_APPLICATION` syntax (`config.wsgi.application` instead of `config.wsgi:application`).
+- Moved `apps.ui`, `apps.pages`, and `apps.streamer` from `MIDDLEWARE` to `INSTALLED_APPS`.
+- Confirmed `AUTH_PASSWORD_VALIDATORS` present in `prod.py`.
+- Verified system boots successfully with `runserver` under Python 3.13.
+
+### Result
+Local development environment is fully restored:
+- Django loads correct settings.
+- Database, imports, and middleware chains work.
+- WSGI boot no longer fails.
+- Site runs at `127.0.0.1:8000` under Python 3.13.
+
+
 ## [2025-11-26] Website static asset routing fix
 
 ### Changed
