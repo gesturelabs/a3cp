@@ -7,3 +7,8 @@ tree -a \
 
 #activate virtual env
 source a3cp-env/bin/activate
+
+
+#work locally
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+http://127.0.0.1:8000/

@@ -10,7 +10,7 @@ load_dotenv(dotenv_path=BASE_DIR / ".env", override=False)
 
 
 # Core settings
-SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-default")
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
