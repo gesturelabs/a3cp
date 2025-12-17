@@ -16,11 +16,9 @@ else:
 
 REQUIRED_VARS = [
     "DEBUG",
-    "SECRET_KEY",
+    "APP_SECRET_KEY",
     "ALLOWED_HOSTS",
-    "DJANGO_SETTINGS_MODULE",
     "PYTHONUNBUFFERED",
-    "DB_ENGINE",
     "DB_NAME",
     "DB_USER",
     "DB_PASSWORD",
