@@ -59,9 +59,13 @@ jobs:
       - name: Print environment for debugging
         run: env | sort
 
-      - name: Run Django system check
+      - name: Fail if Django is importable
         run: |
-          python manage.py check --settings=config.settings.prod
+          python -c "import importlib.util, sys; sys.exit(1 if importlib.util.find_spec('django') else 0)"
+
+      - name: FastAPI smoke import
+        run: |
+          python -c "import apps.ui.main"
 
       - name: Run Pytest
         env:
