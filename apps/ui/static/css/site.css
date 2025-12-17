@@ -9,8 +9,8 @@
     --font-body: "Libre Baskerville", "Georgia", "Times New Roman", serif;
 
 
-    --color-text: #111111;
-    --color-muted: #5A5A5A;
+    --color-text: #000000;
+    --color-muted: #000000;
 
     /* Global background (Anthropic beige) */
     --color-bg: #F4F0EC;
@@ -47,7 +47,7 @@
     --color-border: #E6E2DD;
 
     /* Accent (keep blue but soften saturation) */
-    --color-primary: #1C3D8C;
+    --color-primary: #605dbe;
     --color-primary-soft: #DDE3F8;
 
     /* Radii */
@@ -241,22 +241,25 @@ nav {
 }
 
 .btn.primary {
-    background-color: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-}
-
-.btn.secondary {
-    background-color: #e5e7eb;
-    border-color: #e5e7eb;
+    background-color: var(--color-surface-soft-2);
+    color: #374151;
+    /*border-color: var(--color-primary);*/
 }
 
 .btn.primary:hover {
     filter: brightness(0.95);
 }
 
+.btn.secondary {
+    background-color: var(--color-surface-soft-3);
+    /* darker border */
+    color: #374151;
+    /* darker text */
+}
+
 .btn.secondary:hover {
-    background-color: #d1d5db;
+    filter: brightness(0.95)
+        /*border-color: #6b7280;*/
 }
 
 /* ===============================
@@ -1064,6 +1067,57 @@ nav {
 
 .six-block-card:nth-child(6) {
     background-color: var(--color-six-6);
+}
+
+/* ===============================
+           two column with photo right
+=============================== */
+
+.two-col-photo {
+    padding: 3rem 0;
+}
+
+.two-col-photo-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1.25rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.two-col-photo-reverse {
+    direction: rtl;
+}
+
+.two-col-photo-reverse>* {
+    direction: ltr;
+}
+
+.two-col-photo-img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    display: block;
+}
+
+.two-col-photo-caption {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .two-col-photo-inner {
+        grid-template-columns: 1fr;
+    }
+
+    .two-col-photo-img {
+        max-width: 70vw;
+        margin: 0 auto;
+    }
 }
 
 

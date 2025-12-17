@@ -69,9 +69,11 @@
 │       │       ├── illustrations
 │       │       │   └── landmarks.png
 │       │       ├── logos
+│       │       │   ├── ou_logo 3.png
 │       │       │   ├── ou_logo.png
 │       │       │   └── social_impact_logo.png
 │       │       └── photos
+│       │           └── andrea_eric2.jpg
 │       ├── templates
 │       │   ├── about.html
 │       │   ├── base.html
@@ -81,6 +83,7 @@
 │       │   │   ├── _hero_section.html
 │       │   │   ├── _six_block_grid.html
 │       │   │   ├── _three_card_row.html
+│       │   │   ├── _two_column_section.html
 │       │   │   └── _values_list.html
 │       │   ├── contact.html
 │       │   ├── docs.html
@@ -90,15 +93,7 @@
 │       ├── tests
 │       │   └── __init__.py
 │       └── utils.py
-├── config
-│   ├── __init__.py
-│   ├── asgi.py
-│   ├── settings
-│   │   ├── __init__.py
-│   │   └── prod.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
+├── current_env_freeze.txt
 ├── current_sorted.txt
 ├── current.txt
 ├── db
@@ -194,21 +189,25 @@
 │   │   ├── SCHEMA_CHANGELOG.md
 │   │   ├── SCHEMA_REFACTOR_PLAN.md
 │   │   └── SCHEMA_REFERENCE.md
+│   ├── todo
+│   │   └── django be gone.md
 │   ├── ui
 │   │   ├── blocks.md
 │   │   ├── DEMONSTRATOR_UI_SPEC.md
 │   │   ├── PERSONAS.md
 │   │   └── WEBSITE_UI_SPEC.md
 │   └── VARIOUS_COMMANDS.md
+├── importlog.txt
 ├── LICENSE
 ├── main.py
 ├── Makefile
-├── manage.py
 ├── package.json
 ├── pyproject.toml
 ├── pyrightconfig.json
 ├── pytest.ini
 ├── README.md
+├── req_dev.txt
+├── req_runtime.txt
 ├── requirements-dev.txt
 ├── requirements.txt
 ├── Route
@@ -411,4 +410,4 @@
     ├── conftest.py
     └── utils.py
 
-90 directories, 322 files
+89 directories, 322 files
