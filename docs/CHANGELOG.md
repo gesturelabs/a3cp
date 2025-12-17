@@ -9,6 +9,20 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2025-12-17 — Post-Django FastAPI Consolidation (Deployment Marker)
+
+- Completed full removal of Django from the runtime and CI surface.
+- Standardized on FastAPI + uvicorn as the only executable web stack.
+- Cleaned CI environment variables and introduced `APP_SECRET_KEY` as the canonical application secret.
+- Added durable CI guardrails preventing Django re-introduction (dependency declaration + import checks).
+- Verified and hardened production systemd services:
+  - Confirmed FastAPI UI and inference services use uvicorn entrypoints only.
+  - Masked legacy Django/gunicorn and obsolete uvicorn units to prevent accidental reactivation.
+  - Enabled inference service for reboot persistence.
+- Deployment state is now consistent with documented FastAPI-only architecture.
+
+
+
 
 ## Changelog – Restore Working Django Settings Architecture (2025-12-11)
 
