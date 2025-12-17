@@ -14,9 +14,9 @@ case "$COMMAND" in
     uvicorn api.main:app --reload --port 8001
     ;;
 
-  dev-django)
-    echo "🧩 Starting Django dev server on port 8000..."
-    python manage.py runserver 0.0.0.0:8000
+  ev-ui)
+    echo "🖥️  Starting FastAPI UI server (apps.ui.main:app) on port 8000..."
+    uvicorn apps.ui.main:app --reload --host 0.0.0.0 --port 8000
     ;;
 
   test)
@@ -51,7 +51,7 @@ case "$COMMAND" in
     ;;
 
   "" | help | *)
-    echo "Usage: $0 {dev-api|dev-django|test|lint|format|clean-pyc|docker-build|docs|help}"
+    echo "Usage: $0 {dev-api|dev-ui|test|lint|format|clean-pyc|docker-build|docs|help}"
     exit 1
     ;;
 esac

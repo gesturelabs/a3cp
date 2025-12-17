@@ -17,6 +17,6 @@ test:
 lint:
 	pre-commit run --all-files
 
-# Run Django development server (if applicable)
+# Run development server (if applicable)
 devserver:
-	python manage.py runserver
+	uvicorn apps.ui.main:app --host 127.0.0.1 --port 8000 --reload

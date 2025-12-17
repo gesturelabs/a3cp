@@ -8,9 +8,9 @@ source /opt/a3cp-env/bin/activate
 cd /opt/a3cp-app
 
 echo "[✓] Virtualenv activated. You can now use:"
-echo "    - python manage.py shell"
-echo "    - python manage.py migrate"
-echo "    - python manage.py test"
+echo "    - uvicorn apps.ui.main:app --reload --port 8000"
+echo "    - uvicorn api.main:app --reload --port 8001"
+echo "    - pytest"
 echo
-echo "[⚠️] Warning: Don't use runserver for production testing."
-echo "    Use systemctl restart a3cp-gunicorn to restart the real server."
+echo "[⚠️] Warning: Don't use reload servers for production."
+echo "    Use systemctl restart a3cp-ui or a3cp-api instead."
