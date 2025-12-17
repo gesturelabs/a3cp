@@ -8,7 +8,6 @@ certifi==2025.4.26
 cfgv==3.4.0
 click==8.2.1
 distlib==0.4.0
-Django==5.2.1
 dnspython==2.7.0
 email_validator==2.2.0
 fastapi==0.115.12
