@@ -46,6 +46,13 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Fail if Django is declared as a dependency
+        run: |
+          if grep -R "django" requirements*.txt pyproject.toml 2>/dev/null; then
+            echo "Django dependency detected"
+            exit 1
+          fi
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
