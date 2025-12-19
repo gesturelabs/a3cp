@@ -1,0 +1,38 @@
+{# Expects:
+title (str)
+intro (str)
+now_items (list[str])
+next_items (list[str])
+#}
+
+<section class="section section-status">
+    <div class="status-inner">
+
+        <header class="status-header">
+            <h2>{{ title }}</h2>
+            <p>{{ intro }}</p>
+        </header>
+
+        <div class="status-columns">
+
+            <div class="status-column">
+                <h3>Now</h3>
+                <ul>
+                    {% for item in now_items %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="status-column">
+                <h3>Next</h3>
+                <ul>
+                    {% for item in next_items %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</section>

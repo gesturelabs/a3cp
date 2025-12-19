@@ -1,0 +1,42 @@
+{# components/_problem_split_block.html #}
+{# Expects:
+psb_eyebrow (optional)
+psb_headline (string)
+psb_body (html or string)
+psb_aside_title (optional)
+psb_bullets (list of strings, optional)
+#}
+
+<section class="problem-split">
+    <div class="problem-split-inner">
+
+        {% if psb_eyebrow is defined %}
+        <p class="problem-split-eyebrow">{{ psb_eyebrow }}</p>
+        {% endif %}
+
+        <div class="problem-split-grid">
+            <div class="problem-split-main">
+                <h2 class="problem-split-title">{{ psb_headline }}</h2>
+
+                <div class="problem-split-body">
+                    {{ psb_body }}
+                </div>
+            </div>
+
+            <aside class="problem-split-aside">
+                {% if psb_aside_title is defined %}
+                <h3 class="problem-split-aside-title">{{ psb_aside_title }}</h3>
+                {% endif %}
+
+                {% if psb_bullets is defined and psb_bullets %}
+                <ul class="problem-split-list">
+                    {% for item in psb_bullets %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </aside>
+        </div>
+
+    </div>
+</section>

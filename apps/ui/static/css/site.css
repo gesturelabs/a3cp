@@ -535,7 +535,7 @@ nav {
 }
 
 .centered-text-title {
-    font-size: 1.6rem;
+    font-size: 2rem;
     font-weight: 600;
     margin-bottom: 0.75rem;
 }
@@ -685,12 +685,14 @@ nav {
 .section-status {
     padding: 0;
     /* let the inner card handle padding */
-    background: var(--color-bg);
+    background-color: #FAF7E8;
+    /* soft, warm yellow */
 }
+
 
 .status-inner {
     max-width: var(--max-width);
-    margin: 2.5rem auto;
+    margin: 0 auto;
     padding: 2rem 2rem 2.5rem;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -1119,6 +1121,182 @@ nav {
         margin: 0 auto;
     }
 }
+
+/* =========================
+   Problem Split Block
+   component: _problem_split_block.html
+   ========================= */
+
+.problem-split {
+    padding: 0;
+    background: var(--color-bg);
+}
+
+.problem-split-inner {
+    max-width: var(--max-width);
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+/* Optional eyebrow (generally omit for Section 2) */
+.problem-split-eyebrow {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+    color: var(--color-muted);
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.problem-split-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 2.25rem;
+    align-items: center;
+}
+
+.problem-split-title {
+    font-family: var(--font-heading);
+    font-size: 1.7rem;
+    line-height: 1.15;
+    margin: 0 0 0.85rem 0;
+}
+
+.problem-split-body {
+    color: var(--color-text);
+    max-width: 52rem;
+}
+
+.problem-split-body p {
+    margin: 0 0 0.9rem 0;
+}
+
+.problem-split-aside {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.25rem 1.1rem;
+}
+
+.problem-split-aside-title {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    margin: 0 0 0.75rem 0;
+}
+
+/* Make bullets read like compact headings */
+.problem-split-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.problem-split-list li {
+    margin: 0;
+    padding-left: 1rem;
+    position: relative;
+    color: var(--color-text);
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.problem-split-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-muted);
+    font-weight: 700;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+    .problem-split-inner {
+        padding: 0 1.25rem;
+        margin: 2.25rem auto;
+    }
+
+    .problem-split-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .problem-split-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* =========================
+   Two Column With Callout
+   component: _two_column_with_callout.html
+   ========================= */
+
+.two-col-callout {
+    padding: 0;
+}
+
+.two-col-callout-inner {
+    max-width: var(--max-width);
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+.two-col-callout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.two-col-callout-title {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    line-height: 1.15;
+    margin: 0 0 0.9rem 0;
+}
+
+.two-col-callout-body p {
+    margin: 0 0 1rem 0;
+    color: var(--color-text);
+}
+
+.two-col-callout-box {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.25rem 1.1rem;
+}
+
+.two-col-callout-quote {
+    margin: 0;
+    color: var(--color-text);
+}
+
+.two-col-callout-attrib {
+    margin: 0.9rem 0 0 0;
+    font-size: 0.95rem;
+    color: var(--color-muted);
+}
+
+@media (max-width: 900px) {
+    .two-col-callout-inner {
+        padding: 0 1.25rem;
+        margin: 2.25rem auto;
+    }
+
+    .two-col-callout-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .two-col-callout-title {
+        font-size: 1.55rem;
+    }
+}
+
+
+
 
 
 /* ===============================

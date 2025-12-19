@@ -1,0 +1,91 @@
+{# apps/ui/templates/components/_two_column_with_callout.html #}
+{#
+Expected context:
+
+MAIN COLUMN
+- tc_eyebrow (optional, str)
+- tc_title (required, str)
+- tc_lead (optional, str)
+- tc_body (optional, HTML / safe string)
+
+CALLOUT COLUMN
+- callout_label (optional, str) # small eyebrow / context label
+- callout_title (optional, str) # title of the callout box
+- callout_body (required, HTML / safe) # rich prose, e.g. letter excerpt
+- callout_attribution (optional, str) # e.g. "Andrea, mother of Eric"
+- callout_img_src (optional, str)
+- callout_img_alt (optional, str)
+- callout_caption (optional, str)
+#}
+
+<section class="two-column-callout">
+    <div class="two-column-callout-inner">
+
+        <!-- Main content column -->
+        <div class="two-column-callout-main">
+
+            {% if tc_eyebrow is defined %}
+            <p class="eyebrow">
+                {{ tc_eyebrow }}
+            </p>
+            {% endif %}
+
+            <h2 class="two-column-callout-title">
+                {{ tc_title }}
+            </h2>
+
+            {% if tc_lead is defined %}
+            <p class="two-column-callout-lead">
+                {{ tc_lead }}
+            </p>
+            {% endif %}
+
+            {% if tc_body is defined %}
+            <div class="two-column-callout-body">
+                {{ tc_body | safe }}
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Callout / aside column -->
+        <aside class="two-column-callout-aside">
+
+            {% if callout_label is defined %}
+            <div class="two-column-callout-label">
+                {{ callout_label }}
+            </div>
+            {% endif %}
+
+            {% if callout_title is defined %}
+            <h3 class="two-column-callout-aside-title">
+                {{ callout_title }}
+            </h3>
+            {% endif %}
+
+            <div class="two-column-callout-aside-body">
+                {{ callout_body | safe }}
+            </div>
+
+            {% if callout_attribution is defined %}
+            <p class="two-column-callout-attribution">
+                — {{ callout_attribution }}
+            </p>
+            {% endif %}
+
+            {% if callout_img_src is defined %}
+            <figure class="two-column-callout-figure">
+                <img src="{{ callout_img_src }}" alt="{{ callout_img_alt|default:'' }}"
+                    class="two-column-callout-image">
+                {% if callout_caption is defined %}
+                <figcaption class="two-column-callout-caption">
+                    {{ callout_caption }}
+                </figcaption>
+                {% endif %}
+            </figure>
+            {% endif %}
+
+        </aside>
+
+    </div>
+</section>
