@@ -8,71 +8,155 @@
 {# Intro as centered text block #}
 {% set ct_eyebrow = "Get Involved" %}
 {% set ct_headline = "Help build ability-adaptive communication as a public good." %}
-{% set ct_subheadline = "
-A3CP is being developed as an open, collaborative platform dedicated to communication as a human right. We invite care
-organizations, developers, researchers, and social-innovation partners to help shape an ethical, transparent, and freely
-replicable communication system for people who cannot speak.
-" %}
+{% set ct_subheadline %}
+A3CP is an open, research-driven platform for people who cannot rely on speech.
+We work with care organizations, developers, researchers, and supporters to design,
+test, and sustain ethical communication systems that are transparent, inspectable,
+and freely replicable.
+{% endset %}
 {% include "components/_centered_text_block.html" %}
 
-{# Care organizations block as two-column section #}
+
+{# --- Section 2: Choose Your Path --- #}
+{% set tcr_title = "Choose your path" %}
+{% set tcr_intro %}
+Three ways to help: pilot in practice, contribute to the open-source stack, or support the work financially.
+{% endset %}
+
+{% set tcr_cards = [
+{
+"title": "Care Organizations",
+"description": "Partner with us to pilot A3CP in real care and educational settings. Help co-design interaction routines
+and evaluation criteria.",
+"href": "#care-organizations"
+},
+{
+"title": "Developers & Researchers",
+"description": "Contribute to an open-source, schema-first platform: multimodal classifiers, CARE Engine logic,
+evaluation tooling, and documentation.",
+"href": "https://github.com/gesturelabs/a3cp"
+},
+{
+"title": "Supporters",
+"description": "Support A3CP as a public good. Contributions fund infrastructure, pilot devices, workshops, and
+documentation with transparent accounting.",
+"href": "https://opencollective.com/gesturelabs"
+}
+] %}
+
+{% include "components/_three_card_row.html" %}
+
+
+{# --- Section 3: For Care Organizations (Details) --- #}
+<div id="care-organizations"></div>
+
+{% set tc_eyebrow = "Pilot Partners" %}
 {% set tc_title = "For Care Organizations" %}
-{% set tc_lead = "Partner with us to co-design and test A3CP in real care settings." %}
+{% set tc_lead = "Partner with us to co-design and test A3CP in real care and educational settings." %}
+
 {% set tc_body %}
 <p>
-    We are building partnerships with welfare institutions, therapy centers, and special-education schools to co-design
-    and test the first pilot version of A3CP. Partner organizations can try early prototypes, provide feedback from
-    practice, and help refine adaptive interaction strategies that fit everyday care routines.
+    We work with welfare institutions, therapy centers, and special-education schools to design and evaluate A3CP in
+    practical, ethically governed pilots. The aim is careful iteration: defining realistic scenarios, testing
+    interaction
+    routines, and evaluating whether the system supports communication without disrupting care.
 </p>
+
 <p>
-    By joining the pilot network, you contribute directly to shaping a tool that will later be freely available for
-    non-profit use worldwide.
+    Partner organizations receive early access to prototypes, structured onboarding, and a direct role in shaping
+    workflows
+    and success criteria. Feedback is translated into concrete changes to interaction flows, schemas, and evaluation.
 </p>
+
 <p>
-    <a href="mailto:dmitrikatz23@gmail.com?subject=Partner%20with%20GestureLabs" class="btn primary">
-        Partner with us
+    We take an ethics-first approach with clear privacy boundaries and minimal data retention, avoiding unnecessary
+    capture
+    of raw personal data.
+</p>
+
+<p>
+    <a href="mailto:dmitrikatz23@gmail.com?subject=GestureLabs%20Pilot%20Partnership" class="btn primary">
+        Partner with GestureLabs
     </a>
 </p>
 {% endset %}
 
 {% set tc_aside_title = "What partnership involves" %}
 {% set tc_aside_items = [
-"Trying early prototypes in controlled, ethical settings.",
-"Providing structured feedback on usability and impact.",
-"Helping define realistic scenarios and success criteria.",
-"Collaborating on pilot studies and evaluation."
+"Controlled pilot use in agreed settings (with appropriate consent and safeguarding).",
+"Structured feedback on usability, failure modes, and fit with daily routines.",
+"Joint definition of scenarios and success criteria (what “working” means in your context).",
+"Periodic review meetings to refine both the system and the evaluation approach.",
+"Lightweight setup: a laptop/tablet with camera and microphone (or equivalent)."
 ] %}
 
 {% include "components/_two_column_section.html" %}
 
-{# Developers & researchers block as two-column section #}
-{% set tc_title = "For Developers and Researchers" %}
-{% set tc_lead = "Contribute to an open-source stack for adaptive, multimodal communication." %}
+
+{# --- Section 4: For Developers & Researchers (Details) --- #}
+<div id="developers-researchers"></div>
+
+{% set tc_eyebrow = "Contributors" %}
+{% set tc_title = "For Developers & Researchers" %}
+{% set tc_lead = "Contribute to an open-source, schema-first platform for adaptive, multimodal communication." %}
+
 {% set tc_body %}
 <p>
-    A3CP is fully open source and hosted under the GestureLabs GitHub organization. We welcome contributors in Python,
-    FastAPI, Django, and machine-learning frameworks, as well as in user-experience and accessibility design.
+    A3CP is developed in the open under the GestureLabs GitHub organization. We welcome contributions across backend
+    services, inference pipelines, evaluation tooling, and interface work, with an emphasis on clarity, traceability,
+    and reproducibility.
 </p>
+
 <p>
-    All code, documentation, and issue tracking are maintained publicly to support open collaboration and long-term
-    reproducibility.
+    The system is built around explicit data contracts (schemas) and structured logs so that behavior can be inspected,
+    tested, and improved over time. This makes A3CP suitable both as a practical assistive-technology project and as a
+    research testbed for uncertainty-driven interaction and caregiver-in-the-loop correction.
 </p>
+
 <p>
-    <a href="https://github.com/GestureLabs/A3CP" target="_blank" rel="noopener" class="btn">
+    <a href="https://github.com/gesturelabs/a3cp" target="_blank" rel="noopener" class="btn primary">
         View the project on GitHub
+    </a>
+</p>
+
+<p>
+    <a href="https://github.com/gesturelabs/a3cp/blob/main/docs/CHANGELOG.md" target="_blank" rel="noopener"
+        class="text-link">
+        Read the changelog
+    </a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/gesturelabs/a3cp/tree/main/docs" target="_blank" rel="noopener" class="text-link">
+        Browse documentation
     </a>
 </p>
 {% endset %}
 
-{% set tc_aside_title = "Active development areas" %}
+{% set tc_aside_title = "Where help is most useful" %}
 {% set tc_aside_items = [
-"Gesture and sound recognition models.",
-"Adaptive memory and caregiver-feedback loops.",
-"Transparent audit logging and schema validation.",
-"Open data standards for multimodal communication research.",
-"Edge-capable deployment on affordable hardware."
+"<strong>Multimodal classifiers</strong>: gesture and sound pipelines, lightweight models, evaluation.",
+"<strong>CARE Engine logic</strong>: fusion, confidence scoring, clarification strategies.",
+"<strong>Logging & schema validation</strong>: test coverage, validators, traceability tooling.",
+"<strong>Edge deployment</strong>: packaging, performance, device-friendly operation.",
+"<strong>Working principles</strong>: schema-first design, reproducibility, privacy by default."
 ] %}
 
 {% include "components/_two_column_section.html" %}
 
-{% endblock %}
+{# --- Section 5: Support A3CP as a Public Good --- #}
+{% set ctab_headline = "Support A3CP as a public good" %}
+{% set ctab_subtext %}
+Donations help fund hosting and infrastructure, pilot devices and workshops, and the travel and documentation needed to
+run careful, ethics-first evaluations. All contributions are tracked transparently via our public Open Collective
+ledger.
+{% endset %}
+
+{% set ctab_primary_label = "Support on Open Collective" %}
+{% set ctab_primary_href = "https://opencollective.com/gesturelabs" %}
+
+{# Optional secondary CTA (only include if you actually want it) #}
+{# {% set ctab_secondary_label = "See project on GitHub" %} #}
+{# {% set ctab_secondary_href = "https://github.com/gesturelabs/a3cp" %} #}
+
+{% include "components/_cta_band.html" %}
+
+{%endblock %}
