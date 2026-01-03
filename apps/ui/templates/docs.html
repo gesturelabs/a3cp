@@ -1,14 +1,80 @@
 {% extends "base.html" %}
 
-{% block title %}A3CP MVP - Documentation{% endblock %}
+{% block title %}Documentation · A3CP by GestureLabs{% endblock %}
 
 {% block content %}
-<h1>Documentation</h1>
-<p>Welcome to the A3CP documentation.</p>
 
+<h1>Documentation</h1>
+
+<p>
+    A3CP is an open, research-driven system under active development.
+    This page links to the primary, inspectable documentation sources:
+    code, changelogs, schemas, and published research.
+</p>
+
+<h2>Project Overview</h2>
 <ul>
-    <li><a href="/documentation/api">API Reference (placeholder)</a></li>
-    <li><a href="/documentation/usage">Usage Guide (placeholder)</a></li>
-    <li><a href="/documentation/deployment">Deployment Instructions (placeholder)</a></li>
+    <li>
+        <a href="http://a3cp.org.uk/" target="_blank" rel="noopener">
+            Original A3CP project site
+        </a>
+        <span>– early research context and motivation</span>
+    </li>
+    <li>
+        <a href="https://github.com/gesturelabs/a3cp" target="_blank" rel="noopener">
+            A3CP GitHub repository
+        </a>
+        <span>– source code, schemas, tests, and infrastructure</span>
+    </li>
 </ul>
+
+<h2>Code & Architecture</h2>
+<ul>
+    <li>
+        <a href="https://github.com/gesturelabs/a3cp/tree/main/schemas" target="_blank" rel="noopener">
+            Schema reference (A3CPMessage and related schemas)
+        </a>
+        <span>– canonical data contracts used across modules</span>
+    </li>
+    <li>
+        <a href="https://github.com/gesturelabs/a3cp/tree/main/api" target="_blank" rel="noopener">
+            FastAPI inference services
+        </a>
+        <span>– gesture, sound, and fusion endpoints</span>
+    </li>
+    <li>
+        <a href="https://github.com/gesturelabs/a3cp/tree/main/docs" target="_blank" rel="noopener">
+            Developer documentation
+        </a>
+        <span>– architecture, logging, deployment notes</span>
+    </li>
+</ul>
+
+<h2>Change History</h2>
+<ul>
+    <li>
+        <a href="https://github.com/gesturelabs/a3cp/blob/main/docs/CHANGELOG.md" target="_blank" rel="noopener">
+            Changelog
+        </a>
+        <span>– versioned record of architectural and behavioral changes</span>
+    </li>
+</ul>
+
+<h2>Research & Publications</h2>
+<ul>
+    <li>
+        <a href="https://dl.acm.org/doi/abs/10.1007/978-3-031-62849-8_20" target="_blank" rel="noopener">
+            ACM paper: Ability-Adaptive Augmentative Communication
+        </a>
+        <span>– peer-reviewed research describing the conceptual foundation</span>
+    </li>
+</ul>
+
+<h2>Status</h2>
+<p>
+    A3CP is currently in an MVP and pilot phase.
+    Interfaces, schemas, and internal components are expected to evolve.
+    All major decisions are documented via code, logs, and changelogs rather than static manuals.
+</p>
+
 {% endblock %}
