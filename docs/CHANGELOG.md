@@ -9,6 +9,14 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## 2026-1-3 technology.html —
+
+- larger illustrations
+-new component for variable sized centered images
+
+
+
 ## 2026-1-3 technology.html — Changelog
 
 - Rebuilt the Technology page structure almost entirely.

@@ -1,0 +1,9 @@
+{# Reusable centered image with size variants #}
+{% set size = ci_size | default("md") %}
+
+<figure class="centered-image centered-image--{{ size }}">
+    <img src="{{ ci_src }}" alt="{{ ci_alt }}" {% if ci_muted %}style="opacity:0.9" {% endif %} loading="lazy">
+    {% if ci_caption %}
+    <figcaption>{{ ci_caption }}</figcaption>
+    {% endif %}
+</figure>

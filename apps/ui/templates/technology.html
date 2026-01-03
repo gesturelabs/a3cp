@@ -19,10 +19,10 @@ time.
 {% set ci_src = "/static/img/illustrations/Architecture_Diagram.png" %}
 {% set ci_alt = "A3CP pipeline from multimodal inputs through classification, CARE Engine decision logic, output, and
 feedback." %}
-{% set ci_caption = "End-to-end A3CP pipeline: signals → features → classification → CARE Engine → output → feedback."
-%}
-{% set ci_muted = true %}
-{% include "components/_centered_image.html" %}
+{% set ci_caption = "End-to-end A3CP pipeline." %}
+{% set ci_size = "lg" %}
+
+{% include "components/_centered_image_var.html" %}
 
 
 
@@ -64,72 +64,55 @@ standards. This makes the system easier to audit, extend, and deploy across care
 {% include "components/_six_block_grid.html" %}
 
 
+{# --- CARE Engine: centered text + centered schematic --- #}
 
-{# --- CARE Engine: two-column text with schematic --- #}
+{# Text block #}
+{% set ct_eyebrow = "Core Logic" %}
+{% set ct_headline = "The CARE Engine" %}
+{% set ct_subheadline = "
+The CARE Engine (Clarification, Adaptation, Reasoning, and Explanation) is the decision core of A3CP.
+It combines predictions from gesture, sound, and contextual models, evaluates confidence, and determines
+when human clarification is required.
+When certainty is low, it presents plausible interpretations instead of committing to a single guess,
+keeping caregivers in control while enabling safe, individualized learning over time.
+" %}
+{% include "components/_centered_text_block.html" %}
 
-{% set headline = "The CARE Engine" %}
+{% set ci_src = "/static/img/illustrations/Care_Engine.png" %}
+{% set ci_alt = "CARE Engine schematic showing fusion of multimodal predictions, confidence gating, clarification, and
+memory updates." %}
+{% set ci_caption = "The CARE Engine uses confidence-aware reasoning and caregiver confirmation to guide safe
+adaptation." %}
+{% set ci_size = "sm" %}
+{% set ci_muted = true %}
 
-{% set body_html %}
-<p>
-    The CARE Engine (Clarification, Adaptation, Reasoning, and Explanation) is the decision core that
-    turns raw classifier outputs into safe, interpretable communication.
-</p>
+{% include "components/_centered_image_var.html" %}
 
-<p>
-    It fuses information from gesture, sound, and contextual modules, computes confidence, and decides
-    when to ask for clarification. When confidence is low, it surfaces the most plausible interpretations
-    for caregivers instead of committing to a single guess.
-</p>
 
-<p>
-    Each clarification becomes a structured training example, allowing the system to adapt to the
-    individual user over time while keeping humans in control of final decisions.
-</p>
-{% endset %}
+{# --- Ethical and Edge-Capable Design: centered text + centered image --- #}
 
-{% set img_src = "/static/img/illustrations/Care_Engine.png" %}
-{% set img_alt = "CARE Engine schematic showing fusion of gesture, sound, and context, confidence gating, clarification,
-and memory updates." %}
-{% set caption = "The CARE Engine uses confidence-aware reasoning and caregiver confirmation to guide safe adaptation."
+{% set ct_eyebrow = "Deployment" %}
+{% set ct_headline = "Ethical and Edge-Capable Design" %}
+{% set ct_subheadline = "
+A3CP is engineered to preserve privacy, remain inspectable, and support multiple deployment modes:
+edge-only, cloud, or hybrid edge with optional cloud-based updating.
+
+In edge deployments, inference runs locally on affordable devices. In hybrid mode, the system can run locally
+while optionally synchronizing model updates or configuration changes when connectivity is available.
+
+Only derived feature data are stored — never raw video or audio — so learning and adaptation remain
+transparent and explainable. Code and documentation are open source, enabling independent review,
+replication, and improvement, and reducing vendor lock-in.
+" %}
+{% include "components/_centered_text_block.html" %}
+
+{% set ci_src = "/static/img/illustrations/Cloud_Edge.png" %}
+{% set ci_alt = "Diagram showing A3CP deployment options: edge-only, cloud, and hybrid edge with cloud-based updates."
 %}
-{% set reverse = false %}
-
-{% include "components/_two_column_text_w_photo.html" %}
-
-
-{# --- Ethical and Edge-Capable Design: two-column text with schematic --- #}
-
-{% set headline = "Ethical and Edge-Capable Design" %}
-
-{% set body_html %}
-<p>
-    A3CP is engineered to preserve privacy, remain inspectable, and support multiple deployment modes:
-    cloud, edge-only, or hybrid edge with cloud-based updating.
-</p>
-
-<p>
-    In edge deployments, inference runs locally on affordable devices such as Raspberry Pi or Jetson Nano.
-    In hybrid mode, the system can run locally while optionally synchronizing model updates or configuration
-    changes via a cloud service when connectivity is available.
-</p>
-
-<p>
-    Only derived feature data are stored — never raw video or audio — so that learning and adaptation remain
-    transparent and explainable. Code and documentation are open source, enabling independent review,
-    replication, and improvement, and reducing vendor lock-in.
-</p>
-{% endset %}
-
-{% set img_src = "/static/img/illustrations/Cloud_Edge.png" %}
-{% set img_alt = "Diagram showing A3CP deployment options: cloud, edge-only, and hybrid edge with cloud-based updates."
-%}
-{% set caption = "Deployment modes: edge-only, cloud, or hybrid edge inference with optional cloud updating." %}
-{% set reverse = false %}
-
-{% include "components/_two_column_text_w_photo.html" %}
-
-
-
+{% set ci_caption = "Deployment modes: edge-only, cloud, or hybrid edge inference with optional cloud updating." %}
+{% set ci_size = "md" %}
+{% set ci_muted = true %}
+{% include "components/_centered_image_var.html" %}
 
 
 
