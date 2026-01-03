@@ -15,15 +15,17 @@ time.
 " %}
 {% include "components/_centered_text_block.html" %}
 
-<section class="section">
-    <h2>Overview</h2>
-    <p>
-        A3CP combines gesture and sound recognition with human feedback to create an ability-adaptive communication
-        system. Unlike traditional AAC tools that depend on symbol or text selection, A3CP learns directly from each
-        person’s expressive movements, sounds, and context. Its open-source design ensures transparency, ethical
-        oversight, and adaptability across care, education, and research environments.
-    </p>
-</section>
+{# --- End-to-End Pipeline Illustration --- #}
+{% set ci_src = "/static/img/illustrations/Architecture_Diagram.png" %}
+{% set ci_alt = "A3CP pipeline from multimodal inputs through classification, CARE Engine decision logic, output, and
+feedback." %}
+{% set ci_caption = "End-to-end A3CP pipeline: signals → features → classification → CARE Engine → output → feedback."
+%}
+{% set ci_muted = true %}
+{% include "components/_centered_image.html" %}
+
+
+
 
 {# --- Modular architecture via six-block grid --- #}
 {% set sbg_title = "Modular Architecture" %}
@@ -61,62 +63,74 @@ standards. This makes the system easier to audit, extend, and deploy across care
 
 {% include "components/_six_block_grid.html" %}
 
-{# --- Existing sections below left unchanged for now --- #}
 
-{# CARE Engine as a two-column block #}
-{% set tc_title = "The CARE Engine" %}
-{% set tc_lead = "The CARE Engine (Clarification, Adaptation, Reasoning, and Explanation) is the decision core that
-turns raw classifier outputs into safe, interpretable communication." %}
-{% set tc_body %}
+
+{# --- CARE Engine: two-column text with schematic --- #}
+
+{% set headline = "The CARE Engine" %}
+
+{% set body_html %}
 <p>
-    It fuses information from gesture, sound, and contextual modules, computes confidence, and decides when to ask for
-    clarification. When confidence is low, it surfaces the most plausible interpretations for caregivers instead of
-    committing to a single guess.
+    The CARE Engine (Clarification, Adaptation, Reasoning, and Explanation) is the decision core that
+    turns raw classifier outputs into safe, interpretable communication.
 </p>
+
 <p>
-    Each clarification becomes a structured training example, allowing the system to adapt to the individual user over
-    time while keeping humans in control of final decisions.
+    It fuses information from gesture, sound, and contextual modules, computes confidence, and decides
+    when to ask for clarification. When confidence is low, it surfaces the most plausible interpretations
+    for caregivers instead of committing to a single guess.
 </p>
-{% endset %}
 
-{% set tc_aside_title = "What the CARE Engine does" %}
-{% set tc_aside_items = [
-"Monitors confidence from gesture and sound classifiers.",
-"Defers to caregivers when predictions are uncertain.",
-"Logs each clarification as structured feedback data.",
-"Updates user-specific models via confirmed examples.",
-"Explains when and why it is unsure."
-] %}
-
-{% include "components/_two_column_section.html" %}
-
-
-{# Ethical + edge design as two-column block #}
-{% set tc_title = "Ethical and Edge-Capable Design" %}
-{% set tc_lead = "A3CP is engineered to run locally, preserve privacy, and stay open to inspection." %}
-{% set tc_body %}
 <p>
-    The platform is designed to run fully offline on affordable devices such as Raspberry Pi or Jetson Nano. This makes
-    it viable for families, schools, and care homes without relying on commercial cloud services or permanent internet
-    access.
-</p>
-<p>
-    Only derived feature data are stored — never raw video or audio — so that learning processes remain transparent and
-    explainable. All code and documentation are open source, allowing others to review, replicate, or improve the
-    platform.
+    Each clarification becomes a structured training example, allowing the system to adapt to the
+    individual user over time while keeping humans in control of final decisions.
 </p>
 {% endset %}
 
-{% set tc_aside_title = "Design guarantees" %}
-{% set tc_aside_items = [
-"Offline-first: runs on local, affordable hardware.",
-"No raw video/audio storage — only derived features.",
-"Transparent models and logs for audit and review.",
-"Open-source code and documentation.",
-"Deployable by schools, families, and clinics without vendor lock-in."
-] %}
+{% set img_src = "/static/img/illustrations/Care_Engine.png" %}
+{% set img_alt = "CARE Engine schematic showing fusion of gesture, sound, and context, confidence gating, clarification,
+and memory updates." %}
+{% set caption = "The CARE Engine uses confidence-aware reasoning and caregiver confirmation to guide safe adaptation."
+%}
+{% set reverse = false %}
 
-{% include "components/_two_column_section.html" %}
+{% include "components/_two_column_text_w_photo.html" %}
+
+
+{# --- Ethical and Edge-Capable Design: two-column text with schematic --- #}
+
+{% set headline = "Ethical and Edge-Capable Design" %}
+
+{% set body_html %}
+<p>
+    A3CP is engineered to preserve privacy, remain inspectable, and support multiple deployment modes:
+    cloud, edge-only, or hybrid edge with cloud-based updating.
+</p>
+
+<p>
+    In edge deployments, inference runs locally on affordable devices such as Raspberry Pi or Jetson Nano.
+    In hybrid mode, the system can run locally while optionally synchronizing model updates or configuration
+    changes via a cloud service when connectivity is available.
+</p>
+
+<p>
+    Only derived feature data are stored — never raw video or audio — so that learning and adaptation remain
+    transparent and explainable. Code and documentation are open source, enabling independent review,
+    replication, and improvement, and reducing vendor lock-in.
+</p>
+{% endset %}
+
+{% set img_src = "/static/img/illustrations/Cloud_Edge.png" %}
+{% set img_alt = "Diagram showing A3CP deployment options: cloud, edge-only, and hybrid edge with cloud-based updates."
+%}
+{% set caption = "Deployment modes: edge-only, cloud, or hybrid edge inference with optional cloud updating." %}
+{% set reverse = false %}
+
+{% include "components/_two_column_text_w_photo.html" %}
+
+
+
+
 
 
 {# Development Path as three-card row #}
@@ -145,52 +159,94 @@ personalized training.",
 {% include "components/_three_card_row.html" %}
 
 
-{# Future possibilities as two-column block #}
-{% set tc_title = "Future Possibilities" %}
-{% set tc_lead = "The adaptive architecture of A3CP creates new opportunities across creative, therapeutic, and research
-domains." %}
-{% set tc_body %}
+
+
+{# --- Future Possibilities (intro) --- #}
+{% set ct_eyebrow = "Vision" %}
+{% set ct_headline = "Future Possibilities" %}
+{% set ct_subheadline = "A3CP’s adaptive architecture can support creative, therapeutic, and research applications.
+Because interactions can be represented as structured, interpretable data, the same pipeline that supports communication
+can also support learning, creativity, and longitudinal insight." %}
+
+{% include "components/_centered_text_block.html" %}
+
+
+{# --- 1) Gesture-based music or art composition --- #}
+{% set headline = "Gesture-based music or art composition" %}
+{% set body_html %}
 <p>
-    Because every interaction is logged as structured, interpretable data, A3CP can support new forms of learning,
-    creativity, and clinical insight. The same modular pipeline that enables communication support can also power
-    creative tools or research systems.
+    Embodied signals can be mapped to musical and visual outputs, enabling creative expression through accessible,
+    user-specific interactions rather than conventional instruments or fine motor control.
 </p>
 {% endset %}
+{% set img_src = "/static/img/illustrations/Embodied_Creativity.png" %}
+{% set img_alt = "A wheelchair user uses gestures to control music and art elements shown on a screen." %}
+{% set caption = "Creative expression through gesture-to-parameter mapping." %}
+{% set reverse = false %}
+{% include "components/_two_column_text_w_photo.html" %}
 
-{% set tc_aside_title = "Potential directions" %}
-{% set tc_aside_items = [
-"Gesture-based music or art composition.",
-"Integration with digital avatars and embodied interfaces.",
-"Adaptive learning tools for therapy and education.",
-"Longitudinal analytics for clinical teams.",
-"Multimodal datasets for research on communication development."
-] %}
 
-{% include "components/_two_column_section.html" %}
+{# --- 2) Integration with digital avatars and embodied interfaces --- #}
+{% set headline = "Integration with digital avatars and embodied interfaces" %}
+{% set body_html %}
+<p>
+    Interpreted intent can control avatars for online communication, allowing users to choose their
+    representation while maintaining control of meaning and interaction across distance.
+</p>
+{% endset %}
+{% set img_src = "/static/img/illustrations/Embodied_Avatars.png" %}
+{% set img_alt = "A user’s embodied interaction drives an outward-facing avatar used for online communication." %}
+{% set caption = "Chosen representation for online presence." %}
+{% set reverse = true %}
+{% include "components/_two_column_text_w_photo.html" %}
 
-<section class="section section-muted">
-    <h3>Visual concepts</h3>
-    <p class="section-muted-intro">
-        These are suggested illustrations for this page and the broader GestureLabs visual language:
-    </p>
-    <ul class="visual-concepts-list">
-        <li>
-            <strong>Architecture diagram:</strong>
-            A clean left-to-right flow showing Input → Feature Extraction → Classifiers → CARE Engine → Output →
-            Feedback loop.
-        </li>
-        <li>
-            <strong>Clarification loop:</strong>
-            A small cycle diagram showing the system proposing an interpretation, caregiver confirmation/correction, and
-            the model updating.
-        </li>
-        <li>
-            <strong>Edge deployment graphic:</strong>
-            A Raspberry Pi or tablet icon with arrows indicating on-device processing and a subtle “no cloud”
-            implication (no cloud icon, no upload arrows).
-        </li>
-    </ul>
-</section>
+
+{# --- 3) Adaptive learning tools for therapy and education --- #}
+{% set headline = "Adaptive learning tools for therapy and education" %}
+{% set body_html %}
+<p>
+    The same uncertainty-aware feedback loop can support learning activities by adapting task difficulty, input
+    mappings, and prompts to the individual, helping to learn new gestures and develop communication abilities.
+</p>
+{% endset %}
+{% set img_src = "/static/img/illustrations/Learning_Tools.png" %}
+{% set img_alt = "A learner and partner use an adaptive activity on a screen with structured confirmation." %}
+{% set caption = "Adaptive tasks with partner-in-the-loop confirmation." %}
+{% set reverse = false %}
+{% include "components/_two_column_text_w_photo.html" %}
+
+
+{# --- 4) Longitudinal analytics for clinical teams --- #}
+{% set headline = "Longitudinal analytics for clinical teams" %}
+{% set body_html %}
+<p>
+    Aggregated summaries over weeks and months can support clinical review by showing trends in interaction success,
+    uncertainty rates, and confirmed intent.
+</p>
+{% endset %}
+{% set img_src = "/static/img/illustrations/Longitudinal_Analytics.png" %}
+{% set img_alt = "Clinical team reviewing longitudinal trends and summaries on a shared display." %}
+{% set caption = "Trends and summaries for clinical review." %}
+{% set reverse = true %}
+{% include "components/_two_column_text_w_photo.html" %}
+
+
+{# --- 5) Multimodal datasets for research on communication development --- #}
+{% set headline = "Multimodal datasets for research on communication development" %}
+{% set body_html %}
+<p>
+    Structured traces can support research datasets that link context, model outputs, clarification
+    outcomes, and confirmed intent, enabling studies of communication development over time.
+</p>
+{% endset %}
+{% set img_src = "/static/img/illustrations/Multimodal_Datasets.png" %}
+{% set img_alt = "Panels representing multimodal dataset components derived from structured interaction traces." %}
+{% set caption = "Multimodal datasets derived from structured interaction traces." %}
+{% set reverse = false %}
+{% include "components/_two_column_text_w_photo.html" %}
+
+
+
 
 
 {% endblock %}

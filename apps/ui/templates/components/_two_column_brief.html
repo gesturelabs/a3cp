@@ -1,0 +1,38 @@
+{# components/_two_column_brief.html #}
+{# Expects:
+tcb_title (optional)
+tcb_points (list[str]) -- short headings
+tcb_headline (string)
+tcb_body (html via set ... endset)
+#}
+
+<section class="two-col-brief">
+    <div class="two-col-brief-inner">
+
+        <div class="two-col-brief-grid">
+
+            <aside class="two-col-brief-left">
+                {% if tcb_title is defined %}
+                <h3 class="two-col-brief-left-title">{{ tcb_title }}</h3>
+                {% endif %}
+
+                {% if tcb_points is defined and tcb_points %}
+                <ul class="two-col-brief-points">
+                    {% for p in tcb_points %}
+                    <li>{{ p }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </aside>
+
+            <div class="two-col-brief-right">
+                <h2 class="two-col-brief-headline">{{ tcb_headline }}</h2>
+                <div class="two-col-brief-body">
+                    {{ tcb_body }}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>

@@ -1,9 +1,9 @@
 {# Two-column content block
 Expected context:
 - tc_eyebrow (optional)
-- tc_title (required)
+- tc_title (optional but recommended)
 - tc_lead (optional short lead paragraph)
-- tc_body (optional longer HTML/text block)
+- tc_body (optional longer HTML/text block, usually set via {% set ... %}{% endset %})
 - tc_aside_title (optional)
 - tc_aside_items (optional list of strings)
 #}
@@ -12,46 +12,51 @@ Expected context:
     <div class="two-column-inner">
 
         <div class="two-column-main">
-            {% if tc_eyebrow is defined %}
+            {% if tc_eyebrow is defined and tc_eyebrow %}
             <p class="eyebrow">
                 {{ tc_eyebrow }}
             </p>
             {% endif %}
 
+            {% if tc_title is defined and tc_title %}
             <h2 class="two-column-title">
                 {{ tc_title }}
             </h2>
+            {% endif %}
 
-            {% if tc_lead is defined %}
+            {% if tc_lead is defined and tc_lead %}
             <p class="two-column-lead">
                 {{ tc_lead }}
             </p>
             {% endif %}
 
-            {% if tc_body is defined %}
+            {% if tc_body is defined and tc_body %}
             <div class="two-column-body">
-                {{ tc_body }}
+                {{ tc_body | safe }}
             </div>
             {% endif %}
         </div>
 
-        {% if tc_aside_title is defined or tc_aside_items is defined %}
+        {# Only render aside if there is actually something to show #}
+        {% if (tc_aside_title is defined and tc_aside_title) or (tc_aside_items is defined and tc_aside_items) %}
         <aside class="two-column-aside">
-            {% if tc_aside_title is defined %}
+
+            {% if tc_aside_title is defined and tc_aside_title %}
             <h3 class="two-column-aside-title">
                 {{ tc_aside_title }}
             </h3>
             {% endif %}
 
-            {% if tc_aside_items is defined %}
+            {% if tc_aside_items is defined and tc_aside_items %}
             <ul class="two-column-aside-list">
                 {% for item in tc_aside_items %}
                 <li class="two-column-aside-item">
-                    {{ item }}
+                    {{ item | safe }}
                 </li>
                 {% endfor %}
             </ul>
             {% endif %}
+
         </aside>
         {% endif %}
 

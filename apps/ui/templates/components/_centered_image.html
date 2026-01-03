@@ -1,0 +1,12 @@
+<section class="centered-image{% if ci_muted %} centered-image--muted{% endif %}">
+    <div class="centered-text-inner">
+        <figure class="centered-image-figure">
+            <img src="{{ ci_src }}" alt="{{ ci_alt }}" loading="lazy">
+            {% if ci_caption is defined %}
+            <figcaption class="centered-image-caption">
+                {{ ci_caption }}
+            </figcaption>
+            {% endif %}
+        </figure>
+    </div>
+</section>

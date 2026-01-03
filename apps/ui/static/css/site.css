@@ -1071,6 +1071,7 @@ nav {
     background-color: var(--color-six-6);
 }
 
+
 /* ===============================
            two column with photo right
 =============================== */
@@ -1084,9 +1085,9 @@ nav {
     margin: 0 auto;
     padding: 0 1.25rem;
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1.2fr 1fr;
     gap: 2.5rem;
-    align-items: start;
+    align-items: stretch;
 }
 
 .two-col-photo-reverse {
@@ -1095,6 +1096,13 @@ nav {
 
 .two-col-photo-reverse>* {
     direction: ltr;
+}
+
+.two-col-photo-figure {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .two-col-photo-img {
@@ -1210,6 +1218,25 @@ nav {
     font-weight: 700;
 }
 
+/* Force two-column layout on desktop and swap aside/main positions */
+@media (min-width: 901px) {
+    .problem-split-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+        gap: 2.25rem;
+        align-items: start;
+    }
+
+    /* swap: aside left, main right */
+    .problem-split-aside {
+        grid-column: 1;
+    }
+
+    .problem-split-main {
+        grid-column: 2;
+    }
+}
+
 /* Mobile */
 @media (max-width: 900px) {
     .problem-split-inner {
@@ -1224,6 +1251,100 @@ nav {
 
     .problem-split-title {
         font-size: 1.5rem;
+    }
+}
+
+/* =========================
+   Two Column Brief
+   component: _two_column_brief.html
+   ========================= */
+
+.two-col-brief {
+    padding: 0;
+    background: var(--color-bg);
+}
+
+.two-col-brief-inner {
+    max-width: var(--max-width);
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+.two-col-brief-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    gap: 2.25rem;
+    align-items: start;
+}
+
+/* Left column: framing points */
+.two-col-brief-left {
+    text-align: left;
+}
+
+.two-col-brief-left-title {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    margin: 0 0 0.75rem 0;
+}
+
+.two-col-brief-points {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.two-col-brief-points li {
+    position: relative;
+    padding-left: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-text);
+}
+
+.two-col-brief-points li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-muted);
+    font-weight: 700;
+}
+
+/* Right column: headline + prose */
+.two-col-brief-right {
+    text-align: left;
+}
+
+.two-col-brief-headline {
+    font-family: var(--font-heading);
+    font-size: 1.7rem;
+    line-height: 1.15;
+    margin: 0 0 0.85rem 0;
+}
+
+.two-col-brief-body p {
+    margin: 0 0 0.9rem 0;
+    color: var(--color-text);
+}
+
+@media (max-width: 900px) {
+    .two-col-brief-inner {
+        padding: 0 1.25rem;
+        margin: 2.25rem auto;
+    }
+
+    .two-col-brief-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+}
+
+@media (min-width: 901px) {
+    .two-col-brief-left {
+        align-self: center;
     }
 }
 
@@ -1297,6 +1418,121 @@ nav {
 
 
 
+/* =========================
+   Team Member Cards
+   components: _team_member_card, _team_member_grid
+   ========================= */
+
+.team-section {
+    padding: 3rem 0 3.5rem;
+}
+
+.team-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.team-title {
+    font-family: var(--font-heading);
+    font-size: 1.9rem;
+    line-height: 1.15;
+    margin: 0 0 0.75rem;
+}
+
+.team-intro {
+    margin: 0 0 1.75rem;
+    color: var(--color-text-muted);
+    max-width: 40rem;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    align-items: start;
+}
+
+.team-card {
+    text-align: center;
+    padding: 1.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+.team-card-photo {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 1rem;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.team-card-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+.team-card-name {
+    margin: 0 0 0.1rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.team-card-role {
+    margin: 0 0 0.7rem;
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+}
+
+.team-card-divider {
+    width: 48px;
+    height: 1px;
+    background: var(--color-border-strong, var(--color-border));
+    margin: 0.6rem auto 0.8rem;
+}
+
+.team-card-bio {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+    .team-inner {
+        padding: 0 1.5rem;
+    }
+
+    .team-card {
+        padding: 1.5rem 1.25rem;
+    }
+}
+
+
+/* ===============================
+centered image
+=============================== */
+
+.centered-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+}
+
+.centered-image-caption {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.centered-image--muted {
+    background: var(--section-muted-bg);
+}
 
 
 /* ===============================

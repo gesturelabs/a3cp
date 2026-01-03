@@ -9,21 +9,30 @@
 {% set ct_headline = "An open foundation for ability-adaptive, augmentative communication" %}
 {% set ct_subheadline %}
 GestureLabs is a non-profit organisation developing the Ability-Adaptive Augmentative Communication Platform (A3CP)
-together with academic and care partners. A3CP is not a product or a device. It provides a shared foundation for
-building
-communication systems that can adapt to how different people express themselves through movement, sound, and everyday
-interaction, rather than requiring people to adapt to fixed interfaces.
+together with academic, practical, and care partners. A3CP is not a product or a device. It provides a shared
+architecture for
+building communication systems that can adapt to how different people express themselves through movement, sound, and
+everyday
+interaction, and is based on the principle that systems should adapt to the user rather than requiring people to adapt
+to the system.
 {% endset %}
 {% include "components/_centered_text_block.html" %}
 
 
-{# 2. THE PROBLEM — WHO IS CURRENTLY LEFT OUT #}
-{% set psb_headline = "Who is still excluded from communication support" %}
-{% set psb_body %}
+{# 2. THE PROBLEM #}
+{% set tcb_title = "Persistent gaps in practice" %}
+{% set tcb_points = [
+"Highly individual, multimodal expression",
+"Signals that change over time and context",
+"Dependence on informal interpretation"
+] %}
+{% set tcb_headline = "Who is still excluded from communication support" %}
+{% set tcb_body %}
 <p>
-    Augmentative and Alternative Communication (AAC) includes many effective tools and practices. However, for a
-    significant
-    group of non-speaking people with profound motor and intellectual disabilities, existing systems remain difficult or
+    Augmentative and alternative communication (AAC) includes many effective tools and practices. For a significant
+    group
+    of non-speaking people with profound motor and intellectual disabilities, however, existing systems remain difficult
+    or
     impossible to use.
 </p>
 <p>
@@ -34,72 +43,73 @@ interaction, rather than requiring people to adapt to fixed interfaces.
 </p>
 <p>
     While research has shown that such multimodal signals can be interpreted, there is currently no widely available,
-    open system designed around this form of communication or its development over time.
+    open
+    system designed around this form of communication or its development over time.
 </p>
 {% endset %}
-{% set psb_aside_title = "Persistent gaps in practice" %}
-{% set psb_bullets = [
-"Highly individual, multimodal expression",
-"Signals that change over time and context",
-"Dependence on informal interpretation"
-] %}
-
-{% include "components/_problem_split_block.html" %}
+{% include "components/_two_column_brief.html" %}
 
 
 
 
-{# CHALLENGE / APPROACH / IMPACT #}
-{% set tcr_title = "What problem is A3CP trying to solve?" %}
-{% set tcr_intro %}
-Many people with severe disabilities still lack reliable ways to communicate. Existing communication tools often assume
-skills that not everyone has, leaving many people behind. A3CP is our attempt to give voice to these people.
-{% endset %}
+{# 3. WHAT WE ARE BUILDING #}
+{% set tcr_title = "What we are building" %}
 {% set tcr_cards = [
 {
-"title": "The Challenge",
-"description": "Non-speaking people are often expected to adapt to technology that does not fit their abilities. When
-communication tools are inflexible, people can become isolated and caregivers can feel overwhelmed, especially in
-under-resourced care settings.",
-"href": None
+"title": "A3CP: a shared foundation",
+"description": "The underlying, open platform that handles sensing, classification, clarification, and logging.
+Everything else, such as prototypes, deployments, and research tools, is built on top of this shared core.",
+"href": "/technology#a3cp-foundation"
 },
 {
-"title": "The Solution",
-"description": "Imagine a system that can learn how each person communicates, learning what their movements
-and sounds express, and helping them to expand their communication skills",
-"href": "/technology"
+"title": "System variants (Eric...)",
+"description": "Named designs tuned to different user communication needs and contexts. Each variant defines
+typical hardware setups, clarification strategies, and output channels for a given pattern of abilities.",
+"href": "/technology#system-variants"
 },
 {
-"title": "The Impact we Aim For",
-"description": "We want to enable non-speaking in expressing their needs and preferences, reduce caregiver stress, and
-give welfare organisations tools they can audit, extend, and trust.",
-"href": "/impact"
+"title": "Individual systems in use",
+"description": "Per-person configurations deployed in real settings. These start from a variant and are adapted over
+time as people’s abilities, environments, and goals change.",
+"href": "/technology#individual-systems"
 }
 ] %}
+
 {% include "components/_three_card_row.html" %}
 
 
-{# STORY WITH PHOTO #}
-{% set headline = "Where This Began" %}
+
+{# 4. WHERE THIS BEGAN #}
+
+{% set headline = "Where this began" %}
 
 {% set body_html %}
 <p>
-    A3CP began with a family’s experience. Andrea’s son Eric, a bright and curious child with cerebral palsy,
-    understands two languages and communicates through sound, movement, and expression, but does not yet speak.
-    Everyday interactions made two things clear: the richness of his non-verbal communication, and the limits of
-    existing assistive systems that required him to adapt to fixed input methods he could not reliably control.
+    The impetus behind this research project is a deeply personal one. My ten-year-old son, Eric, is bilingual in his
+    verbal understanding, and has boundless happiness and enthusiasm, but he does not (yet) speak. His remarkable
+    determination and ability to communicate through various non-verbal ways inspires and entertains those around him.
 </p>
 
 <p>
-    Andrea’s wish to give her son a voice initiated a collaboration between technologists, designers, and
-    researchers at The Open University (UK). Early prototypes combined a webcam, gesture recognition,
-    and participatory design with families and therapists.
+    Try to imagine how frustrating and daunting it would be to be unable to express yourself freely, to be unable to
+    communicate when you need or want something, and to be severely limited in your ability to interact with others.
+    Being a mother of three children, including Eric – who has cerebral palsy – has allowed me to better understand the
+    needs, challenges, and opportunities of people with limited communication abilities.
 </p>
 
 <p>
-    GestureLabs was founded in Berlin to carry this work forward as a non-profit initiative. A3CP is now being
-    developed as open, transparent infrastructure that care organisations, researchers, and families can freely
-    use, improve, and share.
+    Through Eric’s eyes I realised how much we take for granted in life and imagined how technology could be used to
+    enhance communication. There is no “one-size-fits-all” – individuals are unique in their ways of communicating,
+    acting, and living. This uniqueness is even more prominent when there are physical and cognitive limitations.
+</p>
+
+<p>
+    Driven by the unique and diverse needs of people with disabilities, we are developing a novel personalised
+    communication system that adapts to the abilities of individuals, instead of requiring individuals to learn and
+    adapt to the system. The system will monitor individuals’ unique sounds, motions, and gestures, and translate these
+    into easily understood communication. Combining advances and approaches in the fields of software engineering,
+    human computer interaction, design technologies, and AI, I am excited to be able to contribute to the empowerment
+    of so many people to express their thoughts, desires, and needs.
 </p>
 {% endset %}
 
@@ -109,100 +119,149 @@ give welfare organisations tools they can audit, extend, and trust.",
 
 {% include "components/_two_column_text_w_photo.html" %}
 
-{# WHAT ARE WE BUILDING #}
-{% set tcr_title = "What are We Building?" %}
-{% set tcr_cards = [
-{
-"title": "A New Kind of Communication System",
-"description": "A3CP uses everyday devices like cameras and microphones to understand movement and sound. It is designed
-to work with affordable, widely available hardware in real-world settings.",
-"href": "/technology#inputs"
-},
-{
-"title": "Creating Meaning Together",
-"description": "Communicators and their partners work together to map gestures and sounds to meaning. Together they
-actively confirm intentions, correct misunderstandings, and shape how the system supports communication.",
-"href": "/technology#learning"
-},
-{
-"title": "Enabling Expression and Choice",
-"description": "The system helps turn a person’s expressions into speech, text, or symbols, so they can make choices,
-share needs, and take part in everyday interactions.",
-"href": "/technology#outputs"
-}
-] %}
+
+{# 7. TEAM & CONTRIBUTORS #}
+
+<section class="team-section">
+    <div class="team-inner">
+
+        <h2 class="team-title">
+            Team & contributors
+        </h2>
+
+        <p class="team-intro">
+            A3CP is developed by GestureLabs together with research partners at The Open University and external
+            advisors in project development, social innovation, and engineering.
+        </p>
+
+        <div class="team-grid">
+
+            <article class="team-card">
+                <div class="team-card-photo">
+                    <img src="{{ url_for('static', path='img/photos/Dmitri_Katz.jpg') }}"
+                        alt="Portrait of Dr. Dmitri Katz">
+                </div>
+                <h3 class="team-card-name">Dr. Dmitri Katz</h3>
+                <p class="team-card-role">Human Computer Interaction</p>
+                <div class="team-card-divider"></div>
+                <p class="team-card-bio">
+                    Leads A3CP architecture, interaction design, and development direction. Co-founder, GestureLabs.
+                </p>
+            </article>
+
+            <article class="team-card">
+                <div class="team-card-photo">
+                    <img src="{{ url_for('static', path='img/photos/Regina_Tetens.jpg') }}"
+                        alt="Portrait of Regina Tetens">
+                </div>
+                <h3 class="team-card-name">Regina Tetens</h3>
+                <p class="team-card-role">Project Development</p>
+                <div class="team-card-divider"></div>
+                <p class="team-card-bio">
+                    Supports project development and organisational planning. Co-founder, GestureLabs.
+                </p>
+            </article>
+
+            <article class="team-card">
+                <div class="team-card-photo">
+                    <img src="{{ url_for('static', path='img/photos/Kai_Utzinger.jpg') }}"
+                        alt="Portrait of Kai Utzinger">
+                </div>
+                <h3 class="team-card-name">Kai Utzinger</h3>
+                <p class="team-card-role">Development Consultant</p>
+                <div class="team-card-divider"></div>
+                <p class="team-card-bio">
+                    Advises on social innovation strategy and implementation pathways. External consultant.
+                </p>
+            </article>
+
+            <article class="team-card">
+                <div class="team-card-photo">
+                    <img src="{{ url_for('static', path='img/photos/Andrea_Zisman.jpg') }}"
+                        alt="Portrait of Prof. Andrea Zisman">
+                </div>
+                <h3 class="team-card-name">Prof. Andrea Zisman</h3>
+                <p class="team-card-role">Software Engineering (Open University)</p>
+                <div class="team-card-divider"></div>
+                <p class="team-card-bio">
+                    Initiated the project and leads research collaboration and methodology.
+                </p>
+            </article>
+
+            <article class="team-card">
+                <div class="team-card-photo">
+                    <img src="{{ url_for('static', path='img/photos/Mohamed_Bennasar.jpg') }}"
+                        alt="Portrait of Mohamed Bennasar">
+                </div>
+                <h3 class="team-card-name">Dr. Mohamed Bennasar</h3>
+                <p class="team-card-role">Machine Learning Research (Open University)</p>
+                <div class="team-card-divider"></div>
+                <p class="team-card-bio">
+                    Develops multimodal recognition models and machine learning pipelines.
+                </p>
+            </article>
+
+            <article class="team-card">
+                <div class="team-card-photo">
+                    <img src="{{ url_for('static', path='img/photos/Anthony_Johnston.jpg') }}"
+                        alt="Portrait of Anthony Johnston">
+                </div>
+                <h3 class="team-card-name">Dr. Anthony Johnston</h3>
+                <p class="team-card-role">Hardware & Prototyping (Open University)</p>
+                <div class="team-card-divider"></div>
+                <p class="team-card-bio">
+                    Advises on hardware integration, sensing options, and prototyping.
+                </p>
+            </article>
+
+        </div>
+
+    </div>
+</section>
 
 
-{% include "components/_three_card_row.html" %}
+{# 5. GOVERNANCE & ROLES #}
 
+{% set tc_eyebrow = "Governance & roles" %}
+{% set tc_title = "How responsibility is structured" %}
+{% set tc_lead = "GestureLabs e.V. stewards the open platform; research and algorithm development are conducted with
+independent academic partners." %}
 
-{# HOW WE WORK / PRINCIPLES #}
-{% set vl_label = "How we work" %}
-{% set vl_title = "What we value and how we design A3CP" %}
+{% set tc_body %}
+<p>
+    GestureLabs e.V. is responsible for maintaining the A3CP repository, developing the open-source codebase, and
+    stewarding the platform as a non-profit initiative. The association oversees governance, licensing, documentation,
+    and contribution processes to keep the infrastructure transparent, auditable, and accessible to care organisations,
+    researchers, and developers.
+</p>
 
-{% set vl_intro %}
-Shaping an adaptive communication system for non-speaking people requires principled
-choices about data, design, and governance.
+<p>
+    Early work on multimodal models and interaction design was carried out at The Open University (UK), where Andrea
+    Zisman,
+    a professor and initiator of the project, led research and machine learning development. The Open University has
+    funded the project to date and continues to contribute research methodology, evaluation design, and algorithmic
+    work.
+</p>
+
+<p>
+    Research partners operate independently from platform stewardship. This separation preserves academic autonomy,
+    allows results to be published openly, and makes it possible for additional institutions to collaborate without
+    vendor lock-in or proprietary dependencies.
+</p>
 {% endset %}
 
-{% set vl_values = [
-{
-"number": 1,
-"title": "Put the person first.",
-"text": "We design around individual abilities and contexts, not around standardised gestures or abstract user models."
-},
-{
-"number": 2,
-"title": "Caregiver-in-the-loop.",
-"text": "Caregivers label new actions, correct interpretations, and review how the system adapts over time."
-},
-{
-"number": 3,
-"title": "Open and inspectable.",
-"text": "Schemas, logs, and code are open so institutions can audit behaviour and adapt the platform to their needs."
-},
-{
-"number": 4,
-"title": "Privacy and safety by design.",
-"text": "We prioritise local processing, data minimisation, and clear documentation of how information flows."
-},
-{
-"number": 5,
-"title": "Scientific and clinical rigour.",
-"text": "We work with researchers, clinicians, and families using transparent methods and reproducible protocols."
-}
+{% set tc_aside_title = "Roles at a glance" %}
+{% set tc_aside_items = [
+"GestureLabs e.V. — code stewardship and open-source governance",
+"The Open University (UK) — research, funding, and ML development"
 ] %}
 
-{% include "components/_values_list.html" %}
+{% include "components/_two_column_section.html" %}
 
 
 
-{% set status_title = "Where the project is today" %}
-{% set status_intro = "A3CP is moving from research prototype to deployable, open-source infrastructure. Here is where
-we are now and what we are preparing next." %}
 
-{% set status_now = [
-"Core architecture defined using a modular FastAPI-based stack.",
-"Canonical data schemas validated with Pydantic v2 and shared with partners.",
-"Adaptive memory and caregiver-feedback framework under active implementation.",
-"Collaboration network forming in Berlin–Brandenburg and internationally."
-] %}
 
-{% set status_next = [
-"End-to-end demonstrator deployment in pilot environments.",
-"Pilot studies with care and research partners planned for 2026.",
-"Documentation and training materials for institutions and developers.",
-"Refinement of privacy-preserving deployment options (on-premise, edge-first)."
-] %}
-
-{% with
-title=status_title,
-intro=status_intro,
-now_items=status_now,
-next_items=status_next
-%}
-{% include "components/_status_section.html" %}
-{% endwith %}
 
 
 {# CTA BAND #}

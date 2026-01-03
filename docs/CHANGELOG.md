@@ -9,6 +9,12 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-1-3 technology.html — Changelog
+
+- Rebuilt the Technology page structure almost entirely.
+-added new images
+-new text
+
 ## 2025-12-17 — Post-Django FastAPI Consolidation (Deployment Marker)
 
 - Completed full removal of Django from the runtime and CI surface.

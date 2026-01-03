@@ -1,0 +1,38 @@
+{# Expected context:
+- team_title (optional, str)
+- team_intro (optional, str)
+- team_members: list of dicts with keys:
+- name, role, bio, img_src, img_alt
+#}
+
+<section class="team-section">
+    <div class="team-inner">
+
+        {% if team_title is defined and team_title %}
+        <h2 class="team-title">
+            {{ team_title }}
+        </h2>
+        {% endif %}
+
+        {% if team_intro is defined and team_intro %}
+        <p class="team-intro">
+            {{ team_intro }}
+        </p>
+        {% endif %}
+
+        <div class="team-grid">
+            {% for m in team_members %}
+            {% with
+            member_name=m.name,
+            member_role=m.role,
+            member_bio=m.bio,
+            member_img_src=m.img_src,
+            member_img_alt=m.img_alt
+            %}
+            {% include "components/_team_member_card.html" %}
+            {% endwith %}
+            {% endfor %}
+        </div>
+
+    </div>
+</section>

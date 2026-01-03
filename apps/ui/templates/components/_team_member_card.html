@@ -1,0 +1,33 @@
+{# Expected context:
+- member_name (str, required)
+- member_role (str, required)
+- member_bio (str or HTML, optional)
+- member_img_src (str, optional)
+- member_img_alt (str, optional)
+#}
+
+<article class="team-card">
+    {% if member_img_src is defined and member_img_src %}
+    <div class="team-card-photo">
+        <img src="{{ member_img_src }}" alt="{{ member_img_alt|default(member_name) }}">
+    </div>
+    {% endif %}
+
+    <h3 class="team-card-name">
+        {{ member_name }}
+    </h3>
+
+    {% if member_role is defined and member_role %}
+    <p class="team-card-role">
+        {{ member_role }}
+    </p>
+    {% endif %}
+
+    <div class="team-card-divider"></div>
+
+    {% if member_bio is defined and member_bio %}
+    <p class="team-card-bio">
+        {{ member_bio }}
+    </p>
+    {% endif %}
+</article>
