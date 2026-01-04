@@ -1110,7 +1110,10 @@ nav {
 }
 
 /* ===============================
-           two column with photo right
+   Two-column text + photo (GRID)
+   - Default: text 2/3, image 1/3
+   - Reverse: image 1/3 on left, text 2/3 on right
+   - Stable alignment (no “sinking”)
 =============================== */
 
 .two-col-photo {
@@ -1121,32 +1124,45 @@ nav {
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 0 1.25rem;
+
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
     gap: 2.5rem;
-    align-items: stretch;
+
+    /* critical for “inline” top alignment */
+    align-items: start;
+
+    /* default layout: text | image */
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas: "text media";
 }
 
-.two-col-photo-reverse {
-    direction: rtl;
+/* Reverse layout: image | text (ratios swap accordingly) */
+.two-col-photo-inner.two-col-photo-reverse {
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas: "media text";
 }
 
-.two-col-photo-reverse>* {
-    direction: ltr;
+/* Place items by area (more robust than grid-column juggling) */
+.two-col-photo-text {
+    grid-area: text;
+    min-width: 0;
+    /* prevents overflow causing layout weirdness */
 }
 
 .two-col-photo-figure {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    grid-area: media;
+    margin: 0;
+    align-self: start;
+    /* prevents “sinking” */
+    display: block;
 }
 
+/* Image + caption */
 .two-col-photo-img {
     width: 100%;
     height: auto;
-    border-radius: var(--radius-md);
     display: block;
+    border-radius: var(--radius-md);
 }
 
 .two-col-photo-caption {
@@ -1156,9 +1172,49 @@ nav {
     text-align: center;
 }
 
+/* Optional: size variants (if you still want them) */
+.two-col-photo-inner--lg {
+    grid-template-columns: 2.2fr 1fr;
+}
+
+.two-col-photo-inner--md {
+    grid-template-columns: 2fr 1fr;
+}
+
+.two-col-photo-inner--sm {
+    grid-template-columns: 1.8fr 1fr;
+}
+
+.two-col-photo-inner--xs {
+    grid-template-columns: 1.6fr 1fr;
+}
+
+/* Ensure reverse still swaps correctly even with size variants */
+.two-col-photo-inner--lg.two-col-photo-reverse {
+    grid-template-columns: 1fr 2.2fr;
+}
+
+.two-col-photo-inner--md.two-col-photo-reverse {
+    grid-template-columns: 1fr 2fr;
+}
+
+.two-col-photo-inner--sm.two-col-photo-reverse {
+    grid-template-columns: 1fr 1.8fr;
+}
+
+.two-col-photo-inner--xs.two-col-photo-reverse {
+    grid-template-columns: 1fr 1.6fr;
+}
+
+/* Mobile: stack */
 @media (max-width: 900px) {
-    .two-col-photo-inner {
+
+    .two-col-photo-inner,
+    .two-col-photo-inner.two-col-photo-reverse {
         grid-template-columns: 1fr;
+        grid-template-areas:
+            "text"
+            "media";
     }
 
     .two-col-photo-img {
@@ -1166,6 +1222,8 @@ nav {
         margin: 0 auto;
     }
 }
+
+
 
 /* =========================
    Problem Split Block

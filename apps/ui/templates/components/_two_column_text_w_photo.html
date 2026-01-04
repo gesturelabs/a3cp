@@ -1,15 +1,9 @@
 {# components/_two_column_text_w_photo.html #}
-{# Expects:
-headline (str)
-body_html (safe html string) -> pass with {% set body_html %}...{% endset %}
-img_src (str)
-img_alt (str)
-caption (str, optional)
-reverse (bool, optional) -> if true, image left, text right
-#}
+{% set img_size = img_size | default("md") %}
 
 <section class="two-col-photo">
-    <div class="two-col-photo-inner {% if reverse %}two-col-photo-reverse{% endif %}">
+    <div
+        class="two-col-photo-inner two-col-photo-inner--{{ img_size }} {% if reverse %}two-col-photo-reverse{% endif %}">
         <div class="two-col-photo-text">
             <h2 class="two-col-photo-title">{{ headline }}</h2>
             <div class="two-col-photo-body">

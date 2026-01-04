@@ -18,36 +18,66 @@ to the system.
 {% endset %}
 {% include "components/_centered_text_block.html" %}
 
-
-{# 2. THE PROBLEM #}
-{% set tcb_title = "Persistent gaps in practice" %}
-{% set tcb_points = [
-"Highly individual, multimodal expression",
-"Signals that change over time and context",
-"Dependence on informal interpretation"
-] %}
-{% set tcb_headline = "Who is still excluded from communication support" %}
-{% set tcb_body %}
+{# --- 1 Signals that change over time and context --- #}
+{% set headline = "Signals that change over time and context" %}
+{% set body_html %}
 <p>
-    Augmentative and alternative communication (AAC) includes many effective tools and practices. For a significant
-    group
-    of non-speaking people with profound motor and intellectual disabilities, however, existing systems remain difficult
-    or
-    impossible to use.
+    The meaning of embodied signals is often context-dependent and may shift across environments,
+    activities, or over developmental time. A movement or sound can carry different intent at home,
+    at school, or during care routines.
 </p>
 <p>
-    Their communication often relies on highly personal combinations of movement, sound, facial expression, and context.
-    These signals can be meaningful, but are typically understood only by close carers and are hard to support
-    consistently
-    across home, school, and care settings.
-</p>
-<p>
-    While research has shown that such multimodal signals can be interpreted, there is currently no widely available,
-    open
-    system designed around this form of communication or its development over time.
+    This variability makes consistent interpretation difficult and limits the effectiveness of systems
+    that rely on fixed mappings or static training data.
 </p>
 {% endset %}
-{% include "components/_two_column_brief.html" %}
+{% set img_src = "/static/img/illustrations/Changing_Context.png" %}
+{% set img_alt = "The same person shown in different environments with changing contextual cues." %}
+{% set caption = "Meaning shaped by situation, environment, and time." %}
+{% set reverse = true %}
+{% include "components/_two_column_text_w_photo.html" %}
+
+
+{# --- 2 Highly individual, multimodal expression --- #}
+{% set headline = "Highly individual, multimodal expression" %}
+{% set body_html %}
+<p>
+    Some non-speaking individuals communicate through unique combinations of movement, sound, facial expression,
+    and timing. These expressions do not map cleanly onto standardized symbols or fixed vocabularies and often
+    differ substantially from person to person.
+</p>
+<p>
+    While meaningful, such signals typically require personalized interpretation and cannot be assumed to generalize
+    across users, settings, or support staff.
+</p>
+{% endset %}
+{% set img_src = "/static/img/illustrations/Individual_Multimodal.png" %}
+{% set img_alt = "A person expressing intent through a combination of gesture, sound, and facial expression." %}
+{% set caption = "Communication expressed through individualized multimodal signals." %}
+{% set reverse = false %}
+{% include "components/_two_column_text_w_photo.html" %}
+
+
+
+
+{# --- 3 Dependence on informal interpretation --- #}
+{% set headline = "Dependence on informal interpretation" %}
+{% set body_html %}
+<p>
+    Understanding these signals often depends on close carers who have learned an individual’s
+    communication patterns through long-term exposure and shared experience.
+</p>
+<p>
+    This knowledge is rarely formalized, transferable, or supported by technical systems, leading to
+    breakdowns in understanding when staff change or settings shift.
+</p>
+{% endset %}
+{% set img_src = "/static/img/illustrations/Carer_Interpretation.png" %}
+{% set img_alt = "A caregiver observing and interpreting a person’s gestures and expressions." %}
+{% set caption = "Meaning inferred through familiarity rather than shared systems." %}
+{% set reverse = true %}
+{% include "components/_two_column_text_w_photo.html" %}
+
 
 
 
@@ -81,7 +111,7 @@ time as people’s abilities, environments, and goals change.",
 
 {# 4. WHERE THIS BEGAN #}
 
-{% set headline = "Where this began" %}
+{% set headline = "A letter from Andrea" %}
 
 {% set body_html %}
 <p>
