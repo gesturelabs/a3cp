@@ -91,7 +91,23 @@ Deprecated:
 - Added sample input/output payloads to `docs/modules/*/`
 
 ---
+## v1.1.1 – 2026-01-06
 
-(Each future release should follow this format.)
+### Changed
+- Corrected placement of schema example methods:
+  - `example_input()` now defined only on Input schema classes.
+  - `example_output()` now defined only on Output schema classes.
+  - No field sets or validation logic changed.
 
-Let me know when you want to auto-generate or append to this file.
+### Added
+- Introduced canonical public schema aliases via `schemas/__init__.py`:
+  - `SessionManagerStartInput`, `SessionManagerStartOutput`
+  - `SessionManagerEndInput`, `SessionManagerEndOutput`
+- Public aliases added to `schemas.__all__` and adopted by API routes.
+
+### Verified
+- Schema generator resolves internal schema files (not public aliases) and emits:
+  - `*_schema.json`
+  - `*_input_example.json`
+  - `*_output_example.json`
+- No change to `schema_version` semantics or runtime payload structure.

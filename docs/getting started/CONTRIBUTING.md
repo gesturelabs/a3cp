@@ -90,3 +90,26 @@ We also welcome contributions in:
 
 A3CP is developed by GestureLabs and partners, with support
 from researchers, educators, and disability community stakeholders.
+
+
+## Schema Import Policy (Routes)
+
+All API route modules under `api/routes/` MUST import schemas **only** via the public schema surface:
+
+    from schemas import ...
+
+Routes MUST NOT deep-import internal schema modules, e.g.:
+
+    from schemas.session_manager.session_manager_start import ...
+    import schemas.session_manager_end.session_manager_end
+
+Rationale:
+- The `schemas` package defines a stable public API via `schemas/__init__.py`.
+- Internal schema file layout may change without notice.
+- Enforcing this boundary prevents tight coupling and silent breakage during refactors.
+
+Guardrails:
+- CI includes scoped tests (initially for `session_manager`) that fail if routes deep-import schema submodules.
+- This rule will be extended to additional modules as the pattern is adopted.
+
+If you need a schema that is not publicly exported, update `schemas/__init__.py` rather than importing it directly.

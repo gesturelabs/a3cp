@@ -1,4 +1,4 @@
-# schemas/session_manager/session_manager_start.py
+# schemas/session_manager/session_manager_start/session_manager_start.py
 
 from datetime import datetime, timezone
 from typing import Optional
