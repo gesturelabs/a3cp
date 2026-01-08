@@ -9,6 +9,33 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [2026-Jan.-8] — Session Manager JSONL Logging + Schema Recorder Integration
+
+### Added
+- Append-only session timeline logging via `schema_recorder` for `session_manager` start/end events.
+- Canonical per-user, per-session JSONL layout:
+  - `logs/users/<user_id>/sessions/<session_id>.jsonl`
+- Root-level pytest guardrail forcing `LOG_ROOT` into temp directories to prevent repo-local log pollution during tests.
+
+### Changed
+- `session_manager` routes now emit start/end events through the `schema_recorder` writer boundary instead of direct file I/O.
+- Public `schemas` surface extended to export `RecorderConfig` for route-level usage.
+- `schema_recorder` documentation updated to explicitly define the Sprint 1 session JSONL writer invariant.
+- `RecorderConfig.log_dir` semantics clarified to represent `LOG_ROOT` (not `logs/users/`).
+
+### Fixed
+- Eliminated uncontrolled creation of repo-local `logs/users/**` during test runs.
+- Resolved import-policy violations by routing all schema access through `schemas/__init__.py`.
+
+### Removed
+- Outdated Sprint planning and context documents superseded by current execution state.
+
+### Tests
+- Added guardrail test asserting exactly two ordered JSONL entries for session start → end.
+- Import-policy tests preserved and passing.
+
+
+
 ## 2026-1-7 Sprint Planning
 -added sprint docs 1 and first version of 2
 
