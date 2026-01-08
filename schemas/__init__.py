@@ -11,6 +11,7 @@ not from this public package.
 """
 # Re-export BaseSchema first to avoid circular import issues
 from .base.base import BaseSchema
+from .schema_recorder.schema_recorder import RecorderConfig
 from .session_manager_end.session_manager_end import (
     SessionEndInput as SessionManagerEndInput,
 )
@@ -33,4 +34,5 @@ __all__ = [
     "SessionManagerStartOutput",
     "SessionManagerEndInput",
     "SessionManagerEndOutput",
+    "RecorderConfig",
 ]

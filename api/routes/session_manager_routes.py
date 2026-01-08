@@ -1,11 +1,15 @@
 # api/routes/session_manager_routes.py
 
+import os
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
+from apps.schema_recorder import append_session_event
 from schemas import (
+    RecorderConfig,
     SessionManagerEndInput,
     SessionManagerEndOutput,
     SessionManagerStartInput,
@@ -23,7 +27,10 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
     """
     Begin a user session. Returns assigned session_id and session metadata.
     """
-    new_session_id = f"sess_{uuid.uuid4().hex[:8]}"
+    new_session_id = f"sess_{uuid.uuid4().hex[:16]}"
+    while new_session_id in _sessions:
+        new_session_id = f"sess_{uuid.uuid4().hex[:16]}"
+
     now = datetime.now(timezone.utc)
 
     is_training = (
@@ -43,7 +50,7 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
     }
 
     # Build output (session_id enforced non-empty by model validator)
-    return SessionManagerStartOutput(
+    out = SessionManagerStartOutput(
         schema_version=payload.schema_version,
         record_id=payload.record_id,
         user_id=payload.user_id,
@@ -56,6 +63,23 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
         session_notes=payload.session_notes,
         training_intent_label=payload.training_intent_label,
     )
+
+    cfg = RecorderConfig(
+        log_format="jsonl",
+        log_dir=Path(os.getenv("LOG_ROOT", "./logs")),
+        enable_hashing=True,
+        max_file_size_mb=None,
+        allow_schema_override=False,
+    )
+
+    append_session_event(
+        cfg=cfg,
+        user_id=out.user_id,
+        session_id=str(out.session_id),
+        message=out,
+    )
+
+    return out
 
 
 @router.post("/sessions.end", response_model=SessionManagerEndOutput)
@@ -76,7 +100,7 @@ def end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput:
     session["end_time"] = payload.end_time
     session["status"] = "closed"
 
-    return SessionManagerEndOutput(
+    out = SessionManagerEndOutput(
         schema_version=payload.schema_version,
         record_id=payload.record_id,
         user_id=payload.user_id,
@@ -86,3 +110,20 @@ def end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput:
         performer_id=payload.performer_id,
         end_time=payload.end_time,
     )
+
+    cfg = RecorderConfig(
+        log_format="jsonl",
+        log_dir=Path(os.getenv("LOG_ROOT", "./logs")),
+        enable_hashing=True,
+        max_file_size_mb=None,
+        allow_schema_override=False,
+    )
+
+    append_session_event(
+        cfg=cfg,
+        user_id=out.user_id,
+        session_id=str(out.session_id),
+        message=out,
+    )
+
+    return out

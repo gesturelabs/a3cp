@@ -8,12 +8,23 @@ This module forms the backbone of A3CP’s audit, reproducibility, and retrainin
 
 ## Responsibilities
 - Validate input records against the expected schema version
-- Serialize validated records to structured append-only formats (`.jsonl`, `.parquet`, etc.)
+- Serialize validated records to structured append-only formats (`.jsonl`, ``, etc.)
 - Preserve insertion order for audit and replayability
 - Log key metadata: `record_id`, `timestamp`, `schema_type`, `user_id`, `session_id`
 - Optionally log source module, `action_id`, or extended provenance tags
 - Ensure atomic write behavior and hashable file integrity
 - Maintain schema registry to map types to storage formats and destinations
+
+## Sprint 1 Invariant (Session JSONL writer boundary)
+
+For Sprint 1, `schema_recorder` is the sole allowlisted component that may write session timeline logs under:
+
+`logs/users/<user_id>/sessions/<session_id>.jsonl`
+
+All other modules (session_manager, camera_feed_worker, landmark_extractor, etc.) MUST call `schema_recorder` to append session events, and MUST NOT open or append to any file under `logs/users/**` directly.
+
+This invariant will be enforced via CI static-scan allowlisting.
+
 
 ## Not Responsible For
 - Performing classification, inference, or decision-making

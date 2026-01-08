@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 
 class RecorderConfig(BaseModel):
-    log_format: Literal["jsonl", "parquet"] = Field(
+    log_format: Literal["jsonl", "npz"] = Field(
         "jsonl", description="Log format for recorded schema data"
     )
     log_dir: Path = Field(
@@ -26,7 +26,7 @@ class RecorderConfig(BaseModel):
     def example_input() -> dict:
         return {
             "log_format": "jsonl",
-            "log_dir": "./logs/users/",
+            "log_dir": "./logs",
             "enable_hashing": True,
             "max_file_size_mb": 100,
             "allow_schema_override": False,

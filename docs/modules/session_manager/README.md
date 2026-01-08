@@ -60,6 +60,7 @@ The session_manager provides the temporal spine for CARE Engine operation. All C
 - F4. Support chronological replay and export of session timelines.
 - F5. Persist session metadata across restarts.
 
+
 ## Non-Functional Requirements
 - NF1. Session tracking must survive temporary disconnects and restarts.
 - NF2. Session tagging must remain low-latency.

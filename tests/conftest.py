@@ -29,3 +29,12 @@ def tiny_jpeg_base64() -> str:
     img.save(buffer, format="JPEG")
     encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return f"data:image/jpeg;base64,{encoded}"
+
+
+@pytest.fixture(autouse=True)
+def _force_log_root_tmp(tmp_path, monkeypatch):
+    """
+    Prevent tests from writing to repo-local ./logs.
+    Forces all LOG_ROOT writes into a per-test temp directory.
+    """
+    monkeypatch.setenv("LOG_ROOT", str(tmp_path / "logs"))

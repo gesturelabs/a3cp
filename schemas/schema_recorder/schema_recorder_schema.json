@@ -12,7 +12,7 @@
           "description": "Log format for recorded schema data",
           "enum": [
             "jsonl",
-            "parquet"
+            "npz"
           ],
           "title": "Log Format",
           "type": "string"
