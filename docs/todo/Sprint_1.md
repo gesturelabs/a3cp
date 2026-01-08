@@ -22,9 +22,9 @@
   - [x ] start session → returns session_id
   - [x] end session → closes session
 - [ x] Ensure session_id is unique, stable, and readable.
-- [ ] Emit append-only session events as A3CPMessage JSONL:
-  - [ ] write via recorded_schemas to `logs/users/<user_id>/sessions/<session_id>.jsonl`
-  - [ ] include source="session_manager", performer_id, timestamp, user_id, session_id, record_id
+- [x ] Emit append-only session events as A3CPMessage JSONL:
+  - [x ] write via recorded_schemas to `logs/users/<user_id>/sessions/<session_id>.jsonl`
+  - [ x] include source="session_manager", performer_id, timestamp, user_id, session_id, record_id
 - [ ] Add minimal “get current session” helper (in-memory acceptable for demo).
 
 ---

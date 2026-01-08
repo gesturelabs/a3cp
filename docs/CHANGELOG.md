@@ -10,28 +10,31 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 ## [2026-Jan.-8] — Session Manager JSONL Logging + Schema Recorder Integration
+## [Unreleased] — Session Manager JSONL Logging & Schema Recorder Integration
 
 ### Added
-- Append-only session timeline logging via `schema_recorder` for `session_manager` start/end events.
+- Append-only session timeline logging via `schema_recorder` for session start/end events.
 - Canonical per-user, per-session JSONL layout:
   - `logs/users/<user_id>/sessions/<session_id>.jsonl`
-- Root-level pytest guardrail forcing `LOG_ROOT` into temp directories to prevent repo-local log pollution during tests.
+- New `schema_recorder` app as the sole writer boundary for session logs.
+- Root-level pytest guardrail forcing `LOG_ROOT` into temp directories for all tests.
 
 ### Changed
-- `session_manager` routes now emit start/end events through the `schema_recorder` writer boundary instead of direct file I/O.
-- Public `schemas` surface extended to export `RecorderConfig` for route-level usage.
-- `schema_recorder` documentation updated to explicitly define the Sprint 1 session JSONL writer invariant.
-- `RecorderConfig.log_dir` semantics clarified to represent `LOG_ROOT` (not `logs/users/`).
+- `session_manager` routes now emit start/end events through `schema_recorder` instead of direct file I/O.
+- Public `schemas` surface extended to export `RecorderConfig`.
+- Clarified `RecorderConfig.log_dir` semantics as `LOG_ROOT`.
+- Updated module documentation for `session_manager` and `schema_recorder` to reflect implemented invariants.
 
 ### Fixed
-- Eliminated uncontrolled creation of repo-local `logs/users/**` during test runs.
-- Resolved import-policy violations by routing all schema access through `schemas/__init__.py`.
+- Prevented uncontrolled creation of repo-local `logs/users/**` during test runs.
+- Enforced schema import policy compliance for routes.
 
 ### Removed
-- Outdated Sprint planning and context documents superseded by current execution state.
+- Obsolete Sprint 1 planning and context documents superseded by the implemented system.
 
 ### Tests
-- Added guardrail test asserting exactly two ordered JSONL entries for session start → end.
+- Added guardrail test asserting exactly two ordered JSONL events for session start → end.
+- Added session_id format and uniqueness test.
 - Import-policy tests preserved and passing.
 
 
