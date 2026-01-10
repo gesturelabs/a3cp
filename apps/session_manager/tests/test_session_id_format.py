@@ -4,7 +4,7 @@ import re
 import uuid
 from datetime import datetime, timezone
 
-from api.routes.session_manager_routes import start_session
+from apps.session_manager.service import start_session
 from schemas import SessionManagerStartInput
 
 

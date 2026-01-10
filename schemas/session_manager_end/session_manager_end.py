@@ -36,7 +36,7 @@ class SessionEndInput(BaseSchema):
             "schema_version": "1.0.1",
             "record_id": "f17e3c34-8f23-4f9a-bb89-123456789abc",
             "user_id": "elias01",
-            "session_id": "sess_20250728_001",
+            "session_id": "sess_1a2b3c4d5e6f7a8b",
             "timestamp": "2025-07-28T15:31:00.000Z",  # message creation timestamp
             # source is optional at input (could be UI/caregiver/system)
             "end_time": "2025-07-28T15:30:00.000Z",
@@ -72,7 +72,7 @@ class SessionEndOutput(BaseSchema):
             "schema_version": "1.0.1",
             "record_id": "5b9d3aa1-1d2e-40a6-a2d9-0b5c52d0abcd",
             "user_id": "elias01",
-            "session_id": "sess_20250728_001",
+            "session_id": "sess_1a2b3c4d5e6f7a8b",
             "timestamp": "2025-07-28T15:31:01.000Z",  # server acknowledgement time
             "source": "session_manager",
             "end_time": "2025-07-28T15:30:00.000Z",

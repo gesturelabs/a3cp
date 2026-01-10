@@ -1,7 +1,7 @@
 # api/main.py
 from fastapi import FastAPI
 
-from api.routes.session_manager_routes import router as session_manager_router
+from apps.session_manager.routes.router import router as session_manager_router
 
 app = FastAPI(
     title="A3CP API",

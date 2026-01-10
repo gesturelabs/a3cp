@@ -9,8 +9,35 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## [2026-Jan.-10] — Session Manager Refactor to app folder
+
+### Architecture
+- Locked canonical app architecture for all runtime modules under `apps/<app>/`.
+- Enforced single routing composition point in `api/main.py`.
+- Designated `api/routes/` as legacy shim-only directory.
+
+### Session Manager
+- Migrated `session_manager` to canonical app structure:
+  - `apps/session_manager/routes/router.py` (thin FastAPI adapter)
+  - `apps/session_manager/service.py` (session lifecycle behavior)
+  - `apps/session_manager/repository.py` (IO boundary)
+- Removed business logic and state from route layer.
+- Made `session_id` explicit throughout service and route boundaries.
+- Preserved demo-only in-memory session state with clear isolation.
+
+### Tests
+- Updated tests to import service-level behavior directly.
+- Removed reliance on route-level function imports.
+- All tests passing after migration.
+
+### Technical Debt / TODO
+- Remaining modules still define real routes under `api/routes/`.
+  These must be migrated to `apps/<app>/routes/router.py`.
+
+
 ## [2026-Jan.-8] — Session Manager JSONL Logging + Schema Recorder Integration
-## [Unreleased] — Session Manager JSONL Logging & Schema Recorder Integration
+
 
 ### Added
 - Append-only session timeline logging via `schema_recorder` for session start/end events.

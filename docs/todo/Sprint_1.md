@@ -13,70 +13,121 @@
 
 
 ---
+# session_manager module plan (files + functions)
+
+session_manager/
+- config.py
+  - MODULE_SOURCE = "session_manager"
+  - SESSION_ID_PREFIX = "sess_"
+  - DEFAULT_TIMEOUT_SECONDS (later)
+  - get_timeout_seconds()  (later)
+
+- idgen.py
+  - generate_session_id() -> str
+  - is_valid_session_id(session_id: str) -> bool  (optional)
+
+- models.py  (domain data, no FastAPI/IO)
+  - SessionStatus = {"active","closed"}
+  - Session(session_id, user_id, start_time, end_time?, status, is_training_data, session_notes?, training_intent_label?, performer_id?)
+
+- domain.py  (pure invariants/rules)
+  - assert_can_end_session(session: Session, user_id: str) -> None
+  - close_session(session: Session, end_time: datetime) -> Session
+  - Domain errors: SessionNotFound, SessionUserMismatch, SessionAlreadyClosed
+
+- repository.py  (storage + recorder boundary)
+  - create_active_session(session: Session) -> None
+  - get_active_session(session_id: str) -> Session | None
+  - mark_session_closed(session_id: str, end_time: datetime) -> Session
+  - append_event(cfg: RecorderConfig, user_id: str, session_id: str, message: BaseSchema) -> None
+  - session_log_path(user_id: str, session_id: str) -> Path  (optional)
+
+- service.py  (use-cases; no HTTP)
+  - start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutput
+  - end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput
+
+- routes/sessions.py  (FastAPI adapter only)
+  - POST /session_manager/sessions.start -> SessionManagerStartOutput (calls service.start_session)
+  - POST /session_manager/sessions.end   -> SessionManagerEndOutput   (calls service.end_session)
+  - map domain errors to HTTP (404/400)
+
+session_manager/tests/
+  - test_import_policy.py
+  - test_session_jsonl_append.py
+  - test_event_invariants.py  (source/user_id/session_id/timestamp/record_id; performer_id per canonical rule)
 
 
 ---
 
-## 1) Session Manager (first module in chain)
-- [x ] Confirm public API endpoints exist and are stable:
-  - [x ] start session → returns session_id
-  - [x] end session → closes session
-- [ x] Ensure session_id is unique, stable, and readable.
-- [x ] Emit append-only session events as A3CPMessage JSONL:
-  - [x ] write via recorded_schemas to `logs/users/<user_id>/sessions/<session_id>.jsonl`
-  - [ x] include source="session_manager", performer_id, timestamp, user_id, session_id, record_id
-- [ ] Add minimal “get current session” helper (in-memory acceptable for demo).
+## 1) Session Manager
+- [x] `/sessions.start` returns `session_id`
+- [x] `/sessions.end` closes session
+- [x] Events appended via `recorded_schemas`
+- [ x] Guardrail test: start → end emits 2 ordered events for same `session_id`
+- [ ] Event invariants enforced/tested (session_manager outputs & logs):
+  - `source = "session_manager"`
+  - `user_id` present
+  - `session_id` present
+  - `timestamp` present (UTC, ISO 8601, ms, "Z")
+  - `record_id` present (UUIDv4)
+  - `performer_id`:
+    - required for human-originated start/end
+    - allowed value `"system"` for system-generated boundaries
 
----
+- [ ] Enforce performer_id policy at route ingress (session_manager):
+  - `/sessions.start`: reject human-originated requests missing `performer_id`
+  - `/sessions.end`: reject human-originated requests missing `performer_id`
+  - allow `"system"` for system-generated boundaries (e.g., timeouts)
 
-## 2) Contract for downstream modules (session spine)
+## 2) Downstream Contract (session spine)
+- [x] Every downstream request includes: `user_id`, `session_id`, `timestamp`, `record_id`
 - [ ] Define minimal session header object:
-  - user_id, session_id, timestamp, device_id?, consent_given?, is_demo?
-- [ ] Add one guardrail test:
-  - start → end produces two ordered events for the same session_id.
-
----
-
-## 3) Filesystem, helpers, and demo UI (gesture slice)
-
-**Storage roots (single source of truth)**
-- DATA_ROOT = env("DATA_ROOT", default="./data")
-- LOG_ROOT  = env("LOG_ROOT",  default="./logs")
-
-**User-scoped paths (defined only via helpers; helpers may mkdir, nothing else)**
-- session_features_dir(user_id, session_id)
-  → `<DATA_ROOT>/users/<user_id>/sessions/<session_id>/features/`
-- [ ] session_log_path(user_id, session_id) -> <LOG_ROOT>/users/<user_id>/sessions/<session_id>.jsonl
-
-
-**Runtime configuration**
-- All services (local or Docker) use:
-  - DATA_ROOT=/data
-  - LOG_ROOT=/logs
-
-## Demo UI (gesture slice)
-
-- [ ] Route served by FastAPI: `/demo/gesture` (same-origin).
-- [ ] Controls:
-  - **Start Session**
-  - **Start Capture** (bounded capture, ≤ 120s)
-  - **Stop Capture**
-  - **End Session**
-- [ ] Uses browser `getUserMedia()` to access camera.
-- [ ] Sends bounded capture data to `camera_feed_worker` (transport unspecified at planning level).
-- [ ] Displays:
+  - `user_id`
   - `session_id`
-  - `record_id`
-  - capture status (success / failure)
-  - latest feature artifact hash (if available).
+  - `timestamp`
+  - `performer_id` (required for human-originated actions; use `"system"` for system-generated)
+  - `device_id?`
+  - `consent_given?`
+  - `is_demo?`
 
-**Correctness rules for this slice**
-- Integrity: every feature file has a sha256; replay recomputes and matches it.
-- Structural validity: feature array loads as `(T, D)` and `D == raw_features_ref.dims`; encoding/format present.
-- Logging correctness: one capture record → exactly one feature-ref event in the session JSONL.
-- Determinism scope: expected only within the same build/container tag (for debugging), not across upgrades.
+  - [ ] Add guardrail tests for performer_id policy (session_manager):
+  - start/end with human-originated payload and missing `performer_id` → 400
+  - start/end with `performer_id="system"` → accepted
+  - recorded JSONL events reflect correct `performer_id`
 
 
+## 3) Demo UI — Session Start (`/demo/session`)
+- [ ] Hidden route, same-origin FastAPI page (not linked from main menu/nav)
+- [ ] Minimal UI: title, **Start Session** button, readonly `session_id`, status (idle/active/error)
+- [ ] Start Session POST sends required fields: `schema_version`, `record_id`, `user_id`, `timestamp`
+- [ ] Client state: store returned `session_id` in memory and display it (no persistence)
+- [ ] Error handling: display 4xx/5xx/network errors; no retries
+- [ ] Acceptance: click → valid `session_id` shown; refresh clears state (acceptable)
+
+## 4) Session_id propagation (UI + enforcement)
+- [ ] UI propagates `session_id` on subsequent actions (at least End Session)
+- [ ] UI blocks actions if `session_id` missing
+- [ ] Workers reject missing `session_id` (400) + one test
+
+## 5) Filesystem & Runtime config
+- [ ] `DATA_ROOT = env("DATA_ROOT", default="./data")`
+- [ ] `LOG_ROOT  = env("LOG_ROOT",  default="./logs")`
+- [ ] Helpers only (helpers may mkdir; callers may not):
+  - `session_features_dir(user_id, session_id)` → `<DATA_ROOT>/users/<user_id>/sessions/<session_id>/features/`
+  - `session_log_path(user_id, session_id)` → `<LOG_ROOT>/users/<user_id>/sessions/<session_id>.jsonl`
+- [ ] Runtime config (local/Docker): `DATA_ROOT=/data`, `LOG_ROOT=/logs`
+
+## 6) Demo UI — Gesture Slice (`/demo/gesture`)
+- [ ] Controls: Start Session / Start Capture (≤120s) / Stop Capture / End Session
+- [ ] Uses `getUserMedia()`
+- [ ] Sends bounded capture to `camera_feed_worker` (transport TBD)
+- [ ] Displays: `session_id`, `record_id`, capture status, latest artifact hash (if any)
+
+## 7) Correctness rules (once artifacts exist)
+- [ ] sha256 integrity + replay check
+- [ ] `(T, D)` validity and `D == raw_features_ref.dims`
+- [ ] 1 capture → exactly 1 feature-ref event in session JSONL
+- [ ] Determinism only within same build/container tag
 
 ---
 

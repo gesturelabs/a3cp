@@ -12,8 +12,8 @@ def test_session_manager_route_does_not_deep_import_schema_submodules() -> None:
         from schemas.<submodule> import ...
         import schemas.<submodule>
     """
-    route_file = pathlib.Path("api/routes/session_manager_routes.py")
-    assert route_file.exists(), "api/routes/session_manager_routes.py not found"
+    route_file = pathlib.Path("apps/session_manager/routes/router.py")
+    assert route_file.exists(), "apps/session_manager/routes/router.py not found"
 
     text = route_file.read_text(encoding="utf-8")
 

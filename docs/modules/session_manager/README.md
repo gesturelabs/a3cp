@@ -7,12 +7,28 @@ The session_manager module organizes all user interactions into discrete, timest
 By grouping related input, clarification, and output events under a common session_id, this module provides temporal structure to otherwise fragmented data. Sessionization is essential for replayability, caregiver context reconstruction, and understanding behavior over time. It also supports compliance, audit, and training workflows.
 
 ## Responsibilities
-- Generate globally unique session_id values for each new interaction window per user.
-- Define and manage session lifecycle, including start, end, and timeout policies.
-- Track session start and end events with associated metadata.
-- Tag all CARE-related messages (A3CPMessage, clarifications, outputs) with the active session_id.
-- Maintain a chronological timeline of all events linked to each session.
-- Persist session metadata durably for audit, debugging, and training workflows.
+
+- Generate globally unique `session_id` values for each new interaction window per user.
+- Define and emit authoritative session lifecycle boundary events (start, end).
+- Record session start and end events with associated metadata.
+- Ensure all session lifecycle outputs include `session_id`, `user_id`, `timestamp`, `record_id`, and `source`.
+- Persist session lifecycle events as an append-only, chronological JSONL record for audit and debugging.
+
+Session ID Propagation Contract
+
+There is no concept of a shared or implicit “current session”.
+
+- `session_id` is generated only by `session_manager`.
+- Callers (UI, workers) MUST store and explicitly propagate `session_id`.
+- Workers MUST reject requests missing `session_id` (400) at ingress.
+- `session_manager` does not expose any API to infer or query a current session.
+
+Multi-worker note (current demo implementation)
+
+The session manager keeps session state in process-local memory (`_sessions`) only to validate `/sessions.end`. Therefore, `/sessions.start` and `/sessions.end` must be handled by the same process for reliable operation (run `session_manager` as single-worker or use sticky routing).
+
+This does **not** provide or imply any “current session” lookup.
+
 
 ## Not Responsible For
 - Performing inference, classification, or clarification logic.
@@ -49,6 +65,11 @@ Downstream modules MUST depend only on the canonical exported names, not on inte
 - session_id is REQUIRED on all session_manager outputs.
 - source SHOULD be set to "session_manager".
 - Outputs represent authoritative session boundary events and metadata only.
+
+**Note:** In a multi-service deployment, downstream modules MUST NOT query
+`session_manager` for a “current session”. The `session_id` emitted in these
+outputs is intended to be propagated explicitly (e.g., by the UI/orchestrator)
+to all downstream workers.
 
 ## CARE Integration
 The session_manager provides the temporal spine for CARE Engine operation. All CARE-related inputs and outputs are grouped by session_id, enabling replay, audit, clarification analysis, and training dataset construction without altering message semantics.

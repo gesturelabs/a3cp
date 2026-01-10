@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import pytest
 from fastapi.testclient import TestClient
 
-import api.routes.session_manager_routes as sm  # to reset in-memory state
+import apps.session_manager.service as sm  # to reset in-memory state
 from api.main import app
 
 

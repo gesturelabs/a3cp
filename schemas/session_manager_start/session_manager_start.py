@@ -24,9 +24,13 @@ class SessionStartInput(BaseSchema):
     )
     performer_id: Optional[str] = Field(
         default=None,
-        description="Identifier for the actor initiating the session; "
-        "defaults to user_id if omitted",
+        description=(
+            "Identifier for the actor initiating the session. "
+            "If omitted, it may be interpreted downstream as equivalent to user_id; "
+            "the session manager does not auto-fill this field."
+        ),
     )
+
     training_intent_label: Optional[str] = Field(
         default=None,
         description="Intent label or meaning of the gesture if this is a training session",
@@ -83,7 +87,7 @@ class SessionStartOutput(BaseSchema):
             "schema_version": "1.0.1",
             "record_id": "a8c43e6e-4f1d-4b2f-b8ee-123456789abc",
             "user_id": "elias01",
-            "session_id": "sess_20250728_001",
+            "session_id": "sess_1a2b3c4d5e6f7a8b",
             "timestamp": "2025-07-28T14:00:00.000Z",
             "source": "session_manager",
             "performer_id": "carer01",

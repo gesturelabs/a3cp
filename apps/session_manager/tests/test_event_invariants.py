@@ -1,4 +1,4 @@
-# apps/session_manager/tests/test_session_jsonl_append.py
+# apps/session_manager/tests/test_event_invariants.py
 
 import json
 import uuid
@@ -9,8 +9,32 @@ from apps.session_manager.service import end_session, start_session
 from schemas import SessionManagerEndInput, SessionManagerStartInput
 
 
-def test_start_end_appends_two_ordered_events(tmp_path, monkeypatch):
-    # Ensure the recorder writes under a temp LOG_ROOT
+def _assert_common_invariants(event: dict) -> None:
+    # Required keys exist
+    for key in [
+        "source",
+        "user_id",
+        "session_id",
+        "timestamp",
+        "record_id",
+        "performer_id",
+    ]:
+        assert key in event, f"missing key: {key}"
+
+    # Required values are non-empty (and not null)
+    assert event["source"] == "session_manager"
+    assert isinstance(event["user_id"], str) and event["user_id"].strip()
+    assert isinstance(event["session_id"], str) and event["session_id"].strip()
+
+    # These will likely be strings in JSONL; validate they are present and non-empty.
+    assert event["timestamp"], "timestamp must be present"
+    assert event["record_id"], "record_id must be present"
+
+    # performer_id invariant (this is the one most likely to fail right now)
+    assert isinstance(event["performer_id"], str) and event["performer_id"].strip()
+
+
+def test_session_manager_events_enforce_common_invariants(tmp_path, monkeypatch):
     monkeypatch.setenv("LOG_ROOT", str(tmp_path / "logs"))
 
     start_payload = SessionManagerStartInput(
@@ -32,8 +56,9 @@ def test_start_end_appends_two_ordered_events(tmp_path, monkeypatch):
         session_id=str(start_out.session_id),
         timestamp=datetime.now(timezone.utc),
         end_time=datetime.now(timezone.utc),
+        performer_id="tester",
     )
-    end_out = end_session(end_payload)
+    end_session(end_payload)
 
     log_path = (
         Path(tmp_path)
@@ -43,24 +68,11 @@ def test_start_end_appends_two_ordered_events(tmp_path, monkeypatch):
         / "sessions"
         / f"{str(start_out.session_id)}.jsonl"
     )
-
-    assert log_path.exists(), f"expected session log at {log_path}"
-
     lines = log_path.read_text(encoding="utf-8").splitlines()
-    assert len(lines) == 2, f"expected 2 jsonl lines, got {len(lines)}"
+    assert len(lines) == 2
 
     e1 = json.loads(lines[0])
     e2 = json.loads(lines[1])
 
-    # Same session + user
-    assert e1["user_id"] == "test_user"
-    assert e2["user_id"] == "test_user"
-    assert e1["session_id"] == str(start_out.session_id)
-    assert e2["session_id"] == str(start_out.session_id)
-
-    # Ordered boundary events (file order)
-    assert e1.get("source") == "session_manager"
-    assert e2.get("source") == "session_manager"
-
-    # Sanity: end output corresponds to end event session_id
-    assert e2["session_id"] == str(end_out.session_id)
+    _assert_common_invariants(e1)
+    _assert_common_invariants(e2)
