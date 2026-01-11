@@ -1,10 +1,10 @@
 # apps/session_manager/service.py
 
 
-import uuid
 from datetime import datetime, timezone
 
 from apps.session_manager import repository
+from apps.session_manager.idgen import generate_session_id
 from schemas import (
     SessionManagerEndInput,
     SessionManagerEndOutput,
@@ -26,12 +26,9 @@ _sessions: dict[str, dict] = {}
 
 
 def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutput:
-    """
-    Begin a user session. Returns assigned session_id and session metadata.
-    """
-    new_session_id = f"sess_{uuid.uuid4().hex[:16]}"
+    new_session_id = generate_session_id()
     while new_session_id in _sessions:
-        new_session_id = f"sess_{uuid.uuid4().hex[:16]}"
+        new_session_id = generate_session_id()
 
     now = datetime.now(timezone.utc)
 

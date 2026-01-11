@@ -16,45 +16,45 @@
 # session_manager module plan (files + functions)
 
 session_manager/
-- config.py
-  - MODULE_SOURCE = "session_manager"
-  - SESSION_ID_PREFIX = "sess_"
-  - DEFAULT_TIMEOUT_SECONDS (later)
-  - get_timeout_seconds()  (later)
+- [ ] config.py
+  - [ ] MODULE_SOURCE = "session_manager"
+  - [ ] SESSION_ID_PREFIX = "sess_"
+  - [ ] DEFAULT_TIMEOUT_SECONDS (later)
+  - [ ] get_timeout_seconds()  (later)
 
-- idgen.py
-  - generate_session_id() -> str
-  - is_valid_session_id(session_id: str) -> bool  (optional)
+- [ ] idgen.py
+  - [ ] generate_session_id() -> str
+  -[ ]  is_valid_session_id(session_id: str) -> bool  (optional)
 
-- models.py  (domain data, no FastAPI/IO)
-  - SessionStatus = {"active","closed"}
-  - Session(session_id, user_id, start_time, end_time?, status, is_training_data, session_notes?, training_intent_label?, performer_id?)
+- [ ] models.py  (domain data, no FastAPI/IO)
+  - [ ] SessionStatus = {"active","closed"}
+  - [ ] Session(session_id, user_id, start_time, end_time?, status, is_training_data, session_notes?, training_intent_label?, performer_id?)
 
-- domain.py  (pure invariants/rules)
-  - assert_can_end_session(session: Session, user_id: str) -> None
-  - close_session(session: Session, end_time: datetime) -> Session
-  - Domain errors: SessionNotFound, SessionUserMismatch, SessionAlreadyClosed
+- [ ] domain.py  (pure invariants/rules)
+  - [ ] assert_can_end_session(session: Session, user_id: str) -> None
+  - [ ] close_session(session: Session, end_time: datetime) -> Session
+  - [ ] Domain errors: SessionNotFound, SessionUserMismatch, SessionAlreadyClosed
 
-- repository.py  (storage + recorder boundary)
-  - create_active_session(session: Session) -> None
-  - get_active_session(session_id: str) -> Session | None
-  - mark_session_closed(session_id: str, end_time: datetime) -> Session
-  - append_event(cfg: RecorderConfig, user_id: str, session_id: str, message: BaseSchema) -> None
-  - session_log_path(user_id: str, session_id: str) -> Path  (optional)
+- [ ] repository.py  (storage + recorder boundary)
+  - [ ] create_active_session(session: Session) -> None
+  - [ ] get_active_session(session_id: str) -> Session | None
+  - [ ] mark_session_closed(session_id: str, end_time: datetime) -> Session
+  - [ ] append_event(cfg: RecorderConfig, user_id: str, session_id: str, message: BaseSchema) -> None
+  - [ ] session_log_path(user_id: str, session_id: str) -> Path  (optional)
 
-- service.py  (use-cases; no HTTP)
-  - start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutput
-  - end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput
+- [ ] service.py  (use-cases; no HTTP)
+  - [ ] start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutput
+  - [ ] end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput
 
-- routes/sessions.py  (FastAPI adapter only)
-  - POST /session_manager/sessions.start -> SessionManagerStartOutput (calls service.start_session)
-  - POST /session_manager/sessions.end   -> SessionManagerEndOutput   (calls service.end_session)
-  - map domain errors to HTTP (404/400)
+- [ ] routes/sessions.py  (FastAPI adapter only)
+  - [ ] POST /session_manager/sessions.start -> SessionManagerStartOutput (calls service.start_session)
+  - [ ] POST /session_manager/sessions.end   -> SessionManagerEndOutput   (calls service.end_session)
+  - [ ] map domain errors to HTTP (404/400)
 
-session_manager/tests/
-  - test_import_policy.py
-  - test_session_jsonl_append.py
-  - test_event_invariants.py  (source/user_id/session_id/timestamp/record_id; performer_id per canonical rule)
+[ ] session_manager/tests/
+  - [ ] test_import_policy.py
+  - [ ] test_session_jsonl_append.py
+  - [ ] test_event_invariants.py  (source/user_id/session_id/timestamp/record_id; performer_id per canonical rule)
 
 
 ---

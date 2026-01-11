@@ -9,6 +9,13 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+### [2026-Jan.-11] Session Manager
+- Extracted session ID generation into `apps/session_manager/idgen.py`.
+- Centralized session ID format via `generate_session_id()`.
+- Removed inline UUID logic from service layer.
+- All tests and lint checks passing after refactor.
+
+
 
 ## [2026-Jan.-10] — Session Manager Refactor to app folder
 
