@@ -103,16 +103,23 @@ def test_sessions_end_happy_path(client: TestClient):
     assert data["timestamp"].endswith("Z")
 
 
-def test_end_requires_session_id_400(client: TestClient):
+def test_end_requires_session_id_422(client: TestClient):
     start = client.post("/session_manager/sessions.start", json=_start_payload())
     assert start.status_code == 200, start.text
     user_id = start.json()["user_id"]
 
-    bad = _end_payload(user_id=user_id, session_id="")  # validator requires non-empty
-    bad.pop("session_id")
+    bad = _end_payload(user_id=user_id, session_id="")
+    bad.pop("session_id")  # omit required field
+
     r = client.post("/session_manager/sessions.end", json=bad)
-    assert r.status_code == 400, r.text  # Pydantic validation error
-    assert r.json()["detail"] == "session_id is required"
+    assert r.status_code == 422, r.text  # schema validation error
+
+    detail = r.json()["detail"]
+    assert isinstance(detail, list)
+    assert any(
+        d.get("loc") == ["body", "session_id"] and d.get("type") == "missing"
+        for d in detail
+    ), detail
 
 
 def test_end_user_mismatch_404(client: TestClient):

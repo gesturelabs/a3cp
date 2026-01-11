@@ -23,7 +23,7 @@ session_manager/
   - [ ] get_timeout_seconds()  (later)
 
 - [ ] idgen.py
-  - [ ] generate_session_id() -> str
+  - [x ] generate_session_id() -> str
   -[ ]  is_valid_session_id(session_id: str) -> bool  (optional)
 
 - [ ] models.py  (domain data, no FastAPI/IO)

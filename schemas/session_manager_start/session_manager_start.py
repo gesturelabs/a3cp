@@ -57,6 +57,9 @@ class SessionStartOutput(BaseSchema):
     session_id is always present in valid outputs.
     """
 
+    # Override BaseSchema's Optional session_id to make it required + non-null here
+    session_id: str = Field(default=..., description="Session ID from session_manager")  # type: ignore[assignment]
+
     start_time: datetime = Field(..., description="UTC timestamp when session started")
     is_training_data: bool = Field(..., description="Flag indicating training session")
     session_notes: Optional[str] = Field(
@@ -69,8 +72,8 @@ class SessionStartOutput(BaseSchema):
     # Runtime enforcement: session_id must not be None
     @field_validator("session_id")
     @classmethod
-    def _require_session_id(cls, v: Optional[str]) -> str:
-        if not v:
+    def _require_session_id(cls, v: str) -> str:
+        if not v or not v.strip():
             raise ValueError("session_id is required in SessionStartOutput")
         return v
 

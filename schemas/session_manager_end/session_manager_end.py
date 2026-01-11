@@ -1,6 +1,5 @@
 # schemas/session_manager_end/session_manager_end.py
 from datetime import datetime, timezone
-from typing import Optional
 
 from pydantic import Field, field_validator
 
@@ -14,12 +13,13 @@ class SessionEndInput(BaseSchema):
     """
 
     end_time: datetime = Field(..., description="UTC timestamp when session ended")
+    session_id: str = Field(default=..., description="Session ID from session_manager")  # type: ignore[assignment]
 
     # Runtime enforcement: session_id must be present on input
     @field_validator("session_id")
     @classmethod
-    def _require_session_id(cls, v: Optional[str]) -> str:
-        if not v:
+    def _require_session_id(cls, v: str) -> str:
+        if not v or not v.strip():
             raise ValueError("session_id is required in SessionEndInput")
         return v
 
@@ -50,12 +50,13 @@ class SessionEndOutput(BaseSchema):
     """
 
     end_time: datetime = Field(..., description="UTC timestamp when session ended")
+    session_id: str = Field(default=..., description="Session ID from session_manager")  # type: ignore[assignment]
 
     # Runtime enforcement: session_id must be present on output
     @field_validator("session_id")
     @classmethod
-    def _require_session_id(cls, v: Optional[str]) -> str:
-        if not v:
+    def _require_session_id(cls, v: str) -> str:
+        if not v or not v.strip():
             raise ValueError("session_id is required in SessionEndOutput")
         return v
 

@@ -25,17 +25,9 @@
           "type": "string"
         },
         "session_id": {
-          "anyOf": [
-            {
-              "description": "Session ID from session_manager",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Session Id"
+          "description": "Session ID from session_manager",
+          "title": "Session Id",
+          "type": "string"
         },
         "timestamp": {
           "description": "UTC ISO 8601 with milliseconds and 'Z' suffix",
@@ -100,6 +92,7 @@
         "schema_version",
         "record_id",
         "user_id",
+        "session_id",
         "timestamp",
         "end_time"
       ],

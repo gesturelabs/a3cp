@@ -1,7 +1,7 @@
 {
   "allow_schema_override": false,
   "enable_hashing": true,
-  "log_dir": "./logs/users/",
+  "log_dir": "./logs",
   "log_format": "jsonl",
   "max_file_size_mb": 100
 }

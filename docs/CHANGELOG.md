@@ -9,6 +9,14 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+### Session Manager models.py
+- Introduced internal `SessionState` model (`apps/session_manager/models.py`) to formalize in-memory session state.
+- Tightened session_manager end schemas so `session_id` is required and non-null at the type/schema level.
+
+### Tests
+- Updated session_manager route tests to expect FastAPI/Pydantic 422 validation errors when `session_id` is missing.
+
 ### [2026-Jan.-11] Session Manager
 - Extracted session ID generation into `apps/session_manager/idgen.py`.
 - Centralized session ID format via `generate_session_id()`.
