@@ -9,7 +9,51 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-12 — Architecture, Slice Contracts, and TODO Decomposition
 
+### Architecture & Governance
+- Added **Gesture Slice architectural contract** defining slice-scoped ground rules and locked Sprint 1 storage policy (`docs/architecture/gesture_slice.md`).
+- Clarified schema governance and slice interaction principles in `SCHEMA_ARCHITECTURE.md`.
+- Updated `SCHEMA_REFERENCE.md` to align with frozen-schema, append-only execution assumptions.
+
+### Slice & Pipeline Contracts
+- Introduced explicit **pipeline exit gates** for gesture features readiness prior to classification (`docs/todo/EXIT_GATES.md`).
+- Removed legacy, mixed-concern Sprint 1 TODO in favor of slice contracts and exit gates (`docs/todo/Sprint_1.md` deleted).
+
+### UI & TODO Refactoring
+- Created a **UI-scoped TODO** isolating demo surfaces and client-only responsibilities (`apps/ui/TODO.md`).
+- Removed backend, schema, and correctness concerns from UI planning.
+- Added module-specific TODOs where missing:
+  - `apps/schema_recorder/TODO.md`
+  - `apps/session_manager/todo.md`
+
+### Docker & Infra Planning
+- Added top-level **Dockerization TODO** for monorepo contributor workflow and heavy-dependency isolation (`docs/todo/00_DOCKER.md`).
+- Established shared container path and environment conventions.
+
+### Module Documentation
+- Updated module READMEs for:
+  - `camera_feed_worker`
+  - `landmark_extractor`
+  to reflect bounded capture, slice rules, and recorder authority.
+
+### Codebase Cleanup
+- Removed obsolete or empty domain file from `session_manager` (`apps/session_manager/domain.py`).
+- Added initial app directories for:
+  - `camera_feed_worker`
+  - `landmark_extractor`
+- Introduced TODO index for navigation (`docs/todo/index.md`).
+
+### Net Effect
+- Clear separation between:
+  - architecture contracts
+  - slice-level policies
+  - exit/readiness gates
+  - actionable module/UI TODOs
+- Reduced duplication and eliminated legacy mono-TODO ambiguity.
+
+
+### [2026-Jan.-12] Session Manager
 ### Session Manager models.py
 - Introduced internal `SessionState` model (`apps/session_manager/models.py`) to formalize in-memory session state.
 - Tightened session_manager end schemas so `session_id` is required and non-null at the type/schema level.

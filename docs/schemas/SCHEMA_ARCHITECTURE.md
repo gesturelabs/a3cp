@@ -18,6 +18,9 @@
     * Grouping semantically related fields (e.g. clarification.*, memory.*, context.*)
     * Defined via dedicated submodels and schema validation
 
+
+
+
 [2] ONE-TO-MANY OUTPUT DESIGN RULES
 -------------------------------------------------------------------------------
 - Modules with multiple "outputs_to" (e.g. input_broker) must:

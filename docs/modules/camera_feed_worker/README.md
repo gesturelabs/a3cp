@@ -1,5 +1,7 @@
 # Submodule: camera_feed_worker
 
+### Deprecate superseded by apps/module
+
 
 ## Purpose
 Captures frames from a local video input device (e.g., webcam) and streams them to downstream modules in real time.

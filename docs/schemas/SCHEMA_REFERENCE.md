@@ -50,6 +50,8 @@ All modules must validate schema_version and handle optional fields gracefully.
 These fields are required in every `A3CPMessage`. They provide version control,
 traceability, session grouping, modality tagging, and audit timestamps.
 
+These fields collectively constitute the Session Spine and MUST be propagated unchanged across modules unless explicitly owned and mutated by the authoritative module (e.g. session_manager for session_id).
+
 All timestamps must use ISO 8601 format with millisecond precision and a "Z" suffix.
 
 +----------------+----------------+-----+----------------------------------------------+---------------------------------------------------------------+

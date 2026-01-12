@@ -1,5 +1,7 @@
 # Module: landmark_extractor
 
+## legacy...see module for updates
+
 | Field                  | Value                                      |
 |------------------------|--------------------------------------------|
 | **Module Name**        | `landmark_extractor`                       |
