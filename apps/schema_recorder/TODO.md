@@ -1,111 +1,158 @@
-# apps/schema_recorder/TODO.md
+# apps/schema_recorder/TODO.md — REVISED (MVP + Deferred)
 
-A3CP — schema_recorder TODO (module-scoped)
+Purpose (authoritative)
 
-Purpose: provide the **only allowlisted writer utility** for session JSONL:
-- `logs/users/<user_id>/sessions/<session_id>.jsonl`
+schema_recorder is the only allow-listed writer for session-scoped JSONL logs:
 
-Invariant (authoritative): **Only `schema_recorder` writes/appends** to
-`logs/users/**/sessions/*.jsonl`.
-All semantic guarantees about *what* is written are enforced upstream.
+logs/users/<user_id>/sessions/<session_id>.jsonl
 
-## Correctness checks (recorder-scoped; enforce at write time when refs exist)
+It provides a synchronous, ordered, append-only recording service for validated A3CPMessage events.
 
-- [ ] Event replay / duplication protection for recorder writes:
-  - [ ] Reject appending the same logical event twice for the same `(user_id, session_id, record_id, source)` tuple (strategy must be explicit)
-  - [ ] If an artifact ref includes `sha256`, detect duplicate replays within a session and flag/reject per policy
-
-- [ ] Minimal artifact-ref sanity checks (only on the ref metadata; do not re-derive features):
-  - [ ] If `raw_features_ref.dims` is present, validate the metadata is internally consistent (non-empty, positive ints)
-  - [ ] If a feature artifact header/manifest is available cheaply, validate that declared dims match the referenced artifact metadata
-    - Note: full `(T, D)` validation belongs to the artifact producer; recorder validates only what it can verify at write time
-
-- [ ] “One capture → one feature-ref event” enforcement (session log semantics):
-  - [ ] For each `record_id`, enforce exactly one feature-ref append event in the session JSONL (idempotent behavior must be defined)
-
-- [ ] Reproducibility / determinism note (documentation + tests, recorder-facing):
-  - [ ] Document that determinism guarantees apply only within the same build/container tag
-  - [ ] Add an integration test that asserts stable recorder behavior across repeated runs in the same build (where applicable)
+All semantic guarantees about what is written are enforced upstream.
+This module guarantees how events are written.
 
 ---
 
-## A) Canonical compliance (required)
+Locked Invariants (MVP)
 
-### 1) Fix deep schema import
-- [ ] Update `apps/schema_recorder/session_writer.py` to import schemas only via public surface:
-  - from: `schemas.schema_recorder.schema_recorder import RecorderConfig`
-  - to: `from schemas import RecorderConfig`
-- [ ] Export `RecorderConfig` from `schemas/__init__.py` and include it in `__all__`.
-
-### 2) Import-policy guardrails
-- [ ] Module-scoped test: fail if `apps/schema_recorder/**` deep-imports `schemas.<submodule>`.
-- [ ] Public-schema presence test: `from schemas import RecorderConfig` succeeds.
-
-## Filesystem & Runtime config (authoritative helpers)
-
-- [ ] Define runtime roots (single source of truth):
-  - [ ] `DATA_ROOT = env("DATA_ROOT", default="./data")`
-  - [ ] `LOG_ROOT  = env("LOG_ROOT",  default="./logs")`
-
-- [ ] Expose path helpers (helpers may mkdir; callers must not hand-roll paths):
-  - [ ] `session_log_path(user_id, session_id)`
-        → `<LOG_ROOT>/users/<user_id>/sessions/<session_id>.jsonl`
-  - [ ] `session_features_dir(user_id, session_id)`
-        → `<DATA_ROOT>/users/<user_id>/sessions/<session_id>/features/`
-    - Note: if artifact writing later moves to another module, this helper may be relocated; for MVP it lives here.
-
-- [ ] Runtime config examples:
-  - [ ] Local: `DATA_ROOT=./data`, `LOG_ROOT=./logs`
-  - [ ] Docker: `DATA_ROOT=/data`, `LOG_ROOT=/logs`
+- Append-only JSONL (no edits, no rewrites)
+- Exactly one JSON object per line
+- Synchronous write (request returns only after append completes)
+- Per-session ordering guaranteed by append order
+- OS-level file locking to prevent interleaved writes
+- Atomic append discipline (lock → open append → write full line + newline → flush → close)
+- No fsync in MVP
+- No mkdir in recorder (directories created by session_manager)
+- No deduplication or uniqueness enforcement in recorder
+- Envelope format: { recorded_at, event }
+- record_id is authoritative (no extra log_id)
+- Missing session path → HTTP 409 Conflict
 
 ---
 
-## B) Session JSONL writer allowlist (required)
+A) Canonical App Structure (REQUIRED)
 
-### 1) Single-writer enforcement
-- [ ] CI/static-scan test: fail if any code outside the allowlisted writer writes/appends to:
-  - `logs/users/**/sessions/*.jsonl`
-- [ ] Allowlist exactly:
-  - `apps/schema_recorder/session_writer.py`
-
-### 2) Cross-module usage contract
-- [ ] Confirm other modules *only* append session events by calling this writer utility:
-  - session_manager (session start/end)
-  - landmark_extractor (feature-ref event)
-  - future modules (same rule)
+- [ ] Enforce canonical module layout
+  - [ ] apps/schema_recorder/routes/router.py exists
+  - [ ] apps/schema_recorder/service.py exists
+  - [ ] apps/schema_recorder/repository.py exists
+  - [ ] apps/schema_recorder/tests/ exists
+- [ ] Remove or refactor any legacy/special-case writer files
+  - [ ] Ensure all filesystem IO lives exclusively in repository.py
 
 ---
 
-## C) What this module DOES guarantee (documented behavior)
+B) Route Contract (MVP)
 
-- [x] Append-only writes (no edits, no rewrites).
-- [x] Exactly one JSON object per line (JSONL).
-- [x] Log path resolved at call time (respects runtime `LOG_ROOT`).
-- [x] Writer accepts already-validated, JSON-serializable schema objects.
-
----
-
-## D) What this module DOES NOT guarantee (explicitly out of scope)
-
-These guarantees must be enforced and tested **upstream** (e.g. in `landmark_extractor`):
-
-- [ ] “Exactly one event per bounded capture (`record_id`)”
-- [ ] Enforcement of `source`, `modality`, or required field values
-- [ ] Prevention of per-frame / per-chunk event emission
-- [ ] Detection of duplicate `record_id` entries
-- [ ] Semantic correctness of `raw_features_ref` contents
-
-The writer will append whatever valid schema object it is given.
+- [ ] Expose HTTP endpoint for session logging (e.g. POST /schema-recorder/append)
+- [ ] Accept only fully validated A3CPMessage payloads
+- [ ] Enforce required fields at route level
+  - [ ] Reject missing session_id
+  - [ ] Reject missing source
+- [ ] Define success response
+  - [ ] Return HTTP 201 Created
+  - [ ] Return minimal body { record_id, recorded_at }
+- [ ] Define error mapping
+  - [ ] Missing session path → 409 Conflict
+  - [ ] IO failures → 500 Internal Server Error
 
 ---
 
-## E) Alignment with slice requirement (reference)
+C) Service Layer (MVP)
 
-Slice rule (implemented jointly, not solely here):
-> For each completed bounded capture (`record_id`), emit **exactly one**
-> A3CPMessage and append it via this writer utility.
-
-This module fulfills the **append-only writer** role only; correctness is ensured
-by service-level logic and guardrail tests in upstream modules.
+- [ ] Implement public service function (e.g. append_event)
+  - [ ] Accept fully resolved log path as parameter
+  - [ ] Do not read env variables
+  - [ ] Do not import FastAPI
+- [ ] Raise domain-level exceptions only
+  - [ ] No HTTP concerns in service layer
 
 ---
+
+D) Repository Layer (MVP — IO ONLY)
+
+- [ ] Implement append-only JSONL writer
+  - [ ] Acquire OS-level file lock (Linux)
+  - [ ] Perform atomic single-line write
+  - [ ] Guarantee newline termination
+  - [ ] Wrap payload as { recorded_at, event }
+- [ ] Enforce IO-only responsibility
+  - [ ] Do not mkdir directories
+  - [ ] Do not enforce uniqueness or deduplication
+  - [ ] Do not inspect semantic contents
+- [ ] Fail fast on invalid filesystem state
+  - [ ] Missing session path raises domain exception
+
+---
+
+E) Paths & Utilities (MVP)
+
+- [ ] Use shared top-level utils/paths.py
+  - [ ] Path helpers are pure (no IO)
+  - [ ] Path helpers are deterministic
+  - [ ] Path helpers are parameter-driven (no env reads)
+- [ ] Ensure recorder receives fully resolved paths from caller
+
+---
+
+F) Single-Writer Enforcement (REQUIRED)
+
+- [ ] Enforce single-writer invariant via CI/static checks
+  - [ ] Fail if any code outside schema_recorder repository writes/appends to logs/users/**/sessions/*.jsonl
+- [ ] Maintain allowlist
+  - [ ] Allow filesystem writes only from apps/schema_recorder/repository.py
+- [ ] Enforce cross-module usage contract
+  - [ ] session_manager appends session events only via schema_recorder
+  - [ ] landmark_extractor appends feature-ref events only via schema_recorder
+  - [ ] Future modules follow same rule
+
+---
+
+G) Testing (MVP)
+
+- [ ] Service-level tests
+  - [ ] Exactly one line appended per call
+  - [ ] Sequential calls preserve append order
+- [ ] Repository-level tests
+  - [ ] File locking prevents interleaving under concurrency
+  - [ ] Missing path raises expected exception
+- [ ] Route-level tests
+  - [ ] Reject missing session_id
+  - [ ] Reject missing source
+  - [ ] Success returns 201 with minimal response body
+- [ ] Import guardrail tests
+  - [ ] schema_recorder imports schema types only from public schemas surface (no deep imports)
+
+---
+
+H) Explicit Non-Responsibilities (DOCUMENTED)
+
+- [ ] Document that recorder does NOT guarantee:
+  - [ ] Event replay / duplication protection
+  - [ ] Uniqueness of record_id
+  - [ ] Semantic correctness of A3CPMessage
+  - [ ] One-event-per-capture enforcement
+  - [ ] Validation of raw_features_ref contents
+  - [ ] Session lifecycle correctness
+
+---
+
+I) Post-MVP / Deferred (DO NOT IMPLEMENT NOW)
+
+- [ ] Event replay / duplication protection
+- [ ] Within-session record_id uniqueness checks
+- [ ] Artifact hash replay detection
+- [ ] Selective durability (fsync for commit-critical events)
+- [ ] Secondary sink for session-less events (logs/users/<user_id>/events.jsonl)
+- [ ] Log rotation / archival policy
+- [ ] Canonical JSON serialization
+- [ ] Explicit per-session sequence numbers
+- [ ] Metrics / instrumentation
+
+---
+
+Notes / Action Items
+
+- [ ] Double-check source handling in schemas
+  - [ ] Keep source optional in schema if needed
+  - [ ] Enforce source as mandatory at recorder route level

@@ -1,14 +1,14 @@
-# Minimal DB Architecture for A3CP Demo (Postgres + Parquet Hybrid)
+# Minimal DB Architecture for A3CP Demo (Postgres + npz Hybrid)
 
 ## Principle
-- Store **large Holistic / audio / feature data** as **files** (Parquet/NPZ) on disk.
+- Store **large Holistic / audio / feature data** as **files** (NPZ) on disk.
 - Store **only metadata + pointers + labels + lineage** in Postgres.
 - Keep schema stable and small; avoid premature normalization.
 
 ---
 
 ## Storage Layout (filesystem)
-- `data/users/<user_id>/sessions/<session_id>/features/<record_id>.parquet`
+- `data/users/<user_id>/sessions/<session_id>/features/<record_id>.npz`
 - `models/users/<user_id>/<modality>/<model_version>/model.bin` (e.g., .pkl/.onnx)
 - All file references must be accompanied by `sha256` and encoder/version metadata.
 
@@ -35,9 +35,9 @@ One row = one labeled example pointing to one feature file.
 - `label_status` (text)               # "unconfirmed"|"confirmed"|"corrected"
 - `performer_id` (text, nullable)
 - `timestamp` (timestamptz, indexed)  # when captured/confirmed (pick one, be consistent)
-- `features_uri` (text)               # path/URI to parquet/npz
+- `features_uri` (text)               # path/URI to npz
 - `features_hash` (text)              # "sha256:..."
-- `features_format` (text)            # "parquet"|"npz"
+- `features_format` (text)            # "npz"
 - `encoding` (text)                   # e.g. "holistic_landmarks_vX"
 - `dims` (int, nullable)
 - `consent_given` (bool, default false)
@@ -103,6 +103,6 @@ If you must persist sessions later, add:
 ---
 
 ## Demo “Persistence Across Restarts” Guarantee
-- Training examples persist as: DB row + parquet file + hash.
+- Training examples persist as: DB row + npz file + hash.
 - Active model persists as: DB row (status="active") + artifact file + hash.
 - On restart: load latest active model per user/modality from `models`; train uses `training_examples` filtered by `label_status`.

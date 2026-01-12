@@ -16,6 +16,9 @@ Status note (authoritative for this file): canonical migration completed (routes
 
 ---
 
+session_manager creates the session filesystem structure at session start
+(because it owns session lifecycle).
+
 ## A) Completed
 ### Core behavior
 - [x] `/sessions.start` returns `session_id`

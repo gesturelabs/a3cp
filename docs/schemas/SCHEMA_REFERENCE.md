@@ -63,7 +63,7 @@ All timestamps must use ISO 8601 format with millisecond precision and a "Z" suf
 | session_id     | str            | ❌  | "a3cp_sess_2025-06-15_elias01"               | Assigned by session_manager to group related inputs           |
 | timestamp      | datetime       | ✅  | "2025-06-15T12:34:56.789Z"                   | ISO 8601 UTC timestamp with milliseconds and "Z" suffix       |
 | modality       | Literal[str]   | ❌  | "gesture"                                    | Assigned by classifier; one of: "gesture", "audio", etc.      |
-| source         | str            | ❌  | "gesture_classifier"                         | Name of the module emitting this message                      |
+| source         | str            | ✅*   | "gesture_classifier"                         | Name of the module emitting this message                      |
 | performer_id   | str            | ✅* | "carer01"                                    | Actor performing input; required for human input messages; "system" for system-generated. |
 +----------------+----------------+-----+----------------------------------------------+---------------------------------------------------------------+
 
