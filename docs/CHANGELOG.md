@@ -9,6 +9,28 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## 2026-01-12 Planning & Schema Alignment — schema_recorder MVP
+
+### Planning / Architecture
+- Finalized MVP decisions for `schema_recorder`, including:
+  - HTTP append endpoint accepting validated `A3CPMessage`
+  - Append-only JSONL with `{ recorded_at, event }` envelope
+  - Atomic, locked writes with no deduplication, no mkdir responsibility
+  - Clear separation of route, service, and repository responsibilities
+- Revised `apps/schema_recorder/TODO.md` to reflect locked MVP scope and explicitly deferred items.
+- Aligned `apps/session_manager/todo.md` with the recorder contract and clarified path ownership.
+
+### Schemas
+- Updated `docs/schemas/SCHEMA_REFERENCE.md` to reflect recorder-facing expectations.
+- Flagged `source` handling for route-level enforcement while keeping schema optionality under review.
+
+### Documentation
+- Relocated MVP DB architecture notes into canonical architecture documentation.
+- Removed outdated MVP DB architecture todo.
+- Added explicit execution-order planning document to clarify build sequence.
+
+
 ## 2026-01-12 — Architecture, Slice Contracts, and TODO Decomposition
 
 ### Architecture & Governance
