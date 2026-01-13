@@ -5,23 +5,19 @@
 
 To implement `schema_recorder` without hidden assumptions, provide the current contents (or links/paths + relevant excerpts) of:
 
-### Required
-- [ ] `schemas/a3cp_message/a3cp_message.py` (canonical A3CPMessage)
-- [ ] `schemas/base/base.py` (Session Spine / BaseSchema)
-- [ ] `utils/paths.py` (must contain `session_log_path(user_id, session_id)` and be pure)
-- [ ] `api/main.py` (router composition / how apps mount routes)
+### potentially useful (ask for when needed)
+`schemas/a3cp_message/a3cp_message.py` (canonical A3CPMessage)
+`schemas/base/base.py` (Session Spine / BaseSchema)
+`utils/paths.py` (must contain `session_log_path(user_id, session_id)` and be pure)
+`api/main.py` (router composition / how apps mount routes)
 
-### Strongly recommended
-- [ ] `docs/architecture/app_structure_and_routing.md` (canonical app pattern enforcement)
-- [ ] Session directory creation authority (where session_manager creates the tree):
-  - [ ] `apps/session_manager/service.py` (or equivalent)
-  - [ ] any helper used to create session log directories
-- [ ] Evidence of current session-log writers (for single-writer CI guardrail):
-  - [ ] list/gist/grep results of files that write `logs/users/**/sessions/*.jsonl`, OR
-  - [ ] the legacy writer utility file(s)
-
-### Optional
-- [ ] Any legacy recorder endpoint or code (if it exists) to remove/replace cleanly
+`docs/architecture/app_structure_and_routing.md` (canonical app pattern enforcement)
+Session directory creation authority (where session_manager creates the tree):
+`apps/session_manager/service.py` (or equivalent)
+any helper used to create session log directories
+Evidence of current session-log writers (for single-writer CI guardrail):
+list/gist/grep results of files that write `logs/users/**/sessions/*.jsonl`, OR
+the legacy writer utility file(s)
 
 ---
 
@@ -60,10 +56,10 @@ This module guarantees **how** events are written.
 ## Clarifications to lock before implementation (MVP)
 
 ### Locking mechanism (explicit, testable)
-- MUST use `flock(LOCK_EX)` on the **session JSONL file descriptor** (no separate lockfile).
+- MUST use `flock(LOCK_EX)` via `fcntl.flock()` on the **session JSONL file descriptor**.
 - Lock is held across: `open → write → flush → close`.
-- MUST NOT mix locking primitives (no `fcntl` in addition to `flock`).
-- Concurrency test must show full, non-interleaved JSONL lines.
+- MUST NOT use a separate lockfile.
+- MUST NOT also use `fcntl.lockf()` / POSIX record locks in addition to `flock`.
 
 ### Write atomicity (explicit syscall semantics)
 - File MUST be opened with append semantics (`O_APPEND` equivalent).
@@ -82,10 +78,12 @@ This module guarantees **how** events are written.
 
 ### Filesystem integrity assumption (explicit failure model)
 - session_manager MUST create the full session directory tree before recording begins.
-- Recorder MUST NOT mkdir; missing/partial path is a hard conflict.
-- Missing session path raises domain exception `MissingSessionPath`.
+- Recorder MUST NOT mkdir directories.
+- **Log file creation rule:** recorder MAY create `<session_id>.jsonl` if (and only if) the
+  parent session directory already exists.
+- Missing parent session directory raises domain exception `MissingSessionPath`.
 - Route maps `MissingSessionPath` → HTTP 409 Conflict.
-- Tests: missing path returns 409 and creates nothing; unwritable path returns 500.
+- Tests: missing parent directory returns 409 and creates nothing; unwritable path returns 500.
 
 ### Single-writer enforcement (REQUIRED CI guardrail)
 - Only `apps/schema_recorder/repository.py` may write/append to:

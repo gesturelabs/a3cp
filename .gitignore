@@ -11,3 +11,17 @@ a3cp-env/
 
 __pycache__/
 *.pyc
+
+
+# Runtime logs / data
+logs/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python build artifacts
+*.egg-info/
+dist/
+build/

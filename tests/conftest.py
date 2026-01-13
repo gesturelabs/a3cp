@@ -32,9 +32,28 @@ def tiny_jpeg_base64() -> str:
 
 
 @pytest.fixture(autouse=True)
-def _force_log_root_tmp(tmp_path, monkeypatch):
+def _force_log_root_tmp(tmp_path):
     """
     Prevent tests from writing to repo-local ./logs.
     Forces all LOG_ROOT writes into a per-test temp directory.
     """
-    monkeypatch.setenv("LOG_ROOT", str(tmp_path / "logs"))
+    log_root = tmp_path / "logs"
+
+    # Patch the values actually used at runtime.
+    import apps.session_manager.repository as session_repo
+
+    session_repo.LOG_ROOT = log_root
+
+    import apps.session_manager.config as session_cfg
+
+    session_cfg.LOG_ROOT = log_root
+
+    # If schema_recorder uses a config constant for route/path resolution, patch it too.
+    try:
+        import apps.schema_recorder.config as recorder_cfg
+
+        recorder_cfg.LOG_ROOT = log_root
+    except Exception:
+        pass
+
+    yield

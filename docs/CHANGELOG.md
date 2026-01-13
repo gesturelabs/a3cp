@@ -8,6 +8,32 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+## 2026-01-13 — Schema Recorder Introduction, Session Logging Refactor, and Test Infrastructure Fixes
+
+### Added
+- New `schema_recorder` module following canonical app architecture:
+  - `config.py`, `service.py`, `repository.py`, routes, and guardrail tests.
+- Append-only session JSONL logging with explicit envelope format `{ recorded_at, event }`.
+- Autouse pytest fixture to redirect all log output to per-test `tmp_path`.
+- Test helper package `tests/test_utils/` to replace shadowing `tests/utils.py`.
+
+### Changed
+- Session manager now delegates all session log writes to `schema_recorder`.
+- Removed `RecorderConfig` from public schema surface and cross-module usage.
+- Log root handling moved from environment variables to explicit module-level constants.
+- Updated all API and session manager tests to unwrap JSONL envelopes.
+- Updated imports across tests to avoid `utils` namespace collisions.
+- Extended `.gitignore` to exclude runtime logs and pytest artifacts.
+
+### Fixed
+- Import shadowing between production `utils` and test helpers.
+- Test failures caused by env-based log roots and CWD-dependent paths.
+- Excessive repo-local log creation during test runs.
+- Broken invariants in session manager JSONL append tests after envelope change.
+
+### Notes
+- All tests now pass with deterministic, isolated filesystem behavior.
+- Session logging boundaries are explicit, auditable, and single-writer enforced.
 
 
 ## Changelog — Infrastructure

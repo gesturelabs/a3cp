@@ -9,9 +9,10 @@ from apps.session_manager.service import end_session, start_session
 from schemas import SessionManagerEndInput, SessionManagerStartInput
 
 
-def test_start_end_appends_two_ordered_events(tmp_path, monkeypatch):
-    # Ensure the recorder writes under a temp LOG_ROOT
-    monkeypatch.setenv("LOG_ROOT", str(tmp_path / "logs"))
+def test_start_end_appends_two_ordered_events(tmp_path):
+    import apps.session_manager.repository as session_repo
+
+    session_repo.LOG_ROOT = tmp_path / "logs"
 
     start_payload = SessionManagerStartInput(
         schema_version="1.0.1",
@@ -49,8 +50,10 @@ def test_start_end_appends_two_ordered_events(tmp_path, monkeypatch):
     lines = log_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2, f"expected 2 jsonl lines, got {len(lines)}"
 
-    e1 = json.loads(lines[0])
-    e2 = json.loads(lines[1])
+    env1 = json.loads(lines[0])
+    env2 = json.loads(lines[1])
+    e1 = env1["event"]
+    e2 = env2["event"]
 
     # Same session + user
     assert e1["user_id"] == "test_user"

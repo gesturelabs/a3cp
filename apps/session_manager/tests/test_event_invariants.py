@@ -35,7 +35,9 @@ def _assert_common_invariants(event: dict) -> None:
 
 
 def test_session_manager_events_enforce_common_invariants(tmp_path, monkeypatch):
-    monkeypatch.setenv("LOG_ROOT", str(tmp_path / "logs"))
+    import apps.session_manager.repository as session_repo
+
+    session_repo.LOG_ROOT = tmp_path / "logs"
 
     start_payload = SessionManagerStartInput(
         schema_version="1.0.1",
@@ -71,8 +73,8 @@ def test_session_manager_events_enforce_common_invariants(tmp_path, monkeypatch)
     lines = log_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2
 
-    e1 = json.loads(lines[0])
-    e2 = json.loads(lines[1])
+    env1 = json.loads(lines[0])
+    env2 = json.loads(lines[1])
 
-    _assert_common_invariants(e1)
-    _assert_common_invariants(e2)
+    _assert_common_invariants(env1["event"])
+    _assert_common_invariants(env2["event"])

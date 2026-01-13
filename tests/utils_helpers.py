@@ -1,10 +1,11 @@
-# tests/utils.py
+# tests/utils_helpers.py
 
 import json
 import re
 from pathlib import Path
 
-SCHEMAS_DIR = Path("schemas")
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+SCHEMAS_DIR = _REPO_ROOT / "schemas"
 
 
 def load_example(module_name: str, kind: str) -> dict:
