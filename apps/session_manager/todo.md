@@ -19,6 +19,22 @@ Status note (authoritative for this file): canonical migration completed (routes
 session_manager creates the session filesystem structure at session start
 (because it owns session lifecycle).
 
+- [ ] **Slice-1 concurrency decision (authoritative, must be settled before implementing any new module)**
+  **Question:** Do we require *multiple FastAPI server workers / replicas* for Slice 1, or only *concurrent modules* (camera + audio) within a single server process?
+
+  - [ ] **Option A — Single FastAPI worker (MVP constraint)**
+        Run exactly one FastAPI process (one worker, one replica).
+        Camera and audio run concurrently via async / background tasks / separate module processes.
+        `session_manager` may keep active-session state in process-local memory.
+
+  - [ ] **Option B — Multiple FastAPI workers / replicas**
+        Allow more than one server worker or replica.
+        `session_manager` must store active-session state in a shared durable store (DB/Redis) so start/end invariants remain correct.
+
+  **Rule:** One option must be selected and enforced (code + deployment) before any other modu
+
+
+
 ## A) Completed
 ### Core behavior
 - [x] `/sessions.start` returns `session_id`

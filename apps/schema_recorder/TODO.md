@@ -156,3 +156,55 @@ Notes / Action Items
 - [ ] Double-check source handling in schemas
   - [ ] Keep source optional in schema if needed
   - [ ] Enforce source as mandatory at recorder route level
+
+
+
+## ADDITIONS / CLARIFICATIONS — schema_recorder (to integrate before implementation)
+
+### 1) Locking mechanism (explicit, testable)
+- **Locking invariant (MVP):**
+  - schema_recorder MUST use `flock(LOCK_EX)` on the file descriptor.
+  - Lock is held for the entire sequence: open → write → flush → close.
+  - No mixed locking primitives (`fcntl` + `flock`) are allowed.
+- **Test requirement:**
+  - Concurrent writes (threads or processes) produce full, non-interleaved JSONL lines.
+
+---
+
+### 2) Write atomicity (explicit syscall semantics)
+- **Write atomicity invariant (MVP):**
+  - JSONL line MUST be written using a single `write()` system call.
+  - File MUST be opened with `O_APPEND`.
+  - Event payload size MUST be bounded (document max size per event).
+- Recorder MUST NOT perform chunked writes for a single event.
+
+---
+
+### 3) Time semantics (prevent future ambiguity)
+- **Time semantics invariant (MVP):**
+  - `event.timestamp` = event-time (semantic, owned by upstream module).
+  - `recorded_at` = write-time (recorder-only).
+  - schema_recorder MUST NOT inspect, modify, or reinterpret `event.timestamp`.
+- **Test requirement:**
+  - Recorder preserves `event.timestamp` byte-for-byte.
+
+---
+
+### 4) Filesystem integrity assumption (explicit failure model)
+- **Filesystem integrity invariant (MVP):**
+  - session_manager MUST create the full session directory tree atomically before any recording occurs.
+  - schema_recorder treats any missing or partial session path as a hard conflict.
+  - Missing session path → HTTP 409 Conflict (non-recoverable at recorder level).
+
+---
+
+### 5) Single-writer enforcement (concrete CI mechanism)
+- **Single-writer enforcement (REQUIRED):**
+  - Only `apps/schema_recorder/repository.py` may write/append to:
+    `logs/users/**/sessions/*.jsonl`
+- **CI enforcement (at least one required):**
+  - Static check (grep / AST) failing CI if filesystem writes to that path occur outside schema_recorder, OR
+  - Centralized path helper that raises when called from non-schema_recorder modules, OR
+  - Import-guard tests asserting no other module imports file-writing utilities touching session logs.
+
+---

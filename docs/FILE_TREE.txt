@@ -6,6 +6,12 @@
 │       └── lint.yml
 ├── .gitignore
 ├── .pre-commit-config.yaml
+├── alembic
+│   ├── env.py
+│   ├── README
+│   ├── script.py.mako
+│   └── versions
+├── alembic.ini
 ├── api
 │   ├── __init__.py
 │   ├── main.py
@@ -37,22 +43,36 @@
 │   │   └── visual_environment_classifier_routes.py
 │   └── settings.py
 ├── apps
+│   ├── __init__.py
+│   ├── camera_feed_worker
+│   │   └── todo.md
+│   ├── landmark_extractor
+│   │   └── TODO.md
+│   ├── schema_recorder
+│   │   ├── __init__.py
+│   │   ├── session_writer.py
+│   │   └── TODO.md
 │   ├── session_manager
 │   │   ├── __init__.py
 │   │   ├── config.py
-│   │   ├── domain.py
 │   │   ├── idgen.py
 │   │   ├── models.py
 │   │   ├── repository.py
 │   │   ├── routes
 │   │   │   ├── __init__.py
+│   │   │   ├── router.py
 │   │   │   └── sessions.py
 │   │   ├── service.py
-│   │   └── tests
-│   │       ├── __init__.py
-│   │       ├── test_repository.py
-│   │       ├── test_routes.py
-│   │       └── test_service.py
+│   │   ├── tests
+│   │   │   ├── __init__.py
+│   │   │   ├── test_event_invariants.py
+│   │   │   ├── test_import_policy.py
+│   │   │   ├── test_repository.py
+│   │   │   ├── test_routes.py
+│   │   │   ├── test_service.py
+│   │   │   ├── test_session_id_format.py
+│   │   │   └── test_session_jsonl_append.py
+│   │   └── todo.md
 │   └── ui
 │       ├── __init__.py
 │       ├── dependencies.py
@@ -118,7 +138,9 @@
 │       │   └── technology.html
 │       ├── tests
 │       │   └── __init__.py
+│       ├── TODO.md
 │       └── utils.py
+├── conftest.py
 ├── current_env_freeze.txt
 ├── current_sorted.txt
 ├── current.txt
@@ -127,12 +149,16 @@
 │   └── engine.py
 ├── docs
 │   ├── architecture
-│   │   ├── a3cp_pipeline_v2.png
-│   │   ├── a3cp_pipeline_v3.png
-│   │   ├── a3cp_pipeline.drawio
-│   │   ├── a3cp_pipeline.png
-│   │   ├── a3cp_pipeline.svg
+│   │   ├── app_structure_and_routing.md
+│   │   ├── architecture diagrams
+│   │   │   ├── a3cp_pipeline_v2.png
+│   │   │   ├── a3cp_pipeline_v3.png
+│   │   │   ├── a3cp_pipeline.drawio
+│   │   │   ├── a3cp_pipeline.png
+│   │   │   └── a3cp_pipeline.svg
+│   │   ├── gesture_slice.md
 │   │   ├── inputs_outputs_json.md
+│   │   ├── mvp DB architecture.md
 │   │   └── mvp.md
 │   ├── archive
 │   │   ├── old_video_streamer
@@ -142,6 +168,9 @@
 │   │   ├── SCHEMA_OVERVIEW.md
 │   │   └── SCHEMA_REFERENCE.md
 │   ├── CHANGELOG.md
+│   ├── context_state_strategy
+│   │   ├── strategy.md
+│   │   └── Technical_Context_Jan52026.md
 │   ├── dev
 │   │   ├── DEPLOYMENT.md
 │   │   ├── DEVELOPMENT_FLOW.md
@@ -154,6 +183,7 @@
 │   ├── governance
 │   │   └── ENTITIES_AND_ROLES.MD
 │   ├── modules
+│   │   ├── _App Pattern.md
 │   │   ├── audio_feed_worker
 │   │   │   ├── INVARIANTS.md
 │   │   │   ├── README.md
@@ -216,9 +246,16 @@
 │   │   ├── SCHEMA_REFACTOR_PLAN.md
 │   │   └── SCHEMA_REFERENCE.md
 │   ├── todo
+│   │   ├── 00_DOCKER.md
 │   │   ├── django be gone.md
-│   │   ├── schema_refactor.md
-│   │   └── todo_list.md
+│   │   ├── Execution_order.md
+│   │   ├── EXIT_GATES.md
+│   │   ├── index.md
+│   │   ├── older versions
+│   │   │   ├── schema_refactor.md
+│   │   │   └── todo_list.md
+│   │   ├── Route Re-Migration.md
+│   │   └── Sprint_2(tenetative).md
 │   ├── ui
 │   │   ├── blocks.md
 │   │   ├── DEMONSTRATOR_UI_SPEC.md
@@ -227,6 +264,7 @@
 │   └── VARIOUS_COMMANDS.md
 ├── importlog.txt
 ├── LICENSE
+├── logs
 ├── main.py
 ├── Makefile
 ├── package.json
@@ -435,7 +473,9 @@
     │   ├── test_speech_context_classifier_routes.py
     │   ├── test_speech_transcriber_routes.py
     │   └── test_visual_environment_classifier_routes.py
+    ├── architecture
+    │   └── test_no_new_api_routes.py
     ├── conftest.py
     └── utils.py
 
-90 directories, 349 files
+100 directories, 379 files

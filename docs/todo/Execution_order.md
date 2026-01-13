@@ -9,10 +9,6 @@ The ordering minimizes rework, maximizes observability, and respects slice contr
 
 Goal: establish the authoritative append-only session log spine.
 
-- [ ] Implement recorder responsibilities and invariants
-- [ ] Enforce single-writer semantics for session JSONL
-- [ ] Support feature-ref event recording
-- [ ] Enable replay/idempotency checks needed by exit gates
 
 Rationale: all downstream modules depend on a stable, observable session log.
 
