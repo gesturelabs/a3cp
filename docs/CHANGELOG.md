@@ -9,6 +9,13 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-12 Planning & Schema Alignment — schema_recorder MVP
+### Fixed
+- Restored schema example generation for `a3cp_message` by exposing `example_input` and `example_output` as static methods on `A3CPMessage`, matching generator expectations.
+- Clarified package export behavior for `schemas/a3cp_message` to ensure compatibility with `generate_schemas_from_master.py`.
+
+### worked on schema_recorder todo list
+
 
 ## 2026-01-12 Planning & Schema Alignment — schema_recorder MVP
 

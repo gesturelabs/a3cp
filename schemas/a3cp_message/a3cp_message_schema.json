@@ -5,65 +5,97 @@
   "description": "Schema for a3cp_message input and output messages.",
   "type": "object",
   "$defs": {
-    "A3CPMessage": {
-      "additionalProperties": true,
+    "BaseSchema": {
       "properties": {
         "schema_version": {
-          "default": "1.1.0",
-          "examples": [
-            "1.1.0"
-          ],
+          "description": "Semantic version (MAJOR.MINOR.PATCH)",
           "title": "Schema Version",
           "type": "string"
         },
         "record_id": {
+          "description": "Unique ID for this message (UUIDv4)",
           "format": "uuid",
           "title": "Record Id",
           "type": "string"
         },
         "user_id": {
+          "description": "Pseudonymous user identifier",
           "title": "User Id",
           "type": "string"
         },
         "session_id": {
-          "title": "Session Id",
-          "type": "string"
+          "anyOf": [
+            {
+              "description": "Session ID from session_manager",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
         },
         "timestamp": {
+          "description": "UTC ISO 8601 with milliseconds and 'Z' suffix",
           "format": "date-time",
           "title": "Timestamp",
           "type": "string"
         },
         "modality": {
-          "enum": [
-            "gesture",
-            "audio",
-            "speech",
-            "image",
-            "multimodal"
+          "anyOf": [
+            {
+              "description": "Input/message modality",
+              "enum": [
+                "gesture",
+                "audio",
+                "speech",
+                "image",
+                "multimodal"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
           ],
-          "title": "Modality",
-          "type": "string"
+          "default": null,
+          "title": "Modality"
         },
         "source": {
-          "enum": [
-            "communicator",
-            "caregiver",
-            "system"
+          "anyOf": [
+            {
+              "description": "Originating component (e.g., 'gesture_classifier')",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
           ],
-          "title": "Source",
-          "type": "string"
+          "default": null,
+          "title": "Source"
+        },
+        "performer_id": {
+          "anyOf": [
+            {
+              "description": "Actor producing input; 'system' for system-generated",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Performer Id"
         }
       },
       "required": [
+        "schema_version",
         "record_id",
         "user_id",
-        "session_id",
-        "timestamp",
-        "modality",
-        "source"
+        "timestamp"
       ],
-      "title": "A3CPMessage",
+      "title": "BaseSchema",
       "type": "object"
     }
   }
