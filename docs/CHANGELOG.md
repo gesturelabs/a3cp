@@ -9,6 +9,24 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## Changelog — Infrastructure
+
+### Added
+- Introduced `utils/paths.py` as a pure, deterministic path helper module.
+  - Added `session_log_path(log_root, user_id, session_id)` as the canonical session log path constructor.
+  - Enforced no-IO, no-env, no-mkdir semantics.
+- Added unit test for path purity and determinism (`tests/utils/test_paths.py`).
+
+### Fixed
+- Restored test imports by removing `tests/utils/__init__.py`, ensuring `tests.utils` resolves to the existing helper module.
+- Verified full test suite passes after path utility introduction.
+
+### Notes
+- Path resolution is now a locked precondition for `schema_recorder`.
+- Filesystem ownership and directory creation remain the r
+
+
 ## 2026-01-12 Planning & Schema Alignment — schema_recorder MVP
 ### Fixed
 - Restored schema example generation for `a3cp_message` by exposing `example_input` and `example_output` as static methods on `A3CPMessage`, matching generator expectations.

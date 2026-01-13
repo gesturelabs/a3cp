@@ -1,4 +1,30 @@
 # apps/schema_recorder/TODO.md — REVISED (MVP + Deferred)
+---
+
+## Minimal context files required (paste these in the new thread)
+
+To implement `schema_recorder` without hidden assumptions, provide the current contents (or links/paths + relevant excerpts) of:
+
+### Required
+- [ ] `schemas/a3cp_message/a3cp_message.py` (canonical A3CPMessage)
+- [ ] `schemas/base/base.py` (Session Spine / BaseSchema)
+- [ ] `utils/paths.py` (must contain `session_log_path(user_id, session_id)` and be pure)
+- [ ] `api/main.py` (router composition / how apps mount routes)
+
+### Strongly recommended
+- [ ] `docs/architecture/app_structure_and_routing.md` (canonical app pattern enforcement)
+- [ ] Session directory creation authority (where session_manager creates the tree):
+  - [ ] `apps/session_manager/service.py` (or equivalent)
+  - [ ] any helper used to create session log directories
+- [ ] Evidence of current session-log writers (for single-writer CI guardrail):
+  - [ ] list/gist/grep results of files that write `logs/users/**/sessions/*.jsonl`, OR
+  - [ ] the legacy writer utility file(s)
+
+### Optional
+- [ ] Any legacy recorder endpoint or code (if it exists) to remove/replace cleanly
+
+---
+
 
 ## Purpose (authoritative)
 
