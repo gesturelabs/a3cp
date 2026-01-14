@@ -3,9 +3,7 @@
 from fastapi import APIRouter, HTTPException, status
 
 from apps.schema_recorder import service
-from apps.schema_recorder.config import LOG_ROOT
 from schemas import A3CPMessage
-from utils.paths import session_log_path
 
 router = APIRouter(prefix="/schema-recorder", tags=["schema-recorder"])
 
@@ -16,6 +14,12 @@ router = APIRouter(prefix="/schema-recorder", tags=["schema-recorder"])
     response_model=dict,
 )
 def append_schema_event(event: A3CPMessage) -> dict:
+    # Route-level enforcement (even if schema allows optional)
+    if event.user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="user_id is required for schema recording",
+        )
     if event.session_id is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -27,15 +31,12 @@ def append_schema_event(event: A3CPMessage) -> dict:
             detail="source is required for schema recording",
         )
 
-    # FIX: pass log_root explicitly
-    log_path = session_log_path(
-        log_root=LOG_ROOT,
-        user_id=event.user_id,
-        session_id=event.session_id,
-    )
-
     try:
-        result = service.append_event(log_path=log_path, event=event)
+        result = service.append_event(
+            user_id=event.user_id,
+            session_id=event.session_id,
+            message=event,
+        )
         return {"record_id": result.record_id, "recorded_at": result.recorded_at}
 
     except service.MissingSessionPath as e:

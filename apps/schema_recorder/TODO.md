@@ -134,19 +134,28 @@ This module guarantees **how** events are written.
 
 ---
 
-## B) Route Contract (MVP) — schema_recorder
+## B) Route Contract (MVP) — schema_recorder (REVISED)
 
-- [ ] Expose HTTP endpoint for session logging
-  - [ ] POST `/schema-recorder/append`
+- [x ] Expose HTTP endpoint for session logging
+  - [x ] POST `/schema-recorder/append`
+
+- [ ] **LOCK FIRST: error mapping (domain → HTTP)**
+  - [ ] `MissingSessionPath` → 409 Conflict
+  - [ ] `EventTooLarge` → 413 Payload Too Large
+  - [ ] `RecorderIOError` → 500 Internal Server Error
 
 - [ ] Accept only fully validated schema payloads
-  - [ ] Request body must deserialize into `BaseSchema` / `A3CPMessage`
-  - [ ] Reject unparseable or invalid payloads at the route boundary
+  - [ ] Request body must deserialize into a validated schema object
+  - [ ] **CLARIFICATION REQUIRED:** choose request model
+    - [ ] Option A: `A3CPMessage` (strict, preferred for MVP)
+    - [ ] Option B: `BaseSchema` (more permissive; risk of weaker validation)
+  - [ ] Reject unparseable or invalid payloads at route boundary
 
-- [ ] Enforce required fields at route level
+- [ ] Enforce required fields at route level (even if schema allows optional)
   - [ ] Reject missing `session_id`
   - [ ] Reject missing `user_id`
   - [ ] Reject missing `source`
+  - [ ] **CLARIFICATION REQUIRED:** decide HTTP status for missing required fields (400 vs 422)
 
 - [ ] Delegate logging to service layer
   - [ ] Route passes only `{ user_id, session_id, message }`
@@ -156,11 +165,6 @@ This module guarantees **how** events are written.
 - [ ] Define success response
   - [ ] Return HTTP 201 Created
   - [ ] Return minimal body `{ record_id, recorded_at }` (from service result)
-
-- [ ] Define error mapping (domain → HTTP)
-  - [ ] `MissingSessionPath` → 409 Conflict
-  - [ ] `EventTooLarge` → 413 Payload Too Large
-  - [ ] `RecorderIOError` → 500 Internal Server Error
 
 ---
 

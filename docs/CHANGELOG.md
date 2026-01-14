@@ -9,6 +9,12 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+### 2026-01-14 Exposed schema recorder HTTP endpoint.
+  - Mounted `schema_recorder` router in `api/main.py`.
+  - `POST /schema-recorder/append` is now registered in OpenAPI.
+  - Endpoint tagged as `schema-recorder` and accepts `A3CPMessage` payloads.
+
+
 ### 2026-01-14 Refactor: remove legacy `session_writer`, collapse to `schema_recorder` (JSONL logging)
 
 - Removed legacy writer shim:
