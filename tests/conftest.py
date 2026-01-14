@@ -40,9 +40,9 @@ def _force_log_root_tmp(tmp_path):
     log_root = tmp_path / "logs"
 
     # Patch the values actually used at runtime.
-    import apps.session_manager.repository as session_repo
+    import apps.schema_recorder.config as recorder_config
 
-    session_repo.LOG_ROOT = log_root
+    recorder_config.LOG_ROOT = log_root
 
     import apps.session_manager.config as session_cfg
 

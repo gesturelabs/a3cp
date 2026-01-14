@@ -3,7 +3,7 @@
 
 from datetime import datetime, timezone
 
-from apps.session_manager import repository
+from apps.schema_recorder.service import append_event
 from apps.session_manager.idgen import generate_session_id
 from schemas import (
     SessionManagerEndInput,
@@ -61,11 +61,18 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
         session_notes=payload.session_notes,
         training_intent_label=payload.training_intent_label,
     )
-    repository.append_session_event(
+
+    from apps.schema_recorder.config import LOG_ROOT
+    from utils.paths import session_log_path
+
+    log_path = session_log_path(
+        log_root=LOG_ROOT,
         user_id=out.user_id,
-        session_id=str(out.session_id),
-        message=out,
+        session_id=new_session_id,
     )
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    append_event(user_id=out.user_id, session_id=str(out.session_id), message=out)
 
     return out
 
@@ -95,10 +102,6 @@ def end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput:
         performer_id=payload.performer_id,
         end_time=payload.end_time,
     )
-    repository.append_session_event(
-        user_id=out.user_id,
-        session_id=str(out.session_id),
-        message=out,
-    )
+    append_event(user_id=out.user_id, session_id=str(out.session_id), message=out)
 
     return out

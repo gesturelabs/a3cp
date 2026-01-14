@@ -1,15 +1,6 @@
 # api/routes/schema_recorder_routes.py
-from fastapi import APIRouter, HTTPException
+# Legacy / transitional shim. Do not add new routes here.
 
-from schemas.schema_recorder.schema_recorder import RecorderConfig
+from apps.schema_recorder.routes.router import router
 
-router = APIRouter()
-
-
-@router.post("/", response_model=RecorderConfig)
-def configure_schema_recorder(config: RecorderConfig) -> RecorderConfig:
-    """
-    Stub for schema recorder configuration.
-    Accepts a logging configuration and returns confirmation.
-    """
-    raise HTTPException(status_code=501, detail="Not implemented yet")
+__all__ = ["router"]

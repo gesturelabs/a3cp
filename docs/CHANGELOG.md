@@ -8,6 +8,29 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+### 2026-01-14 Refactor: remove legacy `session_writer`, collapse to `schema_recorder` (JSONL logging)
+
+- Removed legacy writer shim:
+  - Deleted `apps/schema_recorder/session_writer.py`
+  - Removed all re-exports and references to `append_session_event`
+- Consolidated session JSONL writing behind a single API:
+  - `apps.schema_recorder.service.append_event()` is now the only public writer entrypoint
+  - All filesystem IO (open, lock, write) lives exclusively in `apps/schema_recorder/repository.py`
+- Clarified responsibility boundaries:
+  - `session_manager` creates session directories and emits events
+  - `schema_recorder` resolves log paths and appends JSONL records
+- Introduced authoritative, test-patchable log root:
+  - Added `apps/schema_recorder/config.py` with `LOG_ROOT`
+  - Tests override `LOG_ROOT` to isolate filesystem effects
+- Updated call sites and tests:
+  - `session_manager` now calls `append_event()` directly
+  - Removed `apps/session_manager/repository.py` shim
+  - Updated session JSONL tests and invariant tests accordingly
+- Verified cleanup:
+  - No remaining code references to `session_writer` or `append_session_event`
+  - All tests passing
+
 ## 2026-01-13 — Schema Recorder Introduction, Session Logging Refactor, and Test Infrastructure Fixes
 
 ### Added

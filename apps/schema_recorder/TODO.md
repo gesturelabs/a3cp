@@ -98,13 +98,39 @@ This module guarantees **how** events are written.
 
 ## A) Canonical App Structure (REQUIRED)
 
-- [ ] Enforce canonical module layout
-  - [ ] apps/schema_recorder/routes/router.py exists
-  - [ ] apps/schema_recorder/service.py exists
-  - [ ] apps/schema_recorder/repository.py exists
-  - [ ] apps/schema_recorder/tests/ exists
-- [ ] Remove or refactor any legacy/special-case writer files
-  - [ ] Ensure all filesystem IO lives exclusively in repository.py
+- [x ] Enforce canonical module layout
+  - [ x] apps/schema_recorder/routes/router.py exists
+  - [ x] apps/schema_recorder/service.py exists
+  - [ x] apps/schema_recorder/repository.py exists
+  - [ x] apps/schema_recorder/tests/ exists
+- [x ] Remove or refactor any legacy/special-case writer files
+  - [x ] Ensure all filesystem IO lives exclusively in repository.py
+
+## Post-refactor cleanup (session_writer removal → schema_recorder only)
+
+- [ ] Docs/TODO references cleanup (non-code)
+  - [ ] Update `apps/camera_feed_worker/todo.md`: replace any allowlist reference to `apps/schema_recorder/session_writer.py` with `apps/schema_recorder/service.py` (+ note: IO in `apps/schema_recorder/repository.py`)
+  - [ ] Update `apps/landmark_extractor/TODO.md`: replace `session_writer.py` references with `schema_recorder.service.append_event()`
+  - [ ] Update `apps/schema_recorder/TODO.md`: remove the “session_writer is deleted” self-referential checklist lines; replace with a short “completed refactor” note + current public API
+  - [ ] Repo-wide grep (docs-only) to ensure references are consistent:
+    - [ ] `grep -R --line-number "session_writer.py\|append_session_event" docs apps | cat`
+
+- [ ] API/docstring polish (code comments only; behavior unchanged)
+  - [ ] Fix `apps/schema_recorder/service.py` docstring to match current signature (`user_id`, `session_id`, `message`) and remove stale mentions of `log_path`/`event`
+  - [ ] Add a one-line comment in `apps/schema_recorder/config.py` stating LOG_ROOT is intentionally patchable for tests
+
+- [ ] Guardrails (lightweight tests)
+  - [ ] Add a repo test that fails if any `apps/**.py` contains `append_session_event` or `session_writer` (excluding markdown)
+  - [ ] Add a repo test that asserts only `apps/schema_recorder/repository.py` contains `os.open(` / `fcntl.flock(` / `os.write(` (or equivalent IO primitives), to prevent IO leakage into services/routes
+
+- [ ] Import/legacy shim audit
+  - [ ] Verify no imports remain from deleted modules:
+    - [ ] `grep -R --line-number --binary-files=without-match "apps\.session_manager\.repository" .`
+    - [ ] `grep -R --line-number --binary-files=without-match "apps\.schema_recorder\.session_writer" .`
+
+- [ ] Commit hygiene
+  - [ ] Ensure changelog/devlog note exists for: “Removed session_writer; schema_recorder is sole writer; session_manager creates session dir; tests updated to patch schema_recorder.config.LOG_ROOT”
+
 
 ---
 

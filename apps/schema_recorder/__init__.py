@@ -1,3 +1,6 @@
-from .session_writer import append_session_event, session_log_path
+# apps/schema_recorder/__init__.py
+# Public surface: callers should use schema_recorder.service.append_event()
 
-__all__ = ["append_session_event", "session_log_path"]
+from .service import append_event
+
+__all__ = ["append_event"]

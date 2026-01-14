@@ -5,9 +5,8 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
 
-from schemas import A3CPMessage
+from schemas.base.base import BaseSchema
 
 
 # -----------------------------
@@ -41,7 +40,7 @@ class AppendResult:
 # -----------------------------
 # Public service API (MVP)
 # -----------------------------
-def append_event(*, log_path: Path, event: A3CPMessage) -> AppendResult:
+def append_event(*, user_id: str, session_id: str, message: BaseSchema) -> AppendResult:
     """
     Append one event to the session JSONL log at `log_path`.
 
@@ -54,9 +53,14 @@ def append_event(*, log_path: Path, event: A3CPMessage) -> AppendResult:
       - enforces MAX_EVENT_BYTES over the UTF-8 bytes of the full JSONL line
       - raises ONLY domain exceptions (MissingSessionPath, EventTooLarge, RecorderIOError)
     """
+    from apps.schema_recorder.config import LOG_ROOT
+    from utils.paths import session_log_path
+
+    log_path = session_log_path(
+        log_root=LOG_ROOT, user_id=user_id, session_id=session_id
+    )
+
     # Fail fast if session directory does not exist (recorder must not mkdir).
-    if not log_path.parent.exists():
-        raise MissingSessionPath(f"Missing parent session directory: {log_path.parent}")
 
     recorded_at = _utc_now_iso8601_ms_z()
 
@@ -64,7 +68,7 @@ def append_event(*, log_path: Path, event: A3CPMessage) -> AppendResult:
     # (This assumes A3CPMessage itself was the validated request payload.)
     envelope = {
         "recorded_at": recorded_at,
-        "event": event.model_dump(mode="json"),
+        "event": message.model_dump(mode="json"),
     }
 
     # Serialize to exactly one JSON line + newline.
@@ -79,9 +83,7 @@ def append_event(*, log_path: Path, event: A3CPMessage) -> AppendResult:
 
     # Delegate IO to repository boundary (implemented next step).
     try:
-        from apps.schema_recorder import (
-            repository,  # local import to keep service pure-ish
-        )
+        import apps.schema_recorder.repository as repository
 
         repository.append_bytes(log_path=log_path, line_bytes=line_bytes)
     except (MissingSessionPath, EventTooLarge, RecorderIOError):
@@ -94,7 +96,7 @@ def append_event(*, log_path: Path, event: A3CPMessage) -> AppendResult:
         # Any unexpected failure becomes RecorderIOError at the service boundary.
         raise RecorderIOError(str(e)) from e
 
-    return AppendResult(record_id=str(event.record_id), recorded_at=recorded_at)
+    return AppendResult(record_id=str(message.record_id), recorded_at=recorded_at)
 
 
 # -----------------------------

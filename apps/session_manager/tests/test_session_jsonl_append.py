@@ -10,9 +10,9 @@ from schemas import SessionManagerEndInput, SessionManagerStartInput
 
 
 def test_start_end_appends_two_ordered_events(tmp_path):
-    import apps.session_manager.repository as session_repo
+    import apps.schema_recorder.config as recorder_config
 
-    session_repo.LOG_ROOT = tmp_path / "logs"
+    recorder_config.LOG_ROOT = tmp_path / "logs"
 
     start_payload = SessionManagerStartInput(
         schema_version="1.0.1",

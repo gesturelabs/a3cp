@@ -35,9 +35,9 @@ def _assert_common_invariants(event: dict) -> None:
 
 
 def test_session_manager_events_enforce_common_invariants(tmp_path, monkeypatch):
-    import apps.session_manager.repository as session_repo
+    import apps.schema_recorder.config as recorder_config
 
-    session_repo.LOG_ROOT = tmp_path / "logs"
+    recorder_config.LOG_ROOT = tmp_path / "logs"
 
     start_payload = SessionManagerStartInput(
         schema_version="1.0.1",
