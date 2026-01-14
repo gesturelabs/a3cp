@@ -9,6 +9,13 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-14 — Schema Recorder Guardrail
+
+- Added CI guardrail enforcing single-writer invariant for session JSONL logs.
+  - Introduced test: `tests/guards/test_single_writer_session_jsonl.py`.
+  - Explicit allowlist restricts session log writes to `apps/schema_recorder/repository.py`.
+  - Test fails if any other module appears to write session-scoped `.jsonl` logs.
+
 ### 2026-01-14 Exposed schema recorder HTTP endpoint.
   - Mounted `schema_recorder` router in `api/main.py`.
   - `POST /schema-recorder/append` is now registered in OpenAPI.

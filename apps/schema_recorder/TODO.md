@@ -88,15 +88,10 @@ This module guarantees **how** events are written.
 ### Single-writer enforcement (REQUIRED CI guardrail)
 - Only `apps/schema_recorder/repository.py` may write/append to:
   `logs/users/**/sessions/*.jsonl`
-- CI MUST enforce at least one mechanism:
-  - static grep / AST check, OR
-  - import-guard test, OR
-  - centralized writer API + test that no other module writes session logs.
-- Guardrail test MUST run in default unit test suite.
 
 ---
-
-## A) Canonical App Structure (REQUIRED)
+## Done
+## A) Canonical App Structure
 
 - [x ] Enforce canonical module layout
   - [ x] apps/schema_recorder/routes/router.py exists
@@ -106,68 +101,33 @@ This module guarantees **how** events are written.
 - [x ] Remove or refactor any legacy/special-case writer files
   - [x ] Ensure all filesystem IO lives exclusively in repository.py
 
-## Post-refactor cleanup (session_writer removal → schema_recorder only)
-
-- [ ] Docs/TODO references cleanup (non-code)
-  - [ ] Update `apps/camera_feed_worker/todo.md`: replace any allowlist reference to `apps/schema_recorder/session_writer.py` with `apps/schema_recorder/service.py` (+ note: IO in `apps/schema_recorder/repository.py`)
-  - [ ] Update `apps/landmark_extractor/TODO.md`: replace `session_writer.py` references with `schema_recorder.service.append_event()`
-  - [ ] Update `apps/schema_recorder/TODO.md`: remove the “session_writer is deleted” self-referential checklist lines; replace with a short “completed refactor” note + current public API
-  - [ ] Repo-wide grep (docs-only) to ensure references are consistent:
-    - [ ] `grep -R --line-number "session_writer.py\|append_session_event" docs apps | cat`
-
-- [ ] API/docstring polish (code comments only; behavior unchanged)
-  - [ ] Fix `apps/schema_recorder/service.py` docstring to match current signature (`user_id`, `session_id`, `message`) and remove stale mentions of `log_path`/`event`
-  - [ ] Add a one-line comment in `apps/schema_recorder/config.py` stating LOG_ROOT is intentionally patchable for tests
-
-- [ ] Guardrails (lightweight tests)
-  - [ ] Add a repo test that fails if any `apps/**.py` contains `append_session_event` or `session_writer` (excluding markdown)
-  - [ ] Add a repo test that asserts only `apps/schema_recorder/repository.py` contains `os.open(` / `fcntl.flock(` / `os.write(` (or equivalent IO primitives), to prevent IO leakage into services/routes
-
-- [ ] Import/legacy shim audit
-  - [ ] Verify no imports remain from deleted modules:
-    - [ ] `grep -R --line-number --binary-files=without-match "apps\.session_manager\.repository" .`
-    - [ ] `grep -R --line-number --binary-files=without-match "apps\.schema_recorder\.session_writer" .`
-
-- [ ] Commit hygiene
-  - [ ] Ensure changelog/devlog note exists for: “Removed session_writer; schema_recorder is sole writer; session_manager creates session dir; tests updated to patch schema_recorder.config.LOG_ROOT”
 
 
 ---
-
+## Done
 ## B) Route Contract (MVP) — schema_recorder (REVISED)
 
 - [x ] Expose HTTP endpoint for session logging
   - [x ] POST `/schema-recorder/append`
 
-- [ ] **LOCK FIRST: error mapping (domain → HTTP)**
-  - [ ] `MissingSessionPath` → 409 Conflict
-  - [ ] `EventTooLarge` → 413 Payload Too Large
-  - [ ] `RecorderIOError` → 500 Internal Server Error
+- [ x] **LOCK FIRST: error mapping (domain → HTTP)**
+  - [x ] `MissingSessionPath` → 409 Conflict
+  - [ x] `EventTooLarge` → 413 Payload Too Large
+  - [ x] `RecorderIOError` → 500 Internal Server Error
 
-- [ ] Accept only fully validated schema payloads
-  - [ ] Request body must deserialize into a validated schema object
-  - [ ] **CLARIFICATION REQUIRED:** choose request model
-    - [ ] Option A: `A3CPMessage` (strict, preferred for MVP)
-    - [ ] Option B: `BaseSchema` (more permissive; risk of weaker validation)
-  - [ ] Reject unparseable or invalid payloads at route boundary
 
-- [ ] Enforce required fields at route level (even if schema allows optional)
-  - [ ] Reject missing `session_id`
-  - [ ] Reject missing `user_id`
-  - [ ] Reject missing `source`
-  - [ ] **CLARIFICATION REQUIRED:** decide HTTP status for missing required fields (400 vs 422)
 
-- [ ] Delegate logging to service layer
-  - [ ] Route passes only `{ user_id, session_id, message }`
-  - [ ] Route does **not** resolve filesystem paths
-  - [ ] Route does **not** perform filesystem IO
+- [ x] Delegate logging to service layer
+  - [x ] Route passes only `{ user_id, session_id, message }`
+  - [x ] Route does **not** resolve filesystem paths
+  - [ x] Route does **not** perform filesystem IO
 
-- [ ] Define success response
-  - [ ] Return HTTP 201 Created
-  - [ ] Return minimal body `{ record_id, recorded_at }` (from service result)
+- [x ] Define success response
+  - [x ] Return HTTP 201 Created
+  - [ x] Return minimal body `{ record_id, recorded_at }` (from service result)
 
 ---
-
+## Done
 ## C) Service Layer (MVP) — schema_recorder
 
 - [x] Implement public service function `append_event(user_id, session_id, message)`
@@ -224,16 +184,12 @@ This module guarantees **how** events are written.
 
 ---
 
-## F) Single-Writer Enforcement (REQUIRED)
+## F) Single-Writer Enforcement
 
-- [ ] Enforce single-writer invariant via CI / pytest
-  - [ ] Add pytest that scans `apps/**/*.py` and fails if session JSONL writes occur outside `apps/schema_recorder/repository.py`
-    - [ ] Disallow `open(` / `os.open(` / `pathlib.Path.open(` in non-repository modules
-    - [ ] Disallow hardcoded session log patterns (`logs/users/`, `sessions/*.jsonl`) outside repository
-    - [ ] Explicitly allow `apps/schema_recorder/repository.py`
 
-- [ ] Maintain explicit allowlist (codified, not informal)
-  - [ ] Define allowlist in test (single source of truth):
+
+- [x ] Maintain explicit allowlist (codified, not informal)
+  - [ x] Define allowlist in test (single source of truth):
     - [ ] `apps/schema_recorder/repository.py`
   - [ ] Test fails if allowlist is violated
 
@@ -245,6 +201,12 @@ This module guarantees **how** events are written.
   - [ ] Add pytest asserting `landmark_extractor` does not perform filesystem writes
   - [ ] Require future modules to satisfy the same pytest guard
 
+
+---
+
+## G) Testing (MVP)
+
+
 - [ ] Best-practice pytest structure (anti-regression)
   - [ ] Place enforcement tests under `tests/architecture/` or `tests/guards/`
   - [ ] Tests must:
@@ -252,10 +214,6 @@ This module guarantees **how** events are written.
     - [ ] Fail loudly with file + line number
     - [ ] Not rely on import-time side effects
   - [ ] Tests should explain *why* the invariant exists (docstring at top of test file)
-
----
-
-## G) Testing (MVP)
 
 - [x] Service-level tests (covered via session_manager integration tests)
   - [x] Exactly one line appended per call
@@ -266,28 +224,81 @@ This module guarantees **how** events are written.
   - [ ] Oversized event raises EventTooLarge with no partial write
   - [ ] Missing path raises MissingSessionPath
 
-- [ ] Route-level tests (blocked until Route Contract is implemented)
-  - [ ] Reject missing session_id
-  - [ ] Reject missing source
+- [ ] Route-level tests (MVP)
+  - [ ] Reject missing `user_id`  ← (route-level required field per contract; currently missing from test list)
+  - [ ] Reject missing `session_id`
+  - [ ] Reject missing `source`
+  - [ ] Invalid / unparseable payload rejected at boundary (FastAPI/Pydantic) ← (proves “accept only validated schema payloads”)
   - [ ] Oversized event → 413
   - [ ] Missing session path → 409
   - [ ] IO failure → 500
-  - [ ] Success returns 201 with minimal response body
+  - [ ] Success returns 201 with minimal response body `{record_id, recorded_at}` only
+
+- CI MUST enforce at least one mechanism:
+  - static grep / AST check, OR
+  - import-guard test, OR
+  - centralized writer API + test that no other module writes session logs.
+- Guardrail test MUST run in default unit test suite.
+
+- [ ] Enforce single-writer invariant via CI / pytest
+  - [ ] Add pytest that scans `apps/**/*.py` and fails if session JSONL writes occur outside `apps/schema_recorder/repository.py`
+    - [ ] Disallow `open(` / `os.open(` / `pathlib.Path.open(` in non-repository modules
+    - [ ] Disallow hardcoded session log patterns (`logs/users/`, `sessions/*.jsonl`) outside repository
+    - [ ] Explicitly allow `apps/schema_recorder/repository.py`
 
 - [ ] Import guardrail tests
   - [ ] schema_recorder imports schemas only from public `schemas` surface
 
+[ ] Guardrails (lightweight tests)
+  - [ ] Add a repo test that fails if any `apps/**.py` contains `append_session_event` or `session_writer` (excluding markdown)
+  - [ ] Add a repo test that asserts only `apps/schema_recorder/repository.py` contains `os.open(` / `fcntl.flock(` / `os.write(` (or equivalent IO primitives), to prevent IO leakage into services/routes
 
----
-## H) Explicit Non-Responsibilities (DOCUMENTED)
+- [ ] Route test spec: reject invalid schema payload at boundary (Accept only fully validated payloads)
+  - Goal: Prove the route only accepts requests that deserialize into `A3CPMessage` and rejects invalid payloads before calling `schema_recorder.service.append_event()`.
+  - Setup:
+    - Use FastAPI `TestClient` against the real app/router.
+    - Patch/spyon `apps.schema_recorder.service.append_event` to assert it is NOT called on invalid input.
+  - Case A (schema invalid, parseable JSON):
+    - Request: `POST /schema-recorder/append` with JSON body `{}` (or omit required spine fields such as `schema_version`, `record_id`, `timestamp`).
+    - Expect:
+      - HTTP 422 Unprocessable Entity (Pydantic validation error)
+      - Response body contains validation error details (structure may be framework-defined; do not assert exact text).
+      - `service.append_event` call count == 0.
+  - Optional Case B (unparseable JSON):
+    - Request: `POST /schema-recorder/append` with invalid JSON bytes (e.g., body `"{not-json"` and `Content-Type: application/json`).
+    - Expect:
+      - HTTP 400 Bad Request (JSON decode error)
+      - `service.append_event` call count == 0.
+  - Completion criteria:
+    - At least Case A exists and reliably proves boundary rejection + no service call.
 
-- [ ] Recorder does NOT guarantee (documented in schema_recorder docs)
-  - [ ] Event replay / duplication protection
-  - [ ] Uniqueness of record_id
-  - [ ] Semantic correctness of A3CPMessage
-  - [ ] One-event-per-capture enforcement
-  - [ ] Validation of raw_features_ref contents
-  - [ ] Session lifecycle correctness
+
+
+- [ ] Route test spec: required-field enforcement at HTTP boundary (422)
+  - Location: `apps/schema_recorder/tests/test_routes.py`
+  - Goal: Prove the route enforces required fields (`user_id`, `session_id`, `source`) even if the schema allows them optional, and rejects before calling `schema_recorder.service.append_event()`.
+  - Setup:
+    - Use FastAPI `TestClient` against the mounted app/router.
+    - Patch/spyon `apps.schema_recorder.service.append_event` to assert it is NOT called when required fields are missing.
+    - Base payload: start from a known-valid `A3CPMessage` JSON fixture, then remove one field per test case.
+  - Cases (can be parameterized):
+    - Missing `user_id`:
+      - Request: POST `/schema-recorder/append` with valid payload except `user_id` omitted or set to `null`.
+      - Expect: HTTP 422; `append_event` not called.
+    - Missing `session_id`:
+      - Request: valid payload except `session_id` omitted or set to `null`.
+      - Expect: HTTP 422; `append_event` not called.
+    - Missing `source`:
+      - Request: valid payload except `source` omitted or set to `null`.
+      - Expect: HTTP 422; `append_event` not called.
+  - Assertions:
+    - Status code == 422 for each case.
+    - Response `detail` exists (do not assert exact message unless you want it as part of contract).
+    - `service.append_event` call count == 0.
+  - Completion criteria:
+    - All three required fields are covered (via 3 tests or 1 parametrized test).
+
+
 ---
 ## I) Post-MVP / Deferred (DO NOT IMPLEMENT NOW)
 
@@ -307,3 +318,25 @@ This module guarantees **how** events are written.
 - [ ] Double-check source handling in schemas
   - [ ] Keep `source` optional in schema if needed
   - [ ] Enforce `source` as mandatory at recorder route level
+
+
+
+## Post-refactor cleanup (session_writer removal → schema_recorder only)
+
+- [ ] Docs/TODO references cleanup (non-code)
+  - [ ] Update `apps/camera_feed_worker/todo.md`: replace any allowlist reference to `apps/schema_recorder/session_writer.py` with `apps/schema_recorder/service.py` (+ note: IO in `apps/schema_recorder/repository.py`)
+  - [ ] Update `apps/landmark_extractor/TODO.md`: replace `session_writer.py` references with `schema_recorder.service.append_event()`
+  - [ ] Update `apps/schema_recorder/TODO.md`: remove the “session_writer is deleted” self-referential checklist lines; replace with a short “completed refactor” note + current public API
+  - [ ] Repo-wide grep (docs-only) to ensure references are consistent:
+    - [ ] `grep -R --line-number "session_writer.py\|append_session_event" docs apps | cat`
+
+- [ ] API/docstring polish (code comments only; behavior unchanged)
+  - [ ] Fix `apps/schema_recorder/service.py` docstring to match current signature (`user_id`, `session_id`, `message`) and remove stale mentions of `log_path`/`event`
+  - [ ] Add a one-line comment in `apps/schema_recorder/config.py` stating LOG_ROOT is intentionally patchable for tests
+
+
+
+- [ ] Import/legacy shim audit
+  - [ ] Verify no imports remain from deleted modules:
+    - [ ] `grep -R --line-number --binary-files=without-match "apps\.session_manager\.repository" .`
+    - [ ] `grep -R --line-number --binary-files=without-match "apps\.schema_recorder\.session_writer" .`
