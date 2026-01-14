@@ -32,6 +32,17 @@ This invariant will be enforced via CI static-scan allowlisting.
 - Rendering, displaying, or dispatching outputs
 - Triggering model training or running pipeline loops
 
+The schema_recorder is an append-only writer. It does NOT guarantee:
+- event replay / duplication protection
+- uniqueness of `record_id`
+- semantic correctness of message contents
+- one-event-per-capture enforcement
+- validation of `raw_features_ref` (or any artifact ref) contents beyond serialization
+- session lifecycle correctness (start/end state, timing, authorization)
+
+All semantic guarantees must be enforced upstream (session_manager, capture workers, extractors, validators).
+
+
 ## Inputs
 - Any object conforming to a registered `pydantic` schema
 

@@ -134,129 +134,169 @@ This module guarantees **how** events are written.
 
 ---
 
-## B) Route Contract (MVP)
+## B) Route Contract (MVP) — schema_recorder
 
-- [ ] Expose HTTP endpoint for session logging (e.g. POST `/schema-recorder/append`)
-- [ ] Accept only fully validated A3CPMessage payloads
+- [ ] Expose HTTP endpoint for session logging
+  - [ ] POST `/schema-recorder/append`
+
+- [ ] Accept only fully validated schema payloads
+  - [ ] Request body must deserialize into `BaseSchema` / `A3CPMessage`
+  - [ ] Reject unparseable or invalid payloads at the route boundary
+
 - [ ] Enforce required fields at route level
-  - [ ] Reject missing session_id
-  - [ ] Reject missing source
-- [ ] Resolve session log path in route
-  - [ ] Use `utils/paths.py` to compute `log_path = session_log_path(user_id, session_id)`
-  - [ ] Pass resolved `log_path` + validated event to service
+  - [ ] Reject missing `session_id`
+  - [ ] Reject missing `user_id`
+  - [ ] Reject missing `source`
+
+- [ ] Delegate logging to service layer
+  - [ ] Route passes only `{ user_id, session_id, message }`
+  - [ ] Route does **not** resolve filesystem paths
+  - [ ] Route does **not** perform filesystem IO
+
 - [ ] Define success response
   - [ ] Return HTTP 201 Created
-  - [ ] Return minimal body `{ record_id, recorded_at }`
+  - [ ] Return minimal body `{ record_id, recorded_at }` (from service result)
+
 - [ ] Define error mapping (domain → HTTP)
-  - [ ] MissingSessionPath → 409 Conflict
-  - [ ] EventTooLarge → 413 Payload Too Large
-  - [ ] RecorderIOError → 500 Internal Server Error
+  - [ ] `MissingSessionPath` → 409 Conflict
+  - [ ] `EventTooLarge` → 413 Payload Too Large
+  - [ ] `RecorderIOError` → 500 Internal Server Error
 
 ---
 
-## C) Service Layer (MVP)
+## C) Service Layer (MVP) — schema_recorder
 
-- [ ] Implement public service function (e.g. `append_event(log_path, event)`)
-  - [ ] Accept fully resolved `log_path` (Path)
-  - [ ] Accept validated A3CPMessage payload
-  - [ ] Do not read env variables
-  - [ ] Do not import FastAPI
-- [ ] Raise domain-level exceptions only
-  - [ ] MissingSessionPath
-  - [ ] EventTooLarge
-  - [ ] RecorderIOError
-- [ ] No HTTP concerns in service layer
+- [x] Implement public service function `append_event(user_id, session_id, message)`
+  - [x] Accept `user_id` + `session_id` (strings/opaque IDs)
+  - [x] Accept validated schema payload (`BaseSchema` / A3CPMessage-compatible)
+  - [x] Resolve `log_path` internally using `utils/paths.session_log_path(log_root=LOG_ROOT, ...)`
+  - [x] Do not read env variables
+  - [x] Do not import FastAPI
+  - [x] Do not perform filesystem IO (delegates IO to repository)
+
+- [x] Raise domain-level exceptions only (service boundary)
+  - [x] MissingSessionPath
+  - [x] EventTooLarge
+  - [x] RecorderIOError
+
+- [x] No HTTP concerns in service layer
+
 
 ---
 
 ## D) Repository Layer (MVP — IO ONLY)
 
-- [ ] Repository functions accept concrete `log_path` and serialized bytes
-- [ ] Implement append-only JSONL writer
-  - [ ] Acquire OS-level file lock (`flock`)
-  - [ ] Open file with append semantics
-  - [ ] Perform atomic single-line `write()`
-  - [ ] Guarantee newline termination
-  - [ ] Wrap payload as `{ recorded_at, event }`
-- [ ] Enforce IO-only responsibility
-  - [ ] Do not mkdir directories
-  - [ ] Do not enforce uniqueness or deduplication
-  - [ ] Do not inspect semantic contents
-- [ ] Fail fast on invalid filesystem state
-  - [ ] Missing session path raises `MissingSessionPath`
-  - [ ] OS/FS errors raise `RecorderIOError`
+- [x] Repository functions accept concrete `log_path` and serialized bytes
+
+- [x] Implement append-only JSONL writer
+  - [x] Acquire OS-level file lock (`flock`)
+  - [x] Open file with append semantics
+  - [x] Perform atomic single-line `write()`
+  - [x] Guarantee newline termination
+
+- [x] Enforce IO-only responsibility
+  - [x] Do not mkdir directories
+  - [x] Do not enforce uniqueness or deduplication
+  - [x] Do not inspect semantic contents
+
+- [x] Fail fast on invalid filesystem state
+  - [x] Missing session path raises `MissingSessionPath`
+  - [x] OS/FS errors raise `RecorderIOError`
+
 
 ---
 
 ## E) Paths & Utilities (MVP)
 
-- [ ] Use shared top-level `utils/paths.py`
-  - [ ] Path helpers are pure (no IO)
-  - [ ] Path helpers are deterministic
-  - [ ] Path helpers are parameter-driven (no env reads)
-- [ ] Ensure recorder receives fully resolved paths from caller
+- [x] Use shared top-level `utils/paths.py`
+  - [x] Path helpers are pure (no IO)
+  - [x] Path helpers are deterministic
+  - [x] Path helpers are parameter-driven (no env reads)
+
+- [x] Ensure recorder resolves paths internally (callers do not)
+  - [x] `schema_recorder.service` computes `log_path` via `session_log_path(log_root=LOG_ROOT, user_id, session_id)`
+  - [x] Callers pass only `{ user_id, session_id, message }`
+
 
 ---
 
 ## F) Single-Writer Enforcement (REQUIRED)
 
-- [ ] Enforce single-writer invariant via CI/static checks
-  - [ ] Fail if any code outside schema_recorder repository writes/appends to session logs
-- [ ] Maintain allowlist
-  - [ ] Allow filesystem writes only from apps/schema_recorder/repository.py
-- [ ] Enforce cross-module usage contract
-  - [ ] session_manager appends session events only via schema_recorder
-  - [ ] landmark_extractor appends feature-ref events only via schema_recorder
-  - [ ] Future modules follow same rule
+- [ ] Enforce single-writer invariant via CI / pytest
+  - [ ] Add pytest that scans `apps/**/*.py` and fails if session JSONL writes occur outside `apps/schema_recorder/repository.py`
+    - [ ] Disallow `open(` / `os.open(` / `pathlib.Path.open(` in non-repository modules
+    - [ ] Disallow hardcoded session log patterns (`logs/users/`, `sessions/*.jsonl`) outside repository
+    - [ ] Explicitly allow `apps/schema_recorder/repository.py`
+
+- [ ] Maintain explicit allowlist (codified, not informal)
+  - [ ] Define allowlist in test (single source of truth):
+    - [ ] `apps/schema_recorder/repository.py`
+  - [ ] Test fails if allowlist is violated
+
+- [x] Enforce cross-module usage contract (implemented)
+  - [x] `session_manager` appends session events only via `schema_recorder.service.append_event()`
+
+- [ ] Verify cross-module usage contract for other producers
+  - [ ] Audit `landmark_extractor` to confirm it appends only via `schema_recorder`
+  - [ ] Add pytest asserting `landmark_extractor` does not perform filesystem writes
+  - [ ] Require future modules to satisfy the same pytest guard
+
+- [ ] Best-practice pytest structure (anti-regression)
+  - [ ] Place enforcement tests under `tests/architecture/` or `tests/guards/`
+  - [ ] Tests must:
+    - [ ] Be fast (string/AST scan only; no filesystem mutation)
+    - [ ] Fail loudly with file + line number
+    - [ ] Not rely on import-time side effects
+  - [ ] Tests should explain *why* the invariant exists (docstring at top of test file)
 
 ---
 
 ## G) Testing (MVP)
 
-- [ ] Service-level tests
-  - [ ] Exactly one line appended per call
-  - [ ] Sequential calls preserve append order
+- [x] Service-level tests (covered via session_manager integration tests)
+  - [x] Exactly one line appended per call
+  - [x] Sequential calls preserve append order
+
 - [ ] Repository-level tests
   - [ ] File locking prevents interleaving under concurrency
   - [ ] Oversized event raises EventTooLarge with no partial write
   - [ ] Missing path raises MissingSessionPath
-- [ ] Route-level tests
+
+- [ ] Route-level tests (blocked until Route Contract is implemented)
   - [ ] Reject missing session_id
   - [ ] Reject missing source
   - [ ] Oversized event → 413
   - [ ] Missing session path → 409
   - [ ] IO failure → 500
   - [ ] Success returns 201 with minimal response body
+
 - [ ] Import guardrail tests
   - [ ] schema_recorder imports schemas only from public `schemas` surface
 
----
 
+---
 ## H) Explicit Non-Responsibilities (DOCUMENTED)
 
-- [ ] Recorder does NOT guarantee:
+- [ ] Recorder does NOT guarantee (documented in schema_recorder docs)
   - [ ] Event replay / duplication protection
   - [ ] Uniqueness of record_id
   - [ ] Semantic correctness of A3CPMessage
   - [ ] One-event-per-capture enforcement
   - [ ] Validation of raw_features_ref contents
   - [ ] Session lifecycle correctness
-
 ---
-
 ## I) Post-MVP / Deferred (DO NOT IMPLEMENT NOW)
 
-- [ ] Event replay / duplication protection
-- [ ] Within-session record_id uniqueness checks
-- [ ] Artifact hash replay detection
-- [ ] Selective durability (fsync for commit-critical events)
-- [ ] Secondary sink for session-less events (`logs/users/<user_id>/events.jsonl`)
-- [ ] Log rotation / archival policy
-- [ ] Canonical JSON serialization
-- [ ] Explicit per-session sequence numbers
-- [ ] Metrics / instrumentation
+- [ ] Event replay / duplication protection (service policy)
+- [ ] Within-session uniqueness policy (e.g., reject duplicate `(user_id, session_id, record_id, source)`)
+- [ ] Artifact hash replay detection within session (service policy)
+- [ ] Selective durability (fsync for commit-critical events) (repository)
+- [ ] Secondary sink for session-less events (`logs/users/<user_id>/events.jsonl`) (service + paths)
+- [ ] Log rotation / archival policy (ops/maintenance)
+- [ ] Canonical / stable JSON serialization (service)
+- [ ] Explicit per-session sequence numbers (service; requires state)
+- [ ] Metrics / instrumentation (service/route)
 
----
 
 ## Notes / Action Items
 
