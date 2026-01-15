@@ -9,7 +9,13 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
-## 2026-01-15 — Schema Recorder Guardrail 2
+## 2026-01-15 — Schema Recorder Guardrail 4
+- **Tests (Routes):** Added route-level boundary validation tests for `schema_recorder`, ensuring invalid or unparseable request payloads are rejected (422) and never invoke the service layer.
+- **Tests (Routes):** Added parameterized route-level tests enforcing required fields (`user_id`, `session_id`, `source`) for schema recording requests, ensuring missing fields yield 422 responses and never invoke the service layer.
+
+- **Tests (Routes):** Added success-path contract test for `schema_recorder` ensuring 201 responses with an exact `{record_id, recorded_at}` body, echoing the request `record_id` and validating ISO-8601 timestamp shape for `recorded_at`.
+
+## 2026-01-15 — Schema Recorder Guardrail 3
 - **Tests (Guards):** Added an IO primitive confinement guard ensuring low-level file and locking operations (`open`, `os.open`, `os.write`, `fcntl.flock`, etc.) are used only in `apps/schema_recorder/repository.py`, preserving the single-writer and locking invariants for session JSONL recording.
 
 - **Tests (Guards):** Added an import-surface guard enforcing that `schema_recorder` imports schemas only via the public `schemas` interface, preventing deep or private schema dependencies.

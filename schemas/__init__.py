@@ -13,7 +13,7 @@ not from this public package.
 from .a3cp_message.a3cp_message import A3CPMessage
 
 # Re-export BaseSchema first to avoid circular import issues
-from .base.base import BaseSchema
+from .base.base import BaseSchema, example_input
 from .session_manager_end.session_manager_end import (
     SessionEndInput as SessionManagerEndInput,
 )
@@ -36,4 +36,5 @@ __all__ = [
     "SessionManagerEndOutput",
     # canonical message
     "A3CPMessage",
+    "example_input",
 ]

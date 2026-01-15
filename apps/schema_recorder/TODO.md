@@ -200,25 +200,25 @@ schemas/base/base.py
 
 ### B) Route-level tests — `apps/schema_recorder/tests/test_routes.py`
 
-- [ ] Boundary validation (no service call)
-  - [ ] Invalid schema payload rejected (422); `service.append_event` NOT called
-  - [ ] (Optional) Unparseable JSON rejected (400); service NOT called
+- [x ] Boundary validation (no service call)
+  - [x ] Invalid schema payload rejected (422); `service.append_event` NOT called
+  - [x ] (Optional) Unparseable JSON rejected (400); service NOT called
 
-- [ ] Required-field enforcement (422; parameterized; no service call)
+- [x x] Required-field enforcement (422; parameterized; no service call)
   - [ ] Missing `user_id`
-  - [ ] Missing `session_id`
-  - [ ] Missing `source`
+  - [ x] Missing `session_id`
+  - [ x] Missing `source`
 
-- [ ] Domain → HTTP mapping
-  - [ ] `MissingSessionPath` → 409
-  - [ ] `EventTooLarge` → 413
-  - [ ] `RecorderIOError` → 500
+- [x ] Domain → HTTP mapping
+  - [ x] `MissingSessionPath` → 409
+  - [x ] `EventTooLarge` → 413
+  - [x ] `RecorderIOError` → 500
 
-- [ ] Success contract
-  - [ ] Returns 201 Created
-  - [ ] Response body is exactly `{record_id, recorded_at}` (no extra keys)
-  - [ ] `record_id` echoes the request `record_id`
-  - [ ] `recorded_at` is ISO-8601 (shape check only; don’t assert exact value)
+- [ x] Success contract
+  - [ x] Returns 201 Created
+  - [ x] Response body is exactly `{record_id, recorded_at}` (no extra keys)
+  - [ x] `record_id` echoes the request `record_id`
+  - [x ] `recorded_at` is ISO-8601 (shape check only; don’t assert exact value)
 
 
 ### C) Repository-level tests — `apps/schema_recorder/tests/test_repository.py`
