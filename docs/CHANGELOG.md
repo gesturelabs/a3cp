@@ -9,6 +9,17 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-15 — Schema Recorder Guardrail 2
+- **Tests (Guards):** Added an IO primitive confinement guard ensuring low-level file and locking operations (`open`, `os.open`, `os.write`, `fcntl.flock`, etc.) are used only in `apps/schema_recorder/repository.py`, preserving the single-writer and locking invariants for session JSONL recording.
+
+- **Tests (Guards):** Added an import-surface guard enforcing that `schema_recorder` imports schemas only via the public `schemas` interface, preventing deep or private schema dependencies.
+
+## 2026-01-14 — Schema Recorder Guardrail 2
+
+- **Tests (Guards):** Added a fast static guard preventing legacy session-writer references (`append_session_event`, `session_writer`) anywhere under `apps/**/*.py`, enforcing the single-writer invariant for session JSONL via `schema_recorder` only.
+- **Tests (Guards):** Added a static guard preventing hardcoded session-log paths or `.jsonl` patterns in runtime code under `apps/`, enforcing exclusive use of `utils.paths.session_log_path()` and `schema_recorder` for session JSONL handling (tests excluded).
+
+
 ## 2026-01-14 — Schema Recorder Guardrail
 
 - Added CI guardrail enforcing single-writer invariant for session JSONL logs.

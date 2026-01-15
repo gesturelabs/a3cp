@@ -140,6 +140,14 @@ Create the runtime app under `apps/` following the canonical architecture.
   - failure on sha256 mismatch
   - failure on shape/dims mismatch
   - failure on duplicate feature-ref event for the same `record_id`
+
+
+- [ ] Enforce session logging contract
+  - [ ] Emit session events only via `schema_recorder.service.append_event()`
+  - [ ] Do not write session JSONL directly
+  - [ ] Covered by global single-writer guard test
+  - [ ] Add module-level test asserting no session JSONL writes in this module
+
 ---
 
 ## E) Deep route fix (Route Re-Migration)

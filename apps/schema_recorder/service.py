@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from schemas.base.base import BaseSchema
+from schemas import BaseSchema
 
 
 # -----------------------------
