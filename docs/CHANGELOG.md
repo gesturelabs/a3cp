@@ -9,6 +9,8 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-16 Finished schema_recorder clean up
+
 ## 2026-01-16 — Repository-level tests — `apps/schema_recorder/tests/test_repository.py`
 - **Repository (Integrity):** Enforced JSONL single-record semantics by rejecting embedded newlines in `schema_recorder.repository.append_bytes`, with tests ensuring multi-line payloads raise `RecorderIOError` and do not create or corrupt session log files.
 

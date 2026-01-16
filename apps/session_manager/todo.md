@@ -3,53 +3,46 @@
 A3CP — session_manager TODO (module-scoped)
 
 Scope: session boundary management and authoritative start/end events.
-Status note (authoritative for this file): canonical migration completed (routes/service/repository/idgen/models), schemas fixed, tests passing.
+Status note (authoritative for this file): canonical migration completed (routes/service/repository/idgen/models), schemas fixed, baseline tests passing; behavioral invariants + expanded tests below are pending.
 
 ---
 
 ## Module invariants (locked)
 - Schemas unchanged unless a hard blocker is hit.
 - Append-only events everywhere (no in-place edits).
-- Downstream contract: every downstream request includes `user_id`, `session_id`, `timestamp`, `record_id`.
-- Log writing rule: only `recorded_schemas` appends to `logs/users/<user_id>/sessions/<session_id>.jsonl`.
-- Storage rule (Sprint 1): do not persist raw video; persist only landmark-derived feature artifacts + `raw_features_ref` metadata (recorded later by landmark_extractor, not session_manager).
+- Downstream request contract (non-session-manager endpoints): every downstream request includes `user_id` and `session_id` (and any module-specific fields).
+- Session boundary event contract (session_manager outputs/logs): every emitted start/end event includes `user_id`, `session_id`, server-authoritative `timestamp`, and a new `record_id`.
+- Log writing rule: only `schema_recorder` appends to `logs/users/<user_id>/sessions/<session_id>.jsonl` (session_manager may create the session directory but must not write the JSONL file).
+- Storage rule (Sprint 1): do not persist raw video; persist only landmark-derived feature artifacts + `raw_features_ref` metadata (recorded later by `landmark_extractor`, not `session_manager`).
+- Filesystem authority split (locked): session_manager MAY create session directories (mkdir only); it MUST NOT open, create, or append `*.jsonl` files. All JSONL writes are performed exclusively by `schema_recorder`.
 
 ---
 
-session_manager creates the session filesystem structure at session start
-(because it owns session lifecycle).
+## Slice-1 concurrency constraint (locked for Slice 1)
+- Run single FastAPI worker / single replica for Slice 1.
+- `session_manager` active-session state may be process-local memory.
+- Deployment MUST enforce single-worker (no scale-out) until Option B is implemented.
+- Option B (multi-worker/replica via shared store) is deferred and requires a dedicated migration.
 
-- [ ] **Slice-1 concurrency decision (authoritative, must be settled before implementing any new module)**
-  **Question:** Do we require *multiple FastAPI server workers / replicas* for Slice 1, or only *concurrent modules* (camera + audio) within a single server process?
-
-  - [ ] **Option A — Single FastAPI worker (MVP constraint)**
-        Run exactly one FastAPI process (one worker, one replica).
-        Camera and audio run concurrently via async / background tasks / separate module processes.
-        `session_manager` may keep active-session state in process-local memory.
-
-  - [ ] **Option B — Multiple FastAPI workers / replicas**
-        Allow more than one server worker or replica.
-        `session_manager` must store active-session state in a shared durable store (DB/Redis) so start/end invariants remain correct.
-
-  **Rule:** One option must be selected and enforced (code + deployment) before any other modu
-
-
+---
 
 ## A) Completed
+
 ### Core behavior
 - [x] `/sessions.start` returns `session_id`
 - [x] `/sessions.end` closes session
-- [x] Events appended via `recorded_schemas`
+- [x] Events appended via `schema_recorder`
 - [x] Guardrail test: start → end emits 2 ordered events for the same `session_id`
 
 ### Canonical app architecture migration
 - [x] Module migrated to canonical structure (routes/service/repository/idgen/models)
 - [x] Schemas fixed
-- [x] Tests passing
+- [x] Baseline tests passing
 
 ---
 
 ## B) Remaining (this slice)
+
 ### 1) Event invariants enforced + tested (session_manager outputs & logs)
 - [ ] Enforce/test invariants:
   - `source = "session_manager"`
@@ -60,34 +53,35 @@ session_manager creates the session filesystem structure at session start
   - `performer_id` policy:
     - required for human-originated start/end
     - allowed value `"system"` for system-generated boundaries
-  - [ ] Enforce/test invariant:
+
+- [ ] Enforce/test invariant:
   - `session_id` emitted by `/sessions.end` MUST equal the `session_id` issued by `/sessions.start` for the same session
   - mismatched or regenerated `session_id` → reject (400)
 
 - [ ] Enforce/test invariant:
-  - `/sessions.start` and `/sessions.end` each emit a **new, unique `record_id`**
+  - `/sessions.start` and `/sessions.end` each emit a new, unique `record_id`
   - `record_id` MUST NOT be reused across session boundary events
 
 - [ ] Enforce/test invariant:
   - `source` MUST be exactly `"session_manager"`
-  - client-supplied `source` values are ignored or rejected
+  - if the client supplies any other `source`, reject (400)
+  - NOTE: confirm this behavior matches `SessionManagerStartInput`/`SessionManagerEndInput` `model_config.extra` (if `forbid`, this may already be rejected at validation)
 
 - [ ] Enforce/test invariant:
   - `timestamp` is generated by `session_manager` (server-authoritative)
-  - client-supplied `timestamp` values are ignored or rejected
+  - if the client supplies `timestamp`, reject (400)
+  - NOTE: confirm this behavior matches `SessionManagerStartInput`/`SessionManagerEndInput` `model_config.extra` (if `forbid`, this may already be rejected at validation)
 
 - [ ] Enforce/test invariant:
   - a user MAY NOT have more than one active session at the same time
-  - `/sessions.start` while an active session exists → reject (400) or auto-close (choose one)
+  - `/sessions.start` while an active session exists → 409 Conflict (no auto-close in Slice 1)
 
 - [ ] Enforce/test invariant:
   - session boundary outputs are Pydantic-validated (`SessionManagerStartOutput` / `SessionManagerEndOutput`)
   - invalid event payload MUST NOT be recorded to session JSONL (fail fast with 500/400 as appropriate)
+
 - [ ] Enforce/test invariant (idempotency):
-  - `/sessions.start` MUST NOT record duplicate start events for the same `session_id`
-    - repeated start for same `session_id` → reject **409 Conflict**
-  - `/sessions.end` MUST NOT record duplicate end events for the same `session_id`
-    - rrepeated end for same `session_id` → reject **409 Conflict**
+  - `/sessions.end`: repeated end for the same `session_id` → 409 Conflict
 
 - [ ] Enforce/test invariant (system closure):
   - sessions MAY be closed by the system (e.g., timeout/cleanup) with `performer_id="system"`
@@ -96,11 +90,10 @@ session_manager creates the session filesystem structure at session start
     - generate a new unique `record_id`
     - use server-authoritative `timestamp`
 
-
 - [ ] Enforce/test invariant (atomic recording):
-  - session state change (start/end) and JSONL event append MUST be atomic
-  - on append failure, session MUST NOT transition state
-  - on state transition failure, JSONL event MUST NOT be appended
+  - Slice-1 atomicity: update in-memory session state only after a successful `schema_recorder` append
+  - if `schema_recorder` append raises, the session remains in its prior state (no active session created / no session closed)
+  - no code path appends a boundary event after a failed state transition
 
 ### 2) performer_id policy enforced at route ingress (session_manager)
 - [ ] `/sessions.start`: if `performer_id != "system"`, require `performer_id` present (else 400)
@@ -115,28 +108,27 @@ session_manager creates the session filesystem structure at session start
 ### 4) Module test coverage (as listed in original plan)
 - [ ] `apps/session_manager/tests/test_import_policy.py`
 - [ ] `apps/session_manager/tests/test_session_jsonl_append.py`
+  - [ ] verifies session_manager delegates event appends to `schema_recorder` (no direct JSONL writes)
+  - [ ] allows session directory creation (`mkdir`) but forbids writing `*.jsonl`
 - [ ] `apps/session_manager/tests/test_event_invariants.py`
   - invariants: `source/user_id/session_id/timestamp/record_id`
-  - performer_id per canonical rule
+  - `performer_id` per canonical rule
 - [ ] `apps/session_manager/tests/test_repository_append_event.py`
-  - [ ] verifies `append_event(...)` is the *only* writer to session JSONL
-  - [ ] rejects direct file writes outside repository boundary
+  - [ ] verifies session_manager repository does not write session JSONL directly (no `open()` / `Path.open()` on `*.jsonl`)
+  - [ ] verifies the only allowed recording path is calling `schema_recorder` (service/repository boundary)
+  - [ ] rejects direct file writes outside the allowed writer boundary
 
-
-
-#### 5) Domain error → HTTP mapping coverage
-- [ ] Add tests that domain errors map to HTTP correctly (404/400) via routes
-  - [ ] SessionNotFound → 404
-  - [ ] SessionUserMismatch → 400 (or 403 if you later choose)
-  - [ ] SessionAlreadyClosed → 400
-- [ ] routes map domain errors correctly:
-  - [ ] SessionNotFound → 404
-  - [ ] SessionUserMismatch → 400
-  - [ ] SessionAlreadyClosed → 400
+### 5) Domain error → HTTP mapping coverage
+Slice-1 scope: these errors may originate from service/repository (not `domain.py` yet); the HTTP mapping behavior is locked.
+- [ ] Add tests that domain errors map to HTTP correctly via routes
+  - [ ] `SessionNotFound` → 404
+  - [ ] `SessionUserMismatch` → 403
+  - [ ] `SessionAlreadyClosed` → 400
 
 ---
 
 ## C) Deferred (explicitly later / optional)
+
 ### App-local config knobs
 - [ ] `config.py`
   - [ ] `MODULE_SOURCE = "session_manager"`
@@ -155,13 +147,11 @@ session_manager creates the session filesystem structure at session start
   - [ ] `close_session(session: Session, end_time: datetime) -> Session`
   - [ ] Domain errors: `SessionNotFound`, `SessionUserMismatch`, `SessionAlreadyClosed`
 
-
 ### Repository surface (if/where needed beyond current implementation)
 - [ ] `repository.py`
   - [ ] `create_active_session(session: Session) -> None`
-  - [ ] get_active_session(session_id: str) -> Session | None
+  - [ ] `get_active_session(session_id: str) -> Session | None`
     - NOTE: returns only active sessions; closed sessions are not retrievable via this helper (demo scope)
-
   - [ ] `mark_session_closed(session_id: str, end_time: datetime) -> Session`
   - [ ] `append_event(cfg: RecorderConfig, user_id: str, session_id: str, message: BaseSchema) -> None`
   - [ ] `session_log_path(user_id: str, session_id: str) -> Path` (optional)
@@ -175,15 +165,14 @@ session_manager creates the session filesystem structure at session start
 - [ ] `routes/sessions.py` (FastAPI adapter only)
   - [ ] POST `/session_manager/sessions.start` → `SessionManagerStartOutput` (calls `service.start_session`)
   - [ ] POST `/session_manager/sessions.end`   → `SessionManagerEndOutput`   (calls `service.end_session`)
- - [ ] map domain errors to HTTP:
-  - [ ] SessionNotFound → 404
-  - [ ] SessionUserMismatch → 400
-  - [ ] SessionAlreadyClosed → 400
+  - [ ] map domain errors to HTTP:
+    - [ ] `SessionNotFound` → 404
+    - [ ] `SessionUserMismatch` → 403
+    - [ ] `SessionAlreadyClosed` → 400
+
 ---
 
 ## D) Domain model (current)
 - [x] `models.py` (domain data, no FastAPI/IO)
   - [x] `SessionStatus = {"active", "closed"}`
   - [x] `Session(session_id, user_id, start_time, end_time?, status, is_training_data, session_notes?, training_intent_label?, performer_id?)`
-
----

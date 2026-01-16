@@ -278,11 +278,11 @@ schemas/base/base.py
 
 ## Post-refactor cleanup (session_writer removal → schema_recorder only)
 
-- [ ] Docs/TODO references cleanup (non-code)
-  - [ ] Update `apps/camera_feed_worker/todo.md`: replace any allowlist reference to `apps/schema_recorder/session_writer.py` with `apps/schema_recorder/service.py` (+ note: IO in `apps/schema_recorder/repository.py`)
-  - [ ] Update `apps/landmark_extractor/TODO.md`: replace `session_writer.py` references with `schema_recorder.service.append_event()`
-  - [ ] Update `apps/schema_recorder/TODO.md`: remove the “session_writer is deleted” self-referential checklist lines; replace with a short “completed refactor” note + current public API
-  - [ ] Repo-wide grep (docs-only) to ensure references are consistent:
+- [x ] Docs/TODO references cleanup (non-code)
+  - [x ] Update `apps/camera_feed_worker/todo.md`: replace any allowlist reference to `apps/schema_recorder/session_writer.py` with `apps/schema_recorder/service.py` (+ note: IO in `apps/schema_recorder/repository.py`)
+  - [x ] Update `apps/landmark_extractor/TODO.md`: replace `session_writer.py` references with `schema_recorder.service.append_event()`
+  - [ x] Update `apps/schema_recorder/TODO.md`: remove the “session_writer is deleted” self-referential checklist lines; replace with a short “completed refactor” note + current public API
+  - [x ] Repo-wide grep (docs-only) to ensure references are consistent:
     - [ ] `grep -R --line-number "session_writer.py\|append_session_event" docs apps | cat`
 
 - [ ] API/docstring polish (code comments only; behavior unchanged)
