@@ -1,7 +1,7 @@
 # apps/session_manager/service.py
 
-
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from apps.schema_recorder.service import append_event
 from apps.session_manager.idgen import generate_session_id
@@ -50,9 +50,9 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
 
     out = SessionManagerStartOutput(
         schema_version=payload.schema_version,
-        record_id=payload.record_id,
+        record_id=(uuid4()),  # server-authoritative
         user_id=payload.user_id,
-        timestamp=now,  # server acknowledgement time
+        timestamp=now,
         performer_id=payload.performer_id,
         source="session_manager",
         session_id=new_session_id,
@@ -94,7 +94,7 @@ def end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput:
 
     out = SessionManagerEndOutput(
         schema_version=payload.schema_version,
-        record_id=payload.record_id,
+        record_id=(uuid4()),
         user_id=payload.user_id,
         session_id=session_id,
         timestamp=datetime.now(timezone.utc),

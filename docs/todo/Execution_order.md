@@ -14,6 +14,10 @@ Rationale: all downstream modules depend on a stable, observable session log.
 
 ---
 
+
+session_manager
+
+
 ## 2) ui — Session surface (`/demo/session`)
 
 Goal: exercise session lifecycle end-to-end with minimal UI.
