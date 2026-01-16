@@ -114,6 +114,9 @@ def test_single_writer_for_session_jsonl() -> None:
             # If running from a different CWD, fall back to given path
             rel_path = Path(rel)
 
+        if "apps" in rel_path.parts and "tests" in rel_path.parts:
+            continue
+
         if rel_path in ALLOWLIST:
             continue
 

@@ -9,6 +9,16 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-16 — Repository-level tests — `apps/schema_recorder/tests/test_repository.py`
+- **Repository (Integrity):** Enforced JSONL single-record semantics by rejecting embedded newlines in `schema_recorder.repository.append_bytes`, with tests ensuring multi-line payloads raise `RecorderIOError` and do not create or corrupt session log files.
+
+
+## 2026-01-15 — Repository-level tests — `apps/schema_recorder/tests/test_repository.py`
+
+- **Tests (Repository):** Added filesystem failure-mode tests for `schema_recorder.repository`, verifying that a missing parent session directory raises `MissingSessionPath` without creating files, and that unwritable paths raise `RecorderIOError` while leaving existing files unchanged.
+``
+
+
 ## 2026-01-15 — Schema Recorder Guardrail 4
 - **Tests (Routes):** Added route-level boundary validation tests for `schema_recorder`, ensuring invalid or unparseable request payloads are rejected (422) and never invoke the service layer.
 - **Tests (Routes):** Added parameterized route-level tests enforcing required fields (`user_id`, `session_id`, `source`) for schema recording requests, ensuring missing fields yield 422 responses and never invoke the service layer.

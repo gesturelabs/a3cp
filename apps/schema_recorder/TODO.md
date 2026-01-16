@@ -223,20 +223,20 @@ schemas/base/base.py
 
 ### C) Repository-level tests — `apps/schema_recorder/tests/test_repository.py`
 
-- [ ] Size limit + atomicity
-  - [ ] Near-limit payload writes exactly one JSONL line (newline-terminated)
-  - [ ] Over-limit raises `EventTooLarge` AND:
-    - [ ] File is not created if absent
-    - [ ] File content unchanged if it already exists
+- [x ] Size limit + atomicity
+  - [x ] Near-limit payload writes exactly one JSONL line (newline-terminated)
+  - [x ] Over-limit raises `EventTooLarge` AND:
+    - [x ] File is not created if absent
+    - [x ] File content unchanged if it already exists
 
-- [ ] Filesystem failure modes
-  - [ ] Missing parent session directory → `MissingSessionPath` (creates nothing)
-  - [ ] Unwritable path → `RecorderIOError` (creates nothing / no change)
+- [x ] Filesystem failure modes
+  - [x ] Missing parent session directory → `MissingSessionPath` (creates nothing)
+  - [x ] Unwritable path → `RecorderIOError` (creates nothing / no change)
 
-- [ ] Concurrency / locking
-  - [ ] `flock(LOCK_EX)` prevents interleaved writes under concurrency:
-    - [ ] N concurrent appends ⇒ exactly N newlines appended
-    - [ ] Each line parses as valid JSON
+- [x ] Concurrency / locking
+  - [ x] `flock(LOCK_EX)` prevents interleaved writes under concurrency:
+    - [ x] N concurrent appends ⇒ exactly N newlines appended
+    - [ x] Each line parses as valid JSON
 
 - [ ] JSONL line invariants
   - [ ] Exactly one newline-terminated JSON object per append

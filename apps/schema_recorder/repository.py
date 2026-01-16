@@ -30,6 +30,8 @@ def append_bytes(*, log_path: Path, line_bytes: bytes) -> None:
     _ensure_parent_exists(log_path)
 
     data = _ensure_newline(line_bytes)
+    data = _ensure_newline(line_bytes)
+    _reject_embedded_newlines(data)
 
     fd: int | None = None
     try:
@@ -93,3 +95,12 @@ def _best_effort_close(fd: int | None) -> None:
     except OSError:
         # Do not raise from finally (would mask real error)
         return
+
+
+def _reject_embedded_newlines(data: bytes) -> None:
+    # Allow exactly one trailing newline, but no other '\n' characters.
+    core = data[:-1] if data.endswith(b"\n") else data
+    if b"\n" in core:
+        raise RecorderIOError(
+            "Embedded newlines are not allowed in a single JSONL event"
+        )
