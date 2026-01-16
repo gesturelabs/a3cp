@@ -112,8 +112,9 @@ Create the runtime app under `apps/` following the canonical architecture.
   - includes `user_id`, `session_id`, `record_id`, `timestamp`
   - includes `raw_features_ref` (uri, sha256, encoding, dims, format="npz")
   - `modality = "gesture"`
-- [ ] Append the message via the shared `schema_recorder` writer utility to:
-  - `logs/users/<user_id>/sessions/<session_id>.jsonl`
+- [ ] Append the message via `schema_recorder.service.append_event()` only
+  (public API; no direct file IO here).
+  - Session-log IO is performed exclusively in `apps/schema_recorder/repository.py`
 - [ ] Enforce “exactly one event per capture” at service level:
   - before appending, verify session JSONL contains no existing feature-ref event for this `record_id`
   - if a duplicate is detected, fail fast (do not append a second event)
@@ -189,7 +190,7 @@ Eliminate deep imports for landmark_extractor legacy routes and migrate routing 
 - [ ] CI fails if any module writes directly to `logs/users/**`
   - only the `schema_recorder` writer utility may append session JSONL
 - [ ] Add CI static-scan test: fail if any code outside
-  `apps/schema_recorder/session_writer.py`
+  `apps/schema_recorder/repository.py`
   writes/appends to `logs/users/**/sessions/*.jsonl`
 ---
 

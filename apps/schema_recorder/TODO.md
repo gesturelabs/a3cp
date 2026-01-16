@@ -238,19 +238,18 @@ schemas/base/base.py
     - [ x] N concurrent appends ⇒ exactly N newlines appended
     - [ x] Each line parses as valid JSON
 
-- [ ] JSONL line invariants
-  - [ ] Exactly one newline-terminated JSON object per append
-  - [ ] No embedded newlines in the written line (i.e., one event == one line)
+- [x ] JSONL line invariants
+  - [x ] Exactly one newline-terminated JSON object per append
+  - [ x] No embedded newlines in the written line (i.e., one event == one line)
 
 
 
 
 
-- [ ] Validation (non-test, quick manual check)
-  - [ ] Confirm repository actually uses `fcntl.flock` + append semantics + single `write()` + no mkdir
+- [x ] Validation (non-test, quick manual check)
+  - [ x] Confirm repository actually uses `fcntl.flock` + append semantics + single `write()` + no mkdir
 
-- [ ] Spec wording consistency
-  - [ ] Align “missing session path” vs “missing parent session directory” terminology
+
 
 
 
@@ -271,9 +270,9 @@ schemas/base/base.py
 
 ## Notes / Action Items
 
-- [ ] Double-check source handling in schemas
-  - [ ] Keep `source` optional in schema if needed
-  - [ ] Enforce `source` as mandatory at recorder route level
+- [x ] Double-check source handling in schemas
+  - [ x] Keep `source` optional in schema if needed
+  - [ x] Enforce `source` as mandatory at recorder route level
 
 
 

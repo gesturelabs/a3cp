@@ -29,7 +29,8 @@ Target: routes import schemas only via `from schemas import ...`, and real route
   - module-scoped import guardrail test
 - camera_feed_worker MUST NOT write or append session JSONL directly;
   any schema events (if ever required) must be appended exclusively via
-  the `schema_recorder` allowlisted writer utility
+  `apps/schema_recorder/service.py` (public API: `schema_recorder.service.append_event()`).
+  Note: the only file that performs session-log IO is `apps/schema_recorder/repository.py`.
 ---
 
 ## A) Canonical app structure (must be created)
@@ -156,7 +157,7 @@ Eliminate deep imports and migrate routing to canonical app structure.
 - [ ] Keep generator unchanged; mapping/config updated only if new module schemas were added
 
 - [ ] CI fails if any code outside the `schema_recorder` writer utility writes/appends to `logs/users/**/sessions/*.jsonl`
-  - allowlist: `apps/schema_recorder/session_writer.py` only
+  - allowlist: `apps/schema_recorder/repository.py` only
 
 ---
 

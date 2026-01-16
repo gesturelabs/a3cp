@@ -42,16 +42,20 @@ class AppendResult:
 # -----------------------------
 def append_event(*, user_id: str, session_id: str, message: BaseSchema) -> AppendResult:
     """
-    Append one event to the session JSONL log at `log_path`.
+     Append one validated schema message to the session JSONL log for the given user/session.
 
     Inputs:
-      - log_path: fully resolved path (routes compute via utils/paths.py)
-      - event: validated A3CPMessage (routes enforce required session_id/source)
+      - user_id: owner of the session log
+      - session_id: target session identifier
+      - message: validated BaseSchema instance (e.g. A3CPMessage)
 
-    Guarantees:
-      - wraps as { "recorded_at": <UTC ISO8601 ms Z>, "event": <event-as-received> }
+    Behavior / guarantees:
+      - resolves the session log path internally (callers do not pass paths)
+      - wraps the payload as:
+          { "recorded_at": <UTC ISO8601 ms Z>, "event": <message-as-received> }
       - enforces MAX_EVENT_BYTES over the UTF-8 bytes of the full JSONL line
-      - raises ONLY domain exceptions (MissingSessionPath, EventTooLarge, RecorderIOError)
+      - raises only domain exceptions:
+          MissingSessionPath, EventTooLarge, RecorderIOError
     """
     from apps.schema_recorder.config import LOG_ROOT
     from utils.paths import session_log_path
