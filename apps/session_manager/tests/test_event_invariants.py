@@ -38,6 +38,9 @@ def test_session_manager_events_enforce_common_invariants(tmp_path, monkeypatch)
     import apps.schema_recorder.config as recorder_config
 
     recorder_config.LOG_ROOT = tmp_path / "logs"
+    import apps.session_manager.service as sm_service
+
+    sm_service._sessions.clear()
 
     start_payload = SessionManagerStartInput(
         schema_version="1.0.1",

@@ -9,6 +9,31 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-30 session_manager — boundary-event contract enforcement & authority hardening
+
+- Enforced authoritative boundary-event contract for emitted session start/end events:
+  - `source` fixed to `"session_manager"`.
+  - `record_id` always server-generated UUIDv4 (input cannot override).
+  - `timestamp` server-authoritative UTC datetime with millisecond precision.
+  - `user_id` and `session_id` required and non-empty.
+  - `performer_id` required for human boundaries; `"system"` explicitly allowed.
+
+- Updated start_session timestamp handling:
+  - Server-generated UTC timestamps truncated to millisecond precision.
+  - Consistent timestamp reused across emitted event and in-memory state.
+
+- Added invariant and authority-hardening tests:
+  - Emitted boundary-event contract (start output).
+  - Recorded JSONL timestamp format (ISO UTC with Z suffix, ms-aligned).
+  - Input cannot override `record_id`, `timestamp`, or `source`.
+  - `"system"` performer_id accepted and recorded correctly.
+  - Common recorded-event invariant checks consolidated.
+
+- Updated session_manager TODO to mark boundary-event invariant block complete.
+
+- All tests passing.
+
+
 ## 2026-01-30 session_manager — invariant tests completed + test isolation hardening
 
 - Completed invariant test coverage for session_manager record-then-commit behavior.

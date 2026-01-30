@@ -60,7 +60,9 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
     while new_session_id in _sessions:
         new_session_id = generate_session_id()
 
-    now = datetime.now(timezone.utc)
+    # Server-authoritative UTC timestamp, truncated to millisecond precision
+    now_dt = datetime.now(timezone.utc)
+    now_dt = now_dt.replace(microsecond=(now_dt.microsecond // 1000) * 1000)
 
     is_training = (
         bool(payload.is_training_data)
@@ -70,13 +72,13 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
 
     out = SessionManagerStartOutput(
         schema_version=payload.schema_version,
-        record_id=(uuid4()),  # server-authoritative
+        record_id=uuid4(),  # server-authoritative
         user_id=payload.user_id,
-        timestamp=now,
+        timestamp=now_dt,
         performer_id=payload.performer_id,
         source="session_manager",
         session_id=new_session_id,
-        start_time=now,
+        start_time=now_dt,
         is_training_data=is_training,
         session_notes=payload.session_notes,
         training_intent_label=payload.training_intent_label,
@@ -91,7 +93,7 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
 
     _sessions[new_session_id] = {
         "user_id": payload.user_id,
-        "start_time": now,
+        "start_time": now_dt,
         "is_training_data": is_training,
         "session_notes": payload.session_notes,
         "performer_id": payload.performer_id,

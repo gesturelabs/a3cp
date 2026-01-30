@@ -61,6 +61,32 @@ Status note (authoritative for this file): canonical migration completed (routes
 > NOTE: These invariants apply to **emitted/recorded events only**.
 > Input permissiveness (`timestamp`, `source`, `record_id` on input) depends on `BaseSchema.model_config.extra` and MUST NOT affect emitted authority.
 
+## Remaining tests for 1.1 — Authoritative boundary-event contract
+
+### Required (still missing)
+- [ x] Recorded JSONL timestamp format invariant
+  - Read JSONL line from schema_recorder output
+  - Assert `event.timestamp` matches ISO-8601 UTC with millisecond precision and `Z` suffix
+  - Regex example: `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$`
+
+### Strongly recommended (authority hardening)
+- [x ] Input cannot override server-authoritative `record_id`
+  - Provide input `record_id`
+  - Assert emitted/recorded event `record_id` is different and UUIDv4
+
+- [x ] Input cannot override server-authoritative `timestamp`
+  - Provide stale/fake input timestamp
+  - Assert emitted timestamp is near server “now” and not equal to input
+
+- [ x] Input cannot override `source`
+  - If input allows `source`, set to something else
+  - Assert emitted/recorded event has `source == "session_manager"`
+
+### Optional (policy completeness)
+- [ ] `"system"` performer_id accepted for boundaries
+  - Start/end with `performer_id="system"`
+  - Assert success and recorded value is `"system"`
+
 #### 1.2 Session identity and continuity
 - [ ] Enforce/test invariant:
   - the `session_id` emitted by `/sessions.end` MUST equal the `session_id` issued by `/sessions.start` for the same session
