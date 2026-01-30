@@ -144,14 +144,14 @@ Status note (authoritative for this file): canonical migration completed (routes
   - `/sessions.end`: repeated end for the same `session_id` → 409 Conflict
 
 #### 1.8 System-initiated closure
-- [ ] Enforce/test invariant:
+- [x ] Enforce/test invariant:
   - sessions MAY be closed by the system with `performer_id="system"`
   - system-closed end event MUST:
     - preserve the original `session_id`
     - generate a new unique server `record_id`
     - use server-authoritative `timestamp`
 
-- [ ] Enforce/test fail-fast ordering (no side effects on rejection):
+- [ x] Enforce/test fail-fast ordering (no side effects on rejection):
   - `/sessions.start` when an active session exists for `user_id` → 409
     - MUST NOT generate a new `session_id`
     - MUST NOT mkdir a new session directory

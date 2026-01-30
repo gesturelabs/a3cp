@@ -9,6 +9,43 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## A3CP 2026-01-30— session_manager invariants tranche (fail-fast, atomicity, system closure)
+
+- Enforced fail-fast rejection ordering on session boundaries:
+  - `/sessions.start` with existing active session → 409 with no side effects
+    - no new session_id generated
+    - no new directory created
+    - no JSONL append attempted
+    - no `_sessions` mutation
+  - `/sessions.end` on closed session → 409 with no append and no state change
+  - `/sessions.end` not-found / user-mismatch → 404/403 with no append and no state change
+  - Added tests asserting no-append and no-mkdir behavior on rejection paths
+
+- Enforced system-initiated closure support:
+  - Sessions may be closed with `performer_id="system"`
+  - System closure preserves `session_id`
+  - Emits new server-generated `record_id`
+  - Uses server-authoritative timestamp
+  - Added API test covering system-initiated end semantics
+
+- Enforced output validation & fail-fast behavior:
+  - Boundary outputs validated via Pydantic start/end output schemas
+  - Invalid boundary output → fail before record append
+  - Added deterministic failure tests asserting:
+    - HTTP 500 on invalid output construction
+    - no JSONL write
+    - no in-memory mutation
+
+- Enforced atomic recording semantics (Slice-1):
+  - In-memory session state mutates only after successful recorder append
+  - START append failure → no active session created
+  - END append failure → session remains active (not closed)
+  - Added service-level tests that simulate recorder failure and assert no state change
+
+- Expanded test coverage across API and service layers for boundary authority, ordering, and atomicity invariants
+
+
 ## A3CP 2026-01-30 A3CP — session_manager invariants tranche (authority, atomicity, idempotency)
 
 - Enforced server authority for session boundary events:

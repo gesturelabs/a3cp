@@ -370,3 +370,134 @@ def test_sessions_end_output_validation_failure_causes_500_and_no_side_effects(
     sess = sm_service._sessions[start_data["session_id"]]
     assert sess["status"] == "active"
     assert "end_time" not in sess
+
+
+def test_sessions_end_allows_system_initiated_closure_with_authoritative_fields(
+    client: TestClient,
+):
+    # start normal session
+    start = client.post("/session_manager/sessions.start", json=_start_payload())
+    assert start.status_code == 200, start.text
+    s = start.json()
+    session_id, user_id = s["session_id"], s["user_id"]
+    start_record_id = s["record_id"]
+
+    # system-initiated end: adversarial client-supplied fields included
+    payload = _end_payload(user_id=user_id, session_id=session_id)
+    payload["performer_id"] = "system"
+    payload["record_id"] = str(uuid.uuid4())  # must be ignored
+    payload["timestamp"] = "1999-01-01T00:00:00.000Z"  # must be ignored
+
+    end = client.post("/session_manager/sessions.end", json=payload)
+    assert end.status_code == 200, end.text
+    data = end.json()
+
+    # preserve original session_id
+    assert data["session_id"] == session_id
+
+    # new unique server record_id (not client; not reused from start)
+    assert data["record_id"] != payload["record_id"]
+    assert data["record_id"] != start_record_id
+    uuid.UUID(data["record_id"])
+
+    # server-authoritative timestamp (not client)
+    assert data["timestamp"] != payload["timestamp"]
+    assert data["timestamp"].endswith("Z")
+
+
+def test_sessions_start_reject_active_session_no_side_effects_409(
+    tmp_path, monkeypatch, client: TestClient
+):
+    import apps.schema_recorder.config as recorder_config
+    import apps.session_manager.service as sm_service
+
+    recorder_config.LOG_ROOT = tmp_path / "logs"
+    sm_service._sessions.clear()
+
+    user_id = "test_user"
+
+    # First start succeeds (creates dir + appends 1 line + mutates _sessions)
+    r1 = client.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id=user_id)
+    )
+    assert r1.status_code == 200, r1.text
+    first = r1.json()
+    first_session_id = first["session_id"]
+
+    # Snapshot state + filesystem after first start
+    assert list(sm_service._sessions.keys()) == [first_session_id]
+    sessions_dir = recorder_config.LOG_ROOT / "users" / user_id / "sessions"
+    assert sessions_dir.exists()
+    log_path = sessions_dir / f"{first_session_id}.jsonl"
+    before_log_text = log_path.read_text(encoding="utf-8")
+    before_sessions_dir_listing = sorted(p.name for p in sessions_dir.iterdir())
+
+    # Fail-fast: second start must reject BEFORE generating a new session_id
+    monkeypatch.setattr(
+        sm_service,
+        "generate_session_id",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("generate_session_id must not be called")
+        ),
+    )
+
+    r2 = client.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id=user_id)
+    )
+    assert r2.status_code == 409, r2.text
+    assert r2.json()["detail"] == "User already has an active session"
+
+    # No in-memory mutation
+    assert list(sm_service._sessions.keys()) == [first_session_id]
+    assert sm_service._sessions[first_session_id]["status"] == "active"
+
+    # No mkdir / no new session file / no append
+    assert sessions_dir.exists()
+    after_sessions_dir_listing = sorted(p.name for p in sessions_dir.iterdir())
+    assert after_sessions_dir_listing == before_sessions_dir_listing
+    assert log_path.read_text(encoding="utf-8") == before_log_text
+
+
+def test_sessions_end_append_failure_returns_500_and_session_remains_active(
+    tmp_path, monkeypatch
+):
+    from fastapi.testclient import TestClient
+
+    import apps.schema_recorder.config as recorder_config
+    import apps.schema_recorder.repository as repo
+    import apps.session_manager.service as sm_service
+    from api.main import app
+
+    recorder_config.LOG_ROOT = tmp_path / "logs"
+    sm_service._sessions.clear()
+
+    c = TestClient(app, raise_server_exceptions=False)
+
+    start = c.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id="test_user")
+    )
+    assert start.status_code == 200, start.text
+    s = start.json()
+    sid = s["session_id"]
+
+    # Force repository append failure (recorder path)
+    monkeypatch.setattr(
+        repo,
+        "append_bytes",
+        lambda *a, **k: (_ for _ in ()).throw(OSError("disk full")),
+    )
+
+    r1 = c.post(
+        "/session_manager/sessions.end",
+        json=_end_payload(user_id="test_user", session_id=sid),
+    )
+    assert r1.status_code == 500, r1.text
+
+    # Remove failure and end again; must succeed if session remained active
+    monkeypatch.undo()
+
+    r2 = c.post(
+        "/session_manager/sessions.end",
+        json=_end_payload(user_id="test_user", session_id=sid),
+    )
+    assert r2.status_code == 200, r2.text
