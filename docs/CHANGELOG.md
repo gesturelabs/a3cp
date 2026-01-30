@@ -9,6 +9,27 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## A3CP — session_manager domain error → HTTP mapping coverage
+
+- Locked domain error → HTTP status mappings with explicit API tests:
+  - `SessionNotFound` → 404 Not Found
+    - `/sessions.end` with unknown session_id returns 404
+    - Verified not merged with user-mismatch path
+  - `SessionUserMismatch` → 403 Forbidden
+    - Existing session_id with wrong user_id returns 403
+  - `SessionAlreadyClosed` → 409 Conflict
+    - Repeated `/sessions.end` on closed session returns 409
+  - `SessionAlreadyActive` → 409 Conflict
+    - Second `/sessions.start` for user with active session returns 409
+
+- Added guard tests to ensure:
+  - Error classification is type-driven (service exceptions), not string-matched
+  - Not-found vs user-mismatch cases remain behaviorally distinct
+  - Route layer HTTPException mappings remain stable under refactor
+
+- All Slice-1 session_manager domain error mappings now covered by passing tests
+
+
 
 ## A3CP 2026-01-30 — session_manager module guardrail & coverage tests
 

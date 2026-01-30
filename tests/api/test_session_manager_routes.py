@@ -579,3 +579,46 @@ def test_sessions_start_does_not_infer_performer_id_from_user_id(client: TestCli
     r = client.post("/session_manager/sessions.start", json=payload)
     assert r.status_code == 400, r.text
     assert "performer_id is required" in r.json()["detail"]
+
+
+def test_sessions_end_unknown_session_id_returns_404_not_found(client: TestClient):
+    payload = _end_payload(
+        user_id=str(uuid.uuid4()),
+        session_id="sess_DOES_NOT_EXIST",
+    )
+
+    r = client.post("/session_manager/sessions.end", json=payload)
+    assert r.status_code == 404, r.text
+    assert r.json()["detail"] == "Session not found"
+
+
+def test_sessions_end_existing_session_wrong_user_returns_403_forbidden(
+    client: TestClient,
+):
+    start = client.post("/session_manager/sessions.start", json=_start_payload())
+    assert start.status_code == 200, start.text
+    sid = start.json()["session_id"]
+
+    payload = _end_payload(
+        user_id=str(uuid.uuid4()),  # wrong user
+        session_id=sid,
+    )
+
+    r = client.post("/session_manager/sessions.end", json=payload)
+    assert r.status_code == 403, r.text
+    assert r.json()["detail"] == "Session user mismatch"
+
+
+def test_sessions_start_already_active_returns_409_conflict(client: TestClient):
+    user_id = str(uuid.uuid4())
+
+    r1 = client.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id=user_id)
+    )
+    assert r1.status_code == 200, r1.text
+
+    r2 = client.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id=user_id)
+    )
+    assert r2.status_code == 409, r2.text
+    assert r2.json()["detail"] == "User already has an active session"
