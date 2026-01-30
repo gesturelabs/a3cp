@@ -199,23 +199,21 @@ performer_id must be provided for all human-originated requests; only "system" i
   - recorded JSONL events reflect the exact `performer_id` value
 
 
-### 3) Guardrail tests for performer_id policy (session_manager)
-- [ ] start/end with human-originated payload and missing `performer_id` → 400
-- [ ] start/end with `performer_id="system"` → accepted
-- [ ] recorded JSONL events reflect correct `performer_id`
+
+
 
 ### 4) Module test coverage (as listed in original plan)
-- [ ] `apps/session_manager/tests/test_import_policy.py`
-- [ ] `apps/session_manager/tests/test_session_jsonl_append.py`
-  - [ ] verifies session_manager delegates event appends to `schema_recorder` (no direct JSONL writes)
-  - [ ] allows session directory creation (`mkdir`) but forbids writing `*.jsonl`
-- [ ] `apps/session_manager/tests/test_event_invariants.py`
+- [x ] `apps/session_manager/tests/test_import_policy.py`
+- [x ] `apps/session_manager/tests/test_session_jsonl_append.py`
+  - [x ] verifies session_manager delegates event appends to `schema_recorder` (no direct JSONL writes)
+  - [x ] allows session directory creation (`mkdir`) but forbids writing `*.jsonl`
+- [x ] `apps/session_manager/tests/test_event_invariants.py`
   - invariants: `source/user_id/session_id/timestamp/record_id`
   - `performer_id` per canonical rule
-- [ ] `apps/session_manager/tests/test_repository_append_event.py`
-  - [ ] verifies session_manager repository does not write session JSONL directly (no `open()` / `Path.open()` on `*.jsonl`)
-  - [ ] verifies the only allowed recording path is calling `schema_recorder` (service/repository boundary)
-  - [ ] rejects direct file writes outside the allowed writer boundary
+- [x ] `apps/session_manager/tests/test_repository_append_event.py`
+  - [x ] verifies session_manager repository does not write session JSONL directly (no `open()` / `Path.open()` on `*.jsonl`)
+  - [x ] verifies the only allowed recording path is calling `schema_recorder` (service/repository boundary)
+  - [x ] rejects direct file writes outside the allowed writer boundary
 
 ### 5) Domain error → HTTP mapping coverage
 
@@ -295,8 +293,3 @@ Rule: SessionUserMismatch is raised only if the session_id exists but belongs to
     - [ ] `SessionAlreadyClosed` → 409
 
 ---
-
-## D) Domain model (current)
-- [x] `models.py` (domain data, no FastAPI/IO)
-  - [x] `SessionStatus = {"active", "closed"}`
-  - [x] `Session(session_id, user_id, start_time, end_time?, status, is_training_data, session_notes?, training_intent_label?, performer_id?)`

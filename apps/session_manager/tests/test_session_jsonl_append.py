@@ -69,3 +69,44 @@ def test_start_end_appends_two_ordered_events(tmp_path):
 
     # Sanity: end output corresponds to end event session_id
     assert e2["session_id"] == str(end_out.session_id)
+
+
+def test_start_session_delegates_append_to_schema_recorder_and_does_not_write_jsonl_directly(
+    tmp_path, monkeypatch
+):
+    import apps.schema_recorder.config as recorder_config
+    import apps.session_manager.service as sm_service
+
+    recorder_config.LOG_ROOT = tmp_path / "logs"
+    sm_service._sessions.clear()
+
+    calls = {"append_event": 0}
+
+    # Allow mkdir but forbid any direct attempt to create/write a *.jsonl file from session_manager.
+    # If session_manager delegates correctly, it should only call append_event.
+    def _append_event_spy(*, user_id: str, session_id: str, message):
+        calls["append_event"] += 1
+        # Do not write anything; just simulate success.
+        return None
+
+    monkeypatch.setattr(sm_service, "append_event", _append_event_spy)
+
+    payload = SessionManagerStartInput(
+        schema_version="1.0.1",
+        record_id=uuid.uuid4(),
+        user_id="test_user",
+        timestamp=datetime.now(timezone.utc),
+        is_training_data=False,
+        session_notes=None,
+        performer_id="tester",
+        training_intent_label=None,
+    )
+
+    sm_service.start_session(payload)
+
+    assert calls["append_event"] == 1
+
+    # session_manager may create the sessions directory, but must not have written a JSONL file itself here
+    sessions_dir = recorder_config.LOG_ROOT / "users" / "test_user" / "sessions"
+    assert sessions_dir.exists()
+    assert list(sessions_dir.glob("*.jsonl")) == []

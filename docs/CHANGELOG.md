@@ -10,6 +10,27 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## A3CP 2026-01-30 — session_manager module guardrail & coverage tests
+
+- Added module guardrail tests for session_manager writer boundaries and import policy:
+  - `test_import_policy.py`:
+    - forbids deep imports from `schemas.<submodule>` in session_manager routes
+    - forbids importing `apps.schema_recorder.repository` from session_manager
+  - `test_session_jsonl_append.py`:
+    - verifies session_manager delegates recording to `schema_recorder.append_event`
+    - allows session directory mkdir but forbids direct `*.jsonl` creation by session_manager
+  - `test_repository_append_event.py`:
+    - forbids direct JSONL/file write patterns under `apps/session_manager/` code
+    - enforces recorder as the only allowed writer boundary (tests excluded from scan)
+
+- Strengthened event invariant coverage:
+  - JSONL boundary events must include and validate:
+    - `source="session_manager"`
+    - non-empty `user_id`, `session_id`, `timestamp`, `record_id`, `performer_id`
+
+- All new guardrail and invariant tests passing
+
+
 ## A3CP 2026-01-30 — session_manager performer_id ingress policy
 
 - Enforced performer_id policy at ingress for session boundaries:
