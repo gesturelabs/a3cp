@@ -9,6 +9,16 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-30 session_manager — session_id invariant API tests
+
+- Added API-level invariant tests for session_id contract:
+  - `/sessions.end` returns the same `session_id` issued by `/sessions.start`.
+  - Unknown session_id is rejected per router policy (404).
+- Updated tests to use unique user_id per run to avoid in-memory session collisions across async backends.
+- No router or service semantics changed; tests aligned to existing status-code mapping.
+- All tests passing.
+
+
 ## 2026-01-30 session_manager — boundary-event contract enforcement & authority hardening
 
 - Enforced authoritative boundary-event contract for emitted session start/end events:

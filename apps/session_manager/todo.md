@@ -83,7 +83,7 @@ Status note (authoritative for this file): canonical migration completed (routes
   - Assert emitted/recorded event has `source == "session_manager"`
 
 ### Optional (policy completeness)
-- [ ] `"system"` performer_id accepted for boundaries
+- [x ] `"system"` performer_id accepted for boundaries
   - Start/end with `performer_id="system"`
   - Assert success and recorded value is `"system"`
 
