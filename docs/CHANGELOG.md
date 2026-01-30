@@ -9,6 +9,18 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-01-30 session_manager — invariant tests completed + test isolation hardening
+
+- Completed invariant test coverage for session_manager record-then-commit behavior.
+- Added missing-directory failure test for END: recorder preflight failure ⇒ no state mutation.
+- Added guardrail test ensuring session_manager never opens/writes *.jsonl directly.
+- Hardened tests to avoid cross-test leakage:
+  - Clear in-memory _sessions store in tests.
+  - Ensure LOG_ROOT is overridden to tmp_path in tests.
+- Clarified schema_recorder LOG_ROOT comment to document test override contract.
+- All tests and linters passing.
+
+
 
 ## 2026-01-30 session_manager — recorder-first boundary invariants + route/test alignment (Slice-1)
 

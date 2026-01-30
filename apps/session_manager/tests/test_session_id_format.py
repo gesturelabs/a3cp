@@ -8,12 +8,20 @@ from apps.session_manager.service import end_session, start_session
 from schemas import SessionManagerEndInput, SessionManagerStartInput
 
 
-def test_session_id_format_and_uniqueness():
+def test_session_id_format_and_uniqueness(tmp_path):
     """
     Sprint 1 invariant:
     - session_id format is: 'sess_' + 16 lowercase hex chars
     - generated session_ids are unique within the running process
     """
+    import apps.session_manager.service as sm_service
+
+    sm_service._sessions.clear()
+
+    import apps.schema_recorder.config as recorder_config
+
+    recorder_config.LOG_ROOT = tmp_path / "logs"
+
     pattern = re.compile(r"^sess_[0-9a-f]{16}$")
     seen: set[str] = set()
 
