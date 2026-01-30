@@ -9,6 +9,35 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## A3CP 2026-01-30 — session_manager invariants & boundary safety tranche
+
+- Enforced server authority for boundary events:
+  - `/sessions.start` and `/sessions.end` emit server-generated UUIDv4 `record_id`
+  - Client-supplied `record_id` treated as correlation-only and never emitted
+  - Start and end boundary events guaranteed distinct `record_id`s (tested)
+  - Boundary `source` always `"session_manager"` regardless of input (tested)
+  - Boundary `timestamp` always server-generated UTC regardless of input (tested)
+
+- Enforced single-active-session invariant (Slice-1 strategy):
+  - Same user cannot open two active sessions → second start returns 409 (tested)
+  - Different users may hold concurrent sessions → allowed (tested)
+  - Implementation explicitly documented: Slice-1 uses `_sessions` scan for active status
+
+- Enforced boundary output validation & atomicity guarantees:
+  - Boundary events must successfully construct `SessionManagerStartOutput` / `SessionManagerEndOutput`
+  - If output construction/validation fails:
+    - no JSONL append occurs (tested)
+    - no in-memory session mutation occurs (tested)
+    - no unintended directory creation on start path (tested)
+
+- Added deterministic failure tests:
+  - Forced invalid start output via patched `generate_session_id` → 500 + no side effects
+  - Forced invalid end output via patched `SessionManagerEndOutput` → 500 + no side effects
+  - Tests use `TestClient(raise_server_exceptions=False)` to assert HTTP 500 behavior
+
+- Expanded API and service-level test coverage for boundary invariants and failure safety
+
+
 ## 2026-01-30 session_manager — session_id invariant API tests
 
 - Added API-level invariant tests for session_id contract:

@@ -102,6 +102,121 @@ def test_sessions_end_happy_path(client: TestClient):
     assert data["timestamp"].endswith("Z")
 
 
+def test_sessions_start_record_id_is_server_generated_not_client(client: TestClient):
+    payload = _start_payload()
+    client_record_id = str(uuid.uuid4())
+    payload["record_id"] = client_record_id
+
+    r = client.post("/session_manager/sessions.start", json=payload)
+    assert r.status_code == 200, r.text
+    data = r.json()
+
+    assert data["record_id"] != client_record_id
+
+    # sanity: response record_id is a UUID string
+    uuid.UUID(data["record_id"])
+
+
+def test_sessions_start_source_and_timestamp_are_server_authoritative(
+    client: TestClient,
+):
+    payload = _start_payload()
+
+    # adversarial client-supplied fields
+    payload["source"] = "evil_client"
+    payload["timestamp"] = "1999-01-01T00:00:00.000Z"
+
+    r = client.post("/session_manager/sessions.start", json=payload)
+    assert r.status_code == 200, r.text
+    data = r.json()
+
+    # source is server-authoritative
+    assert data["source"] == "session_manager"
+
+    # timestamp is server-authoritative (must not echo input)
+    assert data["timestamp"] != payload["timestamp"]
+    assert data["timestamp"].endswith("Z")
+
+
+def test_sessions_end_record_id_is_server_generated_not_client(client: TestClient):
+    start = client.post("/session_manager/sessions.start", json=_start_payload())
+    assert start.status_code == 200, start.text
+    sess = start.json()
+    session_id, user_id = sess["session_id"], sess["user_id"]
+
+    payload = _end_payload(user_id=user_id, session_id=session_id)
+    client_record_id = str(uuid.uuid4())
+    payload["record_id"] = client_record_id
+
+    r = client.post("/session_manager/sessions.end", json=payload)
+    assert r.status_code == 200, r.text
+    data = r.json()
+
+    assert data["record_id"] != client_record_id
+
+    # sanity: response record_id is a UUID string
+    uuid.UUID(data["record_id"])
+
+
+def test_sessions_start_and_end_record_ids_are_unique(client: TestClient):
+    start = client.post("/session_manager/sessions.start", json=_start_payload())
+    assert start.status_code == 200, start.text
+    start_data = start.json()
+
+    end = client.post(
+        "/session_manager/sessions.end",
+        json=_end_payload(
+            user_id=start_data["user_id"],
+            session_id=start_data["session_id"],
+        ),
+    )
+    assert end.status_code == 200, end.text
+    end_data = end.json()
+
+    assert start_data["record_id"] != end_data["record_id"]
+
+
+def test_sessions_start_rejects_second_active_session_for_same_user_409(
+    client: TestClient,
+):
+    user_id = str(uuid.uuid4())
+
+    r1 = client.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id=user_id)
+    )
+    assert r1.status_code == 200, r1.text
+
+    r2 = client.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id=user_id)
+    )
+    assert r2.status_code == 409, r2.text
+    assert r2.json()["detail"] == "User already has an active session"
+
+
+def test_sessions_end_source_and_timestamp_are_server_authoritative(client: TestClient):
+    start = client.post("/session_manager/sessions.start", json=_start_payload())
+    assert start.status_code == 200, start.text
+    sess = start.json()
+    session_id, user_id = sess["session_id"], sess["user_id"]
+
+    payload = _end_payload(user_id=user_id, session_id=session_id)
+
+    # adversarial client-supplied fields
+    payload["source"] = "evil_client"
+    payload["timestamp"] = "1999-01-01T00:00:00.000Z"
+
+    end = client.post("/session_manager/sessions.end", json=payload)
+    assert end.status_code == 200, end.text
+    data = end.json()
+
+    # source is server-authoritative
+    assert data["source"] == "session_manager"
+
+    # timestamp is server-authoritative (must not echo input)
+    assert data["timestamp"] != payload["timestamp"]
+    assert data["timestamp"].endswith("Z")
+
+
 def test_end_requires_session_id_422(client: TestClient):
     start = client.post("/session_manager/sessions.start", json=_start_payload())
     assert start.status_code == 200, start.text
@@ -152,3 +267,106 @@ def test_end_session_double_close_400(client: TestClient):
     )
     assert r2.status_code == 409
     assert r2.json()["detail"] == "Session already closed"
+
+
+def test_sessions_start_allows_different_user_while_first_active_200(
+    client: TestClient,
+):
+    user_a = str(uuid.uuid4())
+    user_b = str(uuid.uuid4())
+
+    r1 = client.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id=user_a)
+    )
+    assert r1.status_code == 200, r1.text
+
+    r2 = client.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id=user_b)
+    )
+    assert r2.status_code == 200, r2.text
+    assert r2.json()["user_id"] == user_b
+
+
+def test_sessions_start_output_validation_failure_causes_500_and_no_side_effects(
+    client: TestClient, tmp_path, monkeypatch
+):
+    # Point logs to tmp and clear in-memory state
+    import apps.schema_recorder.config as recorder_config
+    import apps.session_manager.service as sm_service
+
+    recorder_config.LOG_ROOT = tmp_path / "logs"
+    sm_service._sessions.clear()
+
+    # Deterministic forcing strategy:
+    # return an invalid session_id (None) so SessionManagerStartOutput validation fails.
+    monkeypatch.setattr(sm_service, "generate_session_id", lambda: None)
+
+    payload = _start_payload(user_id="test_user")
+
+    c = TestClient(app, raise_server_exceptions=False)
+    r = c.post("/session_manager/sessions.start", json=payload)
+
+    # Unhandled validation error -> 500
+    assert r.status_code == 500, r.text
+
+    # No in-memory mutation
+    assert sm_service._sessions == {}
+
+    # No JSONL append attempted (file absent)
+    sessions_dir = recorder_config.LOG_ROOT / "users" / "test_user" / "sessions"
+    assert not sessions_dir.exists()
+
+
+def test_sessions_end_output_validation_failure_causes_500_and_no_side_effects(
+    tmp_path, monkeypatch
+):
+    from fastapi.testclient import TestClient
+
+    import apps.schema_recorder.config as recorder_config
+    import apps.session_manager.service as sm_service
+    from api.main import app
+
+    recorder_config.LOG_ROOT = tmp_path / "logs"
+    sm_service._sessions.clear()
+
+    c = TestClient(app, raise_server_exceptions=False)
+
+    # First create a valid session (writes 1 START event)
+    start = c.post(
+        "/session_manager/sessions.start", json=_start_payload(user_id="test_user")
+    )
+    assert start.status_code == 200, start.text
+    start_data = start.json()
+
+    log_path = (
+        recorder_config.LOG_ROOT
+        / "users"
+        / "test_user"
+        / "sessions"
+        / f'{start_data["session_id"]}.jsonl'
+    )
+    before = log_path.read_text(encoding="utf-8")
+
+    # Deterministic forcing seam: break END output construction
+    monkeypatch.setattr(
+        sm_service,
+        "SessionManagerEndOutput",
+        lambda *a, **k: (_ for _ in ()).throw(ValueError("boom")),
+    )
+
+    payload = _end_payload(
+        user_id="test_user",
+        session_id=start_data["session_id"],
+    )
+
+    r = c.post("/session_manager/sessions.end", json=payload)
+    assert r.status_code == 500, r.text
+
+    # JSONL unchanged (no END append)
+    after = log_path.read_text(encoding="utf-8")
+    assert after == before
+
+    # In-memory unchanged (still active)
+    sess = sm_service._sessions[start_data["session_id"]]
+    assert sess["status"] == "active"
+    assert "end_time" not in sess

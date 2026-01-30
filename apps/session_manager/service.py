@@ -52,6 +52,11 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
             "performer_id is required (use 'system' for system-initiated boundaries)"
         )
 
+    # Slice-1 policy: enforce single active session per user by scanning the
+    # in-memory _sessions store for status=="active".
+    # This is acceptable for MVP; will be replaced by an active_session_by_user_id
+    # index when persistent storage is introduced.
+
     for s in _sessions.values():
         if s["user_id"] == payload.user_id and s.get("status") == "active":
             raise SessionAlreadyActive("User already has an active session")

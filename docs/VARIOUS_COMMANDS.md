@@ -25,3 +25,6 @@ http://127.0.0.1:8000/
 6. If missing: verify `app.include_router(schema_recorder_router)` in `api/main.py`, resta
 
 Done when endpoint appears in /docs.
+
+## Run Schema script
+python scripts/generate_schemas_from_master.py
