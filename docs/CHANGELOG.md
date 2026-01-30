@@ -9,6 +9,33 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## A3CP 2026-01-30 A3CP — session_manager invariants tranche (authority, atomicity, idempotency)
+
+- Enforced server authority for session boundary events:
+  - Server-generated UUIDv4 `record_id` for start/end (client value ignored)
+  - Boundary `source` always `"session_manager"` regardless of input
+  - Boundary `timestamp` always server-generated UTC regardless of input
+  - Start/end boundary events guaranteed distinct record_ids (tested)
+
+- Enforced single-active-session rule (Slice-1 strategy):
+  - Second `/sessions.start` for same user while active → 409
+  - Different users may hold concurrent sessions → allowed
+  - Implementation explicitly documented: active session detected by `_sessions` scan
+
+- Enforced idempotent terminal behavior:
+  - Repeated `/sessions.end` on same session → 409 Conflict (tested)
+
+- Enforced output validation & fail-fast behavior:
+  - Boundary outputs validated via Pydantic (`SessionManagerStartOutput` / `SessionManagerEndOutput`)
+  - Deterministic failure tests confirm:
+    - invalid boundary output → HTTP 500
+    - no JSONL append occurs
+    - no in-memory session mutation occurs
+
+- Added deterministic failure tests and expanded API/service coverage for boundary invariants
+
+
+
 ## A3CP 2026-01-30 — session_manager invariants & boundary safety tranche
 
 - Enforced server authority for boundary events:

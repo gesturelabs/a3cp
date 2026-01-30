@@ -249,7 +249,7 @@ def test_end_user_mismatch_403(client: TestClient):
     assert r.json()["detail"] == "Session user mismatch"
 
 
-def test_end_session_double_close_400(client: TestClient):
+def test_end_session_double_close_409(client: TestClient):
     start = client.post("/session_manager/sessions.start", json=_start_payload())
     assert start.status_code == 200, start.text
     session_id = start.json()["session_id"]

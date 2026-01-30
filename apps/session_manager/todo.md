@@ -135,12 +135,12 @@ Status note (authoritative for this file): canonical migration completed (routes
 
 
 #### 1.6 Output validation & fail-fast behavior
-- [ ] Enforce/test invariant:
+- [x ] Enforce/test invariant:
   - session boundary outputs are Pydantic-validated (`SessionManagerStartOutput` / `SessionManagerEndOutput`)
   - invalid boundary-event payload MUST NOT be recorded to session JSONL (fail fast)
 
 #### 1.7 Idempotency and terminal state
-- [ ] Enforce/test invariant:
+- [x ] Enforce/test invariant:
   - `/sessions.end`: repeated end for the same `session_id` → 409 Conflict
 
 #### 1.8 System-initiated closure
