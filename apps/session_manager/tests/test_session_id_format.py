@@ -4,8 +4,8 @@ import re
 import uuid
 from datetime import datetime, timezone
 
-from apps.session_manager.service import start_session
-from schemas import SessionManagerStartInput
+from apps.session_manager.service import end_session, start_session
+from schemas import SessionManagerEndInput, SessionManagerStartInput
 
 
 def test_session_id_format_and_uniqueness():
@@ -18,7 +18,7 @@ def test_session_id_format_and_uniqueness():
     seen: set[str] = set()
 
     for _ in range(200):
-        payload = SessionManagerStartInput(
+        start_payload = SessionManagerStartInput(
             schema_version="1.0.1",
             record_id=uuid.uuid4(),
             user_id="test_user",
@@ -29,9 +29,20 @@ def test_session_id_format_and_uniqueness():
             training_intent_label=None,
         )
 
-        out = start_session(payload)
+        out = start_session(start_payload)
 
         assert out.session_id, "session_id must be non-empty"
         assert pattern.match(out.session_id), f"unexpected session_id: {out.session_id}"
         assert out.session_id not in seen, "duplicate session_id generated"
         seen.add(out.session_id)
+
+        end_payload = SessionManagerEndInput(
+            schema_version="1.0.1",
+            record_id=uuid.uuid4(),
+            user_id="test_user",
+            session_id=out.session_id,
+            timestamp=datetime.now(timezone.utc),
+            performer_id="tester",
+            end_time=datetime.now(timezone.utc),
+        )
+        end_session(end_payload)

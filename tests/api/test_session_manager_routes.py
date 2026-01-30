@@ -50,16 +50,15 @@ def _start_payload(
     }
 
 
-def _end_payload(*, user_id: str, session_id: str, end_time: datetime | None = None):
-    if end_time is None:
-        end_time = datetime.now(timezone.utc)
+def _end_payload(*, user_id: str, session_id: str) -> dict:
     return {
         "schema_version": "1.0.1",
         "record_id": str(uuid.uuid4()),
         "user_id": user_id,
         "session_id": session_id,
-        "timestamp": _iso_now_z(),
-        "end_time": end_time.isoformat().replace("+00:00", "Z"),
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "performer_id": "tester",
+        "end_time": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }
 
 
@@ -122,7 +121,7 @@ def test_end_requires_session_id_422(client: TestClient):
     ), detail
 
 
-def test_end_user_mismatch_404(client: TestClient):
+def test_end_user_mismatch_403(client: TestClient):
     start = client.post("/session_manager/sessions.start", json=_start_payload())
     assert start.status_code == 200, start.text
     session_id = start.json()["session_id"]
@@ -131,8 +130,8 @@ def test_end_user_mismatch_404(client: TestClient):
         "/session_manager/sessions.end",
         json=_end_payload(user_id=str(uuid.uuid4()), session_id=session_id),
     )
-    assert r.status_code == 404
-    assert r.json()["detail"] == "Session not found or user mismatch"
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Session user mismatch"
 
 
 def test_end_session_double_close_400(client: TestClient):
@@ -151,5 +150,5 @@ def test_end_session_double_close_400(client: TestClient):
         "/session_manager/sessions.end",
         json=_end_payload(user_id=user_id, session_id=session_id),
     )
-    assert r2.status_code == 400
+    assert r2.status_code == 409
     assert r2.json()["detail"] == "Session already closed"

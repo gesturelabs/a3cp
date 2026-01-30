@@ -46,10 +46,10 @@ Status note (authoritative for this file): canonical migration completed (routes
 #### 1) Event invariants enforced + tested (session_manager outputs & logs)
 - [ ] Enforce/test preflight recording prerequisites (before any in-memory mutation):
   - START:
-    - create session directory (mkdir only) for the new `session_id` before attempting append
-    - attempt append; only on success commit `_sessions[...] = active`
+    - create user sessions directory .../users/<user_id>/sessions/ (mkdir only) before attempting append
+    - attempt append; only on success commit _sessions[...] = active
   - END:
-    - ensure session directory exists (it should from start); if missing, treat as recorder failure
+    - ensure user sessions directory exists; if missing, treat as recorder failure
     - attempt append; only on success commit state transition to closed
   - tests:
     - simulate recorder failure via missing directory (or forced recorder exception) and assert no state change

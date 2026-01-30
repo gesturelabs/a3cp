@@ -9,6 +9,27 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## 2026-01-30 session_manager — recorder-first boundary invariants + route/test alignment (Slice-1)
+
+- Enforced record-then-commit invariant for session boundaries:
+  - START: ensure `users/<user>/sessions/` exists → append via schema_recorder → only then mark session active.
+  - END: ensure `users/<user>/sessions/` exists → append via schema_recorder → only then mark session closed.
+- Added explicit END preflight directory check; raises `MissingSessionPath` if sessions dir is absent.
+- Removed duplicate session lookup in `end_session`.
+- Removed JSONL filename/path coupling from session_manager (mkdir parent only; recorder owns file paths).
+- Router updated to canonical routes module; removed legacy `routes/sessions.py`.
+- Added failure-mode test: recorder append failure ⇒ no in-memory session state committed.
+- Updated tests to match locked invariants:
+  - `performer_id` required for session end.
+  - Single active session per user enforced (uniqueness test now closes each session).
+  - HTTP mappings aligned with service exceptions:
+    - user mismatch → 403
+    - already closed → 409
+- Updated TODO and FILE_TREE documentation.
+- Test suite passing.
+
+
 ## 2026-01-16 Finished schema_recorder clean up
 
 ## 2026-01-16 — Repository-level tests — `apps/schema_recorder/tests/test_repository.py`

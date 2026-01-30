@@ -50,18 +50,25 @@
 │   │   └── TODO.md
 │   ├── schema_recorder
 │   │   ├── __init__.py
-│   │   ├── session_writer.py
+│   │   ├── config.py
+│   │   ├── repository.py
+│   │   ├── routes
+│   │   │   ├── __init__.py
+│   │   │   └── router.py
+│   │   ├── service.py
+│   │   ├── tests
+│   │   │   ├── test_guardrails.py
+│   │   │   ├── test_repository.py
+│   │   │   └── test_routes.py
 │   │   └── TODO.md
 │   ├── session_manager
 │   │   ├── __init__.py
 │   │   ├── config.py
 │   │   ├── idgen.py
 │   │   ├── models.py
-│   │   ├── repository.py
 │   │   ├── routes
 │   │   │   ├── __init__.py
-│   │   │   ├── router.py
-│   │   │   └── sessions.py
+│   │   │   └── router.py
 │   │   ├── service.py
 │   │   ├── tests
 │   │   │   ├── __init__.py
@@ -148,41 +155,7 @@
 │   ├── __init__.py
 │   └── engine.py
 ├── docs
-│   ├── architecture
-│   │   ├── app_structure_and_routing.md
-│   │   ├── architecture diagrams
-│   │   │   ├── a3cp_pipeline_v2.png
-│   │   │   ├── a3cp_pipeline_v3.png
-│   │   │   ├── a3cp_pipeline.drawio
-│   │   │   ├── a3cp_pipeline.png
-│   │   │   └── a3cp_pipeline.svg
-│   │   ├── gesture_slice.md
-│   │   ├── inputs_outputs_json.md
-│   │   ├── mvp DB architecture.md
-│   │   └── mvp.md
-│   ├── archive
-│   │   ├── old_video_streamer
-│   │   │   ├── notes.md
-│   │   │   └── README.md
-│   │   ├── SCHEMA_MAPPING.md
-│   │   ├── SCHEMA_OVERVIEW.md
-│   │   └── SCHEMA_REFERENCE.md
-│   ├── CHANGELOG.md
-│   ├── context_state_strategy
-│   │   ├── strategy.md
-│   │   └── Technical_Context_Jan52026.md
-│   ├── dev
-│   │   ├── DEPLOYMENT.md
-│   │   ├── DEVELOPMENT_FLOW.md
-│   │   ├── Schema>Route>Test.md
-│   │   └── TESTING.md
-│   ├── FILE_TREE.txt
-│   ├── getting started
-│   │   ├── CONTRIBUTING.md
-│   │   └── DEV_SETUP.md
-│   ├── governance
-│   │   └── ENTITIES_AND_ROLES.MD
-│   ├── modules
+│   ├── apps
 │   │   ├── _App Pattern.md
 │   │   ├── audio_feed_worker
 │   │   │   ├── INVARIANTS.md
@@ -240,6 +213,40 @@
 │   │   │   └── README.md
 │   │   └── visual_environment_classifier
 │   │       └── README.md
+│   ├── architecture
+│   │   ├── app_structure_and_routing.md
+│   │   ├── architecture diagrams
+│   │   │   ├── a3cp_pipeline_v2.png
+│   │   │   ├── a3cp_pipeline_v3.png
+│   │   │   ├── a3cp_pipeline.drawio
+│   │   │   ├── a3cp_pipeline.png
+│   │   │   └── a3cp_pipeline.svg
+│   │   ├── gesture_slice.md
+│   │   ├── inputs_outputs_json.md
+│   │   ├── mvp DB architecture.md
+│   │   └── mvp.md
+│   ├── archive
+│   │   ├── old_video_streamer
+│   │   │   ├── notes.md
+│   │   │   └── README.md
+│   │   ├── SCHEMA_MAPPING.md
+│   │   ├── SCHEMA_OVERVIEW.md
+│   │   └── SCHEMA_REFERENCE.md
+│   ├── CHANGELOG.md
+│   ├── context_state_strategy
+│   │   ├── strategy.md
+│   │   └── Technical_Context_Jan52026.md
+│   ├── dev
+│   │   ├── DEPLOYMENT.md
+│   │   ├── DEVELOPMENT_FLOW.md
+│   │   ├── Schema>Route>Test.md
+│   │   └── TESTING.md
+│   ├── FILE_TREE.txt
+│   ├── getting started
+│   │   ├── CONTRIBUTING.md
+│   │   └── DEV_SETUP.md
+│   ├── governance
+│   │   └── ENTITIES_AND_ROLES.MD
 │   ├── schemas
 │   │   ├── SCHEMA_ARCHITECTURE.md
 │   │   ├── SCHEMA_CHANGELOG.md
@@ -265,6 +272,610 @@
 ├── importlog.txt
 ├── LICENSE
 ├── logs
+│   └── users
+│       └── test_user
+│           └── sessions
+│               ├── sess_0089016f53d448b0.jsonl
+│               ├── sess_010839bb3db747e0.jsonl
+│               ├── sess_01567e2304fd47cf.jsonl
+│               ├── sess_01af8947ca6c4781.jsonl
+│               ├── sess_0362bff2b1f64847.jsonl
+│               ├── sess_0372ab9c7ad44868.jsonl
+│               ├── sess_03b8e02dd7a5478a.jsonl
+│               ├── sess_03db052b7d1e4e71.jsonl
+│               ├── sess_041264eaeda34768.jsonl
+│               ├── sess_06e6d1bfcad644f5.jsonl
+│               ├── sess_07103aeec4f840e1.jsonl
+│               ├── sess_074a5db8813f43cb.jsonl
+│               ├── sess_081323872d344d62.jsonl
+│               ├── sess_0827978ed35b4014.jsonl
+│               ├── sess_0842b67e9f354a72.jsonl
+│               ├── sess_09b8d88a9f254db5.jsonl
+│               ├── sess_09f6b24fb5514722.jsonl
+│               ├── sess_0a563b2f9afa4b94.jsonl
+│               ├── sess_0b7aaaaa4588485f.jsonl
+│               ├── sess_0b8b84c0d9be4d97.jsonl
+│               ├── sess_0c98d307b7fa4ed8.jsonl
+│               ├── sess_0cb57ac749f041b7.jsonl
+│               ├── sess_0cea2c3510574723.jsonl
+│               ├── sess_0d0f3dfe518e4656.jsonl
+│               ├── sess_0d1589c12a604f69.jsonl
+│               ├── sess_0d27fb4d8ef34268.jsonl
+│               ├── sess_0d2ec90a7f5b40f3.jsonl
+│               ├── sess_0d5ad48b50c74d63.jsonl
+│               ├── sess_0d6fd15b9a4b4296.jsonl
+│               ├── sess_0d87442812ab420c.jsonl
+│               ├── sess_0dad63672fe54abb.jsonl
+│               ├── sess_0df59412585b46de.jsonl
+│               ├── sess_0e80ea1bf5c7422c.jsonl
+│               ├── sess_0f62e18e30db4250.jsonl
+│               ├── sess_1092ac809e974d4a.jsonl
+│               ├── sess_1161379233174eba.jsonl
+│               ├── sess_11819ec889084fb7.jsonl
+│               ├── sess_11b86b7ed6214940.jsonl
+│               ├── sess_11e177fa6e254777.jsonl
+│               ├── sess_1216515c6e984702.jsonl
+│               ├── sess_127fc5e215d341ac.jsonl
+│               ├── sess_12d3acacb6ac4f37.jsonl
+│               ├── sess_1341b6a3e5c34c8e.jsonl
+│               ├── sess_137d822aed834727.jsonl
+│               ├── sess_139bc5517f684393.jsonl
+│               ├── sess_13cfe517bcae4b5a.jsonl
+│               ├── sess_13eb900d84754017.jsonl
+│               ├── sess_1515cb72d5f04abc.jsonl
+│               ├── sess_162edd0dd4844ea4.jsonl
+│               ├── sess_16411daa78994f18.jsonl
+│               ├── sess_16c614b0936e43be.jsonl
+│               ├── sess_17696b3b833f43bb.jsonl
+│               ├── sess_179bb42104f24247.jsonl
+│               ├── sess_17a770a23b2f4fb1.jsonl
+│               ├── sess_18176541457e4fe6.jsonl
+│               ├── sess_18599044edff47a8.jsonl
+│               ├── sess_192cd525fee343fd.jsonl
+│               ├── sess_1939808e10314021.jsonl
+│               ├── sess_195e1d7090c54a72.jsonl
+│               ├── sess_198596d4514142ee.jsonl
+│               ├── sess_19fa227a61eb48f3.jsonl
+│               ├── sess_1a1690f181d04847.jsonl
+│               ├── sess_1a5aa5acdd2a4e24.jsonl
+│               ├── sess_1a74758129c04ef9.jsonl
+│               ├── sess_1acfb04fce984446.jsonl
+│               ├── sess_1b3321bf8fe14b32.jsonl
+│               ├── sess_1bc8dea23f99424c.jsonl
+│               ├── sess_1c3f3247dc0a419e.jsonl
+│               ├── sess_1c49502cc0804d50.jsonl
+│               ├── sess_1c9669bcebb24e62.jsonl
+│               ├── sess_1c9d74b3c8814950.jsonl
+│               ├── sess_1cee54beaa1f46a9.jsonl
+│               ├── sess_1cf83f807e2d477c.jsonl
+│               ├── sess_1d518884bf57420f.jsonl
+│               ├── sess_1d89aeea5f444a45.jsonl
+│               ├── sess_1d93b1bc09d2422b.jsonl
+│               ├── sess_1dd1278a3da94936.jsonl
+│               ├── sess_1e8cb84c9ec44cfd.jsonl
+│               ├── sess_1e8f5b58132f4cd4.jsonl
+│               ├── sess_1ed3191a171945cc.jsonl
+│               ├── sess_1eea081ee56b4668.jsonl
+│               ├── sess_1f3b7c35f31c443b.jsonl
+│               ├── sess_1fb2d9eb442a478b.jsonl
+│               ├── sess_1fc79676114742c3.jsonl
+│               ├── sess_1fe9d5b3eadd4faf.jsonl
+│               ├── sess_200666aef3d64323.jsonl
+│               ├── sess_200a65d398604408.jsonl
+│               ├── sess_2135f5dc61b94d1f.jsonl
+│               ├── sess_2154ef1ca21b4312.jsonl
+│               ├── sess_216c085946e14ca4.jsonl
+│               ├── sess_21b0c36d02614b19.jsonl
+│               ├── sess_21d094536b724ea8.jsonl
+│               ├── sess_2249fab387064e32.jsonl
+│               ├── sess_2306e6e74f1442f1.jsonl
+│               ├── sess_23b19de50d5e4623.jsonl
+│               ├── sess_24470954f9e0452a.jsonl
+│               ├── sess_24f50f772b9e4c51.jsonl
+│               ├── sess_25b5be23d46c4e65.jsonl
+│               ├── sess_26778610a3914bf8.jsonl
+│               ├── sess_282b72fd70704382.jsonl
+│               ├── sess_28676d398e544054.jsonl
+│               ├── sess_288d12fc9d084e0a.jsonl
+│               ├── sess_28b5e9081e954e93.jsonl
+│               ├── sess_28c844b7d69443a4.jsonl
+│               ├── sess_28e7279f77814498.jsonl
+│               ├── sess_28eceffd997c4669.jsonl
+│               ├── sess_29c371c40a5e48b9.jsonl
+│               ├── sess_2af1e45ec4d04479.jsonl
+│               ├── sess_2bac6675be2d4efe.jsonl
+│               ├── sess_2bacd2e2695b4649.jsonl
+│               ├── sess_2be4c9f00d8a4cc4.jsonl
+│               ├── sess_2c9ac137ad9b4775.jsonl
+│               ├── sess_2d2dcc2961b74eeb.jsonl
+│               ├── sess_2d3f376b8f224b6f.jsonl
+│               ├── sess_2d48ea43d0084a0a.jsonl
+│               ├── sess_2dd5ed09318b469c.jsonl
+│               ├── sess_2dfb660a7d854ccb.jsonl
+│               ├── sess_2e6e203f4af24fb8.jsonl
+│               ├── sess_2f3e51ccc93749ef.jsonl
+│               ├── sess_2f65491ae1df4ebe.jsonl
+│               ├── sess_2fe5c7d20a164e2d.jsonl
+│               ├── sess_3070746b51df43ca.jsonl
+│               ├── sess_31582bed31304b98.jsonl
+│               ├── sess_31a8188493ae40a1.jsonl
+│               ├── sess_31e5228360bd4420.jsonl
+│               ├── sess_3212bfffc1dc47a4.jsonl
+│               ├── sess_32fbd0dbb9e8428f.jsonl
+│               ├── sess_33728d6e72eb41b5.jsonl
+│               ├── sess_33b4a7ab66d242fb.jsonl
+│               ├── sess_340c866442ac4d68.jsonl
+│               ├── sess_344ac2480f004b04.jsonl
+│               ├── sess_344bdb143de64721.jsonl
+│               ├── sess_3479d206e4d94b4b.jsonl
+│               ├── sess_347bbdc4b85747ee.jsonl
+│               ├── sess_3538aa3db64846a5.jsonl
+│               ├── sess_354ec315708c4e75.jsonl
+│               ├── sess_3736a7c042e04c81.jsonl
+│               ├── sess_373e491218a44a1b.jsonl
+│               ├── sess_37527e4896314118.jsonl
+│               ├── sess_375c04ed0e6a4ce5.jsonl
+│               ├── sess_379b69d6a06c4fe8.jsonl
+│               ├── sess_38aa044bf6d849f6.jsonl
+│               ├── sess_38dea941a3884461.jsonl
+│               ├── sess_393c27379b824e36.jsonl
+│               ├── sess_395faa4eb76644ae.jsonl
+│               ├── sess_3b2a7a0fbd9c46f6.jsonl
+│               ├── sess_3bda3bfb0b0845d5.jsonl
+│               ├── sess_3be921c723334e3e.jsonl
+│               ├── sess_3c25c69331a64dc4.jsonl
+│               ├── sess_3d66f28d3cf146fa.jsonl
+│               ├── sess_3dccb8e5718c4b9f.jsonl
+│               ├── sess_3e4c409760374cbf.jsonl
+│               ├── sess_3ebf3fbb32af4a8b.jsonl
+│               ├── sess_3f1b4b689ad04673.jsonl
+│               ├── sess_3fb27f84ff5b4a94.jsonl
+│               ├── sess_405507b670a94991.jsonl
+│               ├── sess_40f667de57704226.jsonl
+│               ├── sess_41fd2c04d50b41ff.jsonl
+│               ├── sess_421d38d70e744127.jsonl
+│               ├── sess_42b3781b445f46b8.jsonl
+│               ├── sess_42c4dced5af44bdd.jsonl
+│               ├── sess_42db433e9db247e4.jsonl
+│               ├── sess_432e98e06b994c8a.jsonl
+│               ├── sess_433207805eb64860.jsonl
+│               ├── sess_433365a9dc44450a.jsonl
+│               ├── sess_43b02f4419054288.jsonl
+│               ├── sess_43cceb5d390a46b9.jsonl
+│               ├── sess_4436e9f1e3db461d.jsonl
+│               ├── sess_4482be5693ba432f.jsonl
+│               ├── sess_44e1eb38265a4880.jsonl
+│               ├── sess_44e9ba937bb14716.jsonl
+│               ├── sess_4518f15fad5444a8.jsonl
+│               ├── sess_45d00f72d7b241a0.jsonl
+│               ├── sess_45f6444b13d74573.jsonl
+│               ├── sess_460f0512c343499e.jsonl
+│               ├── sess_465bd0c874d7453c.jsonl
+│               ├── sess_47474cb79e784a8a.jsonl
+│               ├── sess_47a5385fb7354689.jsonl
+│               ├── sess_47d4ec7a90f541b1.jsonl
+│               ├── sess_47ec8316c638492a.jsonl
+│               ├── sess_484a87e3ee044aa0.jsonl
+│               ├── sess_48c92746bd5e40ab.jsonl
+│               ├── sess_48d526bce3114eea.jsonl
+│               ├── sess_49069cfe1bb748f2.jsonl
+│               ├── sess_4a6daea1449747ad.jsonl
+│               ├── sess_4abfe95cba0f40d7.jsonl
+│               ├── sess_4b71ab70e68d407f.jsonl
+│               ├── sess_4b9cc809c091469b.jsonl
+│               ├── sess_4bc23570065449de.jsonl
+│               ├── sess_4c0ca445c06f4acd.jsonl
+│               ├── sess_4c1a26154b4a4e17.jsonl
+│               ├── sess_4c47f53674ca43cf.jsonl
+│               ├── sess_4c9d85a37e274419.jsonl
+│               ├── sess_4caf6fe39e9a461c.jsonl
+│               ├── sess_4d17c59417e74e0f.jsonl
+│               ├── sess_4e4aa880ed404b52.jsonl
+│               ├── sess_4e64990373924c98.jsonl
+│               ├── sess_4f3ff1f587294e5f.jsonl
+│               ├── sess_4f5378146cb3451c.jsonl
+│               ├── sess_4feabc26926b467d.jsonl
+│               ├── sess_4ff06bf533c54d37.jsonl
+│               ├── sess_5003b8669a9a4ecd.jsonl
+│               ├── sess_500e2d703085489f.jsonl
+│               ├── sess_50f2e9da32dd410b.jsonl
+│               ├── sess_51013b1196ad455d.jsonl
+│               ├── sess_510b3fd17e054ff7.jsonl
+│               ├── sess_5120ce2b158f44fc.jsonl
+│               ├── sess_51286a5d4ec74a8b.jsonl
+│               ├── sess_5184e8b42309477c.jsonl
+│               ├── sess_51d2bee5ce5642b6.jsonl
+│               ├── sess_5278e03dc5c94aa8.jsonl
+│               ├── sess_53021a58fe984657.jsonl
+│               ├── sess_53477f9d17714c83.jsonl
+│               ├── sess_53e8a98e531e4d9e.jsonl
+│               ├── sess_5422009bc87043aa.jsonl
+│               ├── sess_548c2603d868453c.jsonl
+│               ├── sess_54ee04c90a9a4f1a.jsonl
+│               ├── sess_5531237dd7914021.jsonl
+│               ├── sess_5549d02bde364a14.jsonl
+│               ├── sess_55a57682acf64813.jsonl
+│               ├── sess_5638d68415e945b4.jsonl
+│               ├── sess_5676815bcb964f1b.jsonl
+│               ├── sess_570f662d3a2843f9.jsonl
+│               ├── sess_57434d545287445e.jsonl
+│               ├── sess_575ba0279e264111.jsonl
+│               ├── sess_57a8440f50774b9a.jsonl
+│               ├── sess_57d75802e6ba4f2d.jsonl
+│               ├── sess_57ecfe837ab6440b.jsonl
+│               ├── sess_5863a705e97f4013.jsonl
+│               ├── sess_5a3fe67cae3b47c2.jsonl
+│               ├── sess_5a45e49ae3f24cf3.jsonl
+│               ├── sess_5a53cac7751d4ef4.jsonl
+│               ├── sess_5aae2dd1c9c84ead.jsonl
+│               ├── sess_5ac5ded163f04bbe.jsonl
+│               ├── sess_5ad52f0cc7284138.jsonl
+│               ├── sess_5b5d4e127b934131.jsonl
+│               ├── sess_5c413ac570dc470d.jsonl
+│               ├── sess_5ce12dcbf2304124.jsonl
+│               ├── sess_5cf62db4b9654a74.jsonl
+│               ├── sess_5d8a7ae03b9b491d.jsonl
+│               ├── sess_5dbd5141d8264074.jsonl
+│               ├── sess_5dd8d30de6e14881.jsonl
+│               ├── sess_5df54e1a7a4b4238.jsonl
+│               ├── sess_5e2c65691f9142e1.jsonl
+│               ├── sess_5e335ece0e4f455c.jsonl
+│               ├── sess_5e5594618589424a.jsonl
+│               ├── sess_5f4cd32dbb6a410d.jsonl
+│               ├── sess_5fde979b3704424e.jsonl
+│               ├── sess_60af6e6bbae64aff.jsonl
+│               ├── sess_60ea23c6c47043cc.jsonl
+│               ├── sess_610e3524138d44e2.jsonl
+│               ├── sess_614a3c886e234656.jsonl
+│               ├── sess_61e9afdb64324fe6.jsonl
+│               ├── sess_6259429c7f5948e7.jsonl
+│               ├── sess_62cac217ce1847b7.jsonl
+│               ├── sess_62d407c0a23c449e.jsonl
+│               ├── sess_62dd364677a34cd2.jsonl
+│               ├── sess_62f6265d84174fc8.jsonl
+│               ├── sess_62f6b37e60de4492.jsonl
+│               ├── sess_62fb4cca4df24b81.jsonl
+│               ├── sess_637c7a411c9740c1.jsonl
+│               ├── sess_638865279d294f25.jsonl
+│               ├── sess_639cab1116f449c9.jsonl
+│               ├── sess_64a3ed0fbec64455.jsonl
+│               ├── sess_657fe327a8054d53.jsonl
+│               ├── sess_65e94961f4eb4780.jsonl
+│               ├── sess_6605a9fdfb144ffe.jsonl
+│               ├── sess_66923c63c87b40ef.jsonl
+│               ├── sess_6692b6194daa4c3a.jsonl
+│               ├── sess_66dc0de172f34329.jsonl
+│               ├── sess_670bea1133fe4ace.jsonl
+│               ├── sess_67a7902db91249d7.jsonl
+│               ├── sess_682138f3a2a94e3a.jsonl
+│               ├── sess_682b164c681b4891.jsonl
+│               ├── sess_69b839a9f6b54c23.jsonl
+│               ├── sess_69f88b0ce4214c70.jsonl
+│               ├── sess_6b4c4bbd9da2409f.jsonl
+│               ├── sess_6d01f0f30be54639.jsonl
+│               ├── sess_6d200421f1274563.jsonl
+│               ├── sess_6d64b1ffcd2c4734.jsonl
+│               ├── sess_6d6f0d73c09c4f88.jsonl
+│               ├── sess_6d97f68e6c694141.jsonl
+│               ├── sess_6da18235ac9e4823.jsonl
+│               ├── sess_6dc0662b55a24ed6.jsonl
+│               ├── sess_6e1b84eee51d44ba.jsonl
+│               ├── sess_6e927562e5284d53.jsonl
+│               ├── sess_6f028ef86a034a53.jsonl
+│               ├── sess_6f9d56f92dde458c.jsonl
+│               ├── sess_7033c6b0980349da.jsonl
+│               ├── sess_71899376c1b54a7e.jsonl
+│               ├── sess_71c2b8041a394fdd.jsonl
+│               ├── sess_7205cdce3ae84ea3.jsonl
+│               ├── sess_72ed35b8241f4963.jsonl
+│               ├── sess_73306279182d4c2d.jsonl
+│               ├── sess_734f885cb56e4f23.jsonl
+│               ├── sess_73e7cee8ba354e52.jsonl
+│               ├── sess_7462e5fb1ac740f8.jsonl
+│               ├── sess_759b0eab1c9540d4.jsonl
+│               ├── sess_7678e3a5d00a4fdf.jsonl
+│               ├── sess_78111175aeba4279.jsonl
+│               ├── sess_79c0d241fe6d4b66.jsonl
+│               ├── sess_7a1bf33ffa7846a4.jsonl
+│               ├── sess_7a44359226984f24.jsonl
+│               ├── sess_7a98d78e25854bb4.jsonl
+│               ├── sess_7aac01273264489a.jsonl
+│               ├── sess_7c12a8c573854278.jsonl
+│               ├── sess_7c723d41a91c4643.jsonl
+│               ├── sess_7e67701944db4cb0.jsonl
+│               ├── sess_7f898f055b8e4643.jsonl
+│               ├── sess_8026e0472e354d46.jsonl
+│               ├── sess_8042be690c034172.jsonl
+│               ├── sess_80481d4ae6dc40ea.jsonl
+│               ├── sess_8077d8b5321a47eb.jsonl
+│               ├── sess_8091633f72c34c14.jsonl
+│               ├── sess_80f24d12fd164d00.jsonl
+│               ├── sess_81773e9db6274f4b.jsonl
+│               ├── sess_817a07e505e0467d.jsonl
+│               ├── sess_817cd12ec51a45c5.jsonl
+│               ├── sess_81f0a158c03b4945.jsonl
+│               ├── sess_82b448e719584b0e.jsonl
+│               ├── sess_838e7f1d40934205.jsonl
+│               ├── sess_83c018997b404985.jsonl
+│               ├── sess_8455f56455704600.jsonl
+│               ├── sess_84a0b60d2da54681.jsonl
+│               ├── sess_84caf473e8404d91.jsonl
+│               ├── sess_8550d1fe92e54a87.jsonl
+│               ├── sess_858d1f1437f1418d.jsonl
+│               ├── sess_861be35e4c3a4747.jsonl
+│               ├── sess_864fded1a4a842bf.jsonl
+│               ├── sess_86a2e61ad9614b0a.jsonl
+│               ├── sess_86d76b8b6d2b4f94.jsonl
+│               ├── sess_8728033b226344d8.jsonl
+│               ├── sess_8877ad15f6924802.jsonl
+│               ├── sess_8920c0574f894641.jsonl
+│               ├── sess_89798bb919164029.jsonl
+│               ├── sess_89e6c873e8194c48.jsonl
+│               ├── sess_8a1a8d95c22a47a4.jsonl
+│               ├── sess_8a408223cd024d64.jsonl
+│               ├── sess_8a86cc88ba464e25.jsonl
+│               ├── sess_8ab38330f09b48fe.jsonl
+│               ├── sess_8b3e4dab22724263.jsonl
+│               ├── sess_8b5f868b104a434a.jsonl
+│               ├── sess_8c1ac31b3ed143a6.jsonl
+│               ├── sess_8c3e89b8544d4954.jsonl
+│               ├── sess_8d6c60dfb4ec4b83.jsonl
+│               ├── sess_8d9fc3ff89214b92.jsonl
+│               ├── sess_8e8c0a943b924d18.jsonl
+│               ├── sess_8ea143bb122349e4.jsonl
+│               ├── sess_8ed0b31546914166.jsonl
+│               ├── sess_8fc30aaa091e43d0.jsonl
+│               ├── sess_906d8017e71340dd.jsonl
+│               ├── sess_90e67e96fa8a430a.jsonl
+│               ├── sess_919d21f2cfc541f9.jsonl
+│               ├── sess_91dc8b0d0ff5480f.jsonl
+│               ├── sess_91f060d562174c90.jsonl
+│               ├── sess_9208b18c3c5245da.jsonl
+│               ├── sess_92cb7f04ba3841bf.jsonl
+│               ├── sess_9323f9f0968d4645.jsonl
+│               ├── sess_935990d795ad4d03.jsonl
+│               ├── sess_936a252e80eb48f6.jsonl
+│               ├── sess_93b3f47de6c94db8.jsonl
+│               ├── sess_93c9a492f2264a91.jsonl
+│               ├── sess_93eda493af3d49a1.jsonl
+│               ├── sess_94d50a9beaa3444f.jsonl
+│               ├── sess_9592485e30be4e65.jsonl
+│               ├── sess_95f6a7c381214148.jsonl
+│               ├── sess_960d0325943a41cc.jsonl
+│               ├── sess_97ab1ac7154d4cf8.jsonl
+│               ├── sess_984e502d21494c44.jsonl
+│               ├── sess_98db1dec17784529.jsonl
+│               ├── sess_996fd21b409149aa.jsonl
+│               ├── sess_998994ac9ed04795.jsonl
+│               ├── sess_999f0a34d3e44d46.jsonl
+│               ├── sess_9aab013680b74610.jsonl
+│               ├── sess_9ab81b30a53840a6.jsonl
+│               ├── sess_9ac04aaed2e844d3.jsonl
+│               ├── sess_9acffe68593845c7.jsonl
+│               ├── sess_9ad6e57ca9af4e8b.jsonl
+│               ├── sess_9ae9191b4b7f4208.jsonl
+│               ├── sess_9c50ce8b0f394a31.jsonl
+│               ├── sess_9cf98f4d78824143.jsonl
+│               ├── sess_9d29e6f2bd84459f.jsonl
+│               ├── sess_9da1169b1f6d4d6f.jsonl
+│               ├── sess_9e0c911c8c1f4e8c.jsonl
+│               ├── sess_9e3d3122cdb04ba1.jsonl
+│               ├── sess_9e7c1516d67e4993.jsonl
+│               ├── sess_9eabb4f8f23846c3.jsonl
+│               ├── sess_9f15b0a860974075.jsonl
+│               ├── sess_9f32593dbdb44767.jsonl
+│               ├── sess_9f906b112c774961.jsonl
+│               ├── sess_9fb3994507264615.jsonl
+│               ├── sess_a016189f16024ca0.jsonl
+│               ├── sess_a04f11025a3c4cf5.jsonl
+│               ├── sess_a0cca868d15b423f.jsonl
+│               ├── sess_a22e4c9a6bee4e15.jsonl
+│               ├── sess_a29aa0a70019464c.jsonl
+│               ├── sess_a3cb83ea579b4378.jsonl
+│               ├── sess_a4cff49c446e49cc.jsonl
+│               ├── sess_a5005b198c604b9f.jsonl
+│               ├── sess_a526690956db4ffb.jsonl
+│               ├── sess_a54e919f9c38430e.jsonl
+│               ├── sess_a6921db3a7844f4c.jsonl
+│               ├── sess_a69cecb0a0974c74.jsonl
+│               ├── sess_a6f7068884584c3e.jsonl
+│               ├── sess_a7bc8f58d2f64869.jsonl
+│               ├── sess_a7ea58b5245f494e.jsonl
+│               ├── sess_a8a2d674971c4a14.jsonl
+│               ├── sess_a8e7f58a4db8475c.jsonl
+│               ├── sess_a90da93bb9054ba4.jsonl
+│               ├── sess_a93b6f84189d42fe.jsonl
+│               ├── sess_a943ef6065de4972.jsonl
+│               ├── sess_a9ae0869149f4399.jsonl
+│               ├── sess_a9cb7abf326c4bf3.jsonl
+│               ├── sess_aa1280a9356b4a44.jsonl
+│               ├── sess_aabefdc08aaf43c0.jsonl
+│               ├── sess_ab9415270d8d4907.jsonl
+│               ├── sess_accb9aa50d0b44dc.jsonl
+│               ├── sess_ad4f844f714f4974.jsonl
+│               ├── sess_ae21535eeb834629.jsonl
+│               ├── sess_b245eef016914839.jsonl
+│               ├── sess_b25ee2f5f08c446f.jsonl
+│               ├── sess_b28f6f6ce481408d.jsonl
+│               ├── sess_b32cbbb69e13452b.jsonl
+│               ├── sess_b3af28a9256a4ea4.jsonl
+│               ├── sess_b44f4c50dd75427a.jsonl
+│               ├── sess_b47b088a499a4cb4.jsonl
+│               ├── sess_b4d1fbc7d69a410e.jsonl
+│               ├── sess_b5139b70fcd940ae.jsonl
+│               ├── sess_b5c8847d6ce44e43.jsonl
+│               ├── sess_b69870d8cc3c4b64.jsonl
+│               ├── sess_b6b926964e1f4ce6.jsonl
+│               ├── sess_b6c6dab6bec1485b.jsonl
+│               ├── sess_b6ee769fb5da49c2.jsonl
+│               ├── sess_b7481fca163c4af5.jsonl
+│               ├── sess_b748a40a6e524891.jsonl
+│               ├── sess_b845f910b277462f.jsonl
+│               ├── sess_b87cc04bbfcf4c71.jsonl
+│               ├── sess_b8bbd181b73147a8.jsonl
+│               ├── sess_b97be87628d04f6e.jsonl
+│               ├── sess_b9e1768fcadf4a27.jsonl
+│               ├── sess_ba0ef8841c154ce6.jsonl
+│               ├── sess_ba249b1209314937.jsonl
+│               ├── sess_bac231194897461e.jsonl
+│               ├── sess_bc06c9949c09406d.jsonl
+│               ├── sess_bc420c447e6d4fad.jsonl
+│               ├── sess_bc7aca4d304349df.jsonl
+│               ├── sess_bccc121ed2dd41f0.jsonl
+│               ├── sess_bcd5a658537d4228.jsonl
+│               ├── sess_bd0b0bb9067a4993.jsonl
+│               ├── sess_bd13937656b74fdd.jsonl
+│               ├── sess_bd86d9bc1980499f.jsonl
+│               ├── sess_bdc846c496bb4cb4.jsonl
+│               ├── sess_be2b86cf11794e66.jsonl
+│               ├── sess_be60888cbb114781.jsonl
+│               ├── sess_be66e4c849b640ca.jsonl
+│               ├── sess_bf1ccd1d4c12433b.jsonl
+│               ├── sess_c06c2819cc174aee.jsonl
+│               ├── sess_c132bae92a6f44d0.jsonl
+│               ├── sess_c2364b19b4cc4a07.jsonl
+│               ├── sess_c2736fe2ad1d47a0.jsonl
+│               ├── sess_c29ab94be4ac40f2.jsonl
+│               ├── sess_c29aba986b284d36.jsonl
+│               ├── sess_c36e828f10c64b8f.jsonl
+│               ├── sess_c3daca0c56704b7b.jsonl
+│               ├── sess_c4aab3169ef84a6f.jsonl
+│               ├── sess_c51b557cc3a64331.jsonl
+│               ├── sess_c5828e4179324097.jsonl
+│               ├── sess_c59f1798f53a4e4a.jsonl
+│               ├── sess_c66c5d0514fd4fcc.jsonl
+│               ├── sess_c6c4bb2e49bd4760.jsonl
+│               ├── sess_c6cbdb402b214af0.jsonl
+│               ├── sess_c6d325ffdb34447c.jsonl
+│               ├── sess_c71b751c1b574958.jsonl
+│               ├── sess_c75ac0738d1d4e4d.jsonl
+│               ├── sess_c7ccd3023f8d4a74.jsonl
+│               ├── sess_c7d3fa22dd074c86.jsonl
+│               ├── sess_c7de15e11da046e0.jsonl
+│               ├── sess_c85882c9b7d1409a.jsonl
+│               ├── sess_c9078d91159b4489.jsonl
+│               ├── sess_c9f03ec477bd418d.jsonl
+│               ├── sess_ca62d3d7a1394398.jsonl
+│               ├── sess_cb0abbbd5d1d4b09.jsonl
+│               ├── sess_cba33d7d2ec844e6.jsonl
+│               ├── sess_cc4e03daa35540c4.jsonl
+│               ├── sess_cc72372ad4854ccc.jsonl
+│               ├── sess_cc725ebb6656410f.jsonl
+│               ├── sess_ccb2fb614490457c.jsonl
+│               ├── sess_cd5519040f704149.jsonl
+│               ├── sess_cdd3839ff47a44e0.jsonl
+│               ├── sess_ce1de4778e4646aa.jsonl
+│               ├── sess_ce8a8ac236f74cbb.jsonl
+│               ├── sess_cea8b23aa004482b.jsonl
+│               ├── sess_ceb0f3d8bcea4bea.jsonl
+│               ├── sess_cf50ef1c478e49d3.jsonl
+│               ├── sess_d09815bff1434c02.jsonl
+│               ├── sess_d0bd18987a8f43ef.jsonl
+│               ├── sess_d171fd1b02234b36.jsonl
+│               ├── sess_d24a66e2da30438b.jsonl
+│               ├── sess_d27ef80245594e58.jsonl
+│               ├── sess_d343fa0494a54455.jsonl
+│               ├── sess_d385501b8bb146ee.jsonl
+│               ├── sess_d507af8166314499.jsonl
+│               ├── sess_d54f4ddc1a1844bf.jsonl
+│               ├── sess_d5a949514baf4c5b.jsonl
+│               ├── sess_d5ad24bfb0b74ea0.jsonl
+│               ├── sess_d639c732e3b5429d.jsonl
+│               ├── sess_d68b33756e6c444e.jsonl
+│               ├── sess_d6d60b02a821419d.jsonl
+│               ├── sess_d7d368e4aa8e4f8d.jsonl
+│               ├── sess_d81650afe36049b4.jsonl
+│               ├── sess_d859d567e4c34594.jsonl
+│               ├── sess_d90b9020933743a5.jsonl
+│               ├── sess_d98ddeae43c24a44.jsonl
+│               ├── sess_d98ee2825dea4f7d.jsonl
+│               ├── sess_d9d406bf3b3745da.jsonl
+│               ├── sess_db26451023cd4fe9.jsonl
+│               ├── sess_db7b5ffb33264fa4.jsonl
+│               ├── sess_dbdde61a0662498b.jsonl
+│               ├── sess_dce7481f373240bd.jsonl
+│               ├── sess_dd6cc49c22dc442f.jsonl
+│               ├── sess_dd6fcd94fb624131.jsonl
+│               ├── sess_ddcb1f6ef4fa4895.jsonl
+│               ├── sess_de6c00b6b1b84e99.jsonl
+│               ├── sess_de7c48dd920846f8.jsonl
+│               ├── sess_dec3cade08174ae7.jsonl
+│               ├── sess_df968931dbbc49dd.jsonl
+│               ├── sess_e01d7506ef3b4cf2.jsonl
+│               ├── sess_e0991470d5d54e45.jsonl
+│               ├── sess_e2582200eca8488a.jsonl
+│               ├── sess_e26ef640fb56461b.jsonl
+│               ├── sess_e27f88f9851449e9.jsonl
+│               ├── sess_e39f39c729054a3e.jsonl
+│               ├── sess_e3b1c5bbf7fd422f.jsonl
+│               ├── sess_e40a8a0ab4364cdb.jsonl
+│               ├── sess_e46c1355acdd48c8.jsonl
+│               ├── sess_e4725ef30ea841cc.jsonl
+│               ├── sess_e4f8b5d4aded4a03.jsonl
+│               ├── sess_e5c03560a5024f80.jsonl
+│               ├── sess_e5f98bc943f04ba4.jsonl
+│               ├── sess_e63fa3b9b53847a5.jsonl
+│               ├── sess_e644a572607540fa.jsonl
+│               ├── sess_e681820759b44dd3.jsonl
+│               ├── sess_e68f6e4bf3c247a3.jsonl
+│               ├── sess_e6e6cdc5a2a84f91.jsonl
+│               ├── sess_e7265330ffb64696.jsonl
+│               ├── sess_e76f5ae54a6c4304.jsonl
+│               ├── sess_e809404ff9e64f29.jsonl
+│               ├── sess_e896dcb87d38423e.jsonl
+│               ├── sess_e9001ca514954173.jsonl
+│               ├── sess_ea5473f832064f3a.jsonl
+│               ├── sess_ea78039832e04fa4.jsonl
+│               ├── sess_eac13d8becf9407d.jsonl
+│               ├── sess_eb13f89b4f2e4068.jsonl
+│               ├── sess_ebb66135adf04241.jsonl
+│               ├── sess_ebd8b67648d44846.jsonl
+│               ├── sess_ebf82f81b04b4801.jsonl
+│               ├── sess_ec038ebfb46b493d.jsonl
+│               ├── sess_eccd170736f54441.jsonl
+│               ├── sess_ed20360f1ddc4e27.jsonl
+│               ├── sess_ed5cffca5f7c4803.jsonl
+│               ├── sess_edeff6e3e546489b.jsonl
+│               ├── sess_ee5b9f2128c141ca.jsonl
+│               ├── sess_eeb447b0887a494b.jsonl
+│               ├── sess_ef76fb2f78ed44a4.jsonl
+│               ├── sess_efea5bf9421348af.jsonl
+│               ├── sess_efee6228ef464697.jsonl
+│               ├── sess_f0295a4246d1472e.jsonl
+│               ├── sess_f0a07ad30e414549.jsonl
+│               ├── sess_f0b3fb1f2c854ec4.jsonl
+│               ├── sess_f101726de8de4312.jsonl
+│               ├── sess_f1241ff9fec344dd.jsonl
+│               ├── sess_f12e24b3b4ff45f6.jsonl
+│               ├── sess_f14810e5ba624945.jsonl
+│               ├── sess_f19ea5c331814d21.jsonl
+│               ├── sess_f2ad7d116c0b448f.jsonl
+│               ├── sess_f3765e5f0acc49b7.jsonl
+│               ├── sess_f496451969bb4353.jsonl
+│               ├── sess_f4a102353fb94c92.jsonl
+│               ├── sess_f53b2009522d4575.jsonl
+│               ├── sess_f57fcf164a374a6e.jsonl
+│               ├── sess_f58f93a53cec4778.jsonl
+│               ├── sess_f76107e1c2a047b8.jsonl
+│               ├── sess_f772b177cf694485.jsonl
+│               ├── sess_f84f73db53834e36.jsonl
+│               ├── sess_f8abec7bed0740e3.jsonl
+│               ├── sess_f9687c97665a4353.jsonl
+│               ├── sess_fa60c0a3bba94a92.jsonl
+│               ├── sess_fb15393f38cd4da5.jsonl
+│               ├── sess_fb4bd4bbe8e24b34.jsonl
+│               ├── sess_fb50afa165c648a9.jsonl
+│               ├── sess_fc4b4b2877914c95.jsonl
+│               ├── sess_fc4fa71b27124fce.jsonl
+│               ├── sess_fd7023ccc3dc4a47.jsonl
+│               ├── sess_fd7e745691894329.jsonl
+│               ├── sess_fe0533419b894ad5.jsonl
+│               ├── sess_fe2cfc511cf946aa.jsonl
+│               ├── sess_fe612ef78c4f46b5.jsonl
+│               ├── sess_fe92d6425f404e38.jsonl
+│               ├── sess_ff2aaa3390c140e0.jsonl
+│               ├── sess_ffb0084e73fb49c4.jsonl
+│               └── sess_ffc989d97b194368.jsonl
 ├── main.py
 ├── Makefile
 ├── package.json
@@ -276,11 +887,12 @@
 ├── req_runtime.txt
 ├── requirements-dev.txt
 ├── requirements.txt
-├── Route
 ├── schemas
 │   ├── __init__.py
 │   ├── a3cp_message
 │   │   ├── __init__.py
+│   │   ├── a3cp_message_input_example.json
+│   │   ├── a3cp_message_output_example.json
 │   │   ├── a3cp_message_schema.json
 │   │   └── a3cp_message.py
 │   ├── audio_feed_worker
@@ -446,36 +1058,48 @@
 │   ├── manage.sh
 │   ├── schema_mapping_config.py
 │   └── validate_env.py
-└── tests
-    ├── __init__.py 
-    ├── api
-    │   ├── test_audio_feed_worker_routes.py
-    │   ├── test_camera_feed_worker_routes.py
-    │   ├── test_clarification_planner_routes.py
-    │   ├── test_confidence_evaluator_routes.py
-    │   ├── test_feedback_log_routes.py
-    │   ├── test_gesture_classifier_routes.py
-    │   ├── test_input_broker_routes.py
-    │   ├── test_landmark_extractor_routes.py
-    │   ├── test_landmark_visualizer_routes.py
-    │   ├── test_llm_clarifier_routes.py
-    │   ├── test_memory_integrator_routes.py
-    │   ├── test_memory_interface_routes.py
-    │   ├── test_model_registry_routes.py
-    │   ├── test_model_trainer_routes.py
-    │   ├── test_output_expander_routes.py
-    │   ├── test_output_planner_routes.py
-    │   ├── test_retraining_scheduler_routes.py
-    │   ├── test_schema_recorder_routes.py
-    │   ├── test_session_manager_routes.py
-    │   ├── test_sound_classifier_routes.py
-    │   ├── test_sound_playback_routes.py
-    │   ├── test_speech_context_classifier_routes.py
-    │   ├── test_speech_transcriber_routes.py
-    │   └── test_visual_environment_classifier_routes.py
-    ├── architecture
-    │   └── test_no_new_api_routes.py
-    ├── conftest.py
-    └── utils.py
+├── tests
+│   ├── __init__.py 
+│   ├── api
+│   │   ├── test_audio_feed_worker_routes.py
+│   │   ├── test_camera_feed_worker_routes.py
+│   │   ├── test_clarification_planner_routes.py
+│   │   ├── test_confidence_evaluator_routes.py
+│   │   ├── test_feedback_log_routes.py
+│   │   ├── test_gesture_classifier_routes.py
+│   │   ├── test_input_broker_routes.py
+│   │   ├── test_landmark_extractor_routes.py
+│   │   ├── test_landmark_visualizer_routes.py
+│   │   ├── test_llm_clarifier_routes.py
+│   │   ├── test_memory_integrator_routes.py
+│   │   ├── test_memory_interface_routes.py
+│   │   ├── test_model_registry_routes.py
+│   │   ├── test_model_trainer_routes.py
+│   │   ├── test_output_expander_routes.py
+│   │   ├── test_output_planner_routes.py
+│   │   ├── test_retraining_scheduler_routes.py
+│   │   ├── test_schema_recorder_routes.py
+│   │   ├── test_session_manager_routes.py
+│   │   ├── test_sound_classifier_routes.py
+│   │   ├── test_sound_playback_routes.py
+│   │   ├── test_speech_context_classifier_routes.py
+│   │   ├── test_speech_transcriber_routes.py
+│   │   └── test_visual_environment_classifier_routes.py
+│   ├── architecture
+│   │   └── test_no_new_api_routes.py
+│   ├── conftest.py
+│   ├── guards
+│   │   ├── test_io_primitive_confinement_guard.py
+│   │   ├── test_legacy_writer_reference_guard.py
+│   │   ├── test_raw_session_log_path_guard.py
+│   │   ├── test_schema_recorder_import_surface_guard.py
+│   │   └── test_single_writer_session_jsonl.py
+│   ├── test_utils
+│   │   ├── __init__.py
+│   │   └── test_paths.py
+│   └── utils_helpers.py
+└── utils
+    ├── __init__.py
+    └── paths.py
 
-100 directories, 379 files
+108 directories, 995 files

@@ -32,8 +32,10 @@ def test_start_end_appends_two_ordered_events(tmp_path):
         user_id="test_user",
         session_id=str(start_out.session_id),
         timestamp=datetime.now(timezone.utc),
+        performer_id="tester",
         end_time=datetime.now(timezone.utc),
     )
+
     end_out = end_session(end_payload)
 
     log_path = (

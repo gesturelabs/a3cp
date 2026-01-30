@@ -17,7 +17,9 @@ router = APIRouter(prefix="/session_manager", tags=["session_manager"])
 def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutput:
     try:
         return service.start_session(payload)
-    except ValueError as e:
+    except service.SessionAlreadyActive as e:
+        raise HTTPException(status_code=409, detail=str(e)) from e
+    except service.SessionError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
@@ -25,8 +27,11 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
 def end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput:
     try:
         return service.end_session(payload)
-    except ValueError as e:
-        msg = str(e)
-        if "not found" in msg.lower() or "mismatch" in msg.lower():
-            raise HTTPException(status_code=404, detail=msg) from e
-        raise HTTPException(status_code=400, detail=msg) from e
+    except service.SessionNotFound as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except service.SessionUserMismatch as e:
+        raise HTTPException(status_code=403, detail=str(e)) from e
+    except service.SessionAlreadyClosed as e:
+        raise HTTPException(status_code=409, detail=str(e)) from e
+    except service.SessionError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
