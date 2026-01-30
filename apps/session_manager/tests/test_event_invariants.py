@@ -81,3 +81,57 @@ def test_session_manager_events_enforce_common_invariants(tmp_path, monkeypatch)
 
     _assert_common_invariants(env1["event"])
     _assert_common_invariants(env2["event"])
+
+
+def test_session_events_preserve_exact_performer_id_in_log(tmp_path, monkeypatch):
+    import json
+    import uuid
+    from datetime import datetime, timezone
+    from pathlib import Path
+
+    import apps.schema_recorder.config as recorder_config
+    import apps.session_manager.service as sm_service
+    from apps.session_manager.service import end_session, start_session
+    from schemas import SessionManagerEndInput, SessionManagerStartInput
+
+    recorder_config.LOG_ROOT = tmp_path / "logs"
+    sm_service._sessions.clear()
+
+    start_payload = SessionManagerStartInput(
+        schema_version="1.0.1",
+        record_id=uuid.uuid4(),
+        user_id="test_user",
+        timestamp=datetime.now(timezone.utc),
+        is_training_data=False,
+        session_notes=None,
+        performer_id="system",
+        training_intent_label=None,
+    )
+    start_out = start_session(start_payload)
+
+    end_payload = SessionManagerEndInput(
+        schema_version="1.0.1",
+        record_id=uuid.uuid4(),
+        user_id="test_user",
+        session_id=str(start_out.session_id),
+        timestamp=datetime.now(timezone.utc),
+        end_time=datetime.now(timezone.utc),
+        performer_id="tester_123",
+    )
+    end_session(end_payload)
+
+    log_path = (
+        Path(tmp_path)
+        / "logs"
+        / "users"
+        / "test_user"
+        / "sessions"
+        / f"{start_out.session_id}.jsonl"
+    )
+
+    lines = log_path.read_text(encoding="utf-8").splitlines()
+    env1 = json.loads(lines[0])
+    env2 = json.loads(lines[1])
+
+    assert env1["event"]["performer_id"] == "system"
+    assert env2["event"]["performer_id"] == "tester_123"

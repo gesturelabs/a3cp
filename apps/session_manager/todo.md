@@ -167,7 +167,7 @@ Status note (authoritative for this file): canonical migration completed (routes
 
 
 #### 1.9 Atomic recording semantics
-- [ ] Enforce/test invariant (Slice 1 atomicity):
+- [ x] Enforce/test invariant (Slice 1 atomicity):
   - mutate in-memory session state only after a successful `schema_recorder` append
   - START:
     - if append fails, no active session is created (no `_sessions[...]` entry)
@@ -181,7 +181,7 @@ Status note (authoritative for this file): canonical migration completed (routes
 
 performer_id must be provided for all human-originated requests; only "system" is exempt. No inference, substitution, or fallback is permitted.
 
-- [ ] Enforce/test ingress rules (before any state mutation or recording):
+- [ x] Enforce/test ingress rules (before any state mutation or recording):
   - `/sessions.start`:
     - if `performer_id == "system"` → accept (system-generated boundary)
     - if `performer_id` is missing or empty → reject (400)
@@ -189,11 +189,11 @@ performer_id must be provided for all human-originated requests; only "system" i
     - if `performer_id == "system"` → accept
     - if `performer_id` is missing or empty → reject (400)
 
-- [ ] Explicitly forbid auto-filling:
+- [x ] Explicitly forbid auto-filling:
   - `session_manager` MUST NOT infer or substitute `performer_id` from `user_id`
   - absence is an error unless `"system"`
 
-- [ ] Tests:
+- [x ] Tests:
   - start/end with missing `performer_id` (human-originated) → 400
   - start/end with `performer_id="system"` → accepted
   - recorded JSONL events reflect the exact `performer_id` value

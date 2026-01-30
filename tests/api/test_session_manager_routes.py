@@ -501,3 +501,81 @@ def test_sessions_end_append_failure_returns_500_and_session_remains_active(
         json=_end_payload(user_id="test_user", session_id=sid),
     )
     assert r2.status_code == 200, r2.text
+
+
+def test_sessions_start_missing_performer_id_rejected_400(client: TestClient):
+    payload = _start_payload()
+    payload.pop("performer_id", None)  # omit required-at-ingress performer_id
+
+    r = client.post("/session_manager/sessions.start", json=payload)
+    assert r.status_code == 400, r.text
+    assert "performer_id is required" in r.json()["detail"]
+
+
+def test_sessions_end_missing_performer_id_rejected_400(client: TestClient):
+    start = client.post("/session_manager/sessions.start", json=_start_payload())
+    assert start.status_code == 200, start.text
+    s = start.json()
+    session_id, user_id = s["session_id"], s["user_id"]
+
+    payload = _end_payload(user_id=user_id, session_id=session_id)
+    payload.pop("performer_id", None)  # omit
+
+    r = client.post("/session_manager/sessions.end", json=payload)
+    assert r.status_code == 400, r.text
+    assert "performer_id is required" in r.json()["detail"]
+
+
+def test_sessions_start_allows_system_performer_id(client: TestClient):
+    payload = _start_payload(performer_id="system")
+    r = client.post("/session_manager/sessions.start", json=payload)
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["performer_id"] == "system"
+
+
+def test_sessions_end_allows_system_performer_id(client: TestClient):
+    start = client.post(
+        "/session_manager/sessions.start",
+        json=_start_payload(performer_id="tester"),
+    )
+    assert start.status_code == 200, start.text
+    s = start.json()
+
+    payload = _end_payload(user_id=s["user_id"], session_id=s["session_id"])
+    payload["performer_id"] = "system"
+
+    r = client.post("/session_manager/sessions.end", json=payload)
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["performer_id"] == "system"
+
+
+def test_sessions_start_empty_performer_id_rejected_400(client: TestClient):
+    payload = _start_payload(performer_id="")
+    r = client.post("/session_manager/sessions.start", json=payload)
+    assert r.status_code == 400, r.text
+    assert "performer_id is required" in r.json()["detail"]
+
+
+def test_sessions_end_empty_performer_id_rejected_400(client: TestClient):
+    start = client.post("/session_manager/sessions.start", json=_start_payload())
+    assert start.status_code == 200, start.text
+    s = start.json()
+
+    payload = _end_payload(user_id=s["user_id"], session_id=s["session_id"])
+    payload["performer_id"] = ""  # explicitly empty
+
+    r = client.post("/session_manager/sessions.end", json=payload)
+    assert r.status_code == 400, r.text
+    assert "performer_id is required" in r.json()["detail"]
+
+
+def test_sessions_start_does_not_infer_performer_id_from_user_id(client: TestClient):
+    payload = _start_payload()
+
+    payload.pop("performer_id", None)
+
+    r = client.post("/session_manager/sessions.start", json=payload)
+    assert r.status_code == 400, r.text
+    assert "performer_id is required" in r.json()["detail"]

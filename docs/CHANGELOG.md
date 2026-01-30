@@ -10,6 +10,21 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## A3CP 2026-01-30 — session_manager performer_id ingress policy
+
+- Enforced performer_id policy at ingress for session boundaries:
+  - `/sessions.start` and `/sessions.end` reject missing or empty `performer_id` (400)
+  - `performer_id="system"` is accepted for system-initiated boundaries
+  - No inference/substitution permitted (absence remains an error unless "system")
+
+- Added tests:
+  - start/end missing performer_id → 400
+  - start/end empty performer_id → 400
+  - start/end with performer_id="system" → 200
+  - JSONL events preserve exact performer_id values (no mutation)
+  - Explicit test naming to prevent any future auto-fill from user_id
+
+
 ## A3CP 2026-01-30— session_manager invariants tranche (fail-fast, atomicity, system closure)
 
 - Enforced fail-fast rejection ordering on session boundaries:
