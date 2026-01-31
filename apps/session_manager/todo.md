@@ -244,48 +244,92 @@ Rule: SessionUserMismatch is raised only if the session_id exists but belongs to
 
 
 ---
+## App-local config knobs — triage
+
+### Do now (low effort, prevents drift)
+- `config.py`
+  - `MODULE_SOURCE = "session_manager"`
+  - `SESSION_ID_PREFIX = "sess_"`
+
 
 ## C) Deferred (explicitly later / optional)
 
 ### App-local config knobs
-- [ ] `config.py`
-  - [ ] `MODULE_SOURCE = "session_manager"`
-  - [ ] `SESSION_ID_PREFIX = "sess_"`
-  - [ ] `DEFAULT_TIMEOUT_SECONDS` (later)
-  - [ ] `get_timeout_seconds()` (later)
+### Defer (introduce when behavior exists)
+- `DEFAULT_TIMEOUT_SECONDS`
+- `get_timeout_seconds()`
 
 ### ID validation helper
 - [ ] `idgen.py`
   - [x] `generate_session_id() -> str`
   - [ ] `is_valid_session_id(session_id: str) -> bool` (optional)
 
-### Domain-only invariants/rules (pure)
-- [ ] `domain.py`
-  - [ ] `assert_can_end_session(session: Session, user_id: str) -> None`
-  - [ ] `close_session(session: Session, end_time: datetime) -> Session`
-  - [ ] Domain errors: `SessionNotFound`, `SessionUserMismatch`, `SessionAlreadyClosed`
+---------------------
+## Domain-only invariants / rules (pure) — revised status
 
-### Repository surface (if/where needed beyond current implementation)
-- [ ] `repository.py`
-  - [ ] `create_active_session(session: Session) -> None`
-  - [ ] `get_active_session(session_id: str) -> Session | None`
-    - NOTE: returns only active sessions; closed sessions are not retrievable via this helper (demo scope)
-  - [ ] `mark_session_closed(session_id: str, end_time: datetime) -> Session`
-  - [ ] `append_event(cfg: RecorderConfig, user_id: str, session_id: str, message: BaseSchema) -> None`
-  - [ ] `session_log_path(user_id: str, session_id: str) -> Path` (optional)
+### Deferred
 
-### Service surface (if/where needed beyond current implementation)
-- [ ] `service.py`
-  - [ ] `start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutput`
-  - [ ] `end_session(payload: SessionManagerEndInput) -> SessionManagerEndOutput`
+- `domain.py`
+  - `assert_can_end_session(session: Session, user_id: str)`
+  - `close_session(session: Session, end_time: datetime)`
+  - Centralized domain errors
+
+### Reason
+
+- No real `Session` domain object yet (Slice-1 uses in-memory dicts).
+- All lifecycle rules are already enforced in `service.py` and fully test-covered.
+- Extracting now would add an abstraction that will change once persistence is introduced.
+
+### Revisit when
+
+- `Session` becomes a real domain entity (ORM/dataclass)
+- lifecycle logic is reused outside `session_manager`
+- persistence or background session handling is added
+
+Deferral is intentional and creates no technical debt.
+
+------------------
+
+## Repository surface — revised status
+
+### Deferred (recommended)
+
+- `repository.py`
+  - `create_active_session(session: Session)`
+  - `get_active_session(session_id: str) -> Session | None`
+  - `mark_session_closed(session_id: str, end_time: datetime)`
+  - `append_event(...)`
+  - `session_log_path(...)`
+
+### Reason
+
+- Slice-1 uses an **in-memory dict** (`_sessions`) and a **single writer** (`schema_recorder`) by design.
+- Introducing a repository abstraction now would:
+  - duplicate existing logic,
+  - blur the service/recorder boundary you just locked with tests,
+  - require refactoring once persistence is added.
+- `append_event` and `session_log_path` already exist where they belong: **inside `schema_recorder`**, not session_manager.
+
+### Revisit when
+
+- sessions move to persistent storage (DB, KV store)
+- closed sessions must be queryable
+- multiple processes/services need shared access
+- session lifecycle logic is no longer in-memory
+
+Deferral is intentional; current architecture is correct for Slice-1.
+
+------------------------
+
+
 
 ### Routes inventory (kept here as reference)
-- [ ] `routes/sessions.py` (FastAPI adapter only)
-  - [ ] POST `/session_manager/sessions.start` → `SessionManagerStartOutput` (calls `service.start_session`)
-  - [ ] POST `/session_manager/sessions.end`   → `SessionManagerEndOutput`   (calls `service.end_session`)
-  - [ ] map domain errors to HTTP:
-    - [ ] `SessionNotFound` → 404
-    - [ ] `SessionUserMismatch` → 403
-    - [ ] `SessionAlreadyClosed` → 409
+- [ x] `routes/sessions.py` (FastAPI adapter only)
+  - [x ] POST `/session_manager/sessions.start` → `SessionManagerStartOutput` (calls `service.start_session`)
+  - [x ] POST `/session_manager/sessions.end`   → `SessionManagerEndOutput`   (calls `service.end_session`)
+  - [x ] map domain errors to HTTP:
+    - [x ] `SessionNotFound` → 404
+    - [ x] `SessionUserMismatch` → 403
+    - [x ] `SessionAlreadyClosed` → 409
 
 ---
