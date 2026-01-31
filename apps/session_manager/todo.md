@@ -220,31 +220,27 @@ performer_id must be provided for all human-originated requests; only "system" i
 Slice-1 scope: these errors originate from `session_manager` service logic (not string parsing); HTTP mappings are **locked and testable**.
 Rule: SessionUserMismatch is raised only if the session_id exists but belongs to a different user_id; if the session_id does not exist, raise SessionNotFound (do not merge these cases).
 
-- [ ] Introduce and enforce **typed session errors** raised by the service layer (no string-based discrimination):
-  - [ ] `SessionNotFound`
+- [x ] Introduce and enforce **typed session errors** raised by the service layer (no string-based discrimination):
+  - [x ] `SessionNotFound`
         Raised **only** when the `session_id` does not exist → **404 Not Found**
-  - [ ] `SessionUserMismatch`
+  - [x ] `SessionUserMismatch`
         Raised **only** when the `session_id` exists but belongs to a different `user_id` → **403 Forbidden**
-  - [ ] `SessionAlreadyClosed`
+  - [x ] `SessionAlreadyClosed`
         Raised when an end is attempted on an already-closed session → **409 Conflict**
-  - [ ] `SessionAlreadyActive` (optional but recommended)
+  - [x ] `SessionAlreadyActive` (optional but recommended)
         Raised when `/sessions.start` is called while an active session already exists for the user → **409 Conflict**
 
 Rule: SessionUserMismatch is raised only if the session_id exists but belongs to a different user_id; if the session_id does not exist, raise SessionNotFound (do not merge these cases).
 
-- [ ] Routes map **typed exceptions explicitly** (no substring heuristics, no generic `ValueError` handling):
-  - [ ] `/sessions.start`:
+- [ x] Routes map **typed exceptions explicitly** (no substring heuristics, no generic `ValueError` handling):
+  - [x ] `/sessions.start`:
     - `SessionAlreadyActive` → 409
-  - [ ] `/sessions.end`:
+  - [x ] `/sessions.end`:
     - `SessionNotFound` → 404
     - `SessionUserMismatch` → 403
     - `SessionAlreadyClosed` → 409
 
-- [ ] Add route-level tests asserting **exact mappings**:
-  - [ ] end non-existent `session_id` → 404
-  - [ ] end existing `session_id` with wrong `user_id` → 403
-  - [ ] repeated end on same `session_id` → 409
-  - [ ] start while active session exists → 409
+
 
 
 ---

@@ -9,7 +9,27 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
-## A3CP — session_manager domain error → HTTP mapping coverage
+## A3CP 2026-01-31— session_manager typed error → HTTP mapping (route-level contract)
+
+- Locked typed domain error → HTTP status mappings with explicit route-level tests:
+  - `/sessions.end` with non-existent `session_id` → 404 Not Found
+  - `/sessions.end` with existing `session_id` but wrong `user_id` → 403 Forbidden
+  - Repeated `/sessions.end` on same `session_id` → 409 Conflict
+  - `/sessions.start` while active session exists → 409 Conflict
+
+- Enforced strict separation of error classes:
+  - `SessionNotFound` raised only when session_id is absent
+  - `SessionUserMismatch` raised only when session exists but user_id differs
+  - Cases explicitly not merged or inferred
+
+- Added route-source guardrail test:
+  - Routes map **typed service exceptions explicitly**
+  - No substring heuristics, no generic `ValueError` handling
+  - HTTP mappings remain stable under refactor
+
+- All Slice-1 domain error and route mapping contracts now fully covered by tests
+
+## A3CP 2026-01-30 — session_manager domain error → HTTP mapping coverage
 
 - Locked domain error → HTTP status mappings with explicit API tests:
   - `SessionNotFound` → 404 Not Found
