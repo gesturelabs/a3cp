@@ -6,6 +6,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from apps.session_manager.routes.router import router as session_manager_router
+
 templates = Jinja2Templates(directory="apps/ui/templates")
 router = APIRouter()
 
@@ -82,3 +84,4 @@ app.mount(
 
 
 app.include_router(router)
+app.include_router(session_manager_router)

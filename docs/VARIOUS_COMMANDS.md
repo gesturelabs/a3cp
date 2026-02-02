@@ -16,7 +16,7 @@ http://127.0.0.1:8000/
 
 ## Verify POST /schema-recorder/append (Local)
 
-1. Start server: `uvicorn main:app --reload --host 127.0.0.1 --port 8000`
+1. Start server: uvicorn main:app --reload --host 127.0.0.1 --port 8000
 2. Open OpenAPI spec directly: http://127.0.0.1:8000/api/openapi.json
 3. Search in the JSON for: `/schema-recorder/append`
 4. Confirm it appears under `"post"` with the tag `"schema-recorder"`

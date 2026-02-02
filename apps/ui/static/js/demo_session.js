@@ -124,6 +124,7 @@ btnEnd.addEventListener("click", async () => {
         record_id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
         session_id: gate.session_id,
+        end_time: new Date().toISOString(),
     };
 
     try {

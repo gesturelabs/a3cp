@@ -9,6 +9,25 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## A3CP UI — Stage 1 Demo Session (2026-02-02)
+
+### Added
+- Demo Session page (`/demo/session`) rendering `demo_session.html`
+- Start Session UI wired to `POST /session_manager/sessions.start`
+- End Session UI wired to `POST /session_manager/sessions.end`
+- Session continuity via `sessionStorage` (tab-scoped)
+- Deterministic UI state machine: `idle | active | error`
+
+### Fixed
+- Mounted `session_manager` router into UI FastAPI app
+- End Session payload now includes required `end_time`
+
+### Verified
+- Local smoke test: start/end return 200
+- `session_id` displayed on start and cleared on successful end
+
+
 ## A3CP UI — Stage 1 Demo Session (2026-Feb-02)
 
 ### Added

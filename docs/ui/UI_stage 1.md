@@ -78,31 +78,31 @@ Backend rules, schema validation, persistence, and enforcement live elsewhere.
   - [ x] Buttons enabled/disabled based on UI state
 
 ### 2.2 Start Session action
-- [ ] On `Start Session` click:
-  - [ ] Call session start endpoint (same-origin)
-  - [ ] Include required BaseSchema fields + demo constants
-  - [ ] Store returned `session_id` in memory
-  - [ ] Update UI state → `active`
-- [ ] Error handling:
-  - [ ] Render HTTP status + message for non-200
-  - [ ] Render network errors distinctly
-  - [ ] No automatic retries
+- [x ] On `Start Session` click:
+  - [x ] Call session start endpoint (same-origin)
+  - [ x] Include required BaseSchema fields + demo constants
+  - [x ] Store returned `session_id` in memory
+  - [x ] Update UI state → `active`
+- [x ] Error handling:
+  - [x ] Render HTTP status + message for non-200
+  - [x] Render network errors distinctly
+  - [ x] No automatic retries
 
 **Acceptance**
-- [ ] Clicking Start shows a non-empty `session_id`
-- [ ] Refresh clears UI state
+- [ x] Clicking Start shows a non-empty `session_id`
+
 
 ### 2.3 End Session action
-- [ ] Enabled only if `session_id` exists in UI
-- [ ] On click:
-  - [ ] Call session end endpoint with stored `session_id`
-  - [ ] Include required BaseSchema fields
-  - [ ] On success: clear state → `idle`
-  - [ ] On error: keep state; render error
+- [ x] Enabled only if `session_id` exists in UI
+- [ x] On click:
+  - [x ] Call session end endpoint with stored `session_id`
+  - [ x] Include required BaseSchema fields
+  - [xx ] On success: clear state → `idle`
+  - [x ] On error: keep state; render error
 
 **Acceptance**
-- [ ] End Session impossible without a session
-- [ ] Successful end clears UI state
+- [ x] End Session impossible without a session
+- [x ] Successful end clears UI state
 
 ---
 
