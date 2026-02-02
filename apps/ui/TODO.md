@@ -8,7 +8,15 @@ Backend rules, schema validation, persistence, and enforcement live elsewhere.
 
 ## 0) UI scope & invariants (UI-only)
 - [ ] UI is same-origin, minimal, and **not linked** from primary navigation
-- [ ] Runtime state is **in-memory only** (refresh clears state; acceptable)
+- [ ] Runtime state is client-side and minimal
+- [ ] **Session continuity is allowed via `sessionStorage` for demo usability**
+  - [ ] Allowed keys (demo-only):
+    - [ ] `a3cp_demo_session_id`
+    - [ ] `a3cp_demo_record_id` (optional; only if needed)
+  - [ ] Constraints:
+    - [ ] **No `localStorage`**
+    - [ ] Clear these keys on `End Session`
+    - [ ] Provide a `Reset Demo` control that clears these keys + UI state
 - [ ] UI never writes logs, files, or artifacts
 - [ ] UI never re-implements schema rules or backend invariants
 - [ ] UI responsibilities are limited to:
@@ -26,13 +34,13 @@ Backend rules, schema validation, persistence, and enforcement live elsewhere.
   - [ ] Title: “A3CP Demo — Session”
   - [ ] Status indicator: `idle | active | error`
   - [ ] Read-only `session_id` field
-  - [ ] Buttons: `Start Session`, `End Session`
+  - [ ] Buttons: `Start Session`, `End Session`, `Reset Demo`
   - [ ] Buttons enabled/disabled based on UI state
 
 ### 1.2 Start Session action
 - [ ] On `Start Session` click:
   - [ ] Call session start endpoint (same-origin)
-  - [ ] Store returned `session_id` in memory
+  - [ ] Store returned `session_id` in `sessionStorage` (`a3cp_demo_session_id`)
   - [ ] Update UI state → `active`
 - [ ] Error handling:
   - [ ] Render HTTP status + message for non-200
@@ -41,33 +49,38 @@ Backend rules, schema validation, persistence, and enforcement live elsewhere.
 
 **Acceptance**
 - [ ] Clicking Start shows a non-empty `session_id`
-- [ ] Refresh clears UI state
+- [ ] Refresh does not lose `session_id`
+- [ ] `Reset Demo` clears `session_id` and UI state
 
 ### 1.3 End Session action
 - [ ] Enabled only if `session_id` exists in UI
 - [ ] On click:
   - [ ] Call session end endpoint with stored `session_id`
-  - [ ] On success: clear state → `idle`
+  - [ ] On success: clear `sessionStorage` keys → `idle`
   - [ ] On error: keep state; render error
 
 **Acceptance**
 - [ ] End Session impossible without a session
-- [ ] Successful end clears UI state
+- [ ] Successful end clears `session_id` and UI state
 
 ---
 
 ## 2) Shared UI utility: SessionContext (client-only)
 
-- [ ] Implement minimal in-memory helper:
-  - [ ] `getSessionId(): string | null`
-  - [ ] `setSessionId(id: string): void`
-  - [ ] `clearSessionId(): void`
+- [ ] Implement minimal helper (session-scoped persistence):
+  - [ ] `getSessionId(): string | null` (reads `sessionStorage`)
+  - [ ] `setSessionId(id: string): void` (writes `sessionStorage`)
+  - [ ] `clearSessionId(): void` (removes key)
 - [ ] Add guard helper:
   - [ ] `requireSessionIdOrBlock(actionName)`
-- [ ] Explicitly **no persistence** (no localStorage / sessionStorage)
+- [ ] Explicitly:
+  - [ ] **Allow `sessionStorage` only**
+  - [ ] **No `localStorage`**
 
 **Acceptance**
 - [ ] Any action requiring a session is blocked in UI if missing
+- [ ] Refresh does not clear `session_id`
+- [ ] End Session / Reset Demo clears `session_id`
 
 ---
 
@@ -84,6 +97,7 @@ Backend rules, schema validation, persistence, and enforcement live elsewhere.
   - [ ] `Start Capture`
   - [ ] `Stop Capture`
   - [ ] `End Session`
+  - [ ] `Reset Demo`
 
 ### 3.2 Session gating (UI-only)
 - [ ] If `session_id` missing:
@@ -104,6 +118,7 @@ Backend rules, schema validation, persistence, and enforcement live elsewhere.
 - [ ] Cleanly finalize on stop
 - [ ] `record_id`:
   - [ ] Display backend-provided value
+  - [ ] Store in `sessionStorage` only if needed (`a3cp_demo_record_id`)
   - [ ] Do **not** generate IDs client-side unless required by contract
 
 ### 3.5 Render latest output
@@ -117,9 +132,7 @@ Backend rules, schema validation, persistence, and enforcement live elsewhere.
 - [ ] UI shows capture status and a record identifier or confirmation
 - [ ] Capture actions never run without a `session_id`
 
-
 ### 3.x Capture window limit + optional session shortcut
-
 - [ ] Enforce a UI-level capture window limit (≤120 seconds):
   - [ ] Show countdown or elapsed time while capturing
   - [ ] Auto-stop capture at 120s if user does not stop manually
@@ -128,7 +141,6 @@ Backend rules, schema validation, persistence, and enforcement live elsewhere.
 - [ ] Session start UX (choose one; keep minimal):
   - [ ] Option A: Provide `Start Session` button on `/demo/gesture` that reuses the same start call as `/demo/session`
   - [ ] Option B: No button; show link/instruction to open `/demo/session` and start there
-
 
 ---
 

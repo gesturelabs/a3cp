@@ -57,6 +57,14 @@ async def contact_view(request: Request):
     )
 
 
+@router.get("/demo/session", response_class=HTMLResponse)
+async def demo_session_view(request: Request):
+    return templates.TemplateResponse(
+        "demo_session.html",
+        {"request": request, "current_page": None},
+    )
+
+
 app = FastAPI(
     title="GestureLabs Website",
     docs_url=None,

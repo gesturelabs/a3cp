@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>A3CP Demo — Session</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body>
+    <main>
+        <h1>A3CP Demo — Session</h1>
+
+        <div>
+            <div>Status: <span id="session-status">idle</span></div>
+
+            <label>
+                session_id
+                <input id="session-id" type="text" readonly value="" />
+            </label>
+
+            <div style="margin-top: 12px;">
+                <button id="btn-start">Start Session</button>
+                <button id="btn-end" disabled>End Session</button>
+                <button id="btn-clear-error" type="button">Clear error</button>
+            </div>
+
+            <div id="error-box" style="margin-top: 12px;"></div>
+        </div>
+    </main>
+
+    <script type="module" src="/static/js/demo_session.js"></script>
+</body>
+
+</html>

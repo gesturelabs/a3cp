@@ -9,6 +9,27 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## A3CP UI — Stage 1 Demo Session (2026-Feb-02)
+
+### Added
+- Minimal Demo Session UI (`/demo/session`)
+- Start Session → POST `/session_manager/sessions.start`
+- End Session → POST `/session_manager/sessions.end`
+- Session continuity via `sessionStorage` (tab-scoped)
+- Deterministic UI state machine: `idle | active | error`
+
+### Changed
+- UI entrypoint wiring in `apps/ui/main.py`
+- Updated UI TODO to reflect Stage-1 completion
+
+### Removed
+- Obsolete UI specification docs (`WEBSITE_UI_SPEC.md`, `blocks.md`)
+
+### Notes
+- `SessionManagerStartOutput` confirmed as top-level `session_id`
+- JS expects and validates `data.session_id` explicitly
+
+
 ## A3CP 2026-01-31— session_manager typed error → HTTP mapping (route-level contract)
 
 - Locked typed domain error → HTTP status mappings with explicit route-level tests:
