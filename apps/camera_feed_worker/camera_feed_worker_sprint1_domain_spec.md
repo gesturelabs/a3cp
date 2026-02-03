@@ -22,11 +22,11 @@ Out of scope:
 
 Per connection, at most one capture may be active.
 
-States:
+Service-level states:
 - `idle`
 - `active`
-- `closed` (terminal; immediately cleaned → `idle`)
-- `aborted` (terminal; immediately cleaned → `idle`)
+
+There are no persistent `closed` or `aborted` states in the service layer.
 
 Transition rules:
 - `capture.open` allowed only in `idle`
@@ -34,9 +34,112 @@ Transition rules:
 - `capture.frame_bytes` allowed only in `active` and only if a pending meta exists
 - `capture.close` allowed only in `active`
 - Any invalid transition → `ProtocolViolation`
-- `closed` and `aborted` transition back to `idle` after cleanup
+
+Terminal outcomes:
+- On successful close:
+  - emit `CleanupCapture(capture_id)`
+  - return to `idle`
+- On abort (error condition):
+  - emit `AbortCapture(error_code, capture_id)`
+  - emit `CleanupCapture(capture_id)`
+  - return to `idle`
+
+All cleanup is expressed via emitted actions, not via intermediate service states.
+---
+## X. Formal Transition Table (Sprint 1 — Service Layer)
+
+All handlers accept:
+- `current_state`
+- `event`
+- `now_ingest`
+
+They return:
+- `(new_state, actions)`
+or raise a typed domain error.
 
 ---
+
+### IdleState
+
+**capture.open**
+Preconditions:
+- Valid schema
+- Limits satisfied (`fps_target`, `width`, `height`, `pixels`)
+Transition:
+- → `ActiveState`
+Actions:
+- `RequestSessionValidation(user_id, session_id)`
+
+**capture.frame_meta / frame_bytes / capture.close**
+- → `ProtocolViolation`
+
+**tick**
+- Remain `IdleState`
+
+---
+
+### ActiveState
+
+**capture.open**
+- → `ProtocolViolation`
+
+**capture.frame_meta**
+Preconditions:
+- `seq == expected_next_seq`
+- `timestamp_frame ≥ last_frame_timestamp` (if exists)
+- No existing `pending_meta`
+Transition:
+- Set `pending_meta`
+- Remain `ActiveState`
+
+**frame_bytes**
+Preconditions:
+- `pending_meta` exists
+- `byte_length ≤ max_frame_bytes`
+- `total_bytes + byte_length ≤ max_total_bytes`
+- `received_byte_length == pending_meta.byte_length`
+
+Transition:
+- `frame_count += 1`
+- `total_bytes += byte_length`
+- `last_frame_timestamp = pending_meta.timestamp_frame`
+- `expected_next_seq += 1`
+- Clear `pending_meta`
+- Remain `ActiveState`
+Actions:
+- `ForwardFrame(capture_id, seq, timestamp_frame, byte_length)`
+
+**capture.close**
+Preconditions:
+- `timestamp_end ≥ timestamp_start`
+- `timestamp_end ≥ last_frame_timestamp` (if exists)
+- `(timestamp_end - timestamp_start) ≤ max_duration_s`
+- `pending_meta is None`
+Transition:
+- → `IdleState`
+Actions:
+- `CleanupCapture(capture_id)`
+
+**tick**
+Checks:
+- Ingest duration guard → `LimitDurationExceeded`
+- Meta→bytes timeout (>2s) → `ProtocolViolation`
+- Idle timeout (>5s no meta) → `ProtocolViolation`
+- Session re-check interval (≥5s) → emit `RequestSessionRecheck`
+Transition:
+- Remain `ActiveState` unless abort
+
+---
+
+### Abort Semantics
+
+On any domain error in `ActiveState`:
+- Emit `AbortCapture(error_code, capture_id)`
+- Emit `CleanupCapture(capture_id)`
+- → `IdleState`
+
+
+
 
 ## 2. Capture State Data (In-Memory, Per Capture)
 
@@ -56,7 +159,7 @@ Counters:
 - `ingest_timestamp_open` (server ingest-time)
 - `pending_meta`:
   - `seq`
-  - `timestamp`
+  - `timestamp_frame`
   - `byte_length`
   - `meta_ingest_timestamp`
 
@@ -135,8 +238,9 @@ Required handlers:
 
 ### Frame Meta
 - `seq == expected_next_seq`
-- `timestamp ≥ last_frame_timestamp` (if exists)
+- `timestamp_frame ≥ last_frame_timestamp` (if exists)
 - No existing `pending_meta`
+
 
 ### Frame Bytes
 - Must immediately follow matching meta
@@ -144,7 +248,7 @@ Required handlers:
 - After acceptance:
   - increment `frame_count`
   - increment `total_bytes`
-  - update `last_frame_timestamp`
+  - update `last_frame_timestamp` (from `timestamp_frame`)
   - increment `expected_next_seq`
   - clear `pending_meta`
 

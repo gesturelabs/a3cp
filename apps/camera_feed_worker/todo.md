@@ -2,6 +2,16 @@
 
 ---
 
+## A0) Schemas
+
+- [ ] Replace/deprecate legacy `camera_feed_worker` schemas
+- [ ] Define Sprint 1 control-plane schemas:
+  - `CameraFeedWorkerInput` (event-discriminated superset: open / frame_meta / close)
+  - `CameraFeedWorkerOutput` (`capture.abort` only)
+- [ ] Update domain spec: use `timestamp_frame` (not `timestamp`) for frame event-time
+
+
+
 ## A) App Skeleton
 
 - [ ] Create `apps/camera_feed_worker/`
@@ -16,21 +26,7 @@
   - Ensure single registration only
 
 ---
-
-## B) Identity & Correlation Enforcement
-
-- [ ] Enforce required IDs on `capture.open`
-  - `user_id`
-  - `session_id`
-  - `capture_id`
-  - `record_id`
-- [ ] Reject missing `capture_id`
-- [ ] Ensure `capture_id` is stable for entire capture
-- [ ] Do not generate `session_id`, `capture_id`, or `record_id` in this module
-
----
-
-## C) Service Layer (Pure Domain Logic)
+## B) Service Layer (Pure Domain Logic)
 
 Implement state machine + limit enforcement per domain spec.
 
@@ -50,6 +46,22 @@ Implement state machine + limit enforcement per domain spec.
 - [ ] Ensure service raises typed domain errors only
 - [ ] Ensure service has zero FastAPI imports
 - [ ] Ensure service performs no IO
+
+
+
+## C) Identity & Correlation Enforcement
+
+- [ ] Enforce required IDs on `capture.open`
+  - `user_id`
+  - `session_id`
+  - `capture_id`
+- [ ] Reject missing `capture_id`
+- [ ] Ensure `capture_id` is stable for entire capture
+- [ ] Enforce `record_id` uniqueness per control message (message identity only)
+- [ ] Do not generate `session_id`, `capture_id`, or `record_id` in this module
+
+---
+
 
 ---
 
@@ -72,15 +84,16 @@ Implement state machine + limit enforcement per domain spec.
 
 ---
 
+
 ## E) WebSocket Route Layer
 
 - [ ] Implement `WS /camera_feed_worker/capture`
-- [ ] Parse JSON control messages
-- [ ] Accept binary frame bytes
+- [ ] Parse and validate JSON control messages against `CameraFeedWorkerInput`
+- [ ] Accept WS binary frame bytes (JPEG) immediately after matching `capture.frame_meta`
 - [ ] Maintain connection-local ephemeral state
 - [ ] Call service handlers
 - [ ] Map domain errors to:
-  - `capture.abort` control message
+  - Emit `CameraFeedWorkerOutput(event="capture.abort", capture_id, error_code)`
   - correct WebSocket close code
 - [ ] Integrate session validation:
   - [ ] validate at `capture.open`
@@ -89,7 +102,6 @@ Implement state machine + limit enforcement per domain spec.
   - [ ] No persistence
   - [ ] No business logic duplication
   - [ ] No ID generation
-
 ---
 
 ## F) Route Migration (Deep Import Removal)
@@ -126,11 +138,15 @@ Implement state machine + limit enforcement per domain spec.
 - [ ] Correct close codes
 
 ### Guardrail Tests
+### Guardrail Tests
 - [ ] No deep schema imports in shim
 - [ ] Required schemas exported in `schemas.__all__`
 - [ ] Shim contains no route logic
 - [ ] No filesystem writes in app
 - [ ] No schema_recorder repository imports
+- [ ] Control messages validate required fields by `event` (open/meta/close)
+- [ ] Ensure no schema includes frame bytes or base64 image fields
+
 
 ---
 

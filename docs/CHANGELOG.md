@@ -10,6 +10,43 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+# CHANGELOG — camera_feed_worker (Sprint 1 — Domain & Schema Alignment) (2026-Feb-03)
+
+## [Unreleased]
+
+### Schemas
+- Replaced legacy camera_feed_worker schemas with Sprint 1 control-plane protocol schemas.
+- Implemented unified `CameraFeedWorkerInput` (event-discriminated superset: `capture.open`, `capture.frame_meta`, `capture.close`).
+- Implemented minimal `CameraFeedWorkerOutput` (`capture.abort` only).
+- Separated control-plane JSON messages from binary JPEG frame transport.
+- Introduced explicit event-time fields:
+  - `timestamp_start`
+  - `timestamp_frame`
+  - `timestamp_end`
+- Avoided collision with `BaseSchema.timestamp` (message timestamp).
+
+### Domain Specification
+- Simplified service state model:
+  - Removed `closed` and `aborted` as persistent states.
+  - State set now strictly: `idle`, `active`.
+- Removed `record_id` from `ActiveState` (message identity only).
+- Added authoritative Formal Transition Table to Sprint 1 spec.
+- Added invariants:
+  - `received_byte_length == pending_meta.byte_length`
+  - `pending_meta is None` required for `capture.close`
+- Clarified abort semantics (AbortCapture + CleanupCapture → IdleState).
+
+### TODO Updates
+- Added explicit schema work item (A0).
+- Clarified route responsibilities:
+  - Validate against `CameraFeedWorkerInput`
+  - Binary frames not part of schema
+  - Abort output must use `CameraFeedWorkerOutput`
+- Added guardrail tests for schema validation and absence of frame bytes in schema.
+- Reordered execution plan to implement Service Layer before route enforcement.
+
+
+
 ## A3CP UI — Stage 1 Demo Session (2026-02-02)
 
 ### Added
