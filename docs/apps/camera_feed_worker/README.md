@@ -3,24 +3,37 @@
 ### Deprecate superseded by apps/module
 
 
+
 ## Purpose
-Captures frames from a local video input device (e.g., webcam) and streams them to downstream modules in real time.
-Acts as the source for all video-derived data such as landmarks, classification, and recording.
+Ingests bounded video capture windows from a capture client (Sprint 1: browser via WebSocket) and streams them to downstream modules in real time.
+Acts as the ingest boundary for all client-derived video data such as landmarks, classification, and recording.
+
+
 
 | Field             | Value                  |
 |------------------|------------------------|
 | **Module Name**  | `camera_feed_worker`   |
 | **Module Type**  | `worker`               |
-| **Inputs From**  | `session_manager` |
-| **Outputs To**   | `landmark_extractor`, `schema_recorder` |
+| **Inputs From**  | capture client (Sprint 1: browser via WebSocket), `session_manager` (session_id policy) |
+| **Outputs To**   |`landmark_extractor` and other downstream vision modules/classifiers (e.g., object detection); `schema_recorder` only indirectly via downstream emitters |
 | **Produces A3CPMessage?** | ❌ No |
+WebSocket control messages (e.g., `capture.open`, `capture.frame_meta`, `capture.close`)
+reuse a subset of BaseSchema-style metadata fields (`schema_version`, `record_id`,
+`user_id`, `session_id`) strictly as transport metadata. These are NOT
+A3CPMessage records and are not written via `schema_recorder`.
+
+
+
 
 ## Responsibilities
-- Open and manage access to the selected video device
-- Stream video frames at the configured resolution and frame rate
-- Timestamp each frame accurately (monotonic or synchronized clock)
-- Forward frames to downstream consumers (e.g., `LandmarkExtractor`)
-- Signal availability/failure of video input to orchestrating modules
+- Accept bounded capture windows from a capture client (Sprint 1: browser via WebSocket)
+- Enforce server-side guardrails (duration, FPS, resolution, total frames/bytes)
+- Validate and preserve event-time timestamps supplied by the capture client
+- Optionally attach ingest-time timestamps for diagnostics (must not overwrite event-time)
+- Validate and propagate capture/session metadata
+- Forward frames or window payload to downstream consumers (e.g., `LandmarkExtractor`)
+- Signal ingest errors or capture failures to orchestrating modules
+
 
 ## Not Responsible For
 - Landmark extraction or classification
@@ -29,64 +42,96 @@ Acts as the source for all video-derived data such as landmarks, classification,
 - Intent capture or session coordination
 
 ## Inputs
-- Configuration parameters:
-  - `device_id` (e.g., `/dev/video0`, index 0)
-  - Target resolution (e.g., 640x480)
-  - Target FPS (e.g., 30)
-- Optional metadata (used for downstream schema attachment): session_id, user_id. These fields do not influence video capture, but are useful for tagging frames in downstream logs.
+- WebSocket capture messages from a capture client (Sprint 1: browser):
+  - `capture.open` (window metadata and capture parameters)
+ - `capture.frame_meta` (JSON; per-frame metadata)
+- `capture.frame_bytes` (binary; JPEG frame bytes immediately following the corresponding frame_meta message; byte_length must match)
 
+  - `capture.close` (window termination)
 
-`camera_feed_worker` receives its runtime configuration from the `session_manager`.
+- Required metadata:
+  - `user_id`
+  - `session_id` (explicit; must be provided; validation as active session is a slice-level policy decision)
+  - `capture_id` (UUID; window identity)
+  - `timestamp_start` / `timestamp_end`
 
-Configuration includes:
+- Capture parameters (declared by client; server-enforced caps apply):
+  - Target resolution (≤ 480p in Sprint 1)
+  - Target FPS (≤ 15 in Sprint 1)
+  - Encoding (e.g., `image/jpeg`)
 
-- `device_id` or camera index
-- Target resolution (e.g., 640x480)
-- Target FPS (e.g., 30)
+### Capture Parameters (Sprint 1 Policy)
 
-These values may be selected by user profile, test mode, or default fallback,
-but are always injected at runtime via session configuration.
+In Sprint 1, capture parameters are declared by the browser client in
+`capture.open` and enforced server-side.
 
-This ensures:
-- Separation of capture and config logic
-- Statelessness and reentrancy
-- Compatibility with session-based resource control
+Declared by client:
+- Target resolution
+- Target FPS
+- Encoding (e.g., `image/jpeg`)
+
+Server behavior:
+- Enforces hard caps (duration, FPS, resolution, total frames/bytes)
+- May clamp or normalize effective parameters
+- Returns accepted parameters in `capture.ack`
+
+The server does not own or configure OS-level camera devices in Sprint 1.
+
 
 
 ## Outputs
-- Timestamped video frames (e.g., OpenCV `np.ndarray`)
-- Stream metadata (e.g., timestamp, device_id, optional stream_segment_id, frame_index) — conforms to Section 3.1
-- Error signals (e.g., device unavailable, read failure)
-This module does not emit schema-compliant messages directly. Instead, it produces raw video frames (np.ndarray) and basic metadata. Schema wrapping (e.g., into RawActionRecord or A3CPMessage) is performed downstream (e.g., by the LandmarkExtractor or SchemaRecorder).
+- Validated bounded capture windows (in-memory) forwarded to downstream consumers
+- Encoded video frames (e.g., JPEG bytes) with associated metadata
+- Capture-level summary metadata (frames received, duration, bytes)
+- Error signals (e.g., guardrail violation, malformed payload, session invalid)
+
+This module does not emit schema-compliant messages directly. It forwards validated capture data and metadata to downstream modules (e.g., `landmark_extractor`). Schema wrapping into `A3CPMessage` or other schema types is performed downstream.
+
 
 ## OUTPUT PAYLOAD FORMAT (internal)
-This module emits video frames as OpenCV `np.ndarray` objects, along with metadata
-used by downstream modules (e.g., `landmark_extractor`, `schema_recorder`).
+This module forwards bounded capture windows as in-memory data structures,
+suitable for downstream processing (e.g., `landmark_extractor`) without disk writes.
 
-Each frame is passed as a tuple or dict-like object with the following structure:
-
+Capture window representation:
 
 {
-  "frame": <np.ndarray>,                 # Raw RGB or BGR image array
-  "timestamp": <ISO 8601 string>,       # UTC timestamp of frame capture
-  "device_id": <string>,                # Logical source ID for the video device
-  "frame_index": <int, optional>,       # Frame number in sequence
-  "stream_segment_id": <str, optional>, # Optional windowing ID
-  "session_id": <str, optional>,        # Session identifier for downstream logs
-  "user_id": <str, optional>            # Optional pseudonymous user ID
-}
+  "capture_id": <UUID string>,            # Window identity (authoritative from client)
+  "user_id": <string>,
+  "session_id": <string>,
+  "timestamp_start": <ISO 8601 string>,   # Event-time from client
+  "timestamp_end": <ISO 8601 string>,     # Event-time from client
+  "encoding": <string>,                   # e.g., "image/jpeg"
+"frames": [
+  {
+    "seq": <int>,
+    "timestamp": <ISO 8601 string>,
+    "content_type": <string>,
+    "bytes": <binary>,   # In-memory only (not JSON-serializable)
+    "byte_length": <int>
+  },
+  ...
+]
+
+Note:
+- This structure is an in-process Python data structure.
+- `bytes` are never serialized to JSON.
+- No temporary files or disk writes are permitted in Sprint 1.
 
 This format must be:
-- Emitted via thread-safe queue or callback
-- Interpreted by consumers for further processing or schema wrapping
-- Synchronized using monotonic timestamps with millisecond resolution
+- Buffered in memory only (no temp files, no disk writes)
+- Enforced by guardrails (duration/FPS/resolution/bytes)
+- Forwarded to consumers via a service/repository boundary
+- Interpreted by consumers for schema wrapping and logging (schema_recorder only)
+
 
 
 ## Runtime Considerations
-- Should support threaded or asynchronous capture to avoid blocking I/O
-- Must expose a clean interface (e.g., iterator, callback, queue) for downstream modules
-- Camera failure must raise recoverable exceptions and emit diagnostic logs
-- Should allow graceful shutdown/restart across sessions
+- WebSocket ingest must be non-blocking and resilient under bursty frame delivery
+- Must enforce guardrails and backpressure (drop/close) without unbounded memory growth
+- Must expose a clean forwarding interface (e.g., async call or in-memory queue) for downstream vision modules/classifiers
+- Ingest failures (malformed messages, disconnects, limit violations) must be recoverable and produce diagnostic logs
+- Must allow graceful shutdown/restart across sessions (close active captures; release buffers)
+
 
 ---
 
@@ -102,12 +147,13 @@ The `camera_feed_worker` was split out of the former `video_streamer` module to 
 ---
 
 ## Edge Case Handling
-- If no video device is detected, the module must log and fail gracefully.
-- If the device is busy or permissions are denied, fallback behavior should be defined (e.g., retry or abort).
-- Frame reads may occasionally return `None`; these should be skipped with logs.
-- Timestamps must remain monotonic to preserve event ordering even during frame skips or lag.
-- Frame dropping under high load should be tunable (e.g., max buffer size, skip strategy).
-- Should support a simulated camera mode for dev/test (e.g., looping a sample video file).
+- If browser camera permissions are denied or no camera is available, client must surface an actionable error; server receives no frames.
+- If the client starts a capture but sends no frames (idle), server must auto-close on idle timeout with an error/summary.
+- Frames may be dropped under load; server should log drops and enforce caps (max buffer, max frames/bytes).
+- Timestamps must be validated for sane ordering; do not require monotonic clocks, but reject clearly invalid sequences.
+- Disconnect mid-capture must abort the window cleanly (close + error/summary) and release memory buffers.
+- Provide a simulated client mode for dev/test (generated frames, no disk persistence).
+
 
 ---
 
@@ -121,32 +167,43 @@ The `camera_feed_worker` was split out of the former `video_streamer` module to 
 ---
 
 ## Development TODOs
-- [ ] Implement threaded frame capture with `cv2.VideoCapture`
-- [ ] Expose a generator/queue interface for downstream pull or push
-- [ ] Add logging for stream start/stop, errors, and dropped frames
-- [ ] Define CameraFrameMetadata model aligned with A3CPMessage input structure (timestamp, device_id, modality="image", source="communicator", etc.)
-- [ ] Implement test camera fallback using pre-recorded sample
-- [ ] Add `dev_mode` CLI or config toggle
-- [ ] Validate device availability on startup
+- [ ] Implement WebSocket ingest for bounded capture windows (`capture.open/frame/close`)
+- [ ] Enforce guardrails (duration/FPS/resolution/frames/bytes) server-side
+- [ ] Validate and propagate `session_id` + `capture_id` + timestamps
+- [ ] Forward window payload (memory-only) to `landmark_extractor` (define boundary)
+- [ ] Add logging for ingest start/close, errors, drops, and limit rejections
+- [ ] Define minimal metadata model(s) for capture/window + per-frame headers (transport envelope, not A3CPMessage)
+- [ ] Add dev/test client mode (simulated frames) for deterministic tests (no disk persistence)
+
 
 ---
 
-## Open Questions
-- Should this support dynamic camera switching during a session?
-- Should timestamp synchronization with audio use wall clock or sync pulse?
-- Should frame skip/backpressure be handled here or downstream?
-- Is there value in optionally saving preview snapshots for debugging?
-- Do we need an internal FPS monitor to detect drift?
+## Known Issues / Risks
+- Browser capture constraints may vary across devices (camera resolution, FPS limits, codec support)
+- Network latency or bandwidth limits may affect frame delivery and effective FPS
+- Large capture windows may trigger server guardrail rejections (duration/bytes/frame caps)
+- Out-of-order or dropped WebSocket frames must be handled defensively
+- MediaPipe or downstream pipeline compatibility depends on frame encoding and format; validation required
+- Disconnects mid-capture must be handled cleanly (abort + summary/error)
+
 
 ---
 
 ## Integration Notes
-- **To `LandmarkExtractor`**: Frame is passed directly via shared queue or callback.
-- **To `schema_recorder`**: Metadata may be attached downstream for logging.
-- **From config manager**: Device index, resolution, and FPS may be injected via session config.
-- **Output schema**: Frames are raw (`np.ndarray`) with metadata; downstream schema validation applies (e.g., `RawActionRecord`).
+- **To downstream vision modules (e.g., `landmark_extractor`, object classifiers)**:
+  Bounded capture windows are forwarded via a defined service/repository boundary
+  (async call or in-memory buffer; no disk persistence).
 
----
+- **To `schema_recorder`**:
+  No direct writes. Any schema-compliant events are emitted by downstream modules
+  and recorded exclusively via `schema_recorder.service`.
+
+- **From `session_manager`**:
+  Receives and validates `session_id` (no device configuration injection in Sprint 1).
+
+- **Transport boundary**:
+  Ingest occurs via WebSocket; frames are encoded bytes with metadata,
+  not Python-native `np.ndarray` objects.
 
 
 -------------------------------------------------------------------------------

@@ -22,10 +22,10 @@ session_manager
 
 Goal: exercise session lifecycle end-to-end with minimal UI.
 
-- [ ] Start Session UI
-- [ ] End Session UI
-- [ ] In-memory session state only
-- [ ] Error rendering
+- [ x] Start Session UI
+- [ x] End Session UI
+- [ x] In-memory session state only
+- [ x] Error rendering
 
 Rationale: provides fast feedback that session + recorder wiring works.
 

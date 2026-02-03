@@ -9,8 +9,8 @@ Each module TODO is self-contained and authoritative.
 - schemas fixed, tests passing
 
 ## Active Modules
-- session_manager → TODO/session_manager.TODO.md
-- Demo UI → TODO/demo_ui.TODO.md
+x session_manager → TODO/session_manager.TODO.md
+x Demo UI → TODO/demo_ui.TODO.md
 - camera_feed_worker → TODO/camera_feed_worker.TODO.md
 - landmark_extractor → TODO/landmark_extractor.TODO.md
 - schema recording → TODO/schema_recording.TODO.md
