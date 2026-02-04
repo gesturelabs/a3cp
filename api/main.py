@@ -1,6 +1,7 @@
 # api/main.py
 from fastapi import FastAPI
 
+from apps.camera_feed_worker.routes.router import router as camera_feed_worker_router
 from apps.schema_recorder.routes.router import router as schema_recorder_router
 from apps.session_manager.routes.router import router as session_manager_router
 
@@ -13,6 +14,7 @@ app = FastAPI(
 # Mount routers
 app.include_router(session_manager_router)
 app.include_router(schema_recorder_router)
+app.include_router(camera_feed_worker_router)
 
 
 # Simple root health check

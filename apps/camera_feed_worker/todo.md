@@ -4,48 +4,118 @@
 
 ## A0) Schemas
 
-- [ ] Replace/deprecate legacy `camera_feed_worker` schemas
-- [ ] Define Sprint 1 control-plane schemas:
+- [x ] Replace/deprecate legacy `camera_feed_worker` schemas
+- [x ] Define Sprint 1 control-plane schemas:
   - `CameraFeedWorkerInput` (event-discriminated superset: open / frame_meta / close)
   - `CameraFeedWorkerOutput` (`capture.abort` only)
-- [ ] Update domain spec: use `timestamp_frame` (not `timestamp`) for frame event-time
+- [ x] Update domain spec: use `timestamp_frame` (not `timestamp`) for frame event-time
 
 
 
 ## A) App Skeleton
 
-- [ ] Create `apps/camera_feed_worker/`
-- [ ] Create:
-  - [ ] `routes/__init__.py`
-  - [ ] `routes/router.py`
-  - [ ] `service.py`
-  - [ ] `repository.py`
-  - [ ] `tests/`
+## A) App Skeleton
 
-- [ ] Mount router in `api/main.py`
-  - Ensure single registration only
+- [ ] Create package structure:
+  - [ x] `apps/camera_feed_worker/__init__.py`
+  - [x ] `apps/camera_feed_worker/routes/__init__.py`
+  - [ x] `apps/camera_feed_worker/routes/router.py`
+  - [ x] `apps/camera_feed_worker/service.py`
+  - [ x] `apps/camera_feed_worker/repository.py`
+  - [ x] `apps/camera_feed_worker/tests/__init__.py`
 
----
+- [ x] Router design:
+  - [ x] Prefix: `/camera_feed_worker`
+  - [ x] Tags: `["camera_feed_worker"]`
+  - [ x] WebSocket endpoint: `/camera_feed_worker/ws`
+  - [x ] HTTP endpoint: `POST /camera_feed_worker/capture.tick`
+
+- [x ] Mount router in `api/main.py`
+  - [x ] Import `camera_feed_worker_router`
+  - [x ] Register with `app.include_router(...)`
+  - [x ] Ensure single registration only
+
+
 ## B) Service Layer (Pure Domain Logic)
 
 Implement state machine + limit enforcement per domain spec.
 
-- [ ] Implement state model (`idle`, `active`)
+- [x ] Implement state model (`idle`, `active`)
 - [ ] Implement handlers:
-  - [ ] `handle_open`
-  - [ ] `handle_frame_meta`
-  - [ ] `handle_frame_bytes`
-  - [ ] `handle_close`
-  - [ ] `handle_tick`
-- [ ] Implement:
-  - [ ] ordering validation
-  - [ ] timestamp validation
-  - [ ] limit accounting (frames, bytes, duration)
-  - [ ] timeout detection
-  - [ ] session re-check trigger emission
-- [ ] Ensure service raises typed domain errors only
-- [ ] Ensure service has zero FastAPI imports
-- [ ] Ensure service performs no IO
+  - [ x] `handle_open`
+  - [x ] `handle_frame_meta`
+  - [ x] `handle_frame_bytes`
+  - [x ] `handle_close`
+  - [ x] `handle_tick`
+- [x ] Implement:
+  - [ x] ordering validation
+  - [ x] timestamp validation
+  - [ x] limit accounting (frames, bytes, duration)
+  - [ x] timeout detection
+  - [ x] session re-check trigger emission
+- [ x] Ensure service raises typed domain errors only
+- [ x] Ensure service has zero FastAPI imports
+- [ x] Ensure service performs no IO
+
+
+## Service Layer Tests (camera_feed_worker)
+
+### 1. Open / State Transitions
+- [ ] `capture.open` from Idle → Active
+- [ ] `capture.open` from Active → abort + cleanup
+- [ ] `capture.close` from Idle → ProtocolViolation
+- [ ] Unknown event_kind → ProtocolViolation
+
+### 2. Protocol Sequencing
+- [ ] `frame_meta` with correct `seq` accepted
+- [ ] `frame_meta` with wrong `seq` → abort
+- [ ] `frame_meta` when `pending_meta` exists → abort
+- [ ] `frame_bytes` without `pending_meta` → abort
+- [ ] `frame_bytes` with mismatched byte_length → abort
+- [ ] `capture.close` with `pending_meta` present → abort
+
+### 3. Timestamp Ordering
+- [ ] `timestamp_frame` < `last_frame_timestamp` → abort
+- [ ] `timestamp_end` < `timestamp_start` → abort
+- [ ] `timestamp_end` < `last_frame_timestamp` → abort
+
+### 4. Duration Enforcement
+- [ ] Ingest-time duration exceeded during `tick` → abort
+- [ ] Event-time duration exceeded on `capture.close` → abort
+- [ ] Valid duration close returns Idle + CleanupCapture
+
+### 5. Frame / Byte Limits
+- [ ] Frame count exceeds `MAX_FRAMES` → abort
+- [ ] Single frame exceeds `MAX_FRAME_BYTES` → abort
+- [ ] Total bytes exceed `MAX_TOTAL_BYTES` → abort
+- [ ] Valid frame increments counters correctly
+
+### 6. Timeout Handling (handle_tick)
+- [ ] Meta→bytes timeout (>2s) → abort
+- [ ] Idle timeout (>5s no meta) → abort
+- [ ] No timeout within limits → remain Active
+
+### 7. Session Re-check Emission
+- [ ] `tick` before 5s → no recheck
+- [ ] `tick` at ≥5s → emit `RequestSessionRecheck`
+- [ ] Recheck timestamp updates after emission
+
+### 8. Abort Semantics (dispatch)
+- [ ] Any CameraFeedWorkerError in ActiveState → returns IdleState
+- [ ] AbortCapture action emitted with correct error_code
+- [ ] CleanupCapture action emitted with correct capture_id
+- [ ] Error in IdleState is re-raised (no abort wrapper)
+
+### 9. Happy Path Integration
+- [ ] Full valid flow:
+      open → meta → bytes → close
+      → ends in IdleState
+      → emits ForwardFrame(s)
+      → emits CleanupCapture
+
+
+---
+
 
 
 
@@ -116,13 +186,7 @@ Implement state machine + limit enforcement per domain spec.
 
 ## G) Tests
 
-### Service Tests
-- [ ] Protocol sequencing
-- [ ] Timestamp ordering
-- [ ] Duration enforcement
-- [ ] Frame/byte limits
-- [ ] Timeout handling
-- [ ] Session re-check emission
+
 
 ### Repository Tests
 - [ ] Buffer overflow
@@ -137,7 +201,7 @@ Implement state machine + limit enforcement per domain spec.
 - [ ] Session closed mid-capture
 - [ ] Correct close codes
 
-### Guardrail Tests
+
 ### Guardrail Tests
 - [ ] No deep schema imports in shim
 - [ ] Required schemas exported in `schemas.__all__`
@@ -155,3 +219,15 @@ Implement state machine + limit enforcement per domain spec.
 - [ ] App boots cleanly
 - [ ] WebSocket route registered
 - [ ] Basic connect succeeds
+
+## WebSocket Streaming Integration (Pre-Classifier Gate)
+
+- [ ] Implement internal tick loop per WebSocket connection
+  - [ ] Periodic call to `dispatch(..., "tick", ...)`
+  - [ ] Ensure single-writer semantics for state mutation
+  - [ ] Cancel tick task cleanly on disconnect
+  - [ ] Abort + cleanup on timeout-triggered errors
+- [ ] Remove reliance on HTTP `capture.tick` for safety enforcement
+- [ ] Verify duration guard, idle timeout, and meta→bytes timeout fire autonomously
+- [ ] Only after above is complete:
+  - [ ] Enable frame forwarding to classifier

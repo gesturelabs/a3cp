@@ -8,6 +8,57 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+# Changelog — camera_feed_worker (Sprint 1) 2026-Feb-04
+
+## Added
+- New module: `apps/camera_feed_worker/`
+  - `__init__.py`
+  - `service.py` (pure domain state machine implementation)
+  - `repository.py` (in-memory per-connection state holder)
+  - `routes/__init__.py`
+  - `routes/router.py`
+    - Prefix: `/camera_feed_worker`
+    - WebSocket endpoint: `/camera_feed_worker/ws`
+    - HTTP endpoint: `POST /camera_feed_worker/capture.tick`
+  - `tests/__init__.py`
+
+## Modified
+- `api/main.py`
+  - Imported `camera_feed_worker_router`
+  - Mounted router via `app.include_router(...)`
+  - Ensured single registration
+
+- `apps/camera_feed_worker/todo.md`
+  - Completed App Skeleton section
+  - Completed Service Layer implementation checklist
+  - Added pre-classifier gate: internal tick loop requirement
+
+## Implementation Details
+- Implemented state model: `IdleState`, `ActiveState`
+- Implemented handlers:
+  - `handle_open`
+  - `handle_frame_meta`
+  - `handle_frame_bytes`
+  - `handle_close`
+  - `handle_tick`
+- Implemented strict limit enforcement:
+  - FPS / resolution / pixels
+  - Frame count / frame bytes / total bytes
+  - Ingest-time duration guard
+  - Event-time duration validation
+- Implemented protocol validation:
+  - Sequencing (`seq`)
+  - Timestamp monotonicity
+  - `pending_meta` gating
+- Implemented timeout logic:
+  - Meta→bytes timeout
+  - Idle timeout
+- Implemented session re-check emission
+- Centralized abort semantics in `dispatch()`
+- Service layer contains:
+  - No FastAPI imports
+  - No IO
+  - Transport-agnostic typed domain errors only
 
 
 # CHANGELOG — camera_feed_worker (Sprint 1 — Domain & Schema Alignment) (2026-Feb-03)
