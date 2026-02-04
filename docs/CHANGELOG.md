@@ -8,6 +8,61 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+# Changelog — camera_feed_worker Service Tests (Sprint 1) 2026-Feb-04
+
+## Added
+
+Comprehensive service-layer test suite for `camera_feed_worker`:
+
+- `tests/test_service_abort_semantics.py`
+  - Verifies centralized abort behavior in `dispatch()`
+  - Confirms abort + cleanup on ActiveState errors
+  - Confirms IdleState errors are re-raised
+
+- `tests/test_service_duration_enforcement.py`
+  - Ingest-time duration guard
+  - Event-time duration validation on close
+  - Valid duration close path
+
+- `tests/test_service_frame_and_byte_limits.py`
+  - Frame count limit
+  - Per-frame byte limit
+  - Total byte limit
+  - Counter increment correctness
+
+- `tests/test_service_happy_path.py`
+  - Full valid lifecycle:
+    open → meta → bytes → close
+  - Verifies ForwardFrame emission
+  - Verifies CleanupCapture on successful close
+
+- `tests/test_service_protocol_sequencing.py`
+  - Sequencing enforcement (`seq`)
+  - Pending meta gating
+  - Byte-length invariant
+  - Close with pending meta
+
+- `tests/test_service_timeouts.py`
+  - Meta→bytes timeout
+  - Idle timeout baseline
+  - No-timeout stability case
+
+- `tests/test_service_timestamp_ordering.py`
+  - Frame timestamp monotonicity
+  - Close timestamp validation rules
+
+## Result
+
+- All state machine transitions covered
+- All limit rules verified
+- All timeout behaviors validated
+- Abort semantics fully tested
+- Happy path integration verified
+
+Service layer is now specification-complete and test-validated.
+
+
 # Changelog — camera_feed_worker (Sprint 1) 2026-Feb-04
 
 ## Added

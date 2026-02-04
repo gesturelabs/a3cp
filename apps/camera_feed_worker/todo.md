@@ -61,34 +61,34 @@ Implement state machine + limit enforcement per domain spec.
 ## Service Layer Tests (camera_feed_worker)
 
 ### 1. Open / State Transitions
-- [ ] `capture.open` from Idle → Active
-- [ ] `capture.open` from Active → abort + cleanup
-- [ ] `capture.close` from Idle → ProtocolViolation
-- [ ] Unknown event_kind → ProtocolViolation
+- [ x] `capture.open` from Idle → Active
+- [ x] `capture.open` from Active → abort + cleanup
+- [ x] `capture.close` from Idle → ProtocolViolation
+- [x ] Unknown event_kind → ProtocolViolation
 
 ### 2. Protocol Sequencing
-- [ ] `frame_meta` with correct `seq` accepted
-- [ ] `frame_meta` with wrong `seq` → abort
-- [ ] `frame_meta` when `pending_meta` exists → abort
-- [ ] `frame_bytes` without `pending_meta` → abort
-- [ ] `frame_bytes` with mismatched byte_length → abort
-- [ ] `capture.close` with `pending_meta` present → abort
+- [ x] `frame_meta` with correct `seq` accepted
+- [x ] `frame_meta` with wrong `seq` → abort
+- [x ] `frame_meta` when `pending_meta` exists → abort
+- [x ] `frame_bytes` without `pending_meta` → abort
+- [x ] `frame_bytes` with mismatched byte_length → abort
+- [x ] `capture.close` with `pending_meta` present → abort
 
 ### 3. Timestamp Ordering
-- [ ] `timestamp_frame` < `last_frame_timestamp` → abort
-- [ ] `timestamp_end` < `timestamp_start` → abort
-- [ ] `timestamp_end` < `last_frame_timestamp` → abort
+- [x ] `timestamp_frame` < `last_frame_timestamp` → abort
+- [ x] `timestamp_end` < `timestamp_start` → abort
+- [x ] `timestamp_end` < `last_frame_timestamp` → abort
 
 ### 4. Duration Enforcement
-- [ ] Ingest-time duration exceeded during `tick` → abort
-- [ ] Event-time duration exceeded on `capture.close` → abort
-- [ ] Valid duration close returns Idle + CleanupCapture
+- [ x] Ingest-time duration exceeded during `tick` → abort
+- [ x] Event-time duration exceeded on `capture.close` → abort
+- [x ] Valid duration close returns Idle + CleanupCapture
 
 ### 5. Frame / Byte Limits
-- [ ] Frame count exceeds `MAX_FRAMES` → abort
-- [ ] Single frame exceeds `MAX_FRAME_BYTES` → abort
-- [ ] Total bytes exceed `MAX_TOTAL_BYTES` → abort
-- [ ] Valid frame increments counters correctly
+- [ x] Frame count exceeds `MAX_FRAMES` → abort
+- [x ] Single frame exceeds `MAX_FRAME_BYTES` → abort
+- [ x] Total bytes exceed `MAX_TOTAL_BYTES` → abort
+- [ x] Valid frame increments counters correctly
 
 ### 6. Timeout Handling (handle_tick)
 - [ ] Meta→bytes timeout (>2s) → abort
