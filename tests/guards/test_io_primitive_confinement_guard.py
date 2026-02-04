@@ -15,10 +15,13 @@ Scope:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
+
+OPEN_CALL_RE = re.compile(r"\bopen\s*\(")  # matches builtin open(, not handle_open(
 
 # Keep these as simple substrings; this is a copy/paste prevention guard.
 TOKENS = (
@@ -43,10 +46,22 @@ class Hit:
 
 
 def _scan_file(path: Path) -> list[Hit]:
+    import re
+
+    # Match builtin open( calls, not identifiers like handle_open(
+    open_call_re = re.compile(r"\bopen\s*\(")
+
     hits: list[Hit] = []
     text = path.read_text(encoding="utf-8", errors="replace")
     for i, line in enumerate(text.splitlines(), start=1):
+        # Special-case open(
+        if "open(" in TOKENS and open_call_re.search(line):
+            hits.append(Hit(path=path, lineno=i, token="open(", line=line.rstrip("\n")))
+
+        # All other tokens: substring match
         for token in TOKENS:
+            if token == "open(":
+                continue
             if token in line:
                 hits.append(
                     Hit(path=path, lineno=i, token=token, line=line.rstrip("\n"))
