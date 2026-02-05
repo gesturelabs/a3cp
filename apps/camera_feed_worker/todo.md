@@ -96,18 +96,18 @@ Implement state machine + limit enforcement per domain spec.
 - [ ] No timeout within limits → remain Active
 
 ### 7. Session Re-check Emission
-- [ ] `tick` before 5s → no recheck
-- [ ] `tick` at ≥5s → emit `RequestSessionRecheck`
+- [x ] `tick` before 5s → no recheck
+- [xx ] `tick` at ≥5s → emit `RequestSessionRecheck`
 - [ ] Recheck timestamp updates after emission
 
 ### 8. Abort Semantics (dispatch)
-- [ ] Any CameraFeedWorkerError in ActiveState → returns IdleState
-- [ ] AbortCapture action emitted with correct error_code
-- [ ] CleanupCapture action emitted with correct capture_id
-- [ ] Error in IdleState is re-raised (no abort wrapper)
+- [ x] Any CameraFeedWorkerError in ActiveState → returns IdleState
+- [ x] AbortCapture action emitted with correct error_code
+- [x ] CleanupCapture action emitted with correct capture_id
+- [x ] Error in IdleState is re-raised (no abort wrapper)
 
 ### 9. Happy Path Integration
-- [ ] Full valid flow:
+- [x ] Full valid flow:
       open → meta → bytes → close
       → ends in IdleState
       → emits ForwardFrame(s)
@@ -121,14 +121,14 @@ Implement state machine + limit enforcement per domain spec.
 
 ## C) Identity & Correlation Enforcement
 
-- [ ] Enforce required IDs on `capture.open`
+- [x ] Enforce required IDs on `capture.open`
   - `user_id`
   - `session_id`
   - `capture_id`
-- [ ] Reject missing `capture_id`
-- [ ] Ensure `capture_id` is stable for entire capture
-- [ ] Enforce `record_id` uniqueness per control message (message identity only)
-- [ ] Do not generate `session_id`, `capture_id`, or `record_id` in this module
+- [x ] Reject missing `capture_id`
+- [ x] Ensure `capture_id` is stable for entire capture
+- [x ] Enforce `record_id` uniqueness per control message (message identity only)
+- [ x] Do not generate `session_id`, `capture_id`, or `record_id` in this module
 
 ---
 
@@ -137,20 +137,20 @@ Implement state machine + limit enforcement per domain spec.
 
 ## D) Forwarding Boundary (Repository)
 
-- [ ] Implement bounded async queue per capture
-- [ ] Enforce:
-  - [ ] `max_forward_buffer_frames`
-  - [ ] `max_forward_buffer_bytes`
-- [ ] On overflow → surface `LimitForwardBufferExceeded`
+- [x ] Implement bounded async queue per capture
+- [ x] Enforce:
+  - [x ] `max_forward_buffer_frames`
+  - [x ] `max_forward_buffer_bytes`
+- [x ] On overflow → surface `LimitForwardBufferExceeded`
 - [ ] On downstream failure → surface `ForwardFailed`
-- [ ] Ensure:
-  - [ ] No disk writes
-  - [ ] No schema_recorder imports
-  - [ ] No cross-app repository imports
+- [ x] Ensure:
+  - [x ] No disk writes
+  - [x ] No schema_recorder imports
+  - [x ] No cross-app repository imports
 - [ ] Cleanup:
   - [ ] cancel forwarding task
-  - [ ] drain queue
-  - [ ] release buffers
+  - [ x] drain queue
+  - [ x] release buffers
 
 ---
 

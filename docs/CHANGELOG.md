@@ -9,6 +9,58 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-02-05 — Sprint 1D: Forwarding Boundary (Repository)
+
+### Added
+- Bounded in-memory forwarding buffer (`asyncio.Queue`) with per-connection counters
+- Forwarding buffer enforcement:
+  - `max_forward_buffer_frames`
+  - `max_forward_buffer_bytes`
+- Repo-owned forwarding errors:
+  - `LimitForwardBufferExceeded` (overflow)
+  - `ForwardNotInitialized` (enqueue before init)
+  - `ForwardFailed` (downstream task failure surfacing)
+- Forwarding task failure capture via `Task.add_done_callback()` + `raise_if_forward_failed()`
+- Cleanup via `stop_forwarding()`:
+  - cancel forwarding task
+  - drain queue
+  - reset counters
+  - clear buffers and stored forward error
+- Repository tests covering buffer limits, cleanup, and failure surfacing
+
+### Notes
+- No disk writes
+- No `schema_recorder` imports
+- No cross-app repository imports
+- No router integration of forwarding yet (repository-only boundary complete)
+
+
+## 2026-Feb-05 — Sprint 1C: Identity & Correlation Enforcement (WebSocket Layer)
+
+### Added
+- JSON control-plane WebSocket receive loop
+- Per-connection `connection_key` isolation + cleanup
+- `record_id` uniqueness enforcement (per connection)
+- Non-empty `capture_id` validation
+- `capture_id` stability enforcement across capture lifecycle
+- Required ID enforcement on `capture.open` (`user_id`, `session_id`, `capture_id`)
+- Domain state-machine wiring via `dispatch()`
+- `capture.abort` emission on `AbortCapture`
+- Explicit handling of `CleanupCapture`
+- WebSocket integration test (`test_ws_control_plane.py`)
+
+### Changed
+- Router now persists state transitions from `dispatch()`
+- Router catches only `ProtocolViolation`
+- Public schema surface exports `CameraFeedWorkerInput/Output`
+
+### Notes
+- No ID generation in this module
+- No schema_recorder involvement
+- No binary frame handling yet
+- Repository remains in-memory and per-connection scoped
+
+
 # Changelog — camera_feed_worker Service Tests (Sprint 1) 2026-Feb-04
 
 ## Added

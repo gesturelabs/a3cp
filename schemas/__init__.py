@@ -9,11 +9,20 @@ The generator continues to import from internal module files
 (e.g., schemas/session_manager_start/session_manager_start.py),
 not from this public package.
 """
+
 # Canonical runtime message used across modules (and by schema_recorder)
 from .a3cp_message.a3cp_message import A3CPMessage
 
 # Re-export BaseSchema first to avoid circular import issues
 from .base.base import BaseSchema, example_input
+
+# camera_feed_worker
+from .camera_feed_worker.camera_feed_worker import (
+    CameraFeedWorkerInput,
+    CameraFeedWorkerOutput,
+)
+
+# session_manager
 from .session_manager_end.session_manager_end import (
     SessionEndInput as SessionManagerEndInput,
 )
@@ -37,4 +46,7 @@ __all__ = [
     # canonical message
     "A3CPMessage",
     "example_input",
+    # camera_feed_worker
+    "CameraFeedWorkerInput",
+    "CameraFeedWorkerOutput",
 ]
