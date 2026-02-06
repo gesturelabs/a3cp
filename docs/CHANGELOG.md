@@ -9,6 +9,49 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-Feb-06 camera_feed_worker — ID Discipline & Abort Robustness Refactor
+
+### Summary
+Strengthened ID propagation guarantees and removed all synthetic `record_id` generation from `camera_feed_worker`.
+Service layer now owns the propagated `record_id` via domain state.
+All abort emissions require a validated, propagated ID.
+
+---
+
+## Changes
+
+### 1. Router (`apps/camera_feed_worker/routes/router.py`)
+
+- Removed all fallback `uuid.uuid4()` usage for `record_id`.
+- Enforced strict invariant:
+  - `capture.abort` is emitted **only if a propagated `record_id` is available**.
+  - If abort required but no valid propagated ID exists → deterministic close (1011), no JSON emitted.
+- Strengthened ID validation:
+  - `record_id = str(msg.record_id).strip()`
+  - Empty or whitespace-only IDs → close(1008).
+- Verified `connection_key = uuid.uuid4()` is the only ID generation remaining.
+
+---
+
+### 2. Service Layer (`apps/camera_feed_worker/service.py`)
+
+- Added `record_id` to `ActiveState`.
+- `handle_open()` now:
+  - Requires `record_id` from `open_event`.
+  - Persists `record_id` into domain state.
+- Domain abort semantics unchanged, but now state carries correlation ID.
+
+---
+
+### 3. Service Tests (all service test files)
+
+Updated `OpenEvent` test helper classes to include:
+
+```python
+record_id="rec-1"
+self.record_id = record_id
+
+
 ## 2026-Feb-06 — Sprint 1E: WS Control-Plane Hardening + Binary Gating Invariants
 
 ### Added

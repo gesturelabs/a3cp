@@ -77,25 +77,26 @@ async def _tick_and_enforce_session(
             await websocket.close(code=1011)
             return False
 
+        # Hard invariant: abort emission requires propagated record_id
+        if last_msg_for_emit is None or not str(last_msg_for_emit.record_id).strip():
+            await websocket.close(code=1011)
+            return False
+
         out = CameraFeedWorkerOutput(
-            schema_version=(
-                last_msg_for_emit.schema_version if last_msg_for_emit else "1.0.1"
-            ),
-            record_id=(
-                last_msg_for_emit.record_id if last_msg_for_emit else uuid.uuid4()
-            ),
+            schema_version=last_msg_for_emit.schema_version,
+            record_id=last_msg_for_emit.record_id,
             user_id=(
                 current_state.user_id
                 if isinstance(current_state, ActiveState)
-                else (last_msg_for_emit.user_id if last_msg_for_emit else "")
+                else last_msg_for_emit.user_id
             ),
             session_id=(
                 current_state.session_id
                 if isinstance(current_state, ActiveState)
-                else (last_msg_for_emit.session_id if last_msg_for_emit else "")
+                else last_msg_for_emit.session_id
             ),
             timestamp=now_ingest,
-            modality=last_msg_for_emit.modality if last_msg_for_emit else "image",
+            modality=last_msg_for_emit.modality,
             source="camera_feed_worker",
             event="capture.abort",
             capture_id=capture_id,
@@ -130,29 +131,28 @@ async def _tick_and_enforce_session(
                     await websocket.close(code=1011)
                     return False
 
+                # Hard invariant: abort emission requires propagated record_id
+                if (
+                    last_msg_for_emit is None
+                    or not str(last_msg_for_emit.record_id).strip()
+                ):
+                    await websocket.close(code=1011)
+                    return False
+
                 out = CameraFeedWorkerOutput(
-                    schema_version=(
-                        last_msg_for_emit.schema_version
-                        if last_msg_for_emit
-                        else "1.0.1"
-                    ),
-                    record_id=(
-                        last_msg_for_emit.record_id
-                        if last_msg_for_emit
-                        else uuid.uuid4()
-                    ),
+                    schema_version=last_msg_for_emit.schema_version,
+                    record_id=last_msg_for_emit.record_id,
                     user_id=a.user_id,
                     session_id=a.session_id,
                     timestamp=now_ingest,
-                    modality=(
-                        last_msg_for_emit.modality if last_msg_for_emit else "image"
-                    ),
+                    modality=last_msg_for_emit.modality,
                     source="camera_feed_worker",
                     event="capture.abort",
                     capture_id=capture_id,
                     error_code=error_code,
                 )
                 await websocket.send_text(out.model_dump_json())
+
                 repo.set_active_capture_id(connection_key, None)
                 await websocket.close(code=1000)
                 return False
@@ -171,7 +171,10 @@ async def _enforce_identity_and_correlation(
     connection_key: str,
     msg: CameraFeedWorkerInput,
 ) -> bool:
-    record_id = str(msg.record_id)
+    record_id = str(msg.record_id).strip()
+    if not record_id:
+        await websocket.close(code=1008)
+        return False
 
     if repo.has_seen_record_id(connection_key, record_id):
         await websocket.close(code=1008)

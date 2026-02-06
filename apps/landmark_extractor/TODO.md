@@ -1,5 +1,4 @@
 # apps/landmark_extractor/TODO.md
-
 A3CP — landmark_extractor TODO (module-scoped)
 
 Scope for this slice (authoritative): gesture-only landmark feature extraction from a **bounded capture** (identified by `record_id`) and emission of **exactly one** feature-ref A3CPMessage per capture via `schema_recorder`.
@@ -61,6 +60,7 @@ Create the runtime app under `apps/` following the canonical architecture.
 ---
 
 ## B) Feature extraction + artifact writing (slice plan)
+
 ### 1) Convert incoming frames to Holistic landmark features (gesture only)
 - [ ] Convert incoming frames to **Holistic landmark features** (gesture only).
 - [ ] Produce **one feature artifact per bounded capture (`record_id`)**.
@@ -69,8 +69,7 @@ Create the runtime app under `apps/` following the canonical architecture.
   - bounded capture payload (multiple frames) plus required metadata:
     `user_id`, `session_id`, `record_id`, `timestamp_start`, `timestamp_end`
   - landmark_extractor processes the entire bounded capture as a unit
-  - no per-frame streaming outputs or incremental schema events
-
+  - no per-frame streaming outputs or incremental schema events (see §I for UI-only streaming)
 
 ### 2) Persist features as NPZ `(T, D)` float32
 - [ ] Persist features as a dense **float32 NPZ** array with shape `(T, D)`:
@@ -86,8 +85,6 @@ Create the runtime app under `apps/` following the canonical architecture.
   - `session_features_dir(user_id, session_id)` →
     `<DATA_ROOT>/users/<user_id>/sessions/<session_id>/features/`
 - [ ] Write feature file as `<record_id>.npz` into `session_features_dir(...)`
-
-
 
 ### 3) Build raw_features_ref
 - [ ] Build `raw_features_ref` with:
@@ -142,7 +139,6 @@ Create the runtime app under `apps/` following the canonical architecture.
   - failure on shape/dims mismatch
   - failure on duplicate feature-ref event for the same `record_id`
 
-
 - [ ] Enforce session logging contract
   - [ ] Emit session events only via `schema_recorder.service.append_event()`
   - [ ] Do not write session JSONL directly
@@ -162,10 +158,8 @@ Eliminate deep imports for landmark_extractor legacy routes and migrate routing 
 ### 2) Public schema surface exports (no behavior change)
 - [ ] Ensure route-required schema names are exported in `schemas/__init__.py` and included in `__all__`
   - (exact names depend on existing schema set for landmark_extractor)
-  - [ ] Confirm landmark_extractor route request/response schemas required by routes
+- [ ] Confirm landmark_extractor route request/response schemas required by routes
   are exported via the public schema surface (`schemas/__init__.py`) and listed in `__all__`
-
-
 
 ### 3) Rewrite legacy shim route (structure-only; no redesign)
 - [ ] Update `api/routes/landmark_extractor_routes.py` to:
@@ -192,6 +186,7 @@ Eliminate deep imports for landmark_extractor legacy routes and migrate routing 
 - [ ] Add CI static-scan test: fail if any code outside
   `apps/schema_recorder/repository.py`
   writes/appends to `logs/users/**/sessions/*.jsonl`
+
 ---
 
 ## G) Exit gate (“ready to classify” for gesture)
@@ -209,12 +204,61 @@ The pasted legacy spec contains conflicts with the authoritative slice plan abov
 
 Conflicts / mismatches:
 - Module Type: legacy says `classifier`; slice scope says **feature extractor only** (no classification).
-- Output semantics: legacy describes **per-frame** landmark vectors and forwarding vectors to gesture_classifier and schema_recorder; slice scope requires **one artifact per bounded capture** and **one schema event per capture** (no per-frame/per-chunk messages).
+- Output semantics: legacy describes **per-frame** landmark vectors and forwarding vectors to gesture_classifier and schema_recorder;
+  slice scope requires **one artifact per bounded capture** and **one schema event per capture**.
 - Schema fields: legacy “SCHEMA COMPLIANCE SUMMARY” and example A3CPMessage use:
-  - `modality = "image"` and `source = "communicator"` and `format = "parquet"` and `vector_version` fields.
+  - `modality = "image"`, `source = "communicator"`, `format = "parquet"`, and `vector_version`.
   Slice plan requires:
-  - `modality = "gesture"`, `source = "landmark_extractor"`, `format = "npz"`, and `raw_features_ref.encoding` carrying extrac_
+  - `modality = "gesture"`, `source = "landmark_extractor"`, `format = "npz"`,
+    and `raw_features_ref.encoding` carrying extractor/container tag + window params.
 
-  - [ ] Correct and lock encoding-field wording for this slice:
+- [ ] Correct and lock encoding-field wording for this slice:
   - `raw_features_ref.encoding` MUST carry extractor + window params and the extractor/container tag
   - legacy references to `vector_version`, per-frame vectors, or non-NPZ formats remain deprecated
+
+---
+
+## I) Real-Time Landmark Streaming (Demo Scope Only)
+This section is additive for the demonstrator UI and MUST NOT change the bounded-capture artifact contract.
+
+### Objective
+Provide per-frame landmark results to the browser for overlay rendering (visual proof),
+without logging per-frame events and without persisting raw frames.
+
+### Invariants
+- No per-frame A3CPMessage emissions.
+- No per-frame session JSONL appends.
+- No raw video persistence.
+- Artifact path remains unchanged: one NPZ + one schema event per bounded capture.
+
+### 1) Streaming output shape (JSON-serializable)
+- [ ] Define minimal per-frame landmark result payload:
+  - `capture_id: str`
+  - `seq: int`
+  - `timestamp_frame: datetime (UTC)`
+  - `landmarks: ...` (normalized coordinates; UI-consumable)
+
+### 2) Streaming endpoint
+- [ ] Add WS endpoint under canonical routes:
+  - `/landmark_extractor/ws`
+- [ ] Subscription mechanism (choose one; implement one):
+  - query param `?capture_id=...`, OR
+  - first control message `{ "capture_id": ... }`
+- [ ] Stream per-frame landmark results as they are produced.
+
+### 3) Backpressure (demo-correct, bounded)
+- [ ] If UI is slow:
+  - drop oldest pending landmark results (or keep only latest per seq window)
+  - never buffer unbounded per capture
+- [ ] Bound subscriber queues (per connection).
+
+### 4) Lifecycle
+- [ ] On capture end/abort:
+  - stop producing to subscribers
+  - close subscriber connections (best-effort) or send terminal control message
+  - release buffers
+
+### 5) Tests (minimum)
+- [ ] Route test: WS connect + subscribe returns landmark payloads
+- [ ] Backpressure test: bounded queue does not grow unbounded
+- [ ] Separation test: streaming does not append session JSONL and does not create extra schema events

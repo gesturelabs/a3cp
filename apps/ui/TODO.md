@@ -166,3 +166,26 @@ These belong to backend modules or tests and are **not** UI TODOs:
 - Session JSONL logging rules
 
 ---
+
+## C) partner_ui TODO list (new items)
+
+- [ ] **Demo page:** `/demo/gesture` (or equivalent)
+- [ ] **Local video preview:** show webcam stream immediately via `getUserMedia()` in `<video>`
+- [ ] **Frame sender:** draw video to `<canvas>` → encode JPEG → send to `camera_feed_worker`:
+  - send `capture.open`
+  - loop: `capture.frame_meta` then binary JPEG bytes
+  - send `capture.close` on stop
+- [ ] **Landmark receiver:** open WS to `/landmark_extractor/ws` for the active `capture_id`
+- [ ] **Overlay renderer:** draw landmarks on transparent `<canvas>` positioned over the `<video>`
+- [ ] **Status panel:** connected/disconnected, frames sent (seq), landmarks received (last seq), last abort error_code
+- [ ] **Abort/teardown handling:** on `capture.abort` or socket close, stop capture loop, close both sockets, clear overlay
+
+---
+
+## D) Top-level MVP integration checklist (new items)
+
+- [ ] **End-to-end demo path:** browser → camera_feed_worker → landmark_extractor → browser overlay
+- [ ] **Seq correlation check:** landmarks’ `seq` matches the sent frame `seq`
+- [ ] **Latency sanity:** overlay updates within acceptable demo latency (define simple target, e.g., “visibly responsive”)
+- [ ] **Failure modes visible:** session invalid, protocol violation, limits → UI shows abort reason and stops cleanly
+- [ ] **No persistence check:** confirm no raw frames written to disk across the pipeline

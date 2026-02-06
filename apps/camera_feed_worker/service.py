@@ -121,6 +121,7 @@ class ActiveState:
     kind: Literal["active"] = "active"
 
     # identifiers
+    record_id: str = ""
     capture_id: str = ""
     user_id: str = ""
     session_id: str = ""
@@ -272,6 +273,7 @@ def handle_open(
     )
 
     new_state = ActiveState(
+        record_id=str(_get(open_event, "record_id")),
         capture_id=str(capture_id),
         user_id=str(user_id),
         session_id=str(session_id),

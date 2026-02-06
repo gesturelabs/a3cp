@@ -17,12 +17,14 @@ class OpenEvent:
         user_id="user-1",
         session_id="sess-1",
         timestamp_start=None,
+        record_id="rec-1",
         fps_target=15,
         width=640,
         height=480,
         encoding="jpeg",
     ):
         self.capture_id = capture_id
+        self.record_id = record_id
         self.user_id = user_id
         self.session_id = session_id
         self.timestamp_start = timestamp_start or _dt("2026-02-04T12:00:00Z")

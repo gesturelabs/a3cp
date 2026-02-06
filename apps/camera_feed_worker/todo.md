@@ -256,52 +256,96 @@ Implement state machine + limit enforcement per domain spec.
 ---
 # Camera Feed Worker – Invariants & ID Discipline (Actionable TODO Only)
 
+Scope: ingest boundary + protocol enforcement + per-frame forwarding only.
+No inference logic. No UI logic. No persistence.
+
+---
+
 ## 3) No ID generation (except `connection_key`)
 
 ### A) Hard rule enforcement
-- [ ] Remove fallback `uuid.uuid4()` usages for `record_id` in abort emission paths (router)
-- [ ] Confirm `record_id` is NEVER generated here (only validated/propagated)
-  - (session_id, capture_id already confirmed not generated)
+- [x ] Remove fallback `uuid.uuid4()` usages for `record_id` in abort emission paths (router)
+- [ x] Confirm `record_id` is NEVER generated here (only validated/propagated)
+  - `session_id` and `capture_id` already confirmed not generated
+- [ x] Verify `connection_key = uuid.uuid4()` is the only allowed ID generation
 
 ### B) Abort emission policy (demo-robust)
-- [ ] Emit `capture.abort` ONLY if a propagated `record_id` is available
+- [ x] Emit `capture.abort` ONLY if a propagated `record_id` is available
 - [ ] If abort required but no valid propagated `record_id` exists:
-  - [ ] Close socket deterministically (no abort JSON, no synthetic IDs)
-  - [ ] Enforce close code convention:
-    - 1008 → protocol/client violation
-    - 1011 → invariant/internal breach
+  - [x ] Close socket deterministically (no abort JSON, no synthetic IDs)
+  - [x ] Enforce close code convention:
+        - 1008 → protocol/client violation
+        - 1011 → invariant/internal breach
 
-### C) State robustness (recommended)
+### C) State robustness
 - [ ] Persist propagated `record_id` in `ActiveState` on `capture.open`
-- [ ] Ensure tick/session-triggered aborts use state-held IDs only (remove dependence on `last_msg_for_emit` fallbacks)
+- [ ] Ensure tick/session-triggered aborts use state-held IDs only
+      (remove dependence on `last_msg_for_emit` fallbacks)
 
-### D) Verification (must exist to prevent regression)
+### D) Verification (regression guard)
 - [ ] Search codebase to confirm zero ID fabrication beyond `connection_key`
 - [ ] Add/adjust tests:
   - [ ] No synthetic `record_id` appears in abort emissions
   - [ ] Socket closes (no abort emission) when abort occurs without valid propagated IDs
-- [ ] Document invariant (module doc or README):
-  camera_feed_worker validates & propagates IDs only; never generates them
+- [ ] Document invariant:
+      camera_feed_worker validates & propagates IDs only; never generates them
 
 ---
 
-## 4) Domain state is single source of truth (only remaining decision)
-- [ ] Decide and document: keep `repo.active_capture_id` as a demo guardrail OR remove and rely purely on `ActiveState`
+## 4) Domain state is single source of truth
+
+- [ ] Decide and document:
+      keep `repo.active_capture_id` as demo guardrail
+      OR remove and rely purely on `ActiveState`
+
+---
+
+## 5) Forwarding Boundary (Per-Frame, Locked)
+
+Per-frame forwarding to `landmark_extractor` remains the contract.
+
+- [ ] Confirm forward item includes:
+      - `capture_id`
+      - `seq`
+      - `timestamp_frame` (event-time)
+      - JPEG `bytes` (memory-only)
+      - declared `encoding`
+      - declared dimensions (from open)
+- [ ] Ensure queue limits enforce:
+      - max forward buffer frames
+      - max forward buffer bytes
+- [ ] On forward overflow → surface `LimitForwardBufferExceeded`
+- [ ] On downstream failure → surface `ForwardFailed`
+- [ ] Ensure abort/cleanup:
+      - cancels forwarding task
+      - drains queue
+      - clears correlation
+      - releases buffers
+- [ ] Add repository-level tests:
+      - buffer overflow
+      - downstream failure propagation
+      - cleanup correctness
 
 ---
 
 ## F) Route Migration (Deep Import Removal)
-- [ ] If legacy `api/routes/camera_feed_worker_routes.py` still exists: delete or mark deprecated to prevent regression
+
+- [ ] If legacy `api/routes/camera_feed_worker_routes.py` still exists:
+      delete or mark deprecated to prevent regression
+
+- [ ] Add guardrail tests:
+      - no deep schema imports
+      - required schemas exported in `schemas.__all__`
+      - shim contains no route logic
+      - no filesystem writes in app
+      - no schema_recorder imports
+      - control messages validate required fields by `event`
+      - no schema includes frame bytes/base64 fields
 
 ---
 
-## G) Tests (remaining)
-### Repository Tests
-- [ ] Buffer overflow
-- [ ] Forward failure propagation
-- [ ] Cleanup correctness
+## G) WebSocket Route Tests
 
-### WebSocket Route Tests
 - [ ] Happy path capture
 - [ ] Protocol violation abort
 - [ ] Limit violation abort
@@ -309,18 +353,10 @@ Implement state machine + limit enforcement per domain spec.
 - [ ] Session closed mid-capture
 - [ ] Correct close codes
 
-### Guardrail Tests
-- [ ] No deep schema imports in shim
-- [ ] Required schemas exported in `schemas.__all__`
-- [ ] Shim contains no route logic
-- [ ] No filesystem writes in app
-- [ ] No schema_recorder repository imports
-- [ ] Control messages validate required fields by `event` (open/meta/close)
-- [ ] Ensure no schema includes frame bytes or base64 image fields
-
 ---
 
 ## H) Smoke Verification
+
 - [ ] App boots cleanly
 - [ ] WebSocket route registered
 - [ ] Basic connect succeeds
