@@ -9,6 +9,50 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-Feb-06 — Sprint 1E: WS Control-Plane Hardening + Binary Gating Invariants
+
+### Added
+- Deterministic WS self-ticking via `asyncio.wait_for(..., timeout=RECEIVE_TIMEOUT_S)`
+- Centralized tick + session enforcement in `_tick_and_enforce_session()` (WS loop only)
+- Strict domain error → abort emit → deterministic close mapping
+- Comprehensive WebSocket control-plane test coverage for:
+  - binary gating semantics
+  - protocol violations (1008)
+  - domain aborts (1000)
+  - unexpected exception handling (1011)
+  - connection isolation (no state leakage across connections)
+
+### Strengthened
+- Abort correctness:
+  - `capture_id` derived from domain `ActiveState`
+  - No path can emit `capture.abort` with empty `capture_id`
+  - Deterministic correlation clearing before close
+- Binary gating invariants:
+  - Gate arms only after domain-accepted `capture.frame_meta`
+  - Gate clears on successful byte consumption
+  - Gate clears on abort, protocol violation, disconnect, and unexpected exception
+- Enforced single session re-check path (WS loop only)
+- Ensured no split-brain state between `ActiveState` and repository correlation
+
+### Tests
+- Added regression tests covering:
+  - second `capture.open` while active → abort
+  - text while expecting bytes → 1008
+  - byte-length mismatch → 1008
+  - gate clearing after valid byte consumption
+  - no gate/state leakage across connections
+  - tick-driven meta→bytes timeout → abort (1000)
+  - unexpected exception → 1011 + clean subsequent connection
+
+### Updated
+- `repository.py` — forwarding + cleanup alignment
+- `routes/router.py` — WS loop execution order and invariants
+- `test_ws_control_plane.py` — expanded regression coverage
+- `session_manager/service.py` — session re-check alignment
+- `camera_feed_worker/todo.md` — binary gating checklist completed
+- Documentation updates in `docs/apps/camera_feed_worker/README.md` and `docs/VARIOUS_COMMANDS.md`
+
+
 ## 2026-02-05 — Sprint 1D: Forwarding Boundary (Repository)
 
 ### Added

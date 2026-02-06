@@ -70,6 +70,9 @@ class CameraFeedWorkerRepository:
     def __init__(self) -> None:
         self._records: Dict[str, dict] = {}
 
+    def connection_keys(self) -> list[str]:
+        return list(self._records.keys())
+
     def _ensure(self, connection_key: str) -> dict:
         if connection_key not in self._records:
             self._records[connection_key] = {

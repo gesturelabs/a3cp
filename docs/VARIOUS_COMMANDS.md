@@ -6,7 +6,7 @@ tree -a \
 
 
 #activate virtual env
-source a3cp-env/bin/activate
+source ~/.venvs/a3cp/bin/activate
 
 
 #work locally

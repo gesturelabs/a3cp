@@ -147,32 +147,103 @@ Implement state machine + limit enforcement per domain spec.
   - [x ] No disk writes
   - [x ] No schema_recorder imports
   - [x ] No cross-app repository imports
-- [ ] Cleanup:
-  - [ ] cancel forwarding task
+- [x ] Cleanup:
+  - [ x] cancel forwarding task
   - [ x] drain queue
   - [ x] release buffers
 
 ---
 
 
-## E) WebSocket Route Layer
+## E) WebSocket Route Layer — Revised Execution Order
 
-- [ ] Implement `WS /camera_feed_worker/capture`
-- [ ] Parse and validate JSON control messages against `CameraFeedWorkerInput`
-- [ ] Accept WS binary frame bytes (JPEG) immediately after matching `capture.frame_meta`
-- [ ] Maintain connection-local ephemeral state
-- [ ] Call service handlers
-- [ ] Map domain errors to:
-  - Emit `CameraFeedWorkerOutput(event="capture.abort", capture_id, error_code)`
-  - correct WebSocket close code
-- [ ] Integrate session validation:
-  - [ ] validate at `capture.open`
-  - [ ] re-check every 5s during active capture
-- [ ] Ensure:
-  - [ ] No persistence
-  - [ ] No business logic duplication
-  - [ ] No ID generation
+- [ x] Implement `WS /camera_feed_worker/capture`
+- [x ] Parse and validate JSON control messages (`CameraFeedWorkerInput`)
+- [ x] Maintain connection-local ephemeral state
+- [ x] Call service handlers (`dispatch()`) for control-plane events
+- [ x] Define and enforce domain error → abort emit + close code mapping
+- [x ] Accept WS binary frame bytes immediately after matching `capture.frame_meta`
+
+# camera_feed_worker — Remaining MVP TODO (session recheck + self-ticking + invariants)
+
+
+
+## 1) Re-check session every 5s during active capture (demo-correct)
+
+- [x ] Ensure session recheck enforcement happens ONLY in WS loop via `_tick_and_enforce_session()`
+- [ x] Remove/disable `/capture.tick` session enforcement:
+  - [x ] do not call `validate_session()`
+  - [ x] do not mutate `active_capture_id`
+  - [x ] do not attempt abort semantics
+- [ x] Confirm there is exactly ONE recheck path in the system (WS loop only)
+
 ---
+
+## 2) Make WS loop self-ticking (so recheck works when client is silent)
+
+- [ x] Update `_ws_control_plane_loop` to use `receive()` with timeout
+- [x ] On timeout:
+  - [ x] run `_tick_and_enforce_session(...)`
+  - [ x] continue loop (no protocol error)
+  - [x ] close only if tick emits abort
+- [x ] Ensure timeout does NOT:
+  - [x ] reset `expecting_binary`
+  - [x ] clear `expected_byte_length`
+  - [x ] mutate capture correlation
+- [ x] Acceptance:
+  - [ x] with a silent client, session recheck occurs ≤ 5s
+  - [x ] idle timeout still triggers correctly
+  - [ x] meta→bytes timeout still triggers correctly
+  - [ x] ingest-time duration limit still triggers correctly
+
+---
+
+## 3) Abort correctness (prevent empty/incorrect capture_id)
+
+- [ x] In `_tick_and_enforce_session()`, derive `capture_id` from domain state (`ActiveState.capture_id`) not `repo.get_active_capture_id()`
+- [ x] Ensure no path can emit `capture.abort` with empty `capture_id`
+- [x] Ensure abort semantics remain:
+  - [x ] emit `capture.abort`
+  - [x ] clear correlation
+  - [ x] close websocket deterministically
+
+---
+
+## 4) Internal consistency guard (no split-brain state)
+
+- [ x] Ensure no path can yield `ActiveState` while `repo.active_capture_id is None`
+  - [x ] remove any “soft abort” patterns that only clear `active_capture_id`
+- [ ]x Re-validate that all cleanup paths clear:
+  - [x ] binary gate (`expecting_binary`, `expected_byte_length`)
+  - [x ] correlation (`active_capture_id`)
+  - [ x] connection-local state on disconnect
+
+---
+
+## 5) Binary gating regression check (no expansion, only verification)
+
+- [ x] Confirm `capture.frame_meta` arms binary gate only AFTER domain accepts it
+- [x ] Confirm text frame is rejected when `expecting_binary == True`
+- [ x] Confirm byte-length mismatch triggers protocol close
+- [ ] Confirm gate clears on:
+  - [ x] successful byte consumption
+  - [ x] abort path
+  - [ x] protocol violation
+  - [x ] disconnect
+  - [x ] unexpected exception
+
+---
+
+## 6) Final invariants pass (for this scope)
+
+- [ ] No persistence added in `camera_feed_worker`
+- [ ] No business logic duplication (service owns rules; routes only execute actions)
+- [ ] No ID generation (except internal `connection_key`)
+- [ ] Domain state remains the single source of truth for capture lifecycle
+
+
+
+
 
 ## F) Route Migration (Deep Import Removal)
 

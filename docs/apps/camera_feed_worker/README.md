@@ -149,6 +149,23 @@ This format must be:
 - Interpreted by consumers for schema wrapping and logging (schema_recorder only)
 
 
+## WebSocket Error Mapping Policy (Control-Plane)
+
+The `camera_feed_worker` WebSocket route enforces the following error mapping policy for control-plane messages:
+
+| Failure Type | Emit `capture.abort` | WebSocket Close Code |
+|--------------|---------------------|----------------------|
+| JSON parse error (`json.JSONDecodeError`) | No | 1003 (Unsupported Data) |
+| Schema validation error (`ValidationError`) | No | 1008 (Policy Violation) |
+| Idle-state protocol violation (`ProtocolViolation`) | No | 1008 (Policy Violation) |
+| Active-state domain abort (`AbortCapture` action) | Yes | 1000 (Normal Closure) |
+| Unexpected internal exception | No | 1011 (Internal Error) |
+
+Notes:
+- `AbortCapture` is emitted only when the service layer (via `dispatch()`) signals a domain abort during an active capture.
+- Close codes are chosen to align with WebSocket RFC semantics.
+- This policy applies to control-plane behavior; binary/data-plane rules are defined separately.
+
 
 ## Runtime Considerations
 - WebSocket ingest must be non-blocking and resilient under bursty frame delivery

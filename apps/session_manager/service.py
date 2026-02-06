@@ -37,6 +37,34 @@ class SessionAlreadyClosed(SessionError):
 _sessions: dict[str, dict] = {}
 
 
+def validate_session(*, user_id: str, session_id: str) -> str:
+    """
+    Sprint 1: in-memory session validation for other modules.
+
+    Returns:
+      - "active"  : session exists, belongs to user, and is active
+      - "closed"  : session exists, belongs to user, but is closed
+      - "invalid" : session missing or user mismatch
+    """
+    if not session_id or str(session_id).strip() == "":
+        return "invalid"
+
+    s = _sessions.get(str(session_id))
+    if not s:
+        return "invalid"
+
+    if str(s.get("user_id")) != str(user_id):
+        return "invalid"
+
+    status = s.get("status")
+    if status == "active":
+        return "active"
+    if status == "closed":
+        return "closed"
+
+    return "invalid"
+
+
 def _now_utc_z() -> str:
     return (
         datetime.now(timezone.utc)
