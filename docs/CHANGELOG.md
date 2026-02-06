@@ -9,6 +9,53 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-Feb-06 camera_feed_worker — State-Held record_id Refactor (Tick/Session Abort)
+
+### Summary
+Removed dependence on `last_msg_for_emit` for ID propagation in tick/session-triggered abort paths.
+`record_id` is now persisted in `ActiveState` and used as the authoritative correlation ID for all domain-triggered abort emissions.
+
+---
+
+## Changes
+
+### 1. Service Layer (`apps/camera_feed_worker/service.py`)
+
+- Added `record_id: UUID | None` to `ActiveState`.
+- `handle_open()` now requires and persists `record_id` from `capture.open`.
+- Domain state is now the single source of truth for correlation ID.
+
+---
+
+### 2. Router (`apps/camera_feed_worker/routes/router.py`)
+
+- Tick-triggered abort:
+  - Now uses `current_state.record_id`.
+  - No longer references `last_msg_for_emit.record_id`.
+- Session recheck abort:
+  - Now uses `current_state.record_id`.
+  - No longer references `last_msg_for_emit.record_id`.
+- `last_msg_for_emit` remains only for optional metadata (e.g., `schema_version`, `modality`).
+- Deterministic close (1011) if state-held `record_id` is missing (internal invariant breach).
+
+---
+
+## Guarantees
+
+- `record_id` is never generated in camera_feed_worker.
+- `record_id` is validated at control boundary and persisted in domain state.
+- All domain-triggered abort emissions use state-held correlation ID only.
+- No dependence on router-level fallback IDs.
+- All tests passing.
+
+---
+
+## Result
+
+State is now the authoritative source for correlation.
+Abort semantics are fully deterministic and ID-safe.
+
+
 ## 2026-Feb-06 camera_feed_worker — ID Discipline & Abort Robustness Refactor
 
 ### Summary

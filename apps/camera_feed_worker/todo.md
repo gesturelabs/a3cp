@@ -278,9 +278,9 @@ No inference logic. No UI logic. No persistence.
         - 1011 → invariant/internal breach
 
 ### C) State robustness
-- [ ] Persist propagated `record_id` in `ActiveState` on `capture.open`
-- [ ] Ensure tick/session-triggered aborts use state-held IDs only
-      (remove dependence on `last_msg_for_emit` fallbacks)
+- [x ] Persist propagated `record_id` in `ActiveState` on `capture.open`
+- [ x] Ensure tick/session-triggered aborts use state-held IDs only
+     x (remove dependence on `last_msg_for_emit` fallbacks)
 
 ### D) Verification (regression guard)
 - [ ] Search codebase to confirm zero ID fabrication beyond `connection_key`

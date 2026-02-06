@@ -44,6 +44,44 @@ def capture_tick() -> dict:
 # ---------------------------------------------------------------------
 # Helpers (reduce ws_camera_feed complexity)
 # ---------------------------------------------------------------------
+
+
+async def _emit_abort_and_close(
+    websocket: WebSocket,
+    *,
+    connection_key: str,
+    now_ingest: datetime,
+    current_state: ActiveState,
+    capture_id: str,
+    error_code: str,
+    last_msg_for_emit: CameraFeedWorkerInput | None,
+) -> bool:
+    record_id = current_state.record_id
+    if record_id is None:
+        await websocket.close(code=1011)
+        return False
+
+    out = CameraFeedWorkerOutput(
+        schema_version=(
+            last_msg_for_emit.schema_version if last_msg_for_emit else "1.0.1"
+        ),
+        record_id=record_id,
+        user_id=current_state.user_id,
+        session_id=current_state.session_id,
+        timestamp=now_ingest,
+        modality=(last_msg_for_emit.modality if last_msg_for_emit else "image"),
+        source="camera_feed_worker",
+        event="capture.abort",
+        capture_id=capture_id,
+        error_code=error_code,
+    )
+    await websocket.send_text(out.model_dump_json())
+
+    repo.set_active_capture_id(connection_key, None)
+    await websocket.close(code=1000)
+    return False
+
+
 async def _tick_and_enforce_session(
     websocket: WebSocket,
     *,
@@ -65,97 +103,57 @@ async def _tick_and_enforce_session(
     )
     repo.set_state(connection_key, new_state)
 
-    # ------------------------------------------------------------------
-    # 1) If tick triggered a domain abort (idle/meta→bytes/duration/etc),
-    #    emit abort + close deterministically.
-    # ------------------------------------------------------------------
+    # 1) Domain-triggered abort (tick)
     abort_action = next((a for a in actions if isinstance(a, AbortCapture)), None)
     if abort_action is not None:
-        capture_id = str(abort_action.capture_id).strip()
+        if not isinstance(current_state, ActiveState):
+            await websocket.close(code=1011)
+            return False
+
+        capture_id = str(current_state.capture_id).strip()
         if not capture_id:
-            # Should be impossible if ActiveState.capture_id is always set.
             await websocket.close(code=1011)
             return False
 
-        # Hard invariant: abort emission requires propagated record_id
-        if last_msg_for_emit is None or not str(last_msg_for_emit.record_id).strip():
-            await websocket.close(code=1011)
-            return False
-
-        out = CameraFeedWorkerOutput(
-            schema_version=last_msg_for_emit.schema_version,
-            record_id=last_msg_for_emit.record_id,
-            user_id=(
-                current_state.user_id
-                if isinstance(current_state, ActiveState)
-                else last_msg_for_emit.user_id
-            ),
-            session_id=(
-                current_state.session_id
-                if isinstance(current_state, ActiveState)
-                else last_msg_for_emit.session_id
-            ),
-            timestamp=now_ingest,
-            modality=last_msg_for_emit.modality,
-            source="camera_feed_worker",
-            event="capture.abort",
+        return await _emit_abort_and_close(
+            websocket,
+            connection_key=connection_key,
+            now_ingest=now_ingest,
+            current_state=current_state,
             capture_id=capture_id,
             error_code=abort_action.error_code,
+            last_msg_for_emit=last_msg_for_emit,
         )
-        await websocket.send_text(out.model_dump_json())
 
-        # Clear correlation (best-effort) and close.
-        repo.set_active_capture_id(connection_key, None)
-        await websocket.close(code=1000)
-        return False
-
-    # ------------------------------------------------------------------
-    # 2) Enforce session re-checks emitted by domain tick.
-    #    capture_id must come from domain state (ActiveState.capture_id),
-    #    not from repo.active_capture_id.
-    # ------------------------------------------------------------------
+    # 2) Session re-check enforcement
     for a in actions:
         if isinstance(a, RequestSessionRecheck):
             status = validate_session(
                 user_id=str(a.user_id), session_id=str(a.session_id)
             )
             if status != "active":
-                error_code = (
-                    "session_closed" if status == "closed" else "session_invalid"
-                )
+                if not isinstance(current_state, ActiveState):
+                    await websocket.close(code=1011)
+                    return False
 
-                capture_id = ""
-                if isinstance(current_state, ActiveState):
-                    capture_id = str(current_state.capture_id).strip()
+                capture_id = str(current_state.capture_id).strip()
                 if not capture_id:
                     await websocket.close(code=1011)
                     return False
 
-                # Hard invariant: abort emission requires propagated record_id
-                if (
-                    last_msg_for_emit is None
-                    or not str(last_msg_for_emit.record_id).strip()
-                ):
-                    await websocket.close(code=1011)
-                    return False
+                error_code = (
+                    "session_closed" if status == "closed" else "session_invalid"
+                )
 
-                out = CameraFeedWorkerOutput(
-                    schema_version=last_msg_for_emit.schema_version,
-                    record_id=last_msg_for_emit.record_id,
-                    user_id=a.user_id,
-                    session_id=a.session_id,
-                    timestamp=now_ingest,
-                    modality=last_msg_for_emit.modality,
-                    source="camera_feed_worker",
-                    event="capture.abort",
+                return await _emit_abort_and_close(
+                    websocket,
+                    connection_key=connection_key,
+                    now_ingest=now_ingest,
+                    current_state=current_state,
                     capture_id=capture_id,
                     error_code=error_code,
+                    last_msg_for_emit=last_msg_for_emit,
                 )
-                await websocket.send_text(out.model_dump_json())
-
-                repo.set_active_capture_id(connection_key, None)
-                await websocket.close(code=1000)
-                return False
 
     return True
 
