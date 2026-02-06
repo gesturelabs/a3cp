@@ -1,173 +1,149 @@
-# camera_feed_worker — Sprint 1 Domain Specification (Service Layer Only)
+# camera_feed_worker — Service Contract (Sprint 1)
 
-This document defines the pure domain logic for `apps/camera_feed_worker/service.py`.
+Authoritative contract for `apps/camera_feed_worker/service.py`.
 
 Scope:
+- Pure domain logic only
 - State machine
-- Limit enforcement
-- Timestamp rules
-- Domain errors
-- Action outputs
-
-Out of scope:
-- FastAPI / WebSocket handling
-- Transport-level close codes
-- Persistence
-- Forwarding implementation details
-- JSON parsing
+- Guardrails and limits
+- Timeout rules
+- Action emission
+- No transport, no IO, no persistence
 
 ---
 
-## 1. Capture State Model
+## 1. State Model
 
-Per connection, at most one capture may be active.
+Per connection: at most one active capture.
 
-Service-level states:
-- `idle`
-- `active`
+States:
+- `IdleState`
+- `ActiveState`
 
-There are no persistent `closed` or `aborted` states in the service layer.
+There are no persistent `closed` or `aborted` states.
 
-Transition rules:
-- `capture.open` allowed only in `idle`
-- `capture.frame_meta` allowed only in `active`
-- `capture.frame_bytes` allowed only in `active` and only if a pending meta exists
-- `capture.close` allowed only in `active`
-- Any invalid transition → `ProtocolViolation`
-
-Terminal outcomes:
-- On successful close:
-  - emit `CleanupCapture(capture_id)`
-  - return to `idle`
-- On abort (error condition):
-  - emit `AbortCapture(error_code, capture_id)`
-  - emit `CleanupCapture(capture_id)`
-  - return to `idle`
-
-All cleanup is expressed via emitted actions, not via intermediate service states.
----
-## X. Formal Transition Table (Sprint 1 — Service Layer)
-
-All handlers accept:
-- `current_state`
-- `event`
-- `now_ingest`
-
-They return:
-- `(new_state, actions)`
-or raise a typed domain error.
+All cleanup is expressed via emitted actions.
 
 ---
+
+## 2. Valid Transitions
 
 ### IdleState
 
-**capture.open**
-Preconditions:
-- Valid schema
-- Limits satisfied (`fps_target`, `width`, `height`, `pixels`)
-Transition:
-- → `ActiveState`
-Actions:
-- `RequestSessionValidation(user_id, session_id)`
+- `capture.open`
+  - Preconditions:
+    - Valid schema
+    - Limits satisfied (fps, resolution, pixels)
+  - Transition: → `ActiveState`
+  - Actions:
+    - `RequestSessionValidation(user_id, session_id)`
 
-**capture.frame_meta / frame_bytes / capture.close**
-- → `ProtocolViolation`
+- `capture.frame_meta`, `capture.frame_bytes`, `capture.close`
+  - → `ProtocolViolation`
 
-**tick**
-- Remain `IdleState`
+- `tick`
+  - Remain `IdleState`
 
 ---
 
 ### ActiveState
 
-**capture.open**
-- → `ProtocolViolation`
+- `capture.open`
+  - → `ProtocolViolation`
 
-**capture.frame_meta**
-Preconditions:
-- `seq == expected_next_seq`
-- `timestamp_frame ≥ last_frame_timestamp` (if exists)
-- No existing `pending_meta`
-Transition:
-- Set `pending_meta`
-- Remain `ActiveState`
+- `capture.frame_meta`
+  - Preconditions:
+    - `seq == expected_next_seq`
+    - `timestamp_frame ≥ last_frame_timestamp` (if exists)
+    - No existing `pending_meta`
+  - Transition:
+    - Set `pending_meta`
+    - Remain `ActiveState`
 
-**frame_bytes**
-Preconditions:
-- `pending_meta` exists
-- `byte_length ≤ max_frame_bytes`
-- `total_bytes + byte_length ≤ max_total_bytes`
-- `received_byte_length == pending_meta.byte_length`
+- `capture.frame_bytes`
+  - Preconditions:
+    - `pending_meta` exists
+    - `received_byte_length == pending_meta.byte_length`
+    - `byte_length ≤ max_frame_bytes`
+    - `total_bytes + byte_length ≤ max_total_bytes`
+    - `frame_count + 1 ≤ max_frames`
+  - Transition:
+    - Increment `frame_count`
+    - Increment `total_bytes`
+    - Update `last_frame_timestamp`
+    - Increment `expected_next_seq`
+    - Clear `pending_meta`
+  - Actions:
+    - `ForwardFrame(capture_id, seq, timestamp_frame, byte_length)`
 
-Transition:
-- `frame_count += 1`
-- `total_bytes += byte_length`
-- `last_frame_timestamp = pending_meta.timestamp_frame`
-- `expected_next_seq += 1`
-- Clear `pending_meta`
-- Remain `ActiveState`
-Actions:
-- `ForwardFrame(capture_id, seq, timestamp_frame, byte_length)`
+- `capture.close`
+  - Preconditions:
+    - `timestamp_end ≥ timestamp_start`
+    - `timestamp_end ≥ last_frame_timestamp` (if exists)
+    - Duration ≤ `max_duration_s`
+    - `pending_meta is None`
+  - Transition:
+    - → `IdleState`
+  - Actions:
+    - `CleanupCapture(capture_id)`
 
-**capture.close**
-Preconditions:
-- `timestamp_end ≥ timestamp_start`
-- `timestamp_end ≥ last_frame_timestamp` (if exists)
-- `(timestamp_end - timestamp_start) ≤ max_duration_s`
-- `pending_meta is None`
-Transition:
-- → `IdleState`
-Actions:
-- `CleanupCapture(capture_id)`
-
-**tick**
-Checks:
-- Ingest duration guard → `LimitDurationExceeded`
-- Meta→bytes timeout (>2s) → `ProtocolViolation`
-- Idle timeout (>5s no meta) → `ProtocolViolation`
-- Session re-check interval (≥5s) → emit `RequestSessionRecheck`
-Transition:
-- Remain `ActiveState` unless abort
+- `tick`
+  - Checks:
+    - Ingest duration > max → `LimitDurationExceeded`
+    - Meta→bytes timeout → `ProtocolViolation`
+    - Idle timeout → `ProtocolViolation`
+    - Session re-check interval reached → emit `RequestSessionRecheck`
+  - Transition:
+    - Remain `ActiveState` unless abort
 
 ---
 
-### Abort Semantics
+## 3. Abort Semantics
 
-On any domain error in `ActiveState`:
-- Emit `AbortCapture(error_code, capture_id)`
-- Emit `CleanupCapture(capture_id)`
-- → `IdleState`
+If any `CameraFeedWorkerError` occurs in `ActiveState`:
 
+- Emit:
+  - `AbortCapture(error_code, capture_id)`
+  - `CleanupCapture(capture_id)`
+- Transition:
+  - → `IdleState`
 
+If error occurs in `IdleState`:
+- Raise `ProtocolViolation`
 
+Service never maps to WebSocket close codes.
 
-## 2. Capture State Data (In-Memory, Per Capture)
+---
 
-When `active`, maintain:
+## 4. ActiveState Data
 
+When active, maintain:
+
+Identifiers:
 - `capture_id`
 - `user_id`
 - `session_id`
-- `timestamp_start` (event-time)
-- `params` (fps_target, width, height, encoding)
+
+Event-time:
+- `timestamp_start`
+- `last_frame_timestamp`
+
+Ingest-time:
+- `ingest_timestamp_open`
+- `last_meta_ingest_timestamp`
+- `last_session_check_ingest_timestamp`
 
 Counters:
 - `frame_count`
 - `total_bytes`
-- `expected_next_seq` (starts at 1)
-- `last_frame_timestamp` (event-time)
-- `ingest_timestamp_open` (server ingest-time)
-- `pending_meta`:
-  - `seq`
-  - `timestamp_frame`
-  - `byte_length`
-  - `meta_ingest_timestamp`
+- `expected_next_seq`
+- `pending_meta` (seq, timestamp_frame, byte_length, meta_ingest_timestamp)
 
-No counters increment unless a frame is fully accepted.
+Counters increment only after successful frame acceptance.
 
 ---
 
-## 3. Hard Limits (Sprint 1 Locked)
+## 5. Hard Limits (Sprint 1)
 
 - `max_duration_s = 15`
 - `max_fps = 15`
@@ -180,14 +156,28 @@ No counters increment unless a frame is fully accepted.
 
 ---
 
-## 4. Domain Errors (Transport-Agnostic)
+## 6. Timeouts
 
-Each error maps to exactly one `error_code`.
+Evaluated in `handle_tick`:
 
-### Protocol
-- `ProtocolViolation` → `"protocol_violation"`
+- Meta→bytes timeout (>2s) → `ProtocolViolation`
+- Idle timeout (>5s without frame_meta) → `ProtocolViolation`
+- Session re-check interval (≥5s) → `RequestSessionRecheck`
 
-### Limits
+Two duration guards:
+- Ingest-time guard during capture
+- Event-time validation on close
+
+---
+
+## 7. Domain Errors
+
+Transport-agnostic.
+
+Protocol:
+- `ProtocolViolation`
+
+Limits:
 - `LimitDurationExceeded`
 - `LimitFrameCountExceeded`
 - `LimitResolutionExceeded`
@@ -196,149 +186,44 @@ Each error maps to exactly one `error_code`.
 - `LimitTotalBytesExceeded`
 - `LimitForwardBufferExceeded`
 
-### Forwarding
+Forwarding:
 - `ForwardFailed`
 
-### Session
+Session:
 - `SessionInvalid`
 - `SessionClosed`
 
-Service MUST NOT know WebSocket close codes.
+Each maps to a stable `error_code`.
 
 ---
 
-## 5. Event Handling Functions (Pure Logic)
+## 8. Action Outputs
 
-All functions accept:
-- current state
-- event object
-- `now_ingest` (server time)
+Service emits actions only:
 
-They either:
-- return `(new_state, actions)`
-- or raise a typed domain error
+- `AbortCapture`
+- `ForwardFrame`
+- `RequestSessionValidation`
+- `RequestSessionRecheck`
+- `CleanupCapture`
 
-Required handlers:
-
-- `handle_open(open_event, now_ingest)`
-- `handle_frame_meta(meta_event, now_ingest)`
-- `handle_frame_bytes(byte_length, now_ingest)`
-- `handle_close(close_event, now_ingest)`
-- `handle_tick(now_ingest)` (timeouts + duration guard)
-
----
-
-## 6. Ordering & Timestamp Rules
-
-### Open
-- `fps_target ≤ max_fps`
-- `width ≤ max_width`
-- `height ≤ max_height`
-- `width × height ≤ max_pixels`
-
-### Frame Meta
-- `seq == expected_next_seq`
-- `timestamp_frame ≥ last_frame_timestamp` (if exists)
-- No existing `pending_meta`
-
-
-### Frame Bytes
-- Must immediately follow matching meta
-- `byte_length ≤ max_frame_bytes`
-- After acceptance:
-  - increment `frame_count`
-  - increment `total_bytes`
-  - update `last_frame_timestamp` (from `timestamp_frame`)
-  - increment `expected_next_seq`
-  - clear `pending_meta`
-
-### Close
-- `timestamp_end ≥ timestamp_start`
-- `timestamp_end ≥ last_frame_timestamp`
-- `(timestamp_end - timestamp_start) ≤ max_duration_s`
-
-Violations → `ProtocolViolation` or appropriate limit error.
-
----
-
-## 7. Duration Enforcement
-
-Two checks:
-
-1. Ingest-time guard (during capture):
-   - `(now_ingest - ingest_timestamp_open) > max_duration_s`
-   → `LimitDurationExceeded`
-
-2. Event-time validation on close:
-   - `(timestamp_end - timestamp_start) ≤ max_duration_s`
-
----
-
-## 8. Frame & Byte Limits
-
-- `frame_count > max_frames` → `LimitFrameCountExceeded`
-- `byte_length > max_frame_bytes` → `LimitFrameBytesExceeded`
-- `total_bytes > max_total_bytes` → `LimitTotalBytesExceeded`
-
-Rejected frames do NOT increment counters.
-
----
-
-## 9. Timeouts (Evaluated in handle_tick)
-
-- Meta→bytes timeout:
-  - `(now_ingest - pending_meta.meta_ingest_timestamp) > 2s`
-  → `ProtocolViolation`
-
-- Idle timeout:
-  - No `frame_meta` for 5s while active
-  → `ProtocolViolation`
-
-- Session re-check trigger:
-  - If 5s elapsed since last session check
-  → emit action `RequestSessionRecheck`
-
----
-
-## 10. Action Outputs (Returned to Route Layer)
-
-Service emits actions but performs no IO.
-
-Possible actions:
-
-- `AbortCapture(error_code, capture_id)`
-- `ForwardFrame(capture_id, seq, timestamp_event, byte_length)`
-- `RequestSessionValidation(user_id, session_id)` (on open)
-- `RequestSessionRecheck(user_id, session_id)`
-- `CleanupCapture(capture_id)`
-
-Routes decide:
+Routes handle:
 - WebSocket messages
 - Close codes
-- Queue forwarding
-- Session service calls
+- Session checks
+- Forward queue mechanics
 
 ---
 
-## 11. No-Disk Guarantee
+## 9. Non-Goals (Sprint 1)
 
-Service layer:
-- Performs no persistence
-- Writes no files
-- Emits no schema events
-- Has no knowledge of JSONL logs
-
----
-
-## 12. Non-Goals (Sprint 1)
-
-- No batching
-- No frame reordering
-- No resume support
+- No persistence
+- No disk writes
+- No schema recording
+- No frame batching
+- No resume/retry logic
 - No multi-capture per connection
-- No transport retry logic
-- No disk buffering
 
 ---
 
-This specification defines the authoritative domain contract for Sprint 1.
+This contract defines the authoritative domain behavior for Sprint 1.

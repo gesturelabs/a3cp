@@ -235,30 +235,67 @@ Implement state machine + limit enforcement per domain spec.
 ---
 
 ## 6) Final invariants pass (for this scope)
+# camera_feed_worker — Final Invariants Pass (Sprint 1E)
 
-- [ ] No persistence added in `camera_feed_worker`
-- [ ] No business logic duplication (service owns rules; routes only execute actions)
-- [ ] No ID generation (except internal `connection_key`)
-- [ ] Domain state remains the single source of truth for capture lifecycle
-
-
-
-
-
-## F) Route Migration (Deep Import Removal)
-
-- [ ] Rewrite `api/routes/camera_feed_worker_routes.py`
-  - import schemas only via `from schemas import ...`
-  - delegate to canonical router
-  - contain no endpoint logic
-- [ ] Ensure router mounted only once
+## 1) No persistence in this module
+- [ x] Confirm no file writes (`open`, `Path`, `jsonl`)
+- [x ] Confirm no DB usage (sqlite, sqlalchemy, alembic)
+- [x ] Confirm no network calls (requests, httpx)
+- [ x] Confirm no schema_recorder imports
 
 ---
 
-## G) Tests
+## 2) No business logic duplication
+- [x ] Confirm all protocol / limit / timeout rules exist only in `service.py`
+- [ x] Confirm `routes/router.py` only:
+      - parses transport
+      - calls `dispatch`
+      - executes returned actions
+- [x ] Confirm no MAX_*, limit, duration, or sequencing logic in routes
 
+---
+# Camera Feed Worker – Invariants & ID Discipline (Actionable TODO Only)
 
+## 3) No ID generation (except `connection_key`)
 
+### A) Hard rule enforcement
+- [ ] Remove fallback `uuid.uuid4()` usages for `record_id` in abort emission paths (router)
+- [ ] Confirm `record_id` is NEVER generated here (only validated/propagated)
+  - (session_id, capture_id already confirmed not generated)
+
+### B) Abort emission policy (demo-robust)
+- [ ] Emit `capture.abort` ONLY if a propagated `record_id` is available
+- [ ] If abort required but no valid propagated `record_id` exists:
+  - [ ] Close socket deterministically (no abort JSON, no synthetic IDs)
+  - [ ] Enforce close code convention:
+    - 1008 → protocol/client violation
+    - 1011 → invariant/internal breach
+
+### C) State robustness (recommended)
+- [ ] Persist propagated `record_id` in `ActiveState` on `capture.open`
+- [ ] Ensure tick/session-triggered aborts use state-held IDs only (remove dependence on `last_msg_for_emit` fallbacks)
+
+### D) Verification (must exist to prevent regression)
+- [ ] Search codebase to confirm zero ID fabrication beyond `connection_key`
+- [ ] Add/adjust tests:
+  - [ ] No synthetic `record_id` appears in abort emissions
+  - [ ] Socket closes (no abort emission) when abort occurs without valid propagated IDs
+- [ ] Document invariant (module doc or README):
+  camera_feed_worker validates & propagates IDs only; never generates them
+
+---
+
+## 4) Domain state is single source of truth (only remaining decision)
+- [ ] Decide and document: keep `repo.active_capture_id` as a demo guardrail OR remove and rely purely on `ActiveState`
+
+---
+
+## F) Route Migration (Deep Import Removal)
+- [ ] If legacy `api/routes/camera_feed_worker_routes.py` still exists: delete or mark deprecated to prevent regression
+
+---
+
+## G) Tests (remaining)
 ### Repository Tests
 - [ ] Buffer overflow
 - [ ] Forward failure propagation
@@ -272,7 +309,6 @@ Implement state machine + limit enforcement per domain spec.
 - [ ] Session closed mid-capture
 - [ ] Correct close codes
 
-
 ### Guardrail Tests
 - [ ] No deep schema imports in shim
 - [ ] Required schemas exported in `schemas.__all__`
@@ -282,23 +318,9 @@ Implement state machine + limit enforcement per domain spec.
 - [ ] Control messages validate required fields by `event` (open/meta/close)
 - [ ] Ensure no schema includes frame bytes or base64 image fields
 
-
 ---
 
 ## H) Smoke Verification
-
 - [ ] App boots cleanly
 - [ ] WebSocket route registered
 - [ ] Basic connect succeeds
-
-## WebSocket Streaming Integration (Pre-Classifier Gate)
-
-- [ ] Implement internal tick loop per WebSocket connection
-  - [ ] Periodic call to `dispatch(..., "tick", ...)`
-  - [ ] Ensure single-writer semantics for state mutation
-  - [ ] Cancel tick task cleanly on disconnect
-  - [ ] Abort + cleanup on timeout-triggered errors
-- [ ] Remove reliance on HTTP `capture.tick` for safety enforcement
-- [ ] Verify duration guard, idle timeout, and meta→bytes timeout fire autonomously
-- [ ] Only after above is complete:
-  - [ ] Enable frame forwarding to classifier
