@@ -13,7 +13,6 @@ from apps.camera_feed_worker.repository import repo
 from apps.camera_feed_worker.service import (
     AbortCapture,
     ActiveState,
-    CleanupCapture,
     IdleState,
     ProtocolViolation,
     RequestSessionRecheck,
@@ -77,7 +76,6 @@ async def _emit_abort_and_close(
     )
     await websocket.send_text(out.model_dump_json())
 
-    repo.set_active_capture_id(connection_key, None)
     await websocket.close(code=1000)
     return False
 
@@ -169,6 +167,9 @@ async def _enforce_identity_and_correlation(
     connection_key: str,
     msg: CameraFeedWorkerInput,
 ) -> bool:
+    # ------------------------------------------------------------------
+    # 0) Basic structural ID checks (unchanged)
+    # ------------------------------------------------------------------
     record_id = str(msg.record_id).strip()
     if not record_id:
         await websocket.close(code=1008)
@@ -189,20 +190,30 @@ async def _enforce_identity_and_correlation(
             await websocket.close(code=1008)
             return False
 
-    active_capture_id = repo.get_active_capture_id(connection_key)
+    # ------------------------------------------------------------------
+    # 1) Domain-state-driven correlation (new)
+    # ------------------------------------------------------------------
+    state = repo.get_state(connection_key)
 
-    if active_capture_id is None:
-        if msg.event == "capture.open":
-            repo.set_active_capture_id(connection_key, capture_id)
-    else:
-        if capture_id != active_capture_id:
+    if isinstance(state, IdleState):
+        # When idle, only capture.open is permitted.
+        if msg.event != "capture.open":
+            await websocket.close(code=1008)
+            return False
+        return True
+
+    if isinstance(state, ActiveState):
+        # When active, capture_id must match the active capture.
+        if capture_id != str(state.capture_id).strip():
             await websocket.close(code=1008)
             return False
 
-        if msg.event == "capture.close":
-            repo.set_active_capture_id(connection_key, None)
+        # If closing, we allow it here; domain dispatch will transition to IdleState.
+        return True
 
-    return True
+    # Defensive: unknown state type
+    await websocket.close(code=1011)
+    return False
 
 
 async def _apply_domain_and_handle_actions(
@@ -229,11 +240,6 @@ async def _apply_domain_and_handle_actions(
         raise
 
     repo.set_state(connection_key, new_state)
-    if (
-        isinstance(new_state, ActiveState)
-        and repo.get_active_capture_id(connection_key) is None
-    ):
-        repo.set_active_capture_id(connection_key, str(new_state.capture_id))
 
     # Enforce session validation at capture.open
     for a in actions:
@@ -258,7 +264,7 @@ async def _apply_domain_and_handle_actions(
                     error_code=error_code,
                 )
                 await websocket.send_text(out.model_dump_json())
-                repo.set_active_capture_id(connection_key, None)
+
                 await websocket.close(code=1000)
                 return False
             break
@@ -283,12 +289,8 @@ async def _apply_domain_and_handle_actions(
             error_code=abort_action.error_code,
         )
         await websocket.send_text(out.model_dump_json())
-        repo.set_active_capture_id(connection_key, None)
         await websocket.close(code=1000)
         return False
-
-    if any(isinstance(a, CleanupCapture) for a in actions):
-        repo.set_active_capture_id(connection_key, None)
 
     # Sprint 1: RequestSessionValidation / RequestSessionRecheck are intentionally ignored here.
 
@@ -337,11 +339,6 @@ async def _handle_binary_frame_when_expected(
         now_ingest=now_ingest,
     )
     repo.set_state(connection_key, new_state)
-    if (
-        isinstance(new_state, ActiveState)
-        and repo.get_active_capture_id(connection_key) is None
-    ):
-        repo.set_active_capture_id(connection_key, str(new_state.capture_id))
 
     abort_action = next((a for a in actions if isinstance(a, AbortCapture)), None)
     if abort_action is not None:
@@ -375,12 +372,9 @@ async def _handle_binary_frame_when_expected(
             error_code=abort_action.error_code,
         )
         await websocket.send_text(out.model_dump_json())
-        repo.set_active_capture_id(connection_key, None)
+
         await websocket.close(code=1000)
         return False
-
-    if any(isinstance(a, CleanupCapture) for a in actions):
-        repo.set_active_capture_id(connection_key, None)
 
     return True
 

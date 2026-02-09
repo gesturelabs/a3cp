@@ -9,6 +9,31 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-02-09 — Single Source of Truth Refactor (capture_id)
+
+### Refactored
+
+- Removed redundant `repo.active_capture_id` from `camera_feed_worker`.
+- Enforced capture correlation exclusively via `service.ActiveState.capture_id`.
+- Updated `_enforce_identity_and_correlation()` to consult domain state only.
+- Deleted all router-layer `set_active_capture_id` and `get_active_capture_id` usage.
+- Removed repository field, getter, setter, and forwarding assignment.
+
+### Architectural Improvement
+
+- Eliminated duplicated capture authority.
+- Reduced divergence risk between router and domain state.
+- Locked invariant: domain state is the single source of truth for active capture correlation.
+
+### Impact
+
+- No WebSocket protocol changes.
+- No external API changes.
+- Behavior preserved (all tests passing).
+- Ruff clean.
+
+This completes Phase 1 + Phase 2 of the Single Source of Truth transition.
+
 
 ## 2026-Feb-09 — Identity Invariants & Abort Integrity Hardening
 

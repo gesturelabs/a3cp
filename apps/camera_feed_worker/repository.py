@@ -79,7 +79,6 @@ class CameraFeedWorkerRepository:
                 # Sprint 1C
                 "state": IdleState(),
                 "seen_record_ids": set(),
-                "active_capture_id": None,
                 # Sprint 1D (forwarding boundary; JSON-only work may leave these unused)
                 "forward_queue": None,  # asyncio.Queue[ForwardItem] | None
                 "forward_frames": 0,
@@ -115,18 +114,6 @@ class CameraFeedWorkerRepository:
         self._ensure(connection_key)["seen_record_ids"].add(record_id)
 
     # ---------------------------------------------------------------------
-    # capture_id stability (per connection)
-    # ---------------------------------------------------------------------
-
-    def get_active_capture_id(self, connection_key: str) -> str | None:
-        return self._ensure(connection_key)["active_capture_id"]
-
-    def set_active_capture_id(
-        self, connection_key: str, capture_id: str | None
-    ) -> None:
-        self._ensure(connection_key)["active_capture_id"] = capture_id
-
-    # ---------------------------------------------------------------------
     # Forwarding boundary (Sprint 1D): API surface only (implementation next)
     # ---------------------------------------------------------------------
 
@@ -145,7 +132,6 @@ class CameraFeedWorkerRepository:
         rec["forward_task"] = None
         rec["max_forward_buffer_frames"] = int(max_frames)
         rec["max_forward_buffer_bytes"] = int(max_bytes)
-        rec["active_capture_id"] = capture_id
 
     def get_forward_stats(self, connection_key: str) -> tuple[int, int]:
         rec = self._ensure(connection_key)
