@@ -306,7 +306,7 @@ Eliminate duplicated state in `repo.active_capture_id`.
 **Objective:** Switch correlation enforcement to domain state while keeping `active_capture_id` temporarily.
 
 ### Changes
-- Update `_enforce_identity_and_correlation()` in `router.py`:
+- [x ]- Update `_enforce_identity_and_correlation()` in `router.py`:
   - Retrieve `state = repo.get_state(connection_key)`
   - If `IdleState`:
     - Only allow `capture.open`
@@ -318,8 +318,8 @@ Eliminate duplicated state in `repo.active_capture_id`.
 - Do not delete `active_capture_id` yet.
 
 ### Verification
-- Run full `camera_feed_worker` test suite.
-- Ensure:
+- [x ]- Run full `camera_feed_worker` test suite.
+- [x ]- Ensure:
   - mismatch → `1008`
   - abort → `1000`
   - binary gate behavior unchanged
@@ -331,62 +331,144 @@ Eliminate duplicated state in `repo.active_capture_id`.
 **Objective:** Remove redundant state entirely.
 
 ### Remove from `repository.py`
-- Field `"active_capture_id"`
-- `get_active_capture_id()`
-- `set_active_capture_id()`
-- Any assignments to `rec["active_capture_id"]`
+- [x ]- Field `"active_capture_id"`
+- [x ]- `get_active_capture_id()`
+- [x ]- `set_active_capture_id()`
+- [x ]- Any assignments to `rec["active_capture_id"]`
 
 ### Remove from `router.py`
-- All `repo.set_active_capture_id(...)`
-- All `repo.get_active_capture_id(...)`
-- Any cleanup calls clearing active capture
+- [x ]- All `repo.set_active_capture_id(...)`
+- [x ]- All `repo.get_active_capture_id(...)`
+- [x ]- Any cleanup calls clearing active capture
 
 ### Verification
-- Run full test suite.
-- Confirm identical external behavior.
+- [x ]- Run full test suite.
+- [x ]- Confirm identical external behavior.
 
 ---
 
-## Expected Effort
-- Phase 1: ~30–60 minutes
-- Phase 2: ~20–40 minutes
-- Total: ~1–2 hours with test feedback loop
+
 
 ---
 
-## End State
 
-- `ActiveState.capture_id` is the single source of truth.
-- Repository contains no duplicated capture state.
-- Correlation enforcement is domain-driven.
-- Router no longer mirrors domain state.
+
+- [x ]- `ActiveState.capture_id` is the single source of truth.
+- [x ]- Repository contains no duplicated capture state.
+-- [x ] Correlation enforcement is domain-driven.
+-- [ x] Router no longer mirrors domain state.
+---
+# Sprint 1 — Forwarding Boundary TODO (Revised, Practical Order)
+
+## 1) Schema Decision (Locked)
+- [x] Keep `LandmarkExtractorInput.modality = "vision"`
+- [x] Forwarder/adapter must set `"vision"` unconditionally
+
 ---
 
-## 5) Forwarding Boundary (Per-Frame, Locked)
+## 2) Repository Envelope (ForwardItem)
+- [ ] Implement full `ForwardItem` dataclass in `repository.py` with locked fields:
+      - capture_id
+      - seq
+      - timestamp_frame
+      - payload
+      - byte_length
+      - encoding
+      - width
+      - height
+      - user_id
+      - session_id
+- [ ] Enforce repository invariants inside `enqueue_frame()`:
+      - byte_length == len(payload)
+      - non-empty capture_id
+      - seq >= 1
+      - width/height > 0
+      - encoding non-empty
+      - user_id/session_id non-empty
 
-Per-frame forwarding to `landmark_extractor` remains the contract.
+---
 
-- [ ] Confirm forward item includes:
-      - `capture_id`
-      - `seq`
-      - `timestamp_frame` (event-time)
-      - JPEG `bytes` (memory-only)
-      - declared `encoding`
-      - declared dimensions (from open)
-- [ ] Ensure queue limits enforce:
-      - max forward buffer frames
-      - max forward buffer bytes
-- [ ] On forward overflow → surface `LimitForwardBufferExceeded`
-- [ ] On downstream failure → surface `ForwardFailed`
-- [ ] Ensure abort/cleanup:
-      - cancels forwarding task
-      - drains queue
-      - clears correlation
-      - releases buffers
-- [ ] Add repository-level tests:
-      - buffer overflow
-      - downstream failure propagation
-      - cleanup correctness
+## 3) Adapter Layer (Pure Transformation)
+- [ ] Create `forward_adapter.py`
+- [ ] Implement pure function: `ForwardItem -> LandmarkExtractorInput`
+- [ ] Set `modality="vision"` (locked)
+- [ ] Convert `timestamp_frame` to ISO8601 string
+- [ ] Construct `frame_id = f"{capture_id}:{seq}"`
+- [ ] Base64-encode JPEG payload into `frame_data`
+- [ ] No IO in adapter
+
+---
+
+## 4) Forwarder Task (Async Worker)
+- [ ] Implement async forwarder task
+      - Consumes `ForwardItem` from repo queue
+      - Uses adapter to build `LandmarkExtractorInput`
+      - Calls landmark_extractor ingest entrypoint
+- [ ] Surface downstream exceptions via repository (`forward_error`)
+- [ ] Forwarder must NOT:
+      - Send WebSocket messages
+      - Close WebSocket
+      - Call `repo.clear()`
+
+---
+
+## 5) Initialize Forwarding on `capture.open`
+- [ ] Call `repo.init_forwarding(...)` with server-defined limits
+      - max_forward_buffer_frames = 3
+      - max_forward_buffer_bytes = 1_000_000
+- [ ] Start forwarder task after successful session validation
+- [ ] Register task via `repo.start_forwarding_task(...)`
+
+---
+
+## 6) Binary Frame Handling Integration
+- [ ] In `_handle_binary_frame_when_expected()`:
+      - Call `repo.raise_if_forward_failed()` before enqueue
+      - Build `ForwardItem` from ActiveState + ForwardFrame + bytes
+      - Enqueue via `repo.enqueue_frame(...)`
+- [ ] Catch `repository.LimitForwardBufferExceeded`
+      - Emit `capture.abort`
+      - error_code = "limit_forward_buffer_exceeded"
+      - Close WebSocket (1000)
+      - Call `repo.stop_forwarding()`
+
+---
+
+## 7) Loop-Level Failure Detection
+- [ ] In `_ws_step()`:
+      - Call `repo.raise_if_forward_failed()` each iteration
+- [ ] On failure:
+      - Emit `capture.abort`
+      - error_code = "forward_failed"
+      - Close WebSocket (1000)
+      - Call `repo.stop_forwarding()`
+
+---
+
+## 8) Capture Termination Semantics
+- [ ] On `capture.abort`:
+      - Call `repo.stop_forwarding()`
+- [ ] On successful `capture.close`:
+      - Call `repo.stop_forwarding()`
+      - Close WebSocket (1000)
+- [ ] In `_ws_control_plane_loop` finally block:
+      - Ensure `repo.stop_forwarding()` before `repo.clear(connection_key)`
+
+---
+
+## 9) Repository-Level Tests
+- [ ] Buffer overflow enforcement test
+- [ ] Downstream failure propagation test
+- [ ] Cleanup correctness test
+      - queue drained
+      - counters reset
+      - task cancelled
+
+---
+
+## Optional (Low-Risk Cleanup)
+- [ ] Make `LandmarkExtractorInput.source` a default constant ("camera_feed_worker") instead of required `...`
+
 
 ---
 

@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Streaming ingest boundary for bounded video capture windows (Sprint 1: browser via WebSocket).
+Streaming ingest boundary for bounded video capture windows (Sprint 1: WebSocket).
 
 Validates and forwards JPEG frames incrementally to downstream vision modules.
 
-Does NOT emit A3CPMessage and does NOT persist raw frames.
+Does NOT emit `A3CPMessage` and does NOT persist raw frames.
 
 ---
 
@@ -15,8 +15,8 @@ Does NOT emit A3CPMessage and does NOT persist raw frames.
 | Field | Value |
 |-------|-------|
 | Type | worker |
-| Inputs | Browser (WebSocket), session_manager (session validation) |
-| Outputs | landmark_extractor (and other vision modules) |
+| Inputs | Browser (WebSocket), session_manager |
+| Outputs | landmark_extractor |
 | Produces A3CPMessage | ❌ No |
 
 ---
@@ -31,104 +31,110 @@ Does NOT emit A3CPMessage and does NOT persist raw frames.
   - Resolution
   - Frame count
   - Byte limits
-- Preserve event-time (`timestamp_start`, `timestamp_frame`, `timestamp_end`)
-- Validate and propagate:
-  - `user_id`
-  - `session_id`
-  - `capture_id`
-- Stream validated frames incrementally (no full-window buffering)
+- Preserve event-time semantics
+- Validate and propagate externally authoritative identifiers
+- Stream validated frames per-frame (no full-window buffering)
 - Emit domain aborts (mapped to WS close by route layer)
+
+---
+
+## Capture Lifecycle (Sprint 1)
+
+Exactly one capture lifecycle per WebSocket:
+
+capture.open
+→ frame_meta + frame_bytes*
+→ capture.close OR capture.abort
+
+
+After `capture.close` or `capture.abort`:
+- Forwarding stops
+- WebSocket closes (1000)
+- All per-connection state is cleared
+
+A second `capture.open` on the same connection is prohibited.
 
 ---
 
 ## Identity Rules
 
-Control-plane messages reuse:
-
-- `schema_version`
-- `record_id`
-- `user_id`
-- `session_id`
-
-`record_id`:
-- Identifies a control message only
-- Unique per WebSocket connection
-- Not persisted
-- Not generated here
-
-## ID Authority Invariant (Sprint 1)
-
-**Invariant**
-`camera_feed_worker` validates and propagates identifiers only. It never generates identifiers owned by other modules.
-
-**Externally authoritative IDs**
+Externally authoritative IDs:
 - `record_id`
 - `user_id`
 - `session_id`
 - `capture_id`
 
-**Rules**
-- All IDs must be supplied by the client control message.
-- IDs are validated, stored in-memory, and propagated only.
-- No fallback generation.
-- No default UUID creation.
-- No prefix-based fabrication (`sess_`, `cap_`, etc.).
-- No identifier mutation.
+Rules:
+- Supplied by client only
+- Validated and propagated
+- Never generated or mutated here
 
-**Explicit Exception**
-- `connection_key` (route-layer only, process-local, never emitted or persisted).
+Exception:
+- `connection_key` (route-layer only, process-local, never emitted)
 
-This module contains zero ID fabrication beyond `connection_key`.
-
-### Single Source of Truth (Domain State)
-
-During an active capture, `capture_id` authority resides exclusively in `service.ActiveState`.
-
-The repository does not maintain a separate `active_capture_id`.
-
-Correlation enforcement rules:
-
-- In `IdleState`: only `capture.open` is permitted.
-- In `ActiveState`: all control messages must use `state.capture_id`.
-
-The router enforces capture correlation by consulting domain state only.
-
-No duplicated capture state is maintained outside `ActiveState`.
-
-
-
-### Streaming Exception
-
-For raw frame streaming:
-
-- No per-frame `record_id`
-- Correlation uses `capture_id + seq`
-- Frames are transient and not recorded
-- First recorded artifact occurs downstream
-
-This module never generates identifiers owned by other modules.
+During active capture:
+- `capture_id` authority resides exclusively in `service.ActiveState`
+- Repository maintains no duplicate capture state
 
 ---
 
-## Forwarded Frame (Internal, In-Memory)
+## Streaming Exception
 
-ForwardedFrame {
-capture_id
-user_id
-session_id
-seq
-timestamp_frame
-encoding
-byte_length
-bytes (memory only)
-}
+Per-frame streaming does not use `record_id`.
 
+Correlation uses:
 
-- Forwarded immediately after validation
+`capture_id + seq`
+
+Frames are transient; the first recorded artifact occurs downstream.
+
+---
+
+## ForwardItem (Internal Forward Envelope)
+
+Self-contained per-frame contract (repository-owned).
+
+Fields:
+
+- `capture_id: str`
+- `seq: int`
+- `timestamp_frame: datetime`
+- `payload: bytes`
+- `byte_length: int`
+- `encoding: str`
+- `width: int`
+- `height: int`
+- `user_id: str`
+- `session_id: str`
+
+### Invariants
+
+- `byte_length == len(payload)`
+- No consumer may read `ActiveState`
 - No disk writes
-- Memory strictly bounded
+- No full-window buffering
+- Memory strictly bounded via forward queue limits
 
-Optional `CaptureSummary` on close.
+---
+
+## Forward Queue Limits (Sprint 1D)
+
+Forward buffer is strictly bounded per capture:
+
+- `max_forward_buffer_frames = 3`
+- `max_forward_buffer_bytes = 1_000_000`
+
+On overflow:
+- Emit `capture.abort`
+- `error_code = "limit_forward_buffer_exceeded"`
+- Close WebSocket (1000)
+
+On downstream failure:
+- Emit `capture.abort`
+- `error_code = "forward_failed"`
+- Close WebSocket (1000)
+
+Limits are server-defined and initialized at `capture.open`.
 
 ---
 
@@ -154,11 +160,10 @@ Optional `CaptureSummary` on close.
 
 ---
 
-## Storage Policy (Sprint 1)
+## Storage Policy
 
-- Raw frames never persisted
+- Raw frames are never persisted
 - Only downstream feature artifacts may be recorded
-- Logging authority: `recorded_schemas` only
 
 ---
 

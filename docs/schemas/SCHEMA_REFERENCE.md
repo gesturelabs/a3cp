@@ -1,8 +1,7 @@
 # SCHEMA_REFERENCE.md
 v 1.1
 
-This document defines the canonical runtime data schema used across all A3CP modules for internal communication and logging. The schema is represented as a `pydantic` model (`A3CPMessage`) under `schemas/a3cp_message.py` and is mirrored in `interfaces/a3cp_message.schema.json`.
-
+This document defines the canonical runtime data schema used across all A3CP modules for internal communication and logging. The schema is represented as a `pydantic` model (`A3CPMessage`) under `schemas/a3cp_message/a3cp_message.py` and is exported as JSON Schema from the same directory.
 Each field is documented with its type, version history, required status, typical usage, and which modules produce or consume it.
 
 ---
@@ -25,32 +24,34 @@ Each field is documented with its type, version history, required status, typica
 
 ## 1. Overview
 
-All internal communication in A3CP uses a canonical structure: A3CPMessage.
+All internal communication in A3CP uses a canonical structure: `A3CPMessage`.
 
 Each message is:
 - Serialized as JSON
 - Validated at runtime using Pydantic
-- Exported as JSON Schema to interfaces/
-- Logged as .jsonl under logs/users/ and logs/sessions/
+- Exported as JSON Schema from `schemas/`
+- Logged as `.jsonl` under `logs/users/` and `logs/sessions/`
 
-The schema enables consistent interoperability across modules handling:
+The schema ensures consistent interoperability across modules handling:
 - Multimodal input (gesture, speech, audio, image)
 - Classifier inference and confidence scoring
 - Clarification, memory-based adjustment, and AAC output
 
-Messages are versioned (schema_version), traceable (record_id), and grouped by session (session_id).
-All modules must validate schema_version and handle optional fields gracefully.
+Messages are:
+- Versioned (`schema_version`)
+- Uniquely identifiable (`record_id`)
+- Grouped by interaction (`session_id`)
 
+All modules MUST validate `schema_version` and tolerate unknown optional fields for forward compatibility.
 
 
 ---
 ## 2. Core Metadata Fields
 
-
 These fields are required in every `A3CPMessage`. They provide version control,
 traceability, session grouping, modality tagging, and audit timestamps.
 
-These fields collectively constitute the Session Spine and MUST be propagated unchanged across modules unless explicitly owned and mutated by the authoritative module (e.g. session_manager for session_id).
+These fields collectively constitute the Session Spine and MUST be propagated unchanged across modules unless explicitly owned and mutated by the authoritative module (e.g., `session_manager` for `session_id`).
 
 All timestamps must use ISO 8601 format with millisecond precision and a "Z" suffix.
 
@@ -58,31 +59,29 @@ All timestamps must use ISO 8601 format with millisecond precision and a "Z" suf
 | Field          | Type           | Req | Example                                      | Description                                                   |
 +----------------+----------------+-----+----------------------------------------------+---------------------------------------------------------------+
 | schema_version | str            | ✅  | "1.0.0"                                      | Semantic version of the schema (MAJOR.MINOR.PATCH)            |
-| record_id      | UUID           | ✅  | "07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56"       | Unique ID for this message (UUIDv4, assigned at creation)     |
+| record_id      | UUID           | ✅  | "07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56"         | Unique ID for this message (UUIDv4, immutable once assigned)  |
 | user_id        | str            | ✅  | "elias01"                                    | Pseudonymous user identifier                                  |
-| session_id     | str            | ❌  | "a3cp_sess_2025-06-15_elias01"               | Assigned by session_manager to group related inputs           |
+| session_id     | str            | ❌  | "a3cp_sess_2025-06-15_elias01"               | Assigned by `session_manager` to group related inputs         |
 | timestamp      | datetime       | ✅  | "2025-06-15T12:34:56.789Z"                   | ISO 8601 UTC timestamp with milliseconds and "Z" suffix       |
-| modality       | Literal[str]   | ❌  | "gesture"                                    | Assigned by classifier; one of: "gesture", "audio", etc.      |
-| source         | str            | ✅*   | "gesture_classifier"                         | Name of the module emitting this message                      |
-| performer_id   | str            | ✅* | "carer01"                                    | Actor performing input; required for human input messages; "system" for system-generated. |
+| modality       | str            | ❌  | "gesture"                                    | Input type; must use controlled vocabulary                    |
+| source         | str            | ✅  | "gesture_classifier"                         | Name of the module emitting this message                      |
+| performer_id   | str            | ❌* | "carer01"                                    | Actor performing input; required for human-originated inputs  |
 +----------------+----------------+-----+----------------------------------------------+---------------------------------------------------------------+
 
-(*) performer_id is required for all human-originated inputs. For system-generated messages, it may be set to "system" or omitted with validation.
+(*) `performer_id` is required for all human-originated inputs. For system-generated messages, it must be set to `"system"` or may be omitted if explicitly validated as system-originated.
 
 Notes:
-- record_id uniquely identifies a single message instance and must be a UUIDv4. It is immutable once assigned.
-- session_id groups multiple related messages within the same interaction window and is assigned by the session_manager.
-- schema_version must be present in all records and follow strict Semantic Versioning (MAJOR.MINOR.PATCH).
-- modality indicates the input type and must use a controlled vocabulary; it is assigned by classifier modules.
-- source identifies the module emitting the message and must be a string corresponding to a module name; no fixed enumeration applies.
-- performer_id identifies the actor performing the input and is required for all human-originated inputs; system-generated messages may use "system" or omit this field.
-- All timestamps must be in UTC with millisecond precision and include the "Z" suffix.
-- modality should be treated as an enum to prevent invalid values.
+- `record_id` must be UUIDv4 and immutable.
+- `schema_version` must follow Semantic Versioning (MAJOR.MINOR.PATCH).
+- `modality` must be one of: `"gesture"`, `"audio"`, `"speech"`, `"image"`, `"multimodal"`.
+- `source` is a free-form string identifying the emitting module (no fixed enumeration).
+- All timestamps must be UTC with millisecond precision and include the `"Z"` suffix.
+- Consumers must treat `modality` as an enum and reject invalid values.
 
 Allowed Values:
-- modality: one of "gesture", "audio", "speech", "image", "multimodal"
-- source: string corresponding to the name of the emitting module (e.g., "gesture_classifier", "session_manager"). No fixed set; must be consistent within system.
-- performer_id: string pseudonymous identifier (e.g., "user123", "carer01"), or the special value "system" for system-generated messages.
+- `modality`: `"gesture"`, `"audio"`, `"speech"`, `"image"`, `"multimodal"`
+- `performer_id`: pseudonymous identifier (e.g., `"user123"`, `"carer01"`) or `"system"`
+-----------------------------
 
 
 ## Section 3: Input & Stream Fields
@@ -106,72 +105,34 @@ inputs such as audio, video, or skeletal streams.
 +---------------------+----------+-----+--------------------------------------------+-------------------------------------------------------------+
 | timestamp           | datetime | ✅  | "2025-05-05T12:31:46.123Z"                 | ISO 8601 UTC timestamp of when the input was captured       |
 | stream_segment_id   | str      | ❌  | "elias01_2025-05-05T12:31:45Z"             | Optional ID grouping frames into a stream segment           |
-| sequence_id         | str      | ❌  | "elias01_000023"                           | Optional global identifier for this input frame or utterance|
+| sequence_id         | str      | ❌  | "elias01_000023"                           | Optional identifier for this input frame or utterance       |
 | frame_index         | int      | ❌  | 23                                         | Index of this frame within the segment or sequence          |
 +---------------------+----------+-----+--------------------------------------------+-------------------------------------------------------------+
 
 Notes:
+- `timestamp` must follow the formatting constraints defined in Section 2.
 - If `sequence_id` is present, it must be unique within the session.
-- `frame_index` is used for aligning dense input streams (e.g., video frames,
-  audio windows, skeletal keypoints).
+- `frame_index` is used for aligning dense input streams (e.g., video frames, audio windows, skeletal keypoints).
+- `sequence_id` and `stream_segment_id` are independent; either may be used depending on stream architecture.
 
 ---
 
 ### 3.2 Input Signal Metadata
 
-+------------+----------+-----+------------------------+------------------------------------------------------------------------------+
-| Field Name | Type     | Req | Example                | Description                                                                  |
-+------------+----------+-----+------------------------+------------------------------------------------------------------------------+
-| modality   | Literal[str] | ❌ | "gesture"              | Type of input; assigned by classifier modules. One of: "gesture", "audio", "speech", "image", "multimodal".              |
-| source     | str      | ❌  | "gesture_classifier"    | Name of the module emitting the message (e.g., "gesture_classifier", "session_manager"). Not fixed vocabulary.           |
-| device_id  | str      | ❌  | "jetson_nano_01"        | Hardware identifier of the capture device.                                   |
-| is_demo    | bool     | ❌  | false                  | Whether this is a synthetic/test/demo sample.                                |
-| consent_given | bool  | ❌  | true                   | Indicates whether informed consent was captured for this input.              |
-+------------+----------+-----+------------------------+------------------------------------------------------------------------------+
++---------------+----------+-----+------------------------+--------------------------------------------------------------+
+| Field Name    | Type     | Req | Example                | Description                                                  |
++---------------+----------+-----+------------------------+--------------------------------------------------------------+
+| modality      | str      | ❌  | "gesture"              | See Section 2 (Core Metadata Fields).                       |
+| source        | str      | ❌  | "gesture_classifier"   | See Section 2 (Core Metadata Fields).                       |
+| device_id     | str      | ❌  | "jetson_nano_01"       | Hardware identifier of the capture device.                  |
+| is_demo       | bool     | ❌  | false                  | Whether this is a synthetic/test/demo sample.               |
+| consent_given | bool     | ❌  | true                   | Indicates whether informed consent was captured.            |
++---------------+----------+-----+------------------------+--------------------------------------------------------------+
 
 Notes:
-- `modality` is optional in initial inputs and required in classifier outputs.
-- `source` identifies the module emitting the message, supporting traceability.
-- `device_id`, `is_demo`, and `consent_given` are optional flags for metadata and ethics compliance.
-
----
-
-### 3.3 Vector Encoding & Feature Extraction
-
-+--------------------+----------+-----+-----------------------------+-------------------------------------------------------------------------+-----------+
-| Field Name         | Type     | Req | Example                     | Description                                                             | Version   |
-+--------------------+----------+-----+-----------------------------+-------------------------------------------------------------------------+-----------+
-| vector_version     | string   | ❌  | "v2.1"                      | Version of the vector encoder used to produce features.                 | v1.0      |
-| raw_features_ref   | object   | ❌  | See schema below            | Reference to external vector file or array.                             | v1.0      |
-+--------------------+----------+-----+-----------------------------+-------------------------------------------------------------------------+-----------+
-
-#### raw_features_ref schema
-
-{
-  "uri": "/data/elias01/gesture_000023.parquet",
-  "hash": "sha256:abcdef1234567890...",
-  "encoding": "landmark_v2.1",
-  "dims": 128,
-  "format": "parquet"
-}
-
-+------------+----------+-----+-------------------------------------------------------------------------+
-| Subfield   | Type     | Req | Description                                                             |
-+------------+----------+-----+-------------------------------------------------------------------------+
-| uri        | string   | ✅  | Path or URI to vector file (e.g., ".parquet", ".npz", or ".npy").       |
-| hash       | string   | ✅  | Content hash (e.g., SHA-256) of the vector file for integrity checking. |
-| encoding   | string   | ✅  | Name and version of the encoder used (e.g., "landmark_v2.1").           |
-| dims       | integer  | ✅  | Dimensionality of the vector.                                           |
-| format     | string   | ✅  | File format of the stored vector (e.g., "parquet", "npy", "npz").       |
-+------------+----------+-----+-------------------------------------------------------------------------+
-
-Notes:
-- The 'vector' field (inline float list) is deprecated and should be used only for unit tests with vectors fewer than 5 elements.
-- All production logs MUST reference external vectors via 'raw_features_ref' with a verified integrity hash.
-- Future schema versions may require 'vector_version' to match or be consistent with 'raw_features_ref.encoding'.
-
-
-
+- `modality` and `source` are defined canonically in Section 2 and must follow those constraints.
+- `modality` may be omitted in initial raw inputs but must be populated by classifier modules.
+- `device_id`, `is_demo`, and `consent_given` are optional metadata fields for traceability and ethics compliance.
 
 
 
@@ -185,55 +146,68 @@ All fields in this section are optional but strongly encouraged when available.
 
 ### 4.1 Prompt & Environment Context
 
-These fields are grouped under the `context` object.
+These fields are grouped under the nested `context` object.
 
-| Field Name               | Type     | Req | Example                    | Description                                                                 |
-|--------------------------|----------|-----|----------------------------|-----------------------------------------------------------------------------|
-| `context_location`       | string   | ❌  | `"kitchen"`                | Coarse location or room tag.                                                |
-| `context_prompt_type`    | string   | ❌  | `"natural_use"`            | One of: `"prompted"`, `"natural_use"`, `"other"`.                          |
-| `context_partner_speech`| string   | ❌  | `"Are you hungry?"`        | Verbatim or paraphrased caregiver/partner utterance preceding the action.  |
-| `context_session_notes` | string   | ❌  | `"User distracted by noise"` | Freeform caregiver notes or environment annotations.                     |
+| Field Path                   | Type   | Req | Description |
+|------------------------------|--------|-----|-------------|
+| `context.location`           | string | ❌  | Coarse location or room tag (e.g., "kitchen"). |
+| `context.prompt_type`        | string | ❌  | Interaction type (e.g., "prompted", "natural_use", "other"). |
+| `context.partner_speech`     | string | ❌  | Verbatim or paraphrased partner utterance preceding the action. |
+| `context.session_notes`      | string | ❌  | Freeform caregiver notes or environment annotations. |
+
+Notes:
+- All `context.*` fields MUST be implemented as a nested object under `"context"`.
+- Flat key notation (e.g., `"context_location"`) is prohibited.
+- The entire `context` object is optional and may be omitted if no contextual data is available.
+
 
 ---
 
 ### 4.2 Derived Context Tags _(planned for future versions)_
 
-These fields are typically computed post-recording by NLP or memory subsystems. They are optional and **not yet active in schema version 1.0.0**.
+These fields are computed post-recording by NLP or memory subsystems. They are optional and **not active in schema version 1.0.0**.
 
-| Field Name                | Type           | Req | Example                         | Description                                                                |
-|---------------------------|----------------|-----|----------------------------------|----------------------------------------------------------------------------|
-| `context_topic_tag`       | string         | ❌  | `"food"`                         | Inferred topic derived from partner speech or other cues.                  |
-| `context_relevance_score` | float          | ❌  | `0.87`                           | Confidence score for relevance to expected/known intents.                  |
-| `context_flags`           | object          | ❌  | `{ "question_detected": true }`  | Map of boolean context flags. See below.                                   |
+| Field Path                   | Type   | Req | Example                         | Description                                                   |
+|------------------------------|--------|-----|----------------------------------|---------------------------------------------------------------|
+| `context.topic_tag`          | string | ❌  | "food"                           | Inferred topic derived from partner speech or other cues.     |
+| `context.relevance_score`    | float  | ❌  | 0.87                             | Confidence score for contextual relevance.                    |
+| `context.flags`              | object | ❌  | { "question_detected": true }    | Map of boolean context flags.                                 |
 
-#### `context.flags` may include:
+`context.flags` may include:
 
-- `"question_detected"`: Was the partner speech a question?
-- `"ambiguous_intent"`: Did the user action appear ambiguous?
-- `"requires_attention"`: Did the caregiver manually flag the situation?
+- `"question_detected"` — Whether the partner speech was a question.
+- `"ambiguous_intent"` — Whether the user action appeared ambiguous.
+- `"requires_attention"` — Whether a caregiver manually flagged the situation.
 
-**Notes:**
-- These derived tags help support clarification workflows, scaffolding triggers, and interpretability layers.
-- `context` should be implemented as a **nested object** in both schema and serialized JSON (not flat dot notation).
+Notes:
+- These fields extend the nested `context` object defined in Section 4.1.
+- Flat key notation is prohibited.
+- Derived context tags are advisory metadata and must not override classifier or caregiver decisions.
 
-## 5 Classifier Output & Label Fields
 
-This section captures intent predictions and label provenance from multiple modalities,
-their human annotations, and final clarifications. It covers evolving interpretations
-from initial AI classification through human/caregiver correction to final resolved output.
+## 5. Classifier Output & Label Fields
 
-Used by: Classifier modules, Input Broker, Clarification Planner, Feedback Logger, CARE Engine
+This section captures intent predictions and label provenance across modalities,
+including AI inference, human annotation, correction, and final resolution.
+
+It documents the progression from:
+- Initial classifier output
+- Per-modality contributions
+- Human or caregiver correction
+- Final resolved decision
+
+Used by: classifier modules, input broker, clarification planner, feedback logger, CARE engine.
 
 ---
 
-### 5.1. classifier_output_components
+### 5.1 classifier_output_components
 
 Per-modality AI predictions contributing to the final decision.
 
 +------------------------------+--------+-----+----------------------------+--------------------------------------------------------------+
 | Field Name                   | Type   | Req | Example                    | Description                                                  |
 +------------------------------+--------+-----+----------------------------+--------------------------------------------------------------+
-| classifier_output_components | dict   | ❌  | See subfields              | Per-modality predictions keyed by modality (e.g., "gesture") |
+| classifier_output_components | object | ❌  | See subfields              | Per-modality predictions keyed by modality (e.g., "gesture") |
 +------------------------------+--------+-----+----------------------------+--------------------------------------------------------------+
 
 Each modality entry contains:
@@ -243,18 +217,21 @@ Each modality entry contains:
 +------------+-----------+-----+----------------------------+-------------------------------------------------------------+
 | intent     | string    | ✅  | "I love you"               | Predicted intent label from this modality                   |
 | confidence | float     | ✅  | 0.82                       | Confidence score between 0.0 and 1.0                        |
-| timestamp  | datetime  | ❌  | "2025-07-31T10:15:01.123Z" | When the classifier generated this prediction               |
+| timestamp  | datetime  | ✅  | "2025-07-31T10:15:01.123Z" | ISO 8601 UTC time the prediction was generated              |
 +------------+-----------+-----+----------------------------+-------------------------------------------------------------+
 
 Notes:
-- Only modalities present should be included.
-- This structure supplements but does not replace the final `intent` field.
+- Keys must correspond to valid `modality` values defined in Section 2.
+- Each modality entry MUST include its own `timestamp`, representing prediction generation time.
+- This timestamp is distinct from the message-level `timestamp`, which represents message emission time.
+- This structure supplements but does not replace the final resolved decision fields.
+
 
 ---
 
-### 2. classifier_output
+### 5.2 classifier_output
 
-AI model inference summary.
+`classifier_output` MUST represent the fused or selected decision after modality aggregation and MUST NOT duplicate raw per-modality predictions already stored in `classifier_output_components`.
 
 +---------------------+--------+-----+-------------------------------------------+-------------------------------------------------------------+
 | Field Name          | Type   | Req | Example                                   | Description                                                 |
@@ -277,16 +254,19 @@ All fields are optional unless required by a specific module (e.g., feedback log
 +--------------------+---------+-----+------------------+-------------------------------------------------------------+
 | Field Name         | Type    | Req | Example          | Description                                                 |
 +--------------------+---------+-----+------------------+-------------------------------------------------------------+
-| label_status       | string  | ❌  | "confirmed"      | Label trust status. One of: "unconfirmed", "confirmed", "corrected". |
-| label_correction   | string  | ❌  | "drink"          | Human override of the model or user label, applied post-inference.    |
+| label_status       | string  | ❌  | "confirmed"      | Trust status of the current label.                          |
+| label_correction   | string  | ❌  | "drink"          | Human override of the model or user label, applied post-inference. |
 +--------------------+---------+-----+------------------+-------------------------------------------------------------+
 
-Allowed values for label_status:
-- "unconfirmed": Initial annotation without verification
-- "confirmed": Human-reviewed or validated
-- "corrected": Model label has been overridden
+Allowed values for `label_status`:
+- `"unconfirmed"` — Initial annotation without verification.
+- `"confirmed"` — Human-reviewed or validated.
+- `"corrected"` — Model label has been overridden.
 
-Note: Only trusted sources (e.g., caregivers, expert annotators) should populate label_correction.
+Notes:
+- `label_correction` MUST only be populated by trusted human actors (e.g., caregivers, expert annotators).
+- If `label_correction` is present, `label_status` SHOULD be set to `"corrected"`.
+- `label_correction` does not replace audit fields in `classifier_output_components`; it represents post-inference intervention.
 
 ---
 
@@ -308,39 +288,41 @@ Use: These flags support ethics compliance, audit filtering, and exclusion from 
 +------------------+---------+-----+-----------+-------------------------------------------------------------+
 | Field Name       | Type    | Req | Example   | Description                                                 |
 +------------------+---------+-----+-----------+-------------------------------------------------------------+
-| final_decision   | string  | ❌  | "eat"     | Final resolved intent after feedback, override, or clarification. |
-| output_type     | string  | ❌  | "intent"  | Output category. One of: "intent", "clarification", "none".  |
+| final_decision   | string  | ❌  | "eat"     | Final resolved intent after clarification or correction.    |
+| output_type      | string  | ❌  | "intent"  | Output category. One of: "intent", "clarification", "none". |
 +------------------+---------+-----+-----------+-------------------------------------------------------------+
 
-Allowed values for output_type:
-- "intent": Final user intent has been resolved
-- "clarification": Follow-up or request for disambiguation
-- "none": No output generated (e.g., inconclusive input)
+Allowed values for `output_type`:
+- `"intent"` — Final user intent has been resolved.
+- `"clarification"` — Follow-up required to disambiguate.
+- `"none"` — No output generated (e.g., inconclusive input).
 
-Warning:
-Do not pre-populate final_decision or output_type before resolution is complete. These fields represent post-clarification outcomes and must be kept distinct from initial predictions.
+Rules:
+- `final_decision` MUST only be set after resolution is complete.
+- If `final_decision` is set, `output_type` SHOULD be `"intent"`.
+- These fields MUST remain distinct from `classifier_output` and represent post-clarification outcomes only.
 
 ---
 
 ### 6.4 Clarification Metadata
 
-All clarification planning metadata is grouped under the optional `clarification` object. This object is typically written by the `clarification_planner` and read by downstream modules such as the `llm_clarifier`, `feedback_log`, or `memory_interface`.
+All clarification planning metadata is grouped under the optional `clarification` object. This object is written by the clarification planner and consumed by downstream modules (e.g., llm_clarifier, feedback_log, memory_interface).
 
-+------------------------------+------------------+-----+----------------------------------+--------------------------------------------------------------+
-| Field                        | Type             | Req | Example                          | Description                                                  |
-+------------------------------+------------------+-----+----------------------------------+--------------------------------------------------------------+
-| clarification.needed         | boolean          | ✅  | true                             | Whether clarification should be initiated for this input.   |
-| clarification.reason         | string           | ❌  | "low_confidence"                 | Explanation for triggering clarification.                   |
-| clarification.candidates     | list of strings  | ❌  | ["eat", "drink"]                 | Top ambiguous or tied intent predictions.                   |
-| clarification.confidence_scores | list of floats  | ❌  | [0.38, 0.36]                    | Confidence values aligned with candidates.                  |
-| clarification.threshold_used | float            | ❌  | 0.40                            | Threshold that triggered the clarification logic.           |
-+------------------------------+------------------+-----+----------------------------------+--------------------------------------------------------------+
-
++------------------------------------+------------------+-----+----------------------------------+--------------------------------------------------------------+
+| Field Path                         | Type             | Req | Example                          | Description                                                  |
++------------------------------------+------------------+-----+----------------------------------+--------------------------------------------------------------+
+| clarification.needed               | boolean          | ✅  | true                             | Whether clarification should be initiated.                   |
+| clarification.reason               | string           | ❌  | "low_confidence"                 | Explanation for triggering clarification.                    |
+| clarification.candidates           | list[string]     | ❌  | ["eat", "drink"]                 | Ambiguous or top competing intent predictions.               |
+| clarification.confidence_scores    | list[float]      | ❌  | [0.38, 0.36]                     | Confidence values aligned with `candidates`.                 |
+| clarification.threshold_used       | float            | ❌  | 0.40                             | Decision threshold that triggered clarification logic.       |
++------------------------------------+------------------+-----+----------------------------------+--------------------------------------------------------------+
 
 Notes:
-- All fields are optional except clarification.needed.
-- If clarification.needed is false, this object may be omitted entirely.
-- clarification.* fields are advisory metadata for interaction planning, not intent resolution.
+- If the `clarification` object is present, `clarification.needed` MUST be included.
+- If `clarification.needed` is `false`, the entire `clarification` object SHOULD be omitted.
+- `clarification.*` fields are advisory metadata for interaction planning and MUST NOT resolve or override `final_decision`.
+
 
 
 ## 7. Memory-Based Output
@@ -353,43 +335,50 @@ All fields below are part of the optional `memory` object and only appear when m
 
 ### 7.1 User-Specific Boosts
 
-| Field Name       | Type              | Req | Example                          | Description                                                                 |
-|------------------|-------------------|-----|----------------------------------|-----------------------------------------------------------------------------|
-| `intent_boosts`  | Dict[str, float]  | ❌  | `{ "eat": 0.15, "play": 0.05 }`  | Per-user intent likelihood boosts based on prior interaction history.      |
+| Field Path             | Type                | Req | Example                          | Description                                                                 |
+|------------------------|---------------------|-----|----------------------------------|-----------------------------------------------------------------------------|
+| `memory.intent_boosts` | dict[string, float] | ❌  | { "eat": 0.15, "play": 0.05 }    | Per-user intent likelihood boosts derived from prior interaction history.  |
 
-Used by CARE Engine’s confidence evaluator or fusion planner to adjust ranking of classifier outputs. Should not be interpreted as ground truth.
-
+Notes:
+- This field is part of the nested `memory` object.
+- Values represent additive or weighting adjustments applied during fusion.
+- These boosts are advisory and MUST NOT be treated as ground truth or override caregiver corrections.
 ---
 
 ### 7.2 Fallback Suggestions
 
-| Field Name            | Type     | Req | Example                      | Description                                                                      |
-|-----------------------|----------|-----|------------------------------|----------------------------------------------------------------------------------|
-| `fallback_suggestions`| list     | ❌  | `["rest", "drink", "eat"]`  | Ranked list of intents from memory, shown when classifier confidence is low.     |
+| Field Path                    | Type          | Req | Example                     | Description                                                                 |
+|-------------------------------|---------------|-----|-----------------------------|-----------------------------------------------------------------------------|
+| `memory.fallback_suggestions`| list[string]  | ❌  | ["rest", "drink", "eat"]    | Ranked list of intents from memory used when classifier confidence is low. |
 
-Suggestions should be **ordered by descending estimated relevance** and may be presented to caregivers for manual selection.
+Notes:
+- This field is part of the nested `memory` object.
+- Suggestions MUST be ordered by descending estimated relevance.
+- These suggestions are advisory and may be presented for caregiver selection.
+- They MUST NOT override `final_decision` or human corrections automatically.
 
 ---
 
 ### 7.3 Hint Usage Flag
 
-| Field Name     | Type    | Req | Example | Description                                                                 |
-|----------------|---------|-----|---------|-----------------------------------------------------------------------------|
-| `hint_used`    | boolean | ❌  | `true`  | Indicates whether memory-based hints contributed to the final decision.     |
+| Field Path            | Type    | Req | Example | Description                                                                 |
+|-----------------------|---------|-----|---------|-----------------------------------------------------------------------------|
+| `memory.hint_used`    | boolean | ❌  | true    | Indicates whether memory-based hints contributed to the final decision.     |
 
-Used for auditability and learning analysis—e.g., to differentiate autonomous from scaffolded decisions.
+Notes:
+- This field is part of the nested `memory` object.
+- It supports auditability and learning analysis (e.g., differentiating autonomous from scaffolded decisions).
+- It must reflect whether memory influenced the fusion or final decision stage.
 
 ---
 
 ### Notes
 
-- The entire `memory` object is optional and only included when explicitly queried or available.
-- Memory-derived fields are **advisory**, not deterministic. They should never override caregiver corrections or clarified decisions.
-- Systems must clearly separate memory-boosted outcomes from independently inferred ones during training and evaluation.
+- The entire `memory` object is optional and MUST only be included when explicitly queried or applied.
+- Memory-derived fields are advisory and MUST NOT override caregiver corrections, clarified decisions, or `final_decision`.
+- Systems must clearly separate memory-influenced outcomes from independently inferred classifier outputs during training, evaluation, and audit.
+- Memory fields must never be treated as ground truth and must remain distinct from raw classifier predictions in logs.
 
-
-recommendation
-Do not treat memory fields as ground truth. They are advisory hints and should always be logged separately from direct classifier outputs.
 
 ## 8. Vector & Feature Metadata
 
@@ -399,48 +388,58 @@ This section defines how input features are represented numerically for inferenc
 
 ### 8.1 External Feature Reference
 
-| Field Name         | Type   | Req | Example                        | Description                                                                |
-|--------------------|--------|-----|--------------------------------|----------------------------------------------------------------------------|
-| `raw_features_ref` | object | ❌  | See schema below               | Structured reference to an external feature file (e.g., `.parquet`, `.npy`) |
+| Field Path               | Type   | Req | Example              | Description                                                      |
+|--------------------------|--------|-----|----------------------|------------------------------------------------------------------|
+| `raw_features_ref`       | object | ❌  | See schema below     | Structured reference to an external feature file.               |
 
-This object must contain the following subfields:
+Notes:
+- `raw_features_ref` is used to reference externally stored feature vectors.
+- Inline embedding of full feature arrays in production logs is prohibited.
+
+
+Example `raw_features_ref` structure (using `.npz`):
 
 {
-"uri": "/data/u01/gesture_000023.parquet",
-"hash": "sha256:abcdef1234567890...",
-"encoding": "landmark_v2.1",
-"dims": 128,
-"format": "parquet"
+  "uri": "/data/u01/gesture_000023.npz",
+  "hash": "sha256:abcdef1234567890...",
+  "encoding": "landmark_v2.1",
+  "dims": 128,
+  "format": "npz"
 }
 
+Constraints:
+- `uri` MUST reference a valid `.npz` file.
+- `hash` MUST be a SHA-256 content hash of the `.npz` file.
+- `encoding` MUST specify encoder name and version.
+- `dims` MUST match the dimensionality of the stored vector.
+- `format` MUST be `"npz"` for this configuration.
 
-| Subfield     | Type     | Req | Description                                                                  |
-|--------------|----------|-----|------------------------------------------------------------------------------|
-| `uri`        | string   | ✅  | Path or URI to the external feature file.                                    |
-| `hash`       | string   | ✅  | Content hash (e.g., SHA-256) used to verify file integrity.                  |
-| `encoding`   | string   | ✅  | Name and version of the encoder used (e.g., `"landmark_v2.1"`).             |
-| `dims`       | integer  | ✅  | Number of dimensions in the encoded feature vector.                          |
-| `format`     | string   | ✅  | File format (e.g., `"parquet"`, `"npy"`, `"npz"`).                           |
+
+
+| Subfield   | Type    | Req | Description                                                                 |
+|------------|---------|-----|-----------------------------------------------------------------------------|
+| `uri`      | string  | ✅  | Path or URI to the external `.npz` feature file.                          |
+| `hash`     | string  | ✅  | SHA-256 content hash of the referenced file for integrity verification.   |
+| `encoding` | string  | ✅  | Encoder name and version (e.g., `"landmark_v2.1"`).                        |
+| `dims`     | integer | ✅  | Dimensionality of the encoded feature vector.                               |
+| `format`   | string  | ✅  | File format; MUST be `"npz"` for this configuration.                       |
+
 
 ---
 
 ### 8.2 Versioning
 
-| Field Name       | Type   | Req | Example     | Description                                                                 |
-|------------------|--------|-----|-------------|-----------------------------------------------------------------------------|
-| `vector_version` | string | ❌  | `"v2.1"`     | Version of the encoder used, if not included in `raw_features_ref.encoding` |
+| Field Name       | Type   | Req | Example  | Description                                                              |
+|------------------|--------|-----|----------|--------------------------------------------------------------------------|
+| `vector_version` | string | ❌  | "v2.1"   | Encoder version, used only when `raw_features_ref` is absent.           |
 
-- This field is optional if `raw_features_ref.encoding` already encodes version info.
-- Use only if external `raw_features_ref` schema is unavailable.
+Notes:
+- If `raw_features_ref` is present, `vector_version` SHOULD NOT be set.
+- `raw_features_ref.encoding` is the authoritative source of encoder version.
+- This field exists for backward compatibility or minimal-record scenarios only.
 
----
 
-### Deprecated / Legacy Fields
 
-- The `vector` field (inline float list) has been **removed** from the schema as of version `1.0.0`.
-- Any embedded vectors must be stored externally and referenced via `raw_features_ref`.
-
----
 
 ### Recommendation
 
@@ -449,11 +448,7 @@ This object must contain the following subfields:
 - Hash and version metadata must be validated at logging and inference time to ensure reproducibility.
 
 
-## 9. AAC Output Fields
 
-These fields describe the structured output intended for delivery to the AAC (Augmentative and Alternative Communication) system. They are populated only after an intent or phrase has been finalized by the CARE Engine or related modules.
-
----
 
 ## 9. AAC Output Fields
 
@@ -463,12 +458,17 @@ These fields describe the final structured outputs intended for delivery to the 
 
 ### 9.1 Rendered Output
 
+### 9.1 Rendered Output
+
 | Field Name      | Type   | Req | Example           | Description                                                                 |
 |-----------------|--------|-----|--------------------|-----------------------------------------------------------------------------|
-| `output_phrase` | string | ❌  | "I want to eat"    | Phrase to be rendered, spoken, or displayed by the AAC interface.           |
-| `output_mode`   | string | ❌  | "speech"           | Mode of AAC output: "speech", "text", "symbol", or other UI modality.       |
+| `output_phrase` | string | ❌  | "I want to eat"    | Final phrase to be rendered, spoken, or displayed by the AAC interface.    |
+| `output_mode`   | string | ❌  | "speech"           | Output modality (e.g., "speech", "text", "symbol").                        |
 
-These fields reflect the **final communicative act** as perceived by the user and external partners. The output may be shaped by prior context, memory-based planning, and/or clarification sequences.
+Notes:
+- These fields represent the final communicative act after resolution.
+- If `output_phrase` is set, `final_decision` SHOULD also be set.
+- `output_mode` controls delivery modality only and MUST NOT affect intent resolution.
 
 ---
 
@@ -511,34 +511,45 @@ Use [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`.
 
 ### 10.2 Pre-Stable Versioning (until v1.0.0)
 
-During pre-stable development, `schema_version` must still be present (e.g., `"0.9.2-dev"` or `"0.10.0-beta"`), but formal semantic versioning begins at `v1.0.0`, after which compatibility rules are strictly enforced.
+During pre-stable development, `schema_version` MUST still be present (e.g., `"0.9.2-dev"` or `"0.10.0-beta"`).
 
-A full version history will be published at or before the first stable release.
+Formal semantic versioning rules (strict compatibility guarantees) apply starting at `v1.0.0`.
+
+Before `v1.0.0`:
+- Backward compatibility is not guaranteed.
+- Field additions, renames, or structural changes may occur.
+- Consumers SHOULD validate exact version matches.
+
+A complete version history MUST be published at or before the first stable release.
 
 ---
 
 ### 10.3 Deprecation Policy
 
-- Fields may be marked as deprecated but should not be immediately removed.
-- Deprecated fields must remain parsable in at least the next minor version.
-- Field removal requires a **MAJOR** version increment and a documented migration strategy.
+- Fields may be marked as deprecated but MUST NOT be immediately removed.
+- Deprecated fields MUST remain parsable for at least one subsequent MINOR version.
+- Field removal requires a MAJOR version increment and a documented migration strategy.
+- Deprecation status SHOULD be explicitly documented in this file with version and rationale.
+
 
 ---
 
 ### Recommendation
 
-Consumers must validate the `schema_version` before processing a record. A mismatch should raise a structured log warning or validation error.
+Consumers MUST validate `schema_version` before processing a record.
+- A MAJOR version mismatch MUST raise a validation error.
+- A MINOR or PATCH mismatch SHOULD raise a structured log warning.
 
 ---
 
 ### Notes
 
-- Field group `context.*` refers to all subfields in the prompt and environment context group.
-- Classifier output may include per-model metadata beyond simple `intent`/`confidence` keys.
-- Modules handling `output_phrase` and `memory.*` fields should tolerate unknown subfields for forward compatibility.
+- `context.*` refers to all subfields within the nested `context` object.
+- `classifier_output` may include additional per-model metadata beyond `intent` and `confidence`.
+- Modules handling `output_phrase` and `memory.*` fields MUST tolerate unknown subfields for forward compatibility.
 
 ---
 
 ### Recommendation
 
-Update this matrix whenever a module’s responsibilities change, to prevent silent schema drift or interface mismatches.
+This document MUST be updated whenever a module’s responsibilities or field semantics change, to prevent silent schema drift or interface mismatches.
