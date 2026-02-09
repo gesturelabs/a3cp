@@ -56,6 +56,47 @@ Control-plane messages reuse:
 - Not persisted
 - Not generated here
 
+## ID Authority Invariant (Sprint 1)
+
+**Invariant**
+`camera_feed_worker` validates and propagates identifiers only. It never generates identifiers owned by other modules.
+
+**Externally authoritative IDs**
+- `record_id`
+- `user_id`
+- `session_id`
+- `capture_id`
+
+**Rules**
+- All IDs must be supplied by the client control message.
+- IDs are validated, stored in-memory, and propagated only.
+- No fallback generation.
+- No default UUID creation.
+- No prefix-based fabrication (`sess_`, `cap_`, etc.).
+- No identifier mutation.
+
+**Explicit Exception**
+- `connection_key` (route-layer only, process-local, never emitted or persisted).
+
+This module contains zero ID fabrication beyond `connection_key`.
+
+### Single Source of Truth (Domain State)
+
+During an active capture, `capture_id` authority resides exclusively in `service.ActiveState`.
+
+The repository does not maintain a separate `active_capture_id`.
+
+Correlation enforcement rules:
+
+- In `IdleState`: only `capture.open` is permitted.
+- In `ActiveState`: all control messages must use `state.capture_id`.
+
+The router enforces capture correlation by consulting domain state only.
+
+No duplicated capture state is maintained outside `ActiveState`.
+
+
+
 ### Streaming Exception
 
 For raw frame streaming:

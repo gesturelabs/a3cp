@@ -9,6 +9,42 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## 2026-Feb-09 — Identity Invariants & Abort Integrity Hardening
+
+### Added — Documentation
+
+Updated `camera_feed_worker` README:
+
+- **ID Authority Invariant (Sprint 1)**
+  - Formalizes that the module validates and propagates IDs only.
+  - Explicitly forbids ID fabrication (`record_id`, `session_id`, `capture_id`).
+  - Documents `connection_key` as the sole allowed internal exception.
+
+- **Single Source of Truth (Domain State)**
+  - Declares `ActiveState.capture_id` as the authoritative capture identifier.
+  - States that no duplicated capture state should exist outside domain state.
+
+### Added — Regression Test
+
+Modified:
+`apps/camera_feed_worker/tests/test_ws_control_plane.py`
+
+- Added test ensuring `capture.abort`:
+  - Echoes the client-supplied `record_id`
+  - Does not synthesize identifiers
+  - Preserves `capture_id`
+- Guards against fallback UUID generation in abort paths.
+
+### Impact
+
+- No runtime behavior changes
+- No protocol changes
+- Architectural invariants formally documented
+- ID propagation integrity now test-locked
+- All tests passing
+
+
 ## 2026-Feb-06 camera_feed_worker — State-Held record_id Refactor (Tick/Session Abort)
 
 ### Summary

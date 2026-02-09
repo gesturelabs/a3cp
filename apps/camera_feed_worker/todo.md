@@ -283,21 +283,83 @@ No inference logic. No UI logic. No persistence.
      x (remove dependence on `last_msg_for_emit` fallbacks)
 
 ### D) Verification (regression guard)
-- [ ] Search codebase to confirm zero ID fabrication beyond `connection_key`
+- [ x] Search codebase to confirm zero ID fabrication beyond `connection_key`
 - [ ] Add/adjust tests:
-  - [ ] No synthetic `record_id` appears in abort emissions
-  - [ ] Socket closes (no abort emission) when abort occurs without valid propagated IDs
-- [ ] Document invariant:
+  - [ x] No synthetic `record_id` appears in abort emissions
+- [x ] Document invariant:
       camera_feed_worker validates & propagates IDs only; never generates them
 
 ---
 
 ## 4) Domain state is single source of truth
 
-- [ ] Decide and document:
-      keep `repo.active_capture_id` as demo guardrail
-      OR remove and rely purely on `ActiveState`
+## Refactor Plan: Remove `repo.active_capture_id` (Single Source of Truth)
 
+### Goal
+Make `service.ActiveState.capture_id` the only authority for active capture correlation.
+Eliminate duplicated state in `repo.active_capture_id`.
+
+---
+
+## Phase 1 — Behavior-Preserving Refactor
+
+**Objective:** Switch correlation enforcement to domain state while keeping `active_capture_id` temporarily.
+
+### Changes
+- Update `_enforce_identity_and_correlation()` in `router.py`:
+  - Retrieve `state = repo.get_state(connection_key)`
+  - If `IdleState`:
+    - Only allow `capture.open`
+    - Reject others with `1008`
+  - If `ActiveState`:
+    - Require `msg.capture_id == state.capture_id`
+    - Reject mismatch with `1008`
+- Stop using `repo.get_active_capture_id()` for decision logic.
+- Do not delete `active_capture_id` yet.
+
+### Verification
+- Run full `camera_feed_worker` test suite.
+- Ensure:
+  - mismatch → `1008`
+  - abort → `1000`
+  - binary gate behavior unchanged
+
+---
+
+## Phase 2 — Structural Cleanup
+
+**Objective:** Remove redundant state entirely.
+
+### Remove from `repository.py`
+- Field `"active_capture_id"`
+- `get_active_capture_id()`
+- `set_active_capture_id()`
+- Any assignments to `rec["active_capture_id"]`
+
+### Remove from `router.py`
+- All `repo.set_active_capture_id(...)`
+- All `repo.get_active_capture_id(...)`
+- Any cleanup calls clearing active capture
+
+### Verification
+- Run full test suite.
+- Confirm identical external behavior.
+
+---
+
+## Expected Effort
+- Phase 1: ~30–60 minutes
+- Phase 2: ~20–40 minutes
+- Total: ~1–2 hours with test feedback loop
+
+---
+
+## End State
+
+- `ActiveState.capture_id` is the single source of truth.
+- Repository contains no duplicated capture state.
+- Correlation enforcement is domain-driven.
+- Router no longer mirrors domain state.
 ---
 
 ## 5) Forwarding Boundary (Per-Frame, Locked)

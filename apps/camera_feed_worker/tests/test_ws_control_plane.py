@@ -773,3 +773,94 @@ def test_ws_unexpected_exception_does_not_leak_gate_or_state_to_next_connection(
                 }
             )
         )
+
+
+def test_ws_abort_echoes_client_record_id_no_synthesis() -> None:
+    """
+    Given: a capture is opened with a client-supplied record_id
+    When: an abort is triggered (frame_bytes length mismatch)
+    Then: abort emission echoes the same record_id (no server synthesis).
+    """
+    import json
+    from uuid import uuid4
+
+    import pytest
+    from fastapi.testclient import TestClient
+
+    from main import app  # adjust if your FastAPI app import differs
+
+    client = TestClient(app)
+
+    fixed_record_id = "11111111-1111-1111-1111-111111111111"
+    user_id = "user_1"
+    session_id = "sess_1"
+    capture_id = f"cap_{uuid4().hex[:8]}"
+
+    # Helper: iso timestamp string if your tests already use _iso_now(), prefer that.
+    from datetime import datetime, timezone
+
+    def _iso_now() -> str:
+        return datetime.now(timezone.utc).isoformat()
+
+    with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
+        # capture.open (valid)
+        ws.send_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0.1",
+                    "record_id": fixed_record_id,
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "timestamp": _iso_now(),
+                    "modality": "image",
+                    "source": "browser",
+                    "event": "capture.open",
+                    "capture_id": capture_id,
+                    "timestamp_start": _iso_now(),
+                    "fps_target": 15,
+                    "width": 640,
+                    "height": 480,
+                    "encoding": "jpeg",
+                }
+            )
+        )
+
+        # capture.frame_meta declaring N bytes
+        declared_n = 10
+        ws.send_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0.1",
+                    "record_id": str(
+                        uuid4()
+                    ),  # uniqueness per connection still required
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "timestamp": _iso_now(),
+                    "modality": "image",
+                    "source": "browser",
+                    "event": "capture.frame_meta",
+                    "capture_id": capture_id,
+                    "seq": 1,
+                    "timestamp_frame": _iso_now(),
+                    "byte_length": declared_n,
+                }
+            )
+        )
+
+        # Send wrong-size bytes to trigger abort (server should close 1000 after abort)
+        ws.send_bytes(b"\x00" * (declared_n - 1))
+
+        abort_raw = ws.receive_text()
+        abort_msg = json.loads(abort_raw)
+
+        assert abort_msg.get("event") == "capture.abort"
+        assert abort_msg.get("record_id") == fixed_record_id
+        assert abort_msg.get("capture_id") == capture_id
+
+        # Connection should then close cleanly (1000). Depending on TestClient behavior,
+        # receiving again may raise WebSocketDisconnect.
+        with pytest.raises(WebSocketDisconnect) as e:
+            ws.receive_text()
+
+        assert e.value.code == 1000  # or 1011 depending on path
