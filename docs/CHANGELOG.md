@@ -9,6 +9,26 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-02-10 — Route Surface Consolidation & Guardrail Hardening
+
+### Changed
+- Removed legacy `api/routes/` routing layer after confirming it is unused.
+- Consolidated all routing under `apps/<module>/routes/router.py`, mounted explicitly in `api/main.py`.
+- Deleted legacy API route tests under `tests/api/` that targeted the removed routing surface.
+
+### Added
+- Architectural guardrail ensuring all schemas imported from `schemas` are exported via `schemas.__all__`.
+- Guardrail tests consolidated under `tests/guards/` to enforce public schema surface and boundary hygiene.
+
+### Verified
+- No runtime imports reference `api.routes` or `api._routes`.
+- All tests pass after removal of legacy routes and route tests.
+- “Shim contains no route logic” invariant is now structurally enforced by deletion.
+
+### Rationale
+Legacy `api/routes/*` files were generated during early development and are no longer part of the active execution path. Removing them eliminates duplicate routing surfaces, prevents regression, and simplifies architectural enforcement.
+
+
 ## 2026-02-10 Camera Feed Worker — Forwarding Boundary Complete
 
 - Locked schema decision: LandmarkExtractorInput.modality is "vision"; adapter sets modality="vision" unconditionally
