@@ -457,9 +457,9 @@ Eliminate duplicated state in `repo.active_capture_id`.
 ---
 
 ## 9) Repository-Level Tests
-- [ ] Buffer overflow enforcement test
-- [ ] Downstream failure propagation test
-- [ ] Cleanup correctness test
+- [x] Buffer overflow enforcement test
+- [x ] Downstream failure propagation test
+- [x ] Cleanup correctness test
       - queue drained
       - counters reset
       - task cancelled
@@ -467,24 +467,24 @@ Eliminate duplicated state in `repo.active_capture_id`.
 ---
 
 ## Optional (Low-Risk Cleanup)
-- [ ] Make `LandmarkExtractorInput.source` a default constant ("camera_feed_worker") instead of required `...`
+- [x ] Make `LandmarkExtractorInput.source` a default constant ("camera_feed_worker") instead of required `...`
 
 
 ---
 
 ## F) Route Migration (Deep Import Removal)
 
-- [ ] If legacy `api/routes/camera_feed_worker_routes.py` still exists:
+- [ x] If legacy `api/routes/camera_feed_worker_routes.py` still exists:
       delete or mark deprecated to prevent regression
 
 - [ ] Add guardrail tests:
-      - no deep schema imports
-      - required schemas exported in `schemas.__all__`
-      - shim contains no route logic
-      - no filesystem writes in app
-      - no schema_recorder imports
-      - control messages validate required fields by `event`
-      - no schema includes frame bytes/base64 fields
+     - [x ] no deep schema imports
+     - [ ]required schemas exported in `schemas.__all__`
+     - [ ] shim contains no route logic
+    - [ ]no filesystem writes in app
+    - [ ] no schema_recorder imports
+    - [ ] control messages validate required fields by `event`
+     - [ ] no schema includes frame bytes/base64 fields
 
 ---
 
