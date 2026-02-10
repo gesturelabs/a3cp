@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict
 
 from apps.camera_feed_worker.service import IdleState, State
@@ -43,16 +44,34 @@ class ForwardNotInitialized(RuntimeError):
     pass
 
 
-# ---------------------------------------------------------------------
-# Forwarding boundary types (repo-owned)
-# ---------------------------------------------------------------------
+class ForwardItemInvalid(RuntimeError):
+    pass
 
 
 @dataclass(frozen=True, slots=True)
 class ForwardItem:
+    # correlation
+    capture_id: str
     seq: int
+    timestamp_frame: datetime  # event-time from frame_meta
+
+    # payload
+    payload: (
+        Any  # bytes | memoryview | bytearray (kept Any to avoid import-time coupling)
+    )
     byte_length: int
-    payload: Any  # bytes | memoryview (kept Any to avoid import-time coupling)
+
+    # context needed by adapter (avoid reading from domain again)
+    encoding: str
+    width: int
+    height: int
+    user_id: str
+    session_id: str
+
+
+# ---------------------------------------------------------------------
+# Forwarding boundary types (repo-owned)
+# ---------------------------------------------------------------------
 
 
 class CameraFeedWorkerRepository:
@@ -156,28 +175,90 @@ class CameraFeedWorkerRepository:
         if err is not None:
             raise ForwardFailed(f"downstream forward failed: {err}") from err
 
-    def enqueue_frame(self, connection_key: str, item: ForwardItem) -> None:
-        rec = self._ensure(connection_key)
-        q = rec["forward_queue"]
-        if q is None:
-            raise ForwardNotInitialized("forward_queue not initialized")
+    def _validate_forward_item(self, item: object) -> "ForwardItem":
+        if not isinstance(item, ForwardItem):
+            raise ForwardItemInvalid("enqueue_frame expects ForwardItem")
 
+        if not str(item.capture_id).strip():
+            raise ForwardItemInvalid("ForwardItem.capture_id must be non-empty")
+
+        if int(item.seq) < 1:
+            raise ForwardItemInvalid("ForwardItem.seq must be >= 1")
+
+        if not isinstance(item.timestamp_frame, datetime):
+            raise ForwardItemInvalid("ForwardItem.timestamp_frame must be datetime")
+
+        if not str(item.encoding).strip():
+            raise ForwardItemInvalid("ForwardItem.encoding must be non-empty")
+
+        if int(item.width) <= 0 or int(item.height) <= 0:
+            raise ForwardItemInvalid("ForwardItem.width/height must be > 0")
+
+        if not str(item.user_id).strip() or not str(item.session_id).strip():
+            raise ForwardItemInvalid("ForwardItem.user_id/session_id must be non-empty")
+
+        payload = item.payload
+        if not isinstance(payload, (bytes, bytearray, memoryview)):
+            raise ForwardItemInvalid("ForwardItem.payload must be bytes-like")
+
+        payload_len = len(payload)
+        if int(item.byte_length) != int(payload_len):
+            raise ForwardItemInvalid(
+                f"ForwardItem.byte_length {item.byte_length} != len(payload) {payload_len}"
+            )
+
+        return item
+
+    def _enforce_forward_buffer_bounds(
+        self, rec: dict, item: "ForwardItem"
+    ) -> tuple[int, int]:
         max_frames = int(rec["max_forward_buffer_frames"] or 0)
         max_bytes = int(rec["max_forward_buffer_bytes"] or 0)
 
         next_frames = int(rec["forward_frames"]) + 1
         next_bytes = int(rec["forward_bytes"]) + int(item.byte_length)
 
-        if (max_frames and next_frames > max_frames) or (
-            max_bytes and next_bytes > max_bytes
-        ):
+        if max_frames and next_frames > max_frames:
+            raise LimitForwardBufferExceeded(
+                f"forward buffer exceeded (frames={next_frames}/{max_frames}, bytes={next_bytes}/{max_bytes})"
+            )
+        if max_bytes and next_bytes > max_bytes:
             raise LimitForwardBufferExceeded(
                 f"forward buffer exceeded (frames={next_frames}/{max_frames}, bytes={next_bytes}/{max_bytes})"
             )
 
+        return next_frames, next_bytes
+
+    def enqueue_frame(self, connection_key: str, item: "ForwardItem") -> None:
+        rec = self._ensure(connection_key)
+        q = rec["forward_queue"]
+        if q is None:
+            raise ForwardNotInitialized("forward_queue not initialized")
+
+        # Locked repo invariants (ForwardItem validity)
+        item = self._validate_forward_item(item)
+
+        # Bounded buffer enforcement
+        next_frames, next_bytes = self._enforce_forward_buffer_bounds(rec, item)
+
         q.put_nowait(item)
         rec["forward_frames"] = next_frames
         rec["forward_bytes"] = next_bytes
+
+    async def dequeue_frame(self, connection_key: str) -> ForwardItem:
+        """
+        Await next ForwardItem and decrement buffer counters on removal.
+        """
+        rec = self._ensure(connection_key)
+        q = rec["forward_queue"]
+        if q is None:
+            raise ForwardNotInitialized("forward_queue not initialized")
+
+        item: ForwardItem = await q.get()
+
+        rec["forward_frames"] = max(0, int(rec["forward_frames"]) - 1)
+        rec["forward_bytes"] = max(0, int(rec["forward_bytes"]) - int(item.byte_length))
+        return item
 
     def stop_forwarding(self, connection_key: str) -> None:
         rec = self._ensure(connection_key)

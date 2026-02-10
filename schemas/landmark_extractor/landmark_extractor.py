@@ -27,7 +27,10 @@ class LandmarkExtractorInput(BaseModel):
     session_id: str = Field(..., description="Session ID for the current interaction")
     user_id: str = Field(..., description="User ID or participant pseudonym")
     modality: Literal["vision"] = Field("vision", description="Sensor modality")
-    source: Literal["camera_feed_worker"] = Field(..., description="Source module")
+    source: Literal["camera_feed_worker"] = Field(
+        "camera_feed_worker",
+        description="Source module",
+    )
     frame_data: str = Field(
         ...,
         description="Base64-encoded RGB frame image (JPEG or PNG), captured by upstream camera worker",

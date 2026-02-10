@@ -9,14 +9,22 @@ from typing import Any, MutableMapping
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
-from apps.camera_feed_worker.repository import repo
+from apps.camera_feed_worker.forwarder_task import forwarder_loop
+from apps.camera_feed_worker.repository import (
+    ForwardFailed,
+    ForwardItem,
+    LimitForwardBufferExceeded,
+    repo,
+)
 from apps.camera_feed_worker.service import (
     AbortCapture,
     ActiveState,
+    ForwardFrame,
     IdleState,
     ProtocolViolation,
     RequestSessionRecheck,
     RequestSessionValidation,
+    State,
     dispatch,
 )
 from apps.session_manager.service import validate_session
@@ -43,6 +51,10 @@ def capture_tick() -> dict:
 # ---------------------------------------------------------------------
 # Helpers (reduce ws_camera_feed complexity)
 # ---------------------------------------------------------------------
+
+
+async def _noop_landmark_ingest(_: object) -> None:
+    return
 
 
 async def _emit_abort_and_close(
@@ -108,7 +120,10 @@ async def _tick_and_enforce_session(
             await websocket.close(code=1011)
             return False
 
-        capture_id = str(current_state.capture_id).strip()
+        capture_id = str(getattr(abort_action, "capture_id", "")).strip()
+        if not capture_id:
+            capture_id = str(current_state.capture_id).strip()
+
         if not capture_id:
             await websocket.close(code=1011)
             return False
@@ -240,6 +255,11 @@ async def _apply_domain_and_handle_actions(
         raise
 
     repo.set_state(connection_key, new_state)
+    # Successful capture.close => stop forwarding and close deterministically.
+    if msg.event == "capture.close":
+        repo.stop_forwarding(connection_key)
+        await websocket.close(code=1000)
+        return False
 
     # Enforce session validation at capture.open
     for a in actions:
@@ -267,10 +287,27 @@ async def _apply_domain_and_handle_actions(
 
                 await websocket.close(code=1000)
                 return False
+            # success: start forwarding only after validation
+            if msg.event == "capture.open":
+                repo.init_forwarding(
+                    connection_key,
+                    capture_id=str(msg.capture_id),
+                    max_frames=3,
+                    max_bytes=1_000_000,
+                )
+                task = asyncio.create_task(
+                    forwarder_loop(
+                        connection_key=connection_key,
+                        ingest_fn=_noop_landmark_ingest,
+                    )
+                )
+                repo.start_forwarding_task(connection_key, task)
             break
 
     abort_action = next((a for a in actions if isinstance(a, AbortCapture)), None)
     if abort_action is not None:
+        repo.stop_forwarding(connection_key)
+
         capture_id = str(abort_action.capture_id).strip()
         if not capture_id:
             await websocket.close(code=1011)
@@ -297,6 +334,54 @@ async def _apply_domain_and_handle_actions(
     return True
 
 
+# Helper 1 (add near other helpers)
+def _extract_and_validate_expected_bytes(
+    event: MutableMapping[str, Any],
+    expected_byte_length: int | None,
+) -> bytes | None:
+    if event.get("text") is not None:
+        return None
+
+    data = event.get("bytes")
+    if not isinstance(data, (bytes, bytearray, memoryview)):
+        return None
+
+    data_bytes = bytes(data)
+    if expected_byte_length is None or len(data_bytes) != expected_byte_length:
+        return None
+
+    return data_bytes
+
+
+# Helper 2 (add near other helpers)
+def _build_forward_item_or_none(
+    *,
+    current_state: State,
+    actions: list[Any],
+    data_bytes: bytes,
+) -> ForwardItem | None:
+    if not isinstance(current_state, ActiveState):
+        return None
+
+    forward_action = next((a for a in actions if isinstance(a, ForwardFrame)), None)
+    if forward_action is None:
+        return None
+
+    return ForwardItem(
+        capture_id=str(forward_action.capture_id),
+        seq=int(forward_action.seq),
+        timestamp_frame=forward_action.timestamp_event,
+        payload=data_bytes,
+        byte_length=len(data_bytes),
+        encoding=str(current_state.encoding),
+        width=int(current_state.width),
+        height=int(current_state.height),
+        user_id=str(current_state.user_id),
+        session_id=str(current_state.session_id),
+    )
+
+
+# NEW (replace the whole function body with this version)
 async def _handle_binary_frame_when_expected(
     websocket: WebSocket,
     *,
@@ -305,8 +390,6 @@ async def _handle_binary_frame_when_expected(
     expected_byte_length: int | None,
     last_msg_for_emit: CameraFeedWorkerInput | None,
 ) -> bool:
-    ...
-
     """
     Handle the next frame when the binary gate is armed.
 
@@ -315,18 +398,15 @@ async def _handle_binary_frame_when_expected(
 
     Note: caller is responsible for clearing the binary gate state.
     """
-    if event.get("text") is not None:
+    data_bytes = _extract_and_validate_expected_bytes(event, expected_byte_length)
+    if data_bytes is None:
         await websocket.close(code=1008)
         return False
 
-    data = event.get("bytes")
-    if not isinstance(data, (bytes, bytearray, memoryview)):
-        await websocket.close(code=1008)
-        return False
-
-    data_bytes = bytes(data)
-    if expected_byte_length is None or len(data_bytes) != expected_byte_length:
-        await websocket.close(code=1008)
+    try:
+        repo.raise_if_forward_failed(connection_key)
+    except ForwardFailed:
+        await websocket.close(code=1011)
         return False
 
     now_ingest = datetime.now(timezone.utc)
@@ -342,11 +422,13 @@ async def _handle_binary_frame_when_expected(
 
     abort_action = next((a for a in actions if isinstance(a, AbortCapture)), None)
     if abort_action is not None:
+        repo.stop_forwarding(connection_key)
+
         if last_msg_for_emit is None:
             await websocket.close(code=1011)
             return False
 
-        capture_id = str(abort_action.capture_id).strip()
+        capture_id = str(getattr(abort_action, "capture_id", "")).strip()
         if not capture_id:
             await websocket.close(code=1011)
             return False
@@ -372,9 +454,40 @@ async def _handle_binary_frame_when_expected(
             error_code=abort_action.error_code,
         )
         await websocket.send_text(out.model_dump_json())
-
         await websocket.close(code=1000)
         return False
+
+    item = _build_forward_item_or_none(
+        current_state=current_state,
+        actions=actions,
+        data_bytes=data_bytes,
+    )
+    if item is None:
+        await websocket.close(code=1011)
+        return False
+
+    try:
+        repo.enqueue_frame(connection_key, item)
+    except LimitForwardBufferExceeded:
+        if last_msg_for_emit is None:
+            await websocket.close(code=1011)
+            return False
+
+        repo.stop_forwarding(connection_key)
+        active_state = current_state
+        if not isinstance(active_state, ActiveState):
+            await websocket.close(code=1011)
+            return False
+
+        return await _emit_abort_and_close(
+            websocket,
+            connection_key=connection_key,
+            now_ingest=now_ingest,
+            current_state=active_state,
+            capture_id=str(active_state.capture_id),
+            error_code="limit_forward_buffer_exceeded",
+            last_msg_for_emit=last_msg_for_emit,
+        )
 
     return True
 
@@ -385,8 +498,6 @@ async def _handle_text_control_message(
     connection_key: str,
     event: MutableMapping[str, Any],
 ) -> tuple[bool, CameraFeedWorkerInput | None]:
-    ...
-
     """
     Handle a text control message when not expecting binary.
 
@@ -447,6 +558,32 @@ async def _ws_step(
     )
     if not ok:
         return False, expecting_binary, expected_byte_length, last_msg_for_emit
+
+    # 7) Loop-level forward failure detection (once per iteration)
+    try:
+        repo.raise_if_forward_failed(connection_key)
+    except ForwardFailed:
+        state = repo.get_state(connection_key)
+
+        # We can only emit capture.abort if we have active state + last_msg_for_emit
+        if not isinstance(state, ActiveState) or last_msg_for_emit is None:
+            repo.stop_forwarding(connection_key)
+            await websocket.close(code=1011)
+            return False, expecting_binary, expected_byte_length, last_msg_for_emit
+
+        now_ingest = datetime.now(timezone.utc)
+        repo.stop_forwarding(connection_key)
+
+        keep_running = await _emit_abort_and_close(
+            websocket,
+            connection_key=connection_key,
+            now_ingest=now_ingest,
+            current_state=state,
+            capture_id=str(state.capture_id),
+            error_code="forward_failed",
+            last_msg_for_emit=last_msg_for_emit,
+        )
+        return keep_running, expecting_binary, expected_byte_length, last_msg_for_emit
 
     event = await _receive_event_or_none(websocket)
     if event is None:
@@ -530,6 +667,7 @@ async def _ws_control_plane_loop(websocket: WebSocket) -> None:
     except WebSocketDisconnect:
         pass
     finally:
+        repo.stop_forwarding(connection_key)
         repo.clear(connection_key)
 
 

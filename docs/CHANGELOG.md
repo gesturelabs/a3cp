@@ -9,6 +9,23 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## 2026-02-10 Camera Feed Worker — Forwarding Boundary Complete
+
+- Locked schema decision: LandmarkExtractorInput.modality is "vision"; adapter sets modality="vision" unconditionally
+- Implemented forwarding boundary with bounded in-memory queue and async forwarder task
+- Introduced full `ForwardItem` envelope and repository-level invariant enforcement
+- Added adapter layer for pure transformation to `LandmarkExtractorInput` (ISO8601 timestamp, frame_id capture_id:seq, base64 frame_data; no IO)
+- Integrated forwarding into WS binary frame handling with deterministic abort semantics
+- Implemented loop-level downstream failure detection (`forward_failed`)
+- Ensured correct capture termination semantics (abort / close / cleanup)
+- Added comprehensive repository-level tests:
+  - buffer overflow enforcement
+  - downstream failure propagation
+  - cleanup correctness (queue drained, counters reset, task cancelled)
+- Optional schema cleanup: `LandmarkExtractorInput.source` defaulted to `"camera_feed_worker"`
+- Note: forwarder ingest function currently injected as a stub (no landmark_extractor ingest entrypoint wired yet)
+
+
 ## 2026-02-09 — Single Source of Truth Refactor (capture_id)
 
 ### Refactored

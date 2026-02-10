@@ -367,7 +367,7 @@ Eliminate duplicated state in `repo.active_capture_id`.
 ---
 
 ## 2) Repository Envelope (ForwardItem)
-- [ ] Implement full `ForwardItem` dataclass in `repository.py` with locked fields:
+- [x ] Implement full `ForwardItem` dataclass in `repository.py` with locked fields:
       - capture_id
       - seq
       - timestamp_frame
@@ -378,7 +378,7 @@ Eliminate duplicated state in `repo.active_capture_id`.
       - height
       - user_id
       - session_id
-- [ ] Enforce repository invariants inside `enqueue_frame()`:
+- [ x] Enforce repository invariants inside `enqueue_frame()`:
       - byte_length == len(payload)
       - non-empty capture_id
       - seq >= 1
@@ -389,23 +389,23 @@ Eliminate duplicated state in `repo.active_capture_id`.
 ---
 
 ## 3) Adapter Layer (Pure Transformation)
-- [ ] Create `forward_adapter.py`
-- [ ] Implement pure function: `ForwardItem -> LandmarkExtractorInput`
-- [ ] Set `modality="vision"` (locked)
-- [ ] Convert `timestamp_frame` to ISO8601 string
-- [ ] Construct `frame_id = f"{capture_id}:{seq}"`
-- [ ] Base64-encode JPEG payload into `frame_data`
-- [ ] No IO in adapter
+- [x ] Create `forward_adapter.py`
+- [x ] Implement pure function: `ForwardItem -> LandmarkExtractorInput`
+- [ x] Set `modality="vision"` (locked)
+- [ x] Convert `timestamp_frame` to ISO8601 string
+- [ x] Construct `frame_id = f"{capture_id}:{seq}"`
+- [ x] Base64-encode JPEG payload into `frame_data`
+- [ x] No IO in adapter
 
 ---
 
 ## 4) Forwarder Task (Async Worker)
-- [ ] Implement async forwarder task
+- [ x] Implement async forwarder task
       - Consumes `ForwardItem` from repo queue
       - Uses adapter to build `LandmarkExtractorInput`
       - Calls landmark_extractor ingest entrypoint
-- [ ] Surface downstream exceptions via repository (`forward_error`)
-- [ ] Forwarder must NOT:
+- [ xx] Surface downstream exceptions via repository (`forward_error`)
+- [ x] Forwarder must NOT:
       - Send WebSocket messages
       - Close WebSocket
       - Call `repo.clear()`
@@ -413,20 +413,20 @@ Eliminate duplicated state in `repo.active_capture_id`.
 ---
 
 ## 5) Initialize Forwarding on `capture.open`
-- [ ] Call `repo.init_forwarding(...)` with server-defined limits
+- [x ] Call `repo.init_forwarding(...)` with server-defined limits
       - max_forward_buffer_frames = 3
       - max_forward_buffer_bytes = 1_000_000
-- [ ] Start forwarder task after successful session validation
-- [ ] Register task via `repo.start_forwarding_task(...)`
+- [ x] Start forwarder task after successful session validation
+- [ x] Register task via `repo.start_forwarding_task(...)`
 
 ---
 
 ## 6) Binary Frame Handling Integration
-- [ ] In `_handle_binary_frame_when_expected()`:
+- [x ] In `_handle_binary_frame_when_expected()`:
       - Call `repo.raise_if_forward_failed()` before enqueue
       - Build `ForwardItem` from ActiveState + ForwardFrame + bytes
       - Enqueue via `repo.enqueue_frame(...)`
-- [ ] Catch `repository.LimitForwardBufferExceeded`
+- [x ] Catch `repository.LimitForwardBufferExceeded`
       - Emit `capture.abort`
       - error_code = "limit_forward_buffer_exceeded"
       - Close WebSocket (1000)
@@ -435,9 +435,9 @@ Eliminate duplicated state in `repo.active_capture_id`.
 ---
 
 ## 7) Loop-Level Failure Detection
-- [ ] In `_ws_step()`:
+- [ x] In `_ws_step()`:
       - Call `repo.raise_if_forward_failed()` each iteration
-- [ ] On failure:
+- [x ] On failure:
       - Emit `capture.abort`
       - error_code = "forward_failed"
       - Close WebSocket (1000)
@@ -446,12 +446,12 @@ Eliminate duplicated state in `repo.active_capture_id`.
 ---
 
 ## 8) Capture Termination Semantics
-- [ ] On `capture.abort`:
+- [x ] On `capture.abort`:
       - Call `repo.stop_forwarding()`
-- [ ] On successful `capture.close`:
+- [x ] On successful `capture.close`:
       - Call `repo.stop_forwarding()`
       - Close WebSocket (1000)
-- [ ] In `_ws_control_plane_loop` finally block:
+- [x ] In `_ws_control_plane_loop` finally block:
       - Ensure `repo.stop_forwarding()` before `repo.clear(connection_key)`
 
 ---

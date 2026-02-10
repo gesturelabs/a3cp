@@ -22,6 +22,12 @@ from .camera_feed_worker.camera_feed_worker import (
     CameraFeedWorkerOutput,
 )
 
+# landmark_extractor
+from .landmark_extractor.landmark_extractor import (
+    LandmarkExtractorInput,
+    LandmarkExtractorOutput,
+)
+
 # session_manager
 from .session_manager_end.session_manager_end import (
     SessionEndInput as SessionManagerEndInput,
@@ -49,4 +55,7 @@ __all__ = [
     # camera_feed_worker
     "CameraFeedWorkerInput",
     "CameraFeedWorkerOutput",
+    # landmark_extractor
+    "LandmarkExtractorInput",
+    "LandmarkExtractorOutput",
 ]
