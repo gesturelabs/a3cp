@@ -175,3 +175,47 @@ These belong to backend modules or tests and are **not** UI TODOs:
 - Artifact integrity, sha256 validation, replay checks
 - `(T, D)` correctness and determinism guarantees
 - Session JSONL logging rules
+
+
+---
+
+## 5) partner_ui — Camera stream + overlay (new)
+
+### 5.1 Demo page: `/demo/gesture` (streaming surface)
+- [ ] Implement `/demo/gesture` page shell (hidden; not in primary nav)
+- [ ] Local video preview via `getUserMedia()` in `<video>`
+- [ ] Status panel:
+  - [ ] WS connected/disconnected
+  - [ ] frames sent (last seq)
+  - [ ] landmarks received (last seq)
+  - [ ] last abort `error_code` (if any)
+
+### 5.2 Frame sender: browser → camera_feed_worker (WS)
+- [ ] Open WS to `camera_feed_worker` for active capture
+- [ ] Send `capture.open`
+- [ ] Loop:
+  - [ ] draw `<video>` to `<canvas>`
+  - [ ] encode JPEG
+  - [ ] send `capture.frame_meta` then binary JPEG bytes (strict ordering)
+- [ ] Send `capture.close` on stop
+- [ ] Abort/teardown handling:
+  - [ ] on `capture.abort` or socket close: stop loop, close socket, update UI state
+
+### 5.3 Landmark receiver + overlay (if in MVP path)
+- [ ] Open WS to `/landmark_extractor/ws` (or chosen endpoint) for active `capture_id`
+- [ ] Overlay renderer:
+  - [ ] draw landmarks on transparent `<canvas>` positioned over `<video>`
+- [ ] Seq correlation:
+  - [ ] sanity-check landmarks `seq` corresponds to sent frame `seq` (debug-level UI only)
+
+---
+
+## 6) MVP integration checklist (browser ↔ pipeline)
+
+- [ ] End-to-end demo path: browser → camera_feed_worker → landmark_extractor → browser overlay
+- [ ] Latency sanity: overlay remains visibly responsive during capture
+- [ ] Failure modes visible in UI:
+  - [ ] session invalid/closed
+  - [ ] protocol violation
+  - [ ] limit violations
+- [ ] No persistence sanity: confirm no raw frames written to disk across the demo path

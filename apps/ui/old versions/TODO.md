@@ -1,4 +1,9 @@
-# ui/TODO.md — A3CP MVP Demo UI (surface-scoped)
+
+# Archived TODO — Multi-Surface Demo (Pre /a3cp Consolidation)
+
+Superseded by single-page `/a3cp` architecture.
+Retained for historical reference only.
+Do not use for active development.
 
 This TODO replaces legacy “Demo UI” items from the mono TODO.
 It defines **UI-only work** under `ui/`, scoped by user-visible surfaces.
