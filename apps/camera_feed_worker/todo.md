@@ -494,13 +494,13 @@ Eliminate duplicated state in `repo.active_capture_id`.
 - [x ] Protocol violation abort
 - [ x] Limit violation abort
 - [x ] Session invalid on open
-- [ ] Session closed mid-capture
+- [ x] Session closed mid-capture
 - [ x] Correct close codes
 
 ---
 
 ## H) Smoke Verification
 
-- [ ] App boots cleanly
-- [ ] WebSocket route registered
-- [ ] Basic connect succeeds
+- [x ] App boots cleanly
+- [x ] WebSocket route registered
+- [x ] Basic connect succeeds

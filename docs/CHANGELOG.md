@@ -10,7 +10,37 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
-# CHANGELOG — schema_recorder Payload Safety Hardening
+## 2026-Feb-11 — WebSocket Control-Plane Stabilization & Smoke Verification
+
+### Added
+- True end-to-end WebSocket happy-path tests:
+  - open → frame_meta → bytes → close (single frame)
+  - multi-frame sequence (seq=1, seq=2)
+  - binary gate reset validation
+- Tick interleaving validation (< timeout thresholds)
+- Session recheck validation (≥ 5s) without idle timeout violation
+- Deterministic close (1000) assertion with explicit abort-frame guard
+- WebSocket smoke verification tests:
+  - App boot validation
+  - Route registration discovery (mount-safe, StaticFiles-safe)
+  - Basic WebSocket connect success
+
+### Verified
+- No spurious aborts during valid capture
+- Idle timeout enforcement correct
+- Meta→bytes timeout enforcement correct
+- Session recheck logic stable
+- Binary gate state strictly connection-scoped
+- No cross-connection leakage
+- Abort semantics deterministic and transport-correct
+
+### Stability
+This marks a stable control-plane checkpoint:
+- WebSocket routing layer validated
+- Domain state machine integration validated
+- Tick enforcement and session validation behavior empirically verified
+- Safe to proceed to UI integration phase
+
 
 # 2026-02-11 — Camera Feed Worker: WebSocket Safety Hardening
 
