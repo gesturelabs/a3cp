@@ -480,10 +480,10 @@ Eliminate duplicated state in `repo.active_capture_id`.
 - [ ] Add guardrail tests:
      - [x ] no deep schema imports
      - [ x]required schemas exported in `schemas.__all__`
-     - [ ] shim contains no route logic
-    - [ ]no filesystem writes in app
-    - [ ] no schema_recorder imports
-    - [ ] control messages validate required fields by `event`
+     - [x ] shim contains no route logic
+    - x[ x]no filesystem writes in app
+    - [ x] no schema_recorder imports
+    - [ x] control messages validate required fields by `event`
      - [ ] no schema includes frame bytes/base64 fields
 
 ---

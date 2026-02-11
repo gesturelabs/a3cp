@@ -30,7 +30,7 @@ def append_bytes(*, log_path: Path, line_bytes: bytes) -> None:
     _ensure_parent_exists(log_path)
 
     data = _ensure_newline(line_bytes)
-    data = _ensure_newline(line_bytes)
+    data = _ensure_newline(data)
     _reject_embedded_newlines(data)
 
     fd: int | None = None

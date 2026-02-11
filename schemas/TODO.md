@@ -1,0 +1,4 @@
+- [ ] Guardrail: no payload fields (bytes/base64/data-uri) in schemas, except explicitly designated transport schemas
+      - Deferred until schema consolidation pass after camera_feed_worker.
+      - Current intentional carriers: LandmarkExtractorInput.frame_data, SoundClassifierInput (audio_format base64/bytes/ndarray), related examples.
+      - Decide policy: (A) ref/handle-based payload transport, or (B) stable allowlist of carrier schemas + guard test.

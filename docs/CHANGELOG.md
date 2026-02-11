@@ -9,6 +9,33 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+# CHANGELOG — schema_recorder Payload Safety Hardening
+
+## 2026-02-11 — Payload-Free JSONL Enforcement (MVP Safety Completion)
+
+### Added
+- `PayloadNotAllowed` domain exception in `apps/schema_recorder/service.py`.
+- Content-based payload rejection in `append_event()`:
+  - Rejects events containing `frame_data`.
+  - Rejects events containing `audio_payload` when `audio_format ∈ {"base64", "bytes"}`.
+  - Rejects `data:image/` payloads as an additional safeguard.
+- Route mapping:
+  - `PayloadNotAllowed` → HTTP 422 (Unprocessable Entity).
+- Service-level tests:
+  - Verifies payload-bearing events are rejected before IO.
+- Route-level tests:
+  - Verifies deterministic 422 response.
+  - Verifies no filesystem writes occur on rejection.
+
+### Fixed
+- Corrected duplicate newline normalization in `apps/schema_recorder/repository.py`.
+
+### Security / Safety Impact
+- Guarantees that raw transport payloads (image/audio blobs) can never be persisted in session JSONL logs.
+- Locks invariant via tests to prevent regression.
+- Ensures single-writer boundary enforces pointer-only logging discipline.
+
 ## 2026-02-10 — Route Surface Consolidation & Guardrail Hardening
 
 ### Changed

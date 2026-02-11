@@ -24,6 +24,10 @@ class RecorderIOError(Exception):
     """Any OS/FS-related failure during append (wrapped at repository boundary)."""
 
 
+class PayloadNotAllowed(Exception):
+    """Event contains transport payload fields that must not be persisted in JSONL logs."""
+
+
 # -----------------------------
 # Service config (MVP)
 # -----------------------------
@@ -68,11 +72,31 @@ def append_event(*, user_id: str, session_id: str, message: BaseSchema) -> Appen
 
     recorded_at = _utc_now_iso8601_ms_z()
 
-    # Preserve event "exactly as received": serialize from the pydantic object without mutation.
-    # (This assumes A3CPMessage itself was the validated request payload.)
+    # Dump once (do not serialize yet)
+    event_dict = message.model_dump(mode="json")
+
+    # ---- Payload rejection safety checks (MVP invariant) ----
+
+    if _contains_key(event_dict, "frame_data"):
+        raise PayloadNotAllowed(
+            "Payload field 'frame_data' must not be recorded to JSONL"
+        )
+
+    if event_dict.get("audio_format") in ("base64", "bytes") and _contains_key(
+        event_dict, "audio_payload"
+    ):
+        raise PayloadNotAllowed(
+            "Payload field 'audio_payload' must not be recorded to JSONL"
+        )
+
+    if _contains_data_url_image(event_dict):
+        raise PayloadNotAllowed("Data-URL image payloads must not be recorded to JSONL")
+
+    # ----------------------------------------------------------
+
     envelope = {
         "recorded_at": recorded_at,
-        "event": message.model_dump(mode="json"),
+        "event": event_dict,
     }
 
     # Serialize to exactly one JSON line + newline.
@@ -110,3 +134,23 @@ def _utc_now_iso8601_ms_z() -> str:
     # UTC, ISO 8601, millisecond precision, Z suffix
     dt = datetime.now(timezone.utc)
     return dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{dt.microsecond // 1000:03d}Z"
+
+
+def _contains_key(obj: object, key: str) -> bool:
+    if isinstance(obj, dict):
+        if key in obj:
+            return True
+        return any(_contains_key(v, key) for v in obj.values())
+    if isinstance(obj, list):
+        return any(_contains_key(v, key) for v in obj)
+    return False
+
+
+def _contains_data_url_image(obj: object) -> bool:
+    if isinstance(obj, str):
+        return obj.startswith("data:image/")
+    if isinstance(obj, dict):
+        return any(_contains_data_url_image(v) for v in obj.values())
+    if isinstance(obj, list):
+        return any(_contains_data_url_image(v) for v in obj)
+    return False

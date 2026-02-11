@@ -295,3 +295,30 @@ schemas/base/base.py
   - [ ] Verify no imports remain from deleted modules:
     - [ ] `grep -R --line-number --binary-files=without-match "apps\.session_manager\.repository" .`
     - [ ] `grep -R --line-number --binary-files=without-match "apps\.schema_recorder\.session_writer" .`
+
+
+
+----------------
+# schema_recorder — Remaining MVP Safety Tasks (ONLY)
+
+## 1) Repository correctness fix (prevents subtle line-shape bugs)
+- [x ] Fix duplicate newline normalization in `apps/schema_recorder/repository.py`
+  - Change second `_ensure_newline(line_bytes)` to `_ensure_newline(data)`.
+
+## 2) Enforce “payload-free JSONL” at the single-writer boundary (prevents raw data persistence)
+- [x ] Add content-based payload rejection in `apps/schema_recorder/service.py` (`append_event`, before `json.dumps`)
+  - Recursively scan `message.model_dump(mode="json")` for payload-bearing fields.
+  - Reject on a narrow denylist (at minimum):
+    - `frame_data`
+    - the actual audio blob field(s) used by `schemas/sound_classifier/*` when `audio_format` is `base64` or `bytes`
+  - Raise a dedicated domain exception (e.g., `PayloadNotAllowed`).
+
+## 3) Route mapping for payload rejection (prevents inconsistent failure modes)
+- [ x] Map `PayloadNotAllowed` to a deterministic HTTP status in `apps/schema_recorder/routes/router.py`
+  - Recommended: `422 Unprocessable Entity`.
+
+## 4) Tests that lock the payload-free invariant (prevents regressions)
+- [x ] Add tests under `apps/schema_recorder/tests/` proving:
+  - Tiny payload-bearing message is rejected even when under `MAX_EVENT_BYTES`.
+  - Route returns the chosen status code deterministically.
+  - `repository.append_bytes()` is not called on payload rejection.

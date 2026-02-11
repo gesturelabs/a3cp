@@ -15,11 +15,7 @@ router = APIRouter(prefix="/schema-recorder", tags=["schema-recorder"])
 )
 def append_schema_event(event: A3CPMessage) -> dict:
     # Route-level enforcement (even if schema allows optional)
-    if event.user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="user_id is required for schema recording",
-        )
+
     if event.session_id is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -30,6 +26,7 @@ def append_schema_event(event: A3CPMessage) -> dict:
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="source is required for schema recording",
         )
+    assert event.session_id is not None  # type narrowing for static analysis
 
     try:
         result = service.append_event(
@@ -45,6 +42,11 @@ def append_schema_event(event: A3CPMessage) -> dict:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=str(e)
         ) from e
+    except service.PayloadNotAllowed as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
+        ) from e
+
     except service.RecorderIOError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)

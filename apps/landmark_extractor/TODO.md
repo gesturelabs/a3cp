@@ -20,6 +20,9 @@ Legacy spec assessment (non-authoritative; see §H):
 
 ---
 
+- [ ] Schema payload policy (base64/bytes) — tracked in `schemas/TODO.md` (post camera_feed_worker consolidation)
+
+
 ## A) Canonical app structure (must be created / migrated)
 Create the runtime app under `apps/` following the canonical architecture.
 
