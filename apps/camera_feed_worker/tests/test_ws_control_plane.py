@@ -864,3 +864,130 @@ def test_ws_abort_echoes_client_record_id_no_synthesis() -> None:
             ws.receive_text()
 
         assert e.value.code == 1000  # or 1011 depending on path
+
+
+def test_ws_session_invalid_on_open_emits_abort_and_closes_1000() -> None:
+    """
+    Given: capture.open with a session_id that is missing/invalid
+    When: server validates session on capture.open
+    Then: server emits capture.abort(error_code=session_invalid) and closes (1000).
+    """
+    client = TestClient(app)
+
+    capture_id = str(uuid.uuid4())
+    user_id = "user_1"
+    session_id = str(uuid.uuid4())  # NOT inserted into sm_service._sessions => invalid
+
+    with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
+        ws.send_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0.1",
+                    "record_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "timestamp": _iso_now(),
+                    "modality": "image",
+                    "source": "browser",
+                    "event": "capture.open",
+                    "capture_id": capture_id,
+                    "timestamp_start": _iso_now(),
+                    "fps_target": 15,
+                    "width": 640,
+                    "height": 480,
+                    "encoding": "jpeg",
+                }
+            )
+        )
+
+        abort_evt = ws.receive()
+        assert abort_evt.get("type") == "websocket.send"
+        abort_msg = json.loads(abort_evt["text"])
+        assert abort_msg.get("event") == "capture.abort"
+        assert abort_msg.get("capture_id") == capture_id
+        assert abort_msg.get("error_code") == "session_invalid"
+
+        close_evt = ws.receive()
+        assert close_evt.get("type") == "websocket.close"
+        assert close_evt.get("code") == 1000
+
+
+def test_ws_session_closed_mid_capture_emits_abort_and_closes_1000() -> None:
+    """
+    Given: an active capture (ActiveState reached by sending at least one frame bytes)
+    When: the session becomes closed mid-capture
+    Then: server emits capture.abort(error_code=session_closed) and closes (1000).
+    """
+    client = TestClient(app)
+
+    capture_id = str(uuid.uuid4())
+    user_id = "user_1"
+    session_id = str(uuid.uuid4())
+
+    sm_service._sessions[str(session_id)] = {
+        "user_id": str(user_id),
+        "status": "active",
+    }
+
+    with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
+        # capture.open
+        ws.send_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0.1",
+                    "record_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "timestamp": _iso_now(),
+                    "modality": "image",
+                    "source": "browser",
+                    "event": "capture.open",
+                    "capture_id": capture_id,
+                    "timestamp_start": _iso_now(),
+                    "fps_target": 15,
+                    "width": 640,
+                    "height": 480,
+                    "encoding": "jpeg",
+                }
+            )
+        )
+
+        # frame_meta arms gate
+        ws.send_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0.1",
+                    "record_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "timestamp": _iso_now(),
+                    "modality": "image",
+                    "source": "browser",
+                    "event": "capture.frame_meta",
+                    "capture_id": capture_id,
+                    "seq": 1,
+                    "timestamp_frame": _iso_now(),
+                    "byte_length": 5,
+                }
+            )
+        )
+
+        # Send matching bytes so domain progresses past "awaiting bytes" into active capture state.
+        ws.send_bytes(b"12345")
+
+        # Now close the session mid-capture (this should be caught by session recheck tick).
+        sm_service._sessions[str(session_id)]["status"] = "closed"
+
+        # Wait long enough for the WS self-tick to run the session recheck path (every ~5s).
+        time.sleep(6.0)
+
+        abort_evt = ws.receive()
+        assert abort_evt.get("type") == "websocket.send"
+        abort_msg = json.loads(abort_evt["text"])
+        assert abort_msg.get("event") == "capture.abort"
+        assert abort_msg.get("capture_id") == capture_id
+        assert abort_msg.get("error_code") == "session_closed"
+
+        close_evt = ws.receive()
+        assert close_evt.get("type") == "websocket.close"
+        assert close_evt.get("code") == 1000

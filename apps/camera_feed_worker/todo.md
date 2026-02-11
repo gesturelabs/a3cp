@@ -484,18 +484,18 @@ Eliminate duplicated state in `repo.active_capture_id`.
     - x[ x]no filesystem writes in app
     - [ x] no schema_recorder imports
     - [ x] control messages validate required fields by `event`
-     - [ ] no schema includes frame bytes/base64 fields
+
 
 ---
 
 ## G) WebSocket Route Tests
 
-- [ ] Happy path capture
-- [ ] Protocol violation abort
-- [ ] Limit violation abort
-- [ ] Session invalid on open
+- [ ] Happy path capture (true end-to-end assertions)
+- [x ] Protocol violation abort
+- [ x] Limit violation abort
+- [x ] Session invalid on open
 - [ ] Session closed mid-capture
-- [ ] Correct close codes
+- [ x] Correct close codes
 
 ---
 

@@ -12,6 +12,63 @@ Maintainer: Dmitri Katz
 
 # CHANGELOG — schema_recorder Payload Safety Hardening
 
+# 2026-02-11 — Camera Feed Worker: WebSocket Safety Hardening
+
+## Scope
+
+Strengthened WebSocket session safety invariants and expanded test coverage
+for capture lifecycle and session enforcement behavior.
+
+---
+
+## Behavioral Changes
+
+### 1. Session Closure Precedence (Tick Handling)
+
+Updated `_tick_and_enforce_session()` in
+`apps/camera_feed_worker/routes/router.py`:
+
+- Session validity now dominates idle/timeout abort reasons.
+- If a session becomes:
+  - `"closed"` → emit `capture.abort(error_code="session_closed")`
+  - `"invalid"` → emit `capture.abort(error_code="session_invalid")`
+- This override occurs even if a domain tick emits `AbortCapture`
+  (e.g., idle timeout or protocol violation).
+- Close code remains `1000`.
+
+This prevents masking session termination with `"protocol_violation"`.
+
+---
+
+## Test Coverage Added / Verified
+
+### ✅ Protocol violation abort
+- Verified `1008` close behavior.
+- Confirmed no state leakage across connections.
+
+### ✅ Limit violation abort
+- Verified `META_TO_BYTES_TIMEOUT` path.
+- Asserted `capture.abort` + close `1000`.
+
+### ✅ Session invalid on open
+- New test:
+  - Invalid session triggers `capture.abort(error_code="session_invalid")`
+  - WebSocket closes with `1000`.
+
+### ✅ Session closed mid-capture
+- New test:
+  - Session status flipped to `"closed"` during active capture.
+  - Tick emits `capture.abort(error_code="session_closed")`.
+  - WebSocket closes with `1000`.
+
+### ✅ Correct close codes
+- Confirmed:
+  - `1008` → protocol violations
+  - `1000` → domain/session aborts
+  - `1011` → unexpected internal errors
+
+---
+
 ## 2026-02-11 — Payload-Free JSONL Enforcement (MVP Safety Completion)
 
 ### Added

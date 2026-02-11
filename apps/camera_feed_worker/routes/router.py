@@ -103,27 +103,93 @@ async def _tick_and_enforce_session(
     Returns False if the websocket was closed and the caller should return.
     """
     now_ingest = datetime.now(timezone.utc)
-    current_state = repo.get_state(connection_key)
+    pre_state = repo.get_state(connection_key)
 
     new_state, actions = dispatch(
-        current_state=current_state,
+        current_state=pre_state,
         event_kind="tick",
         event=None,
         now_ingest=now_ingest,
     )
     repo.set_state(connection_key, new_state)
 
-    # 1) Domain-triggered abort (tick)
+    # ------------------------------------------------------------------
+    # A) Session re-check has precedence over any other tick abort reasons.
+    # ------------------------------------------------------------------
+    recheck = next((a for a in actions if isinstance(a, RequestSessionRecheck)), None)
+    if recheck is not None:
+        status = validate_session(
+            user_id=str(recheck.user_id),
+            session_id=str(recheck.session_id),
+        )
+        if status != "active":
+            # Prefer capture_id from pre_state if it was active when tick fired.
+            active_state = (
+                pre_state
+                if isinstance(pre_state, ActiveState)
+                else (new_state if isinstance(new_state, ActiveState) else None)
+            )
+            if active_state is None:
+                await websocket.close(code=1011)
+                return False
+
+            capture_id = str(active_state.capture_id).strip()
+            if not capture_id:
+                await websocket.close(code=1011)
+                return False
+
+            error_code = "session_closed" if status == "closed" else "session_invalid"
+
+            return await _emit_abort_and_close(
+                websocket,
+                connection_key=connection_key,
+                now_ingest=now_ingest,
+                current_state=active_state,
+                capture_id=capture_id,
+                error_code=error_code,
+                last_msg_for_emit=last_msg_for_emit,
+            )
+
+    # ------------------------------------------------------------------
+    # B) Domain-triggered abort (tick), but prefer session status if closed/invalid.
+    # ------------------------------------------------------------------
     abort_action = next((a for a in actions if isinstance(a, AbortCapture)), None)
     if abort_action is not None:
-        if not isinstance(current_state, ActiveState):
+        active_state = (
+            pre_state
+            if isinstance(pre_state, ActiveState)
+            else (new_state if isinstance(new_state, ActiveState) else None)
+        )
+        if active_state is None:
             await websocket.close(code=1011)
             return False
 
-        capture_id = str(getattr(abort_action, "capture_id", "")).strip()
-        if not capture_id:
-            capture_id = str(current_state.capture_id).strip()
+        # If the session is no longer active, override the abort reason.
+        status = validate_session(
+            user_id=str(active_state.user_id),
+            session_id=str(active_state.session_id),
+        )
+        if status != "active":
+            error_code = "session_closed" if status == "closed" else "session_invalid"
+            capture_id = str(active_state.capture_id).strip()
+            if not capture_id:
+                await websocket.close(code=1011)
+                return False
 
+            return await _emit_abort_and_close(
+                websocket,
+                connection_key=connection_key,
+                now_ingest=now_ingest,
+                current_state=active_state,
+                capture_id=capture_id,
+                error_code=error_code,
+                last_msg_for_emit=last_msg_for_emit,
+            )
+
+        capture_id = (
+            str(getattr(abort_action, "capture_id", "")).strip()
+            or str(active_state.capture_id).strip()
+        )
         if not capture_id:
             await websocket.close(code=1011)
             return False
@@ -132,41 +198,11 @@ async def _tick_and_enforce_session(
             websocket,
             connection_key=connection_key,
             now_ingest=now_ingest,
-            current_state=current_state,
+            current_state=active_state,
             capture_id=capture_id,
             error_code=abort_action.error_code,
             last_msg_for_emit=last_msg_for_emit,
         )
-
-    # 2) Session re-check enforcement
-    for a in actions:
-        if isinstance(a, RequestSessionRecheck):
-            status = validate_session(
-                user_id=str(a.user_id), session_id=str(a.session_id)
-            )
-            if status != "active":
-                if not isinstance(current_state, ActiveState):
-                    await websocket.close(code=1011)
-                    return False
-
-                capture_id = str(current_state.capture_id).strip()
-                if not capture_id:
-                    await websocket.close(code=1011)
-                    return False
-
-                error_code = (
-                    "session_closed" if status == "closed" else "session_invalid"
-                )
-
-                return await _emit_abort_and_close(
-                    websocket,
-                    connection_key=connection_key,
-                    now_ingest=now_ingest,
-                    current_state=current_state,
-                    capture_id=capture_id,
-                    error_code=error_code,
-                    last_msg_for_emit=last_msg_for_emit,
-                )
 
     return True
 
