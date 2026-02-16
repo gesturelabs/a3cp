@@ -10,6 +10,43 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## A3CP MVP UI — Phase 1 Complete Feb. 16, 2026
+
+### Added
+- `/a3cp` route in `apps/ui/main.py`
+- `templates/a3cp.html` integrated with site layout
+- `static/js/a3cp.js` ES module (no bundler, no framework)
+
+### Implemented
+- Structural sections:
+  - Session
+  - Preview (`<video>`)
+  - Capture
+  - Debug (collapsed)
+  - Error panel (collapsed, single-error surface)
+- `A3CPDemoUI` class
+  - DOM binding
+  - Button wiring
+  - UI state reflection methods
+  - Error rendering and clearing
+- `A3CPDemoController` class
+  - Deterministic initial state
+  - UI synchronization on init
+  - No side effects
+
+### Enforced Invariants
+- Single-page surface (`/a3cp`)
+- ES module (`type="module"`)
+- No global leaks
+- No localStorage usage
+- Only allowed persistence key reserved (`a3cp_demo_session_id`)
+- No HTTP, WebSocket, or media logic implemented yet
+
+### Status
+Phase 1 complete.
+Page loads cleanly with no runtime logic active.
+
+
 ## 2026-Feb-11 — WebSocket Control-Plane Stabilization & Smoke Verification
 
 ### Added

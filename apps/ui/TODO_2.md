@@ -7,6 +7,7 @@ Stack: FastAPI + Jinja + ES module (/static/js/a3cp.js)
 No framework. No bundler. No inline JS.
 All runtime state owned by A3CPDemoController.
 All DOM handled by A3CPDemoUI.
+- /a3cp is a hidden demo surface and must not be linked from primary navigation.
 
 ---
 
@@ -21,7 +22,7 @@ All DOM handled by A3CPDemoUI.
 - user_id, performer_id, session_id visible
 - record_id visible (read-only)
 - capture_id hidden
-- seq starts at 0 (UI shows Frames Sent = seq + 1)
+- seq starts at 01
 - Preview always visible
 - Preview independent of capture
 - Stop Preview stops capture if running
@@ -30,6 +31,11 @@ All DOM handled by A3CPDemoUI.
 - Buttons disabled during async operations
 -  Explicitly: **No localStorage anywhere in the demo**
 -  Only allowed client persistence: `sessionStorage` key `a3cp_demo_session_id`
+- UI must never write logs, files, or artifacts; it only calls same-origin HTTP/WS endpoints and renders UI state.
+- `record_id` is generated client-side per schema message (one new `record_id` per control/meta message); UI must not reuse `record_id` values.
+- Each outbound schema message must include an ISO 8601 UTC `timestamp` generated client-side.
+- Preview is independent of capture (users can preview without capturing).
+
 
 
 ---
@@ -38,20 +44,20 @@ All DOM handled by A3CPDemoUI.
 
 Goal: Static structure + clean architecture.
 
-- [ ] Add /a3cp route in apps/ui/main.py
-- [ ] Create templates/a3cp.html
-- [ ] Add sections:
+- [ x] Add /a3cp route in apps/ui/main.py
+- [ x] Create templates/a3cp.html
+- [ x] Add sections:
   - Session
   - Preview (<video>)
   - Capture
   - Debug (collapsed)
-- [ ] Load module:
+- [x ] Load module:
   <script type="module" src="/static/js/a3cp.js"></script>
-- [ ] Create static/js/a3cp.js
-- [ ] Implement A3CPDemoUI
-- [ ] Implement A3CPDemoController
-- [ ] Auto-init on DOMContentLoaded
-- [ ] No runtime logic yet
+- [ x] Create static/js/a3cp.js
+- [ x] Implement A3CPDemoUI
+- [x] Implement A3CPDemoController
+- [x ] Auto-init on DOMContentLoaded
+
 
 Verify:
 - [ ] Page loads without console errors
@@ -72,10 +78,11 @@ UI:
 
 Behavior:
 - [ ] Restore session_id from sessionStorage on load
-- [ ] Validate silently via backend
-- [ ] If invalid → clear storage
 - [ ] Disable buttons during async
 - [ ] Lock IDs while session active
+- On successful End Session:
+  - Clear `sessionStorage` key `a3cp_demo_session_id`
+  - Reset controller session state to `idle`
 
 Verify:
 - [ ] Start → active
@@ -83,9 +90,6 @@ Verify:
 - [ ] End → idle
 - [ ] Invalid session auto-clears
 - [ ] Buttons disable correctly
-
-### UI (add button)
-- [ ] Add `Reset Demo` button
 
 ### Behavior
 - [ ] Reset Demo:
@@ -122,74 +126,44 @@ Verify:
 
 ---
 
-# PHASE 4 — WEBSOCKET CONTROL PLANE (NO FRAMES)
 
-Goal: Verify capture.open / capture.close only.
-
-UI:
-- [ ] Start Capture
-- [ ] Stop Capture
-- [ ] WS Status label
-- [ ] Capturing indicator (● Capturing)
-- [ ] record_id visible (read-only)
-- [ ] Frames Sent visible
-
-Behavior:
-- [ ] Start Capture requires session active
-- [ ] If preview inactive → start preview
-- [ ] Generate capture_id (one per capture, hidden)
-- [ ] Generate new record_id per control message
-- [ ] Open WS /camera_feed_worker/capture
-- [ ] Send capture.open
-- [ ] Stop Capture sends capture.close
-- [ ] Unexpected WS close:
-  - Stop capture
-  - WS status = closed
-  - Preview remains active
-
-Verify:
-- [ ] WS connects
-- [ ] open accepted
-- [ ] close clean
-- [ ] No state leakage
-- [ ] record_id unique per message
-
----
-
-# PHASE 5 — SINGLE FRAME SEND
-
-Goal: Verify strict meta + binary ordering.
-
-Behavior:
-- [ ] Canvas capture
-- [ ] Encode JPEG
-- [ ] Send capture.frame_meta (new record_id)
-- [ ] Send binary JPEG bytes
-- [ ] seq = 0
-- [ ] Frames Sent = 1
-
-Verify:
-- [ ] No abort
-- [ ] Byte length correct
-- [ ] WS stable
-
----
 
 # PHASE 6 — FRAME LOOP
 
-Goal: Real streaming behavior.
+Goal: Full streaming lifecycle (open → stream → close) with deterministic teardown.
 
 Behavior:
-- [ ] Loop frames (bounded interval)
-- [ ] Increment seq
-- [ ] Update Frames Sent
-- [ ] Manual Stop works
+- [ ] Start Capture:
+  - [ ] Require active session
+  - [ ] Start preview if not already active
+  - [ ] Generate new `capture_id` (hidden)
+  - [ ] Open WS `/camera_feed_worker/capture`
+  - [ ] Send `capture.open` (new `record_id`)
+- [ ] Loop frames (bounded interval):
+  - [ ] Capture frame to canvas
+  - [ ] Encode JPEG
+  - [ ] Send `capture.frame_meta` (new `record_id`)
+  - [ ] Send binary JPEG bytes (strict ordering)
+  - [ ] Increment `seq`
+  - [ ] Update Frames Sent
+- [ ] Manual Stop:
+  - [ ] Send `capture.close` (new `record_id`)
+  - [ ] Close WS cleanly
+- [ ] Unexpected WS close:
+  - [ ] Stop loop immediately
+  - [ ] Mark capture stopped
+  - [ ] Preview remains active
 
 Verify:
+- [ ] `capture.open` accepted
+- [ ] Strict meta → binary ordering preserved from first frame
+- [ ] No protocol violations
 - [ ] No buffer overflow under normal fps
 - [ ] No memory growth observed
-- [ ] No duplicate record_id
-- [ ] Clean teardown
+- [ ] No duplicate `record_id`
+- [ ] Clean teardown in all stop paths
+
+
 
 ---
 
@@ -208,6 +182,10 @@ Verify:
 - [ ] WS closed
 - [ ] Preview remains active
 - [ ] No ghost state
+- Verify UI surfaces these abort/failure cases clearly:
+  - protocol violation (`capture.abort` with error_code)
+  - limit violation (`capture.abort` with error_code)
+  - session invalid/closed (`capture.abort` with error_code or WS close)
 
 ---
 ## GLOBAL UI STRUCTURE — ADD ERROR BLOCK

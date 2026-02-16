@@ -16,6 +16,7 @@ __pycache__/
 # Runtime logs / data
 logs/
 
+node_modules/
 # Pytest
 .pytest_cache/
 .coverage

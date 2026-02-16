@@ -67,6 +67,14 @@ async def demo_session_view(request: Request):
     )
 
 
+@router.get("/a3cp", response_class=HTMLResponse)
+async def a3cp_view(request: Request):
+    return templates.TemplateResponse(
+        "a3cp.html",
+        {"request": request, "current_page": None},
+    )
+
+
 app = FastAPI(
     title="GestureLabs Website",
     docs_url=None,

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}A3CP · GestureLabs{% endblock %}
+
+{% block content %}
+<section class="page">
+    <header class="page-header">
+        <h1>A3CP MVP Demo</h1>
+        <p class="muted">Single-page demonstrator (dev surface).</p>
+    </header>
+
+    <section id="a3cp-session" class="card">
+        <h2>Session</h2>
+        <div class="grid">
+            <div class="field">
+                <label for="user_id">user_id</label>
+                <input id="user_id" name="user_id" type="text" autocomplete="off" />
+            </div>
+            <div class="field">
+                <label for="performer_id">performer_id</label>
+                <input id="performer_id" name="performer_id" type="text" autocomplete="off" />
+            </div>
+            <div class="field">
+                <label for="session_id">session_id</label>
+                <input id="session_id" name="session_id" type="text" readonly />
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="btn_start_session" type="button">Start Session</button>
+            <button id="btn_end_session" type="button">End Session</button>
+            <button id="btn_reset_demo" type="button">Reset Demo</button>
+        </div>
+    </section>
+
+    <section id="a3cp-preview" class="card">
+        <h2>Preview</h2>
+        <video id="preview_video" playsinline autoplay muted></video>
+        <div class="actions">
+            <button id="btn_start_preview" type="button">Start Preview</button>
+            <button id="btn_stop_preview" type="button">Stop Preview</button>
+        </div>
+    </section>
+
+    <section id="a3cp-capture" class="card">
+        <h2>Capture</h2>
+        <div class="grid">
+            <div class="field">
+                <label for="record_id">record_id</label>
+                <input id="record_id" name="record_id" type="text" readonly />
+            </div>
+            <div class="field" style="display:none;">
+                <label for="capture_id">capture_id</label>
+                <input id="capture_id" name="capture_id" type="text" readonly />
+            </div>
+            <div class="field">
+                <label for="frames_sent">Frames Sent</label>
+                <input id="frames_sent" name="frames_sent" type="text" readonly value="0" />
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="btn_start_capture" type="button">Start Capture</button>
+            <button id="btn_stop_capture" type="button">Stop Capture</button>
+        </div>
+    </section>
+
+    <details id="a3cp-debug" class="card">
+        <summary>Debug</summary>
+        <pre id="debug_out" class="debug-out"></pre>
+    </details>
+
+    <details id="a3cp-error-panel" class="card" style="display:none;">
+        <summary>Error</summary>
+        <div class="error-body">
+            <div><strong>Message:</strong> <span id="err_msg"></span></div>
+            <div><strong>HTTP status:</strong> <span id="err_http_status"></span></div>
+            <div><strong>error_code:</strong> <span id="err_code"></span></div>
+            <div class="actions">
+                <button id="btn_clear_error" type="button">Clear Error</button>
+            </div>
+        </div>
+    </details>
+
+</section>
+
+<script type="module" src="/static/js/a3cp.js"></script>
+{% endblock %}
