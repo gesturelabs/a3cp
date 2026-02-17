@@ -390,11 +390,13 @@ class A3CPDemoController {
                 this.ui.showError({ message: "No active session to end" });
                 return;
             }
+            const performerId = (this.state.session.performerId || "").trim();
 
             const payload = {
                 schema_version: this.schemaVersion,        // "1.0.1"
                 record_id: crypto.randomUUID(),
                 user_id: userId,
+                performer_id: performerId,
                 session_id: sessionId,
                 timestamp: new Date().toISOString(),       // message creation time
                 end_time: new Date().toISOString(),        // end_time (UTC)
