@@ -60,9 +60,9 @@ Goal: Static structure + clean architecture.
 
 
 Verify:
-- [ ] Page loads without console errors
-- [ ] Controller initializes once
-- [ ] No globals leaked
+- [ x] Page loads without console errors
+- [ x] Controller initializes once
+- [ x] No globals leaked
 
 ---
 
@@ -71,16 +71,16 @@ Verify:
 Goal: Fully working session independent of camera.
 
 UI:
-- [ ] Editable user_id
-- [ ] Editable performer_id (defaults to user_id while idle)
-- [ ] Read-only session_id
-- [ ] Buttons: Start Session / End Session
+- [x ] Editable user_id
+- [x ] Editable performer_id (defaults to user_id while idle)
+- [ x] Read-only session_id
+- [ x] Buttons: Start Session / End Session
 
 Behavior:
-- [ ] Restore session_id from sessionStorage on load
-- [ ] Disable buttons during async
-- [ ] Lock IDs while session active
-- On successful End Session:
+- [x] Restore session_id from sessionStorage on load
+- [ x] Disable buttons during async
+- [ x] Lock IDs while session active
+- [ x] On successful End Session:
   - Clear `sessionStorage` key `a3cp_demo_session_id`
   - Reset controller session state to `idle`
 

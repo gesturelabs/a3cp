@@ -12,6 +12,38 @@ Maintainer: Dmitri Katz
 
 ## A3CP MVP UI — Phase 1 Complete Feb. 16, 2026
 
+## A3CP MVP UI — Phase 2 (Session Lifecycle) Complete
+
+### Added
+- HTTP integration for:
+  - POST /session_manager/sessions.start
+  - POST /session_manager/sessions.end
+  - POST /session_manager/sessions.validate
+- Client-side canonical message construction:
+  - schema_version = "1.0.1"
+  - record_id generated via crypto.randomUUID()
+  - ISO 8601 UTC timestamps
+
+### Implemented
+- Session start flow (active state + ID locking)
+- Session end flow (idle reset + storage clear)
+- Silent session validation on page load
+- Auto-clear of invalid or closed sessions
+- Busy-state button disabling during async
+- `performer_id` auto-defaults to `user_id` while idle
+
+### Enforced Invariants
+- `record_id` generated at source (UI)
+- One schema message = one UUID
+- No localStorage usage
+- Only `a3cp_demo_session_id` used in sessionStorage
+- Deterministic state transitions (idle ↔ active)
+
+### Status
+Phase 2 complete.
+Session lifecycle fully functional and schema-compliant.
+
+
 ### Added
 - `/a3cp` route in `apps/ui/main.py`
 - `templates/a3cp.html` integrated with site layout

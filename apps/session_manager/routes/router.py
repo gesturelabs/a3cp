@@ -1,6 +1,7 @@
 # apps/session_manager/routes/router.py
 
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 from apps.session_manager import service
 from schemas import (
@@ -11,6 +12,23 @@ from schemas import (
 )
 
 router = APIRouter(prefix="/session_manager", tags=["session_manager"])
+
+
+class SessionValidateInput(BaseModel):
+    user_id: str
+    session_id: str
+
+
+class SessionValidateOutput(BaseModel):
+    status: str  # "active" | "closed" | "invalid"
+
+
+@router.post("/sessions.validate", response_model=SessionValidateOutput)
+def validate_session_route(payload: SessionValidateInput) -> SessionValidateOutput:
+    status = service.validate_session(
+        user_id=payload.user_id, session_id=payload.session_id
+    )
+    return SessionValidateOutput(status=status)
 
 
 @router.post("/sessions.start", response_model=SessionManagerStartOutput)

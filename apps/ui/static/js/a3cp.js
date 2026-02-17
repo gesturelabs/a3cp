@@ -183,6 +183,13 @@ class A3CPDemoController {
         this.schemaVersion = "1.0.1";
         this.wsPath = "/camera_feed_worker/capture";
         this.sessionStorageKey = "a3cp_demo_session_id";
+        // Phase 2 HTTP endpoints (adjust if your session_manager routes differ)
+        this.http = {
+            startSessionPath: "/session_manager/sessions.start",
+            endSessionPath: "/session_manager/sessions.end",
+            validateSessionPath: "/session_manager/sessions.validate",
+        };
+
 
         // Runtime state (Phase 1: placeholders)
         this.state = {
@@ -207,11 +214,15 @@ class A3CPDemoController {
         const userId = this.ui.userId?.value?.trim() ?? "";
         const performerId = this.ui.performerId?.value?.trim() ?? userId;
 
+        // Phase 2 (step 1): restore session_id from sessionStorage on load
+        const restoredSessionId = sessionStorage.getItem(this.sessionStorageKey) || "";
+
+
         this.state.session = {
             status: "idle",
             userId,
             performerId,
-            sessionId: "",
+            sessionId: restoredSessionId,
         };
 
         this.state.preview = { status: "stopped" };
@@ -222,6 +233,20 @@ class A3CPDemoController {
         this.ui.setSessionState?.(this.state.session);
         this.ui.setPreviewState?.(this.state.preview);
         this.ui.setCaptureState?.(this.state.capture);
+
+        // Phase 2 (step 2): while session is idle, keep performer_id defaulting to user_id
+        this.ui.userId?.addEventListener("input", () => {
+            if (this.state.session.status !== "idle") return;
+            const userIdNow = this.ui.userId?.value?.trim() ?? "";
+            const performerNow = this.ui.performerId?.value?.trim() ?? "";
+            if (performerNow === "") {
+                this.ui.performerId.value = userIdNow;
+                this.state.session.performerId = userIdNow;
+            }
+            this.state.session.userId = userIdNow;
+        });
+        void this._silentValidateRestoredSession();
+
     }
 
     _readIdsFromUI() {
@@ -234,8 +259,186 @@ class A3CPDemoController {
 
 
     // Event handlers (Phase 1: stubs)
-    async onStartSession() { }
-    async onEndSession() { }
+    async onStartSession() {
+        if (this.state.busy) return;
+        if (this.state.capture.status === "running") return;
+
+        this.state.busy = true;
+        this.ui.setBusy(true);
+
+        try {
+            const { userId, performerId } = this._readIdsFromUI();
+            if (!userId) {
+                this.ui.showError({ message: "user_id is required" });
+                return;
+            }
+
+            const payload = {
+                schema_version: this.schemaVersion,                 // "1.0.1"
+                record_id: crypto.randomUUID(),                      // new per message
+                user_id: userId,
+                timestamp: new Date().toISOString(),                 // ISO 8601 UTC
+                performer_id: performerId || undefined,              // optional
+                // omit optional fields for now:
+                // is_training_data, session_notes, training_intent_label
+            };
+
+            const resp = await fetch(this.http.startSessionPath, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok) {
+                // try to surface server detail if present
+                let detail = "";
+                try {
+                    const err = await resp.json();
+                    detail = err?.detail ? `: ${String(err.detail)}` : "";
+                } catch (_) { }
+                this.ui.showError({
+                    message: `Start Session failed${detail}`,
+                    httpStatus: resp.status,
+                });
+                return;
+            }
+
+            const data = await resp.json();
+            const sessionId = (data?.session_id ?? "").toString().trim();
+            if (!sessionId) {
+                this.ui.showError({
+                    message: "Start Session failed: missing session_id in response",
+                });
+                return;
+            }
+
+            sessionStorage.setItem(this.sessionStorageKey, sessionId);
+
+            this.state.session = {
+                status: "active",
+                userId,
+                performerId,
+                sessionId,
+            };
+
+            this.ui.clearError?.();
+            this.ui.setSessionState?.(this.state.session);
+        } catch (e) {
+            this.ui.showError({ message: `Start Session error: ${String(e)}` });
+        } finally {
+            this.state.busy = false;
+            this.ui.setBusy(false);
+        }
+    }
+
+    async _silentValidateRestoredSession() {
+        const sessionId = (this.state.session.sessionId || "").trim();
+        const userId = (this.state.session.userId || "").trim();
+
+        if (!sessionId || !userId) return;
+
+        try {
+            const resp = await fetch(this.http.validateSessionPath, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: userId, session_id: sessionId }),
+            });
+
+            if (!resp.ok) {
+                // If validation endpoint is unavailable or errors, do nothing (silent).
+                return;
+            }
+
+            const data = await resp.json();
+            const status = (data?.status ?? "").toString();
+
+            if (status === "active") {
+                // Treat as active session; lock IDs
+                this.state.session.status = "active";
+                this.ui.setSessionState?.(this.state.session);
+                return;
+            }
+
+            // closed or invalid => clear
+            sessionStorage.removeItem(this.sessionStorageKey);
+            this.state.session = {
+                status: "idle",
+                userId: this.state.session.userId,
+                performerId: this.state.session.performerId,
+                sessionId: "",
+            };
+            this.ui.setSessionState?.(this.state.session);
+        } catch (_) {
+            // Silent by design
+        }
+    }
+
+
+
+    async onEndSession() {
+        if (this.state.busy) return;
+        if (this.state.capture.status === "running") return; // do not end while capturing
+
+        this.state.busy = true;
+        this.ui.setBusy(true);
+
+        try {
+            const sessionId = (this.state.session.sessionId || "").trim();
+            const userId = (this.state.session.userId || "").trim();
+
+            if (!sessionId || !userId) {
+                this.ui.showError({ message: "No active session to end" });
+                return;
+            }
+
+            const payload = {
+                schema_version: this.schemaVersion,        // "1.0.1"
+                record_id: crypto.randomUUID(),
+                user_id: userId,
+                session_id: sessionId,
+                timestamp: new Date().toISOString(),       // message creation time
+                end_time: new Date().toISOString(),        // end_time (UTC)
+            };
+
+            const resp = await fetch(this.http.endSessionPath, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok) {
+                let detail = "";
+                try {
+                    const err = await resp.json();
+                    detail = err?.detail ? `: ${String(err.detail)}` : "";
+                } catch (_) { }
+                this.ui.showError({
+                    message: `End Session failed${detail}`,
+                    httpStatus: resp.status,
+                });
+                return;
+            }
+
+            // success: clear persistence and reset controller session state
+            sessionStorage.removeItem(this.sessionStorageKey);
+
+            this.state.session = {
+                status: "idle",
+                userId: this.ui.userId?.value?.trim() ?? userId,
+                performerId: this.ui.performerId?.value?.trim() ?? (this.state.session.performerId || ""),
+                sessionId: "",
+            };
+
+            this.ui.clearError?.();
+            this.ui.setSessionState?.(this.state.session);
+        } catch (e) {
+            this.ui.showError({ message: `End Session error: ${String(e)}` });
+        } finally {
+            this.state.busy = false;
+            this.ui.setBusy(false);
+        }
+    }
+
     async onResetDemo() { }
     async onStartPreview() { }
     async onStopPreview() { }
