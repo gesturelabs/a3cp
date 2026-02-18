@@ -36,6 +36,36 @@ All DOM handled by A3CPDemoUI.
 - Each outbound schema message must include an ISO 8601 UTC `timestamp` generated client-side.
 - Preview is independent of capture (users can preview without capturing).
 
+## LandmarkFeatureSpec (locked for MVP)
+
+Authoritative output layout for gesture landmark features. This spec is owned by `landmark_extractor` and referenced by downstream modules (gesture_classifier, visualizers, dataset export).
+
+- `feature_spec_id`: `holistic_2d_v1_reduced_face`
+- Coordinate system:
+  - 2D only (`x,y`), no `z`
+  - Person-centric normalization (torso-centered translation + scale normalization, e.g., shoulder width)
+  - Light temporal smoothing (EMA) applied before velocity computation
+- Components included:
+  - Pose: all 33 landmarks
+  - Hands: left 21 + right 21 landmarks
+  - Face: reduced subset (indices defined in code as a constant list)
+- Per-landmark channels (per frame):
+  - `x`, `y`, `visibility`
+  - `vx`, `vy` (velocity from smoothed positions)
+- Excluded:
+  - Full 468 face set (not stored)
+  - Acceleration vectors (not stored)
+  - Hand joint angles (not stored)
+- Artifact format:
+  - NPZ float32 array: `features` with shape `(T, D)`
+  - JSON sidecar or embedded metadata containing:
+    - `feature_spec_id`
+    - `normalization_version`
+    - `smoothing_version`
+    - `fps_estimate` (if available)
+    - landmark subset indices (face) and ordering hash
+
+Downstream modules must treat `feature_spec_id` as required metadata and reject incompatible feature specs.
 
 
 ---

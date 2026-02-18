@@ -1,24 +1,36 @@
-# gesture_classifier — MVP TODO Outline
+# gesture_classifier — MVP TODO Outline (Revised for Universal Encoder Compatibility)
 
 ## 1. Core Inference Pipeline
 
 - [ ] Implement model artifact loader
   - [ ] Load `encoder.onnx`
+  - [ ] Load `encoder_metadata.json` (required)
+    - [ ] Validate `feature_spec_id` matches input artifact
+    - [ ] Read `embedding_dim`
+    - [ ] Read `fps_nominal` (or `supports_variable_fps`)
+    - [ ] Read `expects_length_frames` (fixed vs variable)
+    - [ ] Read `normalization_version`, `smoothing_version`
   - [ ] Load `label_map.json`
   - [ ] Load `prototypes.json`
-  - [ ] Validate SHA-256 hashes
+  - [ ] Validate SHA-256 hashes (all artifacts)
 - [ ] Implement per-user model cache (keyed by `(user_id, model_version)`)
 - [ ] Enforce atomic cache swap on retrain
 
 - [ ] Implement bounded feature loading from `raw_features_ref`
   - [ ] Validate tensor shape `(T, D)`
-  - [ ] Validate dims match model metadata
+  - [ ] Validate `feature_spec_id` present and matches `encoder_metadata.json`
+  - [ ] Validate dims match `encoder_metadata.json` (expected `D`)
   - [ ] Enforce max T limit (DoS guard)
+  - [ ] Log `feature_spec_id`, `normalization_version`, `smoothing_version` to trace
 
 - [ ] Implement internal windowing
-  - [ ] `length_frames = 16`
-  - [ ] `stride_frames = 5`
-  - [ ] Handle `T < 16` → reject
+  - [ ] Resolve `length_frames` (default `16`, may be overridden by `encoder_metadata.json` if `expects_length_frames` differs)
+  - [ ] Resolve `stride_frames` (default `5`)
+  - [ ] Read `fps_estimate` from artifact metadata (required if available)
+  - [ ] If `fps_estimate` differs from encoder `fps_nominal`:
+    - [ ] Resample to `fps_nominal` OR reject (policy must be deterministic)
+    - [ ] Log resampling/reject decision + method
+  - [ ] Handle `T < length_frames` → reject
   - [ ] Log window metadata for trace
 
 - [ ] Implement encoder inference (ONNX runtime)
@@ -27,6 +39,10 @@
 
 - [ ] Implement per-window reject logic
   - [ ] Activity threshold
+  - [ ] Tracking quality threshold (derived from visibility/missingness)
+    - [ ] Reject window if missingness fraction > X OR mean visibility < Y
+    - [ ] Log missingness stats + visibility stats per window
+    - [ ] Record reject reason = `low_quality`
   - [ ] Top confidence threshold (τ)
   - [ ] Margin threshold (m)
 
@@ -59,12 +75,22 @@
 - [ ] Log per-window:
   - [ ] Embedding hash (optional)
   - [ ] Raw similarity scores
+  - [ ] Quality metrics:
+    - [ ] Missingness fraction
+    - [ ] Mean visibility
+  - [ ] FPS handling:
+    - [ ] `fps_estimate`
+    - [ ] `fps_nominal`
+    - [ ] Resampling method OR reject flag
   - [ ] Reject reason (if any)
 - [ ] Log:
   - [ ] `record_id`
   - [ ] `model_version`
   - [ ] `preprocessing_version`
-  - [ ] Windowing parameters
+  - [ ] `feature_spec_id`
+  - [ ] `normalization_version`
+  - [ ] `smoothing_version`
+  - [ ] Windowing parameters (resolved `length_frames`, `stride_frames`)
 - [ ] Ensure deterministic replay possible from trace + artifact
 
 
@@ -94,7 +120,8 @@
 - [ ] Validate artifact URI scheme (allowlist)
 - [ ] Validate SHA-256 hashes before load
 - [ ] Enforce maximum capture length (T limit)
-- [ ] Validate feature dimensionality against metadata
+- [ ] Validate feature dimensionality against `encoder_metadata.json`
+- [ ] Reject incompatible `feature_spec_id`
 
 
 ---
@@ -102,6 +129,8 @@
 ## 7. Testing
 
 - [ ] Unit tests: windowing logic
+- [ ] Unit tests: FPS mismatch policy (resample or reject is deterministic)
+- [ ] Unit tests: tracking quality gate (missingness/visibility thresholds)
 - [ ] Unit tests: reject behavior
 - [ ] Unit tests: aggregation math
 - [ ] Unit tests: `"unknown"` distribution rule
@@ -115,7 +144,9 @@
 ## 8. Documentation
 
 - [ ] Update module spec (finalized)
-- [ ] Document windowing invariants
+- [ ] Document windowing invariants (including resolved `length_frames` behavior)
+- [ ] Document FPS mismatch policy (resample vs reject, deterministic)
+- [ ] Document tracking quality gate thresholds + rationale
 - [ ] Document reject policy
 - [ ] Document aggregation method
 - [ ] Document deterministic replay requirements
