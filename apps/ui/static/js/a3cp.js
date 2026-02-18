@@ -61,25 +61,30 @@ class A3CPDemoUI {
     setBusy(isBusy) {
         const disabled = Boolean(isBusy);
 
-        // Buttons
-        [
-            this.btnStartSession,
-            this.btnEndSession,
-            this.btnResetDemo,
-            this.btnStartPreview,
-            this.btnStopPreview,
-            this.btnStartCapture,
-            this.btnStopCapture,
-            this.btnClearError,
-        ].forEach((btn) => {
-            if (btn) btn.disabled = disabled;
-        });
+        if (disabled) {
+            [
+                this.btnStartSession,
+                this.btnEndSession,
+                this.btnResetDemo,
+                this.btnStartPreview,
+                this.btnStopPreview,
+                this.btnStartCapture,
+                this.btnStopCapture,
+                this.btnClearError,
+            ].forEach((btn) => {
+                if (btn) btn.disabled = true;
+            });
 
-        // Inputs (only those that are user-editable)
-        [this.userId, this.performerId].forEach((inp) => {
-            if (inp) inp.disabled = disabled;
-        });
+            [this.userId, this.performerId].forEach((inp) => {
+                if (inp) inp.disabled = true;
+            });
+        } else {
+            [this.userId, this.performerId].forEach((inp) => {
+                if (inp) inp.disabled = false;
+            });
+        }
     }
+
 
     // UI-only: reflect session status (lock IDs while active).
     // state: { status: "idle"|"active", userId, performerId, sessionId }
@@ -328,6 +333,10 @@ class A3CPDemoController {
         } finally {
             this.state.busy = false;
             this.ui.setBusy(false);
+            // Re-apply state-based button logic
+            this.ui.setSessionState?.(this.state.session);
+            this.ui.setPreviewState?.(this.state.preview);
+            this.ui.setCaptureState?.(this.state.capture);
         }
     }
 
@@ -438,6 +447,11 @@ class A3CPDemoController {
         } finally {
             this.state.busy = false;
             this.ui.setBusy(false);
+            // Re-apply state-based button logic
+            this.ui.setSessionState?.(this.state.session);
+            this.ui.setPreviewState?.(this.state.preview);
+            this.ui.setCaptureState?.(this.state.capture);
+
         }
     }
 

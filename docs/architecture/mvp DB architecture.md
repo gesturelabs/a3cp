@@ -6,6 +6,22 @@
 - Keep schema stable and small; avoid premature normalization.
 
 ---
+---
+## Canonical Feature Artifact (MVP)
+
+For the gesture/vision modality, NPZ landmark tensors `(T, D)` are the canonical persisted artifact.
+
+- `features_uri` in `training_examples` MUST reference a bounded landmark feature tensor produced by `landmark_extractor`.
+- All gesture classifiers must consume this artifact via `features_uri`.
+- Raw video frames are not persisted in MVP.
+- Preprocessing version (`encoding`) and dimensionality (`dims`) must match the model used for training.
+- Deterministic retraining requires:
+  - Identical `features_hash`
+  - Identical preprocessing/encoding version
+  - Identical dataset selection (captured via `training_runs.examples_hash`)
+
+This establishes NPZ landmark tensors as the stable storage boundary for gesture learning in MVP.
+----
 
 ## Storage Layout (filesystem)
 - `data/users/<user_id>/sessions/<session_id>/features/<record_id>.npz`
@@ -86,7 +102,9 @@ Captures “what examples produced this model” without complex joins.
 
 This is the minimum to prove “learning happened and is reproducible”.
 
----
+
+
+
 
 ## Sessions (defer DB unless demo requires replay)
 For demo, sessions can remain in-memory and only `session_id` is stored in `training_examples`.
