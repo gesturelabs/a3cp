@@ -10,6 +10,30 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## [Unreleased] – Session Lifecycle Stabilization (A3CP MVP) Feb. 20, 2026
+
+### Backend
+- Made `sessions.start` idempotent: returns existing active session instead of 409.
+- Preserved explicit `SessionAlreadyActive` route mapping for policy compliance.
+- Ensured parent session directory is created before `append_event()` (recorder invariant).
+- Confirmed `sessions.end` clears active session state and remains idempotent.
+
+### Frontend (/a3cp)
+- Start treats both 200 and 201 as success.
+- Server-returned `session_id` and `performer_id` treated as canonical.
+- Silent session validation reconciles only; no implicit recovery.
+- Reset is local-deterministic with best-effort end.
+- Fixed `performer_id` auto-follow bug (mirrors `user_id` until user edits performer field).
+
+### Stability
+- Eliminated 409 deadlock loop.
+- Verified manual flows:
+  - Fresh Start → End → Start
+  - Start → refresh → validate
+  - Start → simulate lost sessionStorage → Start
+  - Start → Reset → Start
+  - End idempotency
+
 ## A3CP MVP UI — Phase 1 Complete Feb. 16, 2026
 
 ## A3CP MVP UI — Phase 2 (Session Lifecycle) Complete

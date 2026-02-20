@@ -1,9 +1,9 @@
 # schemas/a3cp_message/a3cp_message.py
 
-from typing import Annotated, Optional
+from typing import Annotated, Dict, Optional
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from schemas.base.base import BaseSchema
 
@@ -28,10 +28,22 @@ class A3CPMessage(BaseSchema):
             Field(description="Bounded capture/window correlator (one per capture)"),
         ]
     ] = None
+    classifier_output: Optional[Dict[str, Annotated[float, Field(ge=0.0, le=1.0)]]] = (
+        None
+    )
 
     model_config = {
         "extra": "allow",
     }
+
+    @field_validator("classifier_output")
+    @classmethod
+    def _require_unknown_key(cls, v):
+        if v is None:
+            return v
+        if "unknown" not in v:
+            raise ValueError('classifier_output must include key "unknown"')
+        return v
 
     @staticmethod
     def example_input() -> dict:
@@ -62,5 +74,15 @@ def example_input() -> dict:
 
 
 def example_output() -> dict:
-    # Canonical example output equals input (the recorder writes what it receives).
-    return example_input()
+    return {
+        "schema_version": "1.0.1",
+        "record_id": "07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56",
+        "user_id": "elias01",
+        "session_id": "sess_2025-06-15_elias01",
+        "timestamp": "2025-06-15T12:34:56.789Z",
+        "modality": "gesture",
+        "source": "gesture_classifier",
+        "performer_id": "system",
+        "capture_id": "11111111-2222-3333-4444-555555555555",
+        "classifier_output": {"go_outside": 0.84, "hungry": 0.12, "unknown": 0.04},
+    }

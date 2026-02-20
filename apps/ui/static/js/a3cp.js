@@ -15,6 +15,8 @@ class A3CPDemoUI {
         this.btnStartSession = root.getElementById("btn_start_session");
         this.btnEndSession = root.getElementById("btn_end_session");
         this.btnResetDemo = root.getElementById("btn_reset_demo");
+        this.sessionStorageUserKey = "a3cp_demo_user_id";
+        this.sessionStoragePerformerKey = "a3cp_demo_performer_id";
 
         // Preview
         this.previewVideo = root.getElementById("preview_video");
@@ -188,6 +190,10 @@ class A3CPDemoController {
         this.schemaVersion = "1.0.1";
         this.wsPath = "/camera_feed_worker/capture";
         this.sessionStorageKey = "a3cp_demo_session_id";
+        this.sessionStorageUserKey = "a3cp_demo_user_id";
+        this.sessionStoragePerformerKey = "a3cp_demo_performer_id";
+
+
         // Phase 2 HTTP endpoints (adjust if your session_manager routes differ)
         this.http = {
             startSessionPath: "/session_manager/sessions.start",
@@ -216,15 +222,20 @@ class A3CPDemoController {
         this.ui.setCaptureId?.("");
 
         // Initialize from current input values if present.
-        const userId = this.ui.userId?.value?.trim() ?? "";
-        const performerId = this.ui.performerId?.value?.trim() ?? userId;
-
-        // Phase 2 (step 1): restore session_id from sessionStorage on load
         const restoredSessionId = sessionStorage.getItem(this.sessionStorageKey) || "";
+        const restoredUserId = sessionStorage.getItem(this.sessionStorageUserKey) || "";
+        const restoredPerformerId =
+            sessionStorage.getItem(this.sessionStoragePerformerKey) || restoredUserId;
 
+        // If no restored ids, fall back to DOM (fresh load case)
+        const domUserId = this.ui.userId?.value?.trim() ?? "";
+        const domPerformerId = this.ui.performerId?.value?.trim() ?? domUserId;
+
+        const userId = restoredUserId || domUserId;
+        const performerId = restoredPerformerId || domPerformerId;
 
         this.state.session = {
-            status: "idle",
+            status: restoredSessionId ? "active" : "idle",
             userId,
             performerId,
             sessionId: restoredSessionId,
@@ -239,16 +250,30 @@ class A3CPDemoController {
         this.ui.setPreviewState?.(this.state.preview);
         this.ui.setCaptureState?.(this.state.capture);
 
-        // Phase 2 (step 2): while session is idle, keep performer_id defaulting to user_id
+
+        // Initialize auto-follow flag (true only if performer_id is initially empty)
+        this._performerAutoFollow =
+            (this.ui.performerId?.value?.trim() ?? "") === "";
+
+        // If user edits performer_id, stop auto-follow
+        this.ui.performerId?.addEventListener("input", () => {
+            if (this.state.session.status !== "idle") return;
+            this._performerAutoFollow = false;
+            this.state.session.performerId =
+                this.ui.performerId?.value?.trim() ?? "";
+        });
+
+        // While idle, mirror user_id into performer_id if auto-follow is enabled
         this.ui.userId?.addEventListener("input", () => {
             if (this.state.session.status !== "idle") return;
-            const userIdNow = this.ui.userId?.value?.trim() ?? "";
-            const performerNow = this.ui.performerId?.value?.trim() ?? "";
-            if (performerNow === "") {
+
+            const userIdNow = this.ui.userId?.value ?? "";
+            this.state.session.userId = userIdNow;
+
+            if (this._performerAutoFollow) {
                 this.ui.performerId.value = userIdNow;
                 this.state.session.performerId = userIdNow;
             }
-            this.state.session.userId = userIdNow;
         });
         void this._silentValidateRestoredSession();
 
@@ -262,8 +287,6 @@ class A3CPDemoController {
         return { userId, performerId };
     }
 
-
-    // Event handlers (Phase 1: stubs)
     async onStartSession() {
         if (this.state.busy) return;
         if (this.state.capture.status === "running") return;
@@ -279,13 +302,11 @@ class A3CPDemoController {
             }
 
             const payload = {
-                schema_version: this.schemaVersion,                 // "1.0.1"
-                record_id: crypto.randomUUID(),                      // new per message
+                schema_version: this.schemaVersion,
+                record_id: crypto.randomUUID(),
                 user_id: userId,
-                timestamp: new Date().toISOString(),                 // ISO 8601 UTC
-                performer_id: performerId || undefined,              // optional
-                // omit optional fields for now:
-                // is_training_data, session_notes, training_intent_label
+                timestamp: new Date().toISOString(),
+                performer_id: performerId || undefined,
             };
 
             const resp = await fetch(this.http.startSessionPath, {
@@ -295,7 +316,6 @@ class A3CPDemoController {
             });
 
             if (!resp.ok) {
-                // try to surface server detail if present
                 let detail = "";
                 try {
                     const err = await resp.json();
@@ -310,6 +330,9 @@ class A3CPDemoController {
 
             const data = await resp.json();
             const sessionId = (data?.session_id ?? "").toString().trim();
+            const serverPerformerId =
+                (data?.performer_id ?? performerId ?? "").toString().trim();
+
             if (!sessionId) {
                 this.ui.showError({
                     message: "Start Session failed: missing session_id in response",
@@ -317,12 +340,18 @@ class A3CPDemoController {
                 return;
             }
 
+            // Canonicalize from server response
             sessionStorage.setItem(this.sessionStorageKey, sessionId);
+            sessionStorage.setItem(this.sessionStorageUserKey, userId);
+            sessionStorage.setItem(
+                this.sessionStoragePerformerKey,
+                serverPerformerId
+            );
 
             this.state.session = {
                 status: "active",
                 userId,
-                performerId,
+                performerId: serverPerformerId,
                 sessionId,
             };
 
@@ -333,7 +362,6 @@ class A3CPDemoController {
         } finally {
             this.state.busy = false;
             this.ui.setBusy(false);
-            // Re-apply state-based button logic
             this.ui.setSessionState?.(this.state.session);
             this.ui.setPreviewState?.(this.state.preview);
             this.ui.setCaptureState?.(this.state.capture);
@@ -354,7 +382,7 @@ class A3CPDemoController {
             });
 
             if (!resp.ok) {
-                // If validation endpoint is unavailable or errors, do nothing (silent).
+                // Silent by design: do not mutate state on transport errors.
                 return;
             }
 
@@ -362,31 +390,48 @@ class A3CPDemoController {
             const status = (data?.status ?? "").toString();
 
             if (status === "active") {
-                // Treat as active session; lock IDs
-                this.state.session.status = "active";
+                const serverPerformerId =
+                    (data?.performer_id ?? this.state.session.performerId ?? "")
+                        .toString()
+                        .trim();
+
+                this.state.session = {
+                    status: "active",
+                    userId,
+                    performerId: serverPerformerId,
+                    sessionId,
+                };
+
+                sessionStorage.setItem(this.sessionStorageKey, sessionId);
+                sessionStorage.setItem(
+                    this.sessionStoragePerformerKey,
+                    serverPerformerId
+                );
+
                 this.ui.setSessionState?.(this.state.session);
                 return;
             }
 
-            // closed or invalid => clear
-            sessionStorage.removeItem(this.sessionStorageKey);
-            this.state.session = {
-                status: "idle",
-                userId: this.state.session.userId,
-                performerId: this.state.session.performerId,
-                sessionId: "",
-            };
-            this.ui.setSessionState?.(this.state.session);
+            // "ended" or "invalid" => clear local session
+            if (status === "ended" || status === "invalid") {
+                sessionStorage.removeItem(this.sessionStorageKey);
+
+                this.state.session = {
+                    status: "idle",
+                    userId: this.state.session.userId,
+                    performerId: this.state.session.performerId,
+                    sessionId: "",
+                };
+
+                this.ui.setSessionState?.(this.state.session);
+            }
         } catch (_) {
             // Silent by design
         }
     }
-
-
-
     async onEndSession() {
         if (this.state.busy) return;
-        if (this.state.capture.status === "running") return; // do not end while capturing
+        if (this.state.capture.status === "running") return;
 
         this.state.busy = true;
         this.ui.setBusy(true);
@@ -399,16 +444,17 @@ class A3CPDemoController {
                 this.ui.showError({ message: "No active session to end" });
                 return;
             }
+
             const performerId = (this.state.session.performerId || "").trim();
 
             const payload = {
-                schema_version: this.schemaVersion,        // "1.0.1"
+                schema_version: this.schemaVersion,
                 record_id: crypto.randomUUID(),
                 user_id: userId,
                 performer_id: performerId,
                 session_id: sessionId,
-                timestamp: new Date().toISOString(),       // message creation time
-                end_time: new Date().toISOString(),        // end_time (UTC)
+                timestamp: new Date().toISOString(),
+                end_time: new Date().toISOString(),
             };
 
             const resp = await fetch(this.http.endSessionPath, {
@@ -430,13 +476,15 @@ class A3CPDemoController {
                 return;
             }
 
-            // success: clear persistence and reset controller session state
+            // Treat any 200 ("ended" or "already_ended") as success
             sessionStorage.removeItem(this.sessionStorageKey);
+            sessionStorage.removeItem(this.sessionStorageUserKey);
+            sessionStorage.removeItem(this.sessionStoragePerformerKey);
 
             this.state.session = {
                 status: "idle",
-                userId: this.ui.userId?.value?.trim() ?? userId,
-                performerId: this.ui.performerId?.value?.trim() ?? (this.state.session.performerId || ""),
+                userId,
+                performerId,
                 sessionId: "",
             };
 
@@ -447,15 +495,95 @@ class A3CPDemoController {
         } finally {
             this.state.busy = false;
             this.ui.setBusy(false);
-            // Re-apply state-based button logic
             this.ui.setSessionState?.(this.state.session);
             this.ui.setPreviewState?.(this.state.preview);
             this.ui.setCaptureState?.(this.state.capture);
-
         }
     }
+    async onResetDemo() {
+        if (this.state.busy) return;
 
-    async onResetDemo() { }
+        // Hard guard: reset must never run during capture.
+        if (this.state.capture.status === "running") {
+            this.ui.showError({ message: "Cannot reset while capture is running." });
+            return;
+        }
+
+        this.state.busy = true;
+        this.ui.setBusy(true);
+
+        try {
+            // 1) Best-effort stop preview
+            try {
+                if (this.state.preview.status === "running") {
+                    await this.onStopPreview();
+                }
+            } catch (_) {
+                // ignore on reset
+            }
+
+            // 2) Best-effort end session only if we have a known session_id
+            const sessionId = (this.state.session.sessionId || "").trim();
+            const userId = (this.state.session.userId || "").trim();
+            const performerId = (this.state.session.performerId || "").trim();
+
+            if (sessionId && userId) {
+                const payload = {
+                    schema_version: this.schemaVersion,
+                    record_id: crypto.randomUUID(),
+                    user_id: userId,
+                    performer_id: performerId || userId,
+                    session_id: sessionId,
+                    timestamp: new Date().toISOString(),
+                    end_time: new Date().toISOString(),
+                };
+
+                try {
+                    await fetch(this.http.endSessionPath, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    });
+                } catch (_) {
+                    // ignore network errors on reset
+                }
+            }
+
+            // 3) Clear client persistence
+            sessionStorage.removeItem(this.sessionStorageKey);
+            sessionStorage.removeItem(this.sessionStorageUserKey);
+            sessionStorage.removeItem(this.sessionStoragePerformerKey);
+
+            // 4) Deterministically reset state (do not replace entire state object)
+            this.state.session = { status: "idle", userId: "", performerId: "", sessionId: "" };
+            this.state.preview = { status: "stopped" };
+            this.state.capture = { status: "stopped" };
+
+            // 5) Clear UI fields
+            if (this.ui.userId) this.ui.userId.value = "";
+            if (this.ui.performerId) this.ui.performerId.value = "";
+            if (this.ui.sessionId) this.ui.sessionId.value = "";
+
+            this.ui.setFramesSent?.(0);
+            this.ui.setRecordId?.("");
+            this.ui.setCaptureId?.("");
+            if (this.ui.debugOut) this.ui.debugOut.textContent = "";
+
+            this.ui.clearError?.();
+
+            // 6) Re-apply state to UI
+            this.ui.setSessionState?.(this.state.session);
+            this.ui.setPreviewState?.(this.state.preview);
+            this.ui.setCaptureState?.(this.state.capture);
+        } finally {
+            this.state.busy = false;
+            this.ui.setBusy(false);
+
+            this.ui.setSessionState?.(this.state.session);
+            this.ui.setPreviewState?.(this.state.preview);
+            this.ui.setCaptureState?.(this.state.capture);
+        }
+    }
     async onStartPreview() { }
     async onStopPreview() { }
 

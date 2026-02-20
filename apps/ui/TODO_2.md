@@ -35,6 +35,14 @@ All DOM handled by A3CPDemoUI.
 - `record_id` is generated client-side per schema message (one new `record_id` per control/meta message); UI must not reuse `record_id` values.
 - Each outbound schema message must include an ISO 8601 UTC `timestamp` generated client-side.
 - Preview is independent of capture (users can preview without capturing).
+-  sessions.start is idempotent: if an active session already exists for user_id, Start returns that session_id (200) and never returns 409 for “already active”
+-  sessions.end is idempotent: ending an already-ended session_id returns success (200) and must not recreate or re-activate any session
+-  sessions.end must clear the server-side “active session per user_id” pointer on success (no orphan active session after End)
+-  Start must treat server-returned session_id as canonical and overwrite any client-stored session_id
+- If sessions.start returns performer_id, client must treat it as canonical for the active session and overwrite client performer_id
+-  Silent validation on load is reconciliation-only: validate may clear stale client session_id but must never start or end sessions
+-  Reset is local-deterministic: it may best-effort end only if client has a session_id; it must not attempt hidden recovery/probing when session_id is missing
+-  sessions.start must not return 409 for already-active sessions; any 409 response is treated as a contract violation and surfaced as an error
 
 ## LandmarkFeatureSpec (locked for MVP)
 
@@ -114,6 +122,16 @@ Behavior:
   - Clear `sessionStorage` key `a3cp_demo_session_id`
   - Reset controller session state to `idle`
 
+
+- [ ] Make sessions.start idempotent (remove 409 for already active)
+- [ ] Ensure sessions.end is idempotent and clears active-session pointer
+- [ ] Ensure sessions.validate returns only "active" | "ended" | "invalid" with 200
+- [ ] Update onStartSession() to accept both 200 and 201 and overwrite local state from server response
+- [ ] Manually test: Fresh Start → End → Start
+- [ ] Manually test: Start → refresh → validate
+- [ ] Manually test: Start → simulate lost sessionStorage → Start
+- [ ] Manually test: Start → Reset → Start
+
 Verify:
 - [ ] Start → active
 - [ ] Refresh → restored
@@ -132,7 +150,22 @@ Verify:
 - [ ] Reset clears session and UI state
 - [ ] Preview remains unaffected
 - [ ] Capture must not be active when Reset is clickable
+- [ ] sessions.start must return 201 and create a new active session when no active session exists for the user
+- [ ] sessions.start must return 200 and the existing session_id when a session is already active for the user (idempotent start)
+- [ ] sessions.start must never return 409 for “already active”
+
+- [ ] sessions.end must clear the server-side active session mapping for the user
+- [ ] sessions.end must be idempotent (ending an already-ended session returns 200)
+- [ ] sessions.end must not clear or alter a different active session when given a wrong session_id
+
+- [ ] sessions.validate must return status "active" for an active session
+- [ ] sessions.validate must return status "ended" for an ended session
+- [ ] sessions.validate must return status "invalid" for an unknown session_id
+
+- [ ] Repeated Start after lost client session_id must reattach to the existing active session (no 409 loop)
 ---
+
+
 
 # PHASE 3 — PREVIEW ONLY (NO WEBSOCKET)
 

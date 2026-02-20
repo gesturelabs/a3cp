@@ -80,22 +80,40 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
             "performer_id is required (use 'system' for system-initiated boundaries)"
         )
 
-    # Slice-1 policy: enforce single active session per user by scanning the
-    # in-memory _sessions store for status=="active".
-    # This is acceptable for MVP; will be replaced by an active_session_by_user_id
-    # index when persistent storage is introduced.
-
-    for s in _sessions.values():
-        if s["user_id"] == payload.user_id and s.get("status") == "active":
-            raise SessionAlreadyActive("User already has an active session")
-
-    new_session_id = generate_session_id()
-    while new_session_id in _sessions:
-        new_session_id = generate_session_id()
-
     # Server-authoritative UTC timestamp, truncated to millisecond precision
     now_dt = datetime.now(timezone.utc)
     now_dt = now_dt.replace(microsecond=(now_dt.microsecond // 1000) * 1000)
+
+    # Slice-1 policy: enforce single active session per user by scanning the
+    # in-memory _sessions store for status=="active".
+    for session_id, s in _sessions.items():
+        if s["user_id"] == payload.user_id and s.get("status") == "active":
+            # Idempotent start: return existing active session instead of raising 409
+            is_training = bool(s.get("is_training_data", False))
+
+            out = SessionManagerStartOutput(
+                schema_version=payload.schema_version,
+                record_id=uuid4(),  # server-authoritative
+                user_id=payload.user_id,
+                timestamp=now_dt,
+                performer_id=s.get("performer_id"),
+                source="session_manager",
+                session_id=session_id,
+                start_time=s.get("start_time", now_dt),
+                is_training_data=is_training,
+                session_notes=s.get("session_notes"),
+                training_intent_label=s.get("training_intent_label"),
+            )
+
+            append_event(
+                user_id=out.user_id, session_id=str(out.session_id), message=out
+            )
+            return out
+
+    # No active session found: create new
+    new_session_id = generate_session_id()
+    while new_session_id in _sessions:
+        new_session_id = generate_session_id()
 
     is_training = (
         bool(payload.is_training_data)
@@ -116,7 +134,6 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
         session_notes=payload.session_notes,
         training_intent_label=payload.training_intent_label,
     )
-
     from apps.schema_recorder.config import LOG_ROOT
 
     sessions_dir = LOG_ROOT / "users" / str(out.user_id) / "sessions"

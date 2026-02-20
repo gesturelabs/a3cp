@@ -36,6 +36,8 @@
 - [ ] Implement encoder inference (ONNX runtime)
 - [ ] Implement prototype cosine similarity scoring
 - [ ] Convert similarities → normalized distribution
+- [ ] Ensure distribution includes "unknown" label (always present; set by accept/reject policy)
+
 
 - [ ] Implement per-window reject logic
   - [ ] Activity threshold
@@ -47,25 +49,36 @@
   - [ ] Margin threshold (m)
 
 - [ ] Implement capture-level aggregation
-  - [ ] Aggregate accepted windows
-  - [ ] Reject if none accepted
-  - [ ] Normalize distribution
-  - [ ] Ensure `"unknown"` key always present
+  - [ ] Aggregate accepted windows (mean of per-window class scores)
+  - [ ] If no windows accepted → full reject
+  - [ ] Produce intent → confidence distribution
+  - [ ] Enforce normalization invariant (sum ≈ 1.0 within tolerance)
+  - [ ] Set "unknown" = 0.0 for accepted captures
+  - [ ] For reject → "unknown" = 1.0 and all others = 0.0
 
-- [ ] Emit exactly one A3CPMessage per capture
-  - [ ] Validate schema before emit
+- [ ] Emit exactly one canonical A3CPMessage per capture
+  - [ ] Populate required spine fields (schema_version, record_id, user_id, timestamp)
+  - [ ] Propagate session_id and capture_id unchanged
+  - [ ] Set modality = "gesture"
+  - [ ] Set source = "gesture_classifier"
+  - [ ] Include classifier_output (distribution with required "unknown")
+  - [ ] Include model_ref and encoder_ref (immutable artifact references)
+  - [ ] Ensure classifier_output values ∈ [0.0, 1.0]
+  - [ ] Ensure normalization invariant satisfied before validation
+  - [ ] Validate canonical schema before emit
+
 
 
 ---
 
 ## 2. Reject / Unknown Handling
 
-- [ ] Implement capture-level reject rule
-- [ ] Enforce distribution rule:
-  - [ ] Reject → `"unknown": 1.0`, others 0.0
-  - [ ] Accept → `"unknown": 0.0`, others sum to 1.0
-- [ ] Ensure downstream ranking derivable via sort
-
+- [ ] Implement capture-level reject rule (deterministic)
+- [ ] Enforce canonical distribution invariants:
+  - [ ] Reject → "unknown": 1.0 and all other intents = 0.0
+  - [ ] Accept → "unknown": 0.0
+  - [ ] Accepted intent scores sum ≈ 1.0 (within tolerance)
+- [ ] Ensure downstream ranking derivable via stable descending sort
 
 ---
 
@@ -83,14 +96,18 @@
     - [ ] `fps_nominal`
     - [ ] Resampling method OR reject flag
   - [ ] Reject reason (if any)
+
 - [ ] Log:
-  - [ ] `record_id`
-  - [ ] `model_version`
-  - [ ] `preprocessing_version`
-  - [ ] `feature_spec_id`
-  - [ ] `normalization_version`
-  - [ ] `smoothing_version`
-  - [ ] Windowing parameters (resolved `length_frames`, `stride_frames`)
+  - [ ] record_id
+  - [ ] model_version
+  - [ ] model_ref hash
+  - [ ] encoder_ref hash
+  - [ ] feature_spec_id
+  - [ ] normalization_version
+  - [ ] smoothing_version
+  - [ ] resolved length_frames and stride_frames
+  - [ ] final aggregated distribution (pre-emit)
+  - [ ] reject flag (boolean)
 - [ ] Ensure deterministic replay possible from trace + artifact
 
 
@@ -100,7 +117,9 @@
 
 - [ ] Enforce immutable model artifacts
 - [ ] Require monotonic `model_version`
+- [ ] Emit model_version (and model_ref/encoder_ref) in every A3CPMessage
 - [ ] Verify artifact hash before load
+- [ ] Fail closed on hash mismatch (do not emit; log structured error + reject reason if applicable)
 - [ ] Prevent mixed-version inference within a capture
 
 
@@ -111,6 +130,9 @@
 - [ ] Ensure inference latency <300ms per capture (demo load)
 - [ ] Add deterministic replay test (same input → same output)
 - [ ] Add floating-point tolerance test
+- [ ] Enforce deterministic label ordering (stable sort; consistent tie-breaking rule)
+- [ ] Configure ONNX runtime for deterministic inference (no nondeterministic threading effects)
+
 
 
 ---
@@ -122,6 +144,9 @@
 - [ ] Enforce maximum capture length (T limit)
 - [ ] Validate feature dimensionality against `encoder_metadata.json`
 - [ ] Reject incompatible `feature_spec_id`
+- [ ] Reject (or error) on missing required metadata needed for determinism (e.g., feature_spec_id if required by encoder_metadata)
+- [ ] Enforce strict allowlist for raw_features_ref.format and model artifact types (no implicit format fallback)
+
 
 
 ---
@@ -137,6 +162,9 @@
 - [ ] Unit tests: schema validation
 - [ ] Unit tests: cache swap correctness
 - [ ] Integration test: end-to-end bounded capture → A3CPMessage
+- [ ] Unit test: canonical A3CPMessage rejects classifier_output without "unknown"
+- [ ] Unit test: canonical A3CPMessage rejects classifier_output values outside [0.0, 1.0]
+
 
 
 ---
@@ -150,6 +178,8 @@
 - [ ] Document reject policy
 - [ ] Document aggregation method
 - [ ] Document deterministic replay requirements
+- [ ] Document canonical classifier_output contract (distribution-based, "unknown" required, normalization invariant)
+
 
 
 ---

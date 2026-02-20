@@ -36,6 +36,7 @@ def start_session(payload: SessionManagerStartInput) -> SessionManagerStartOutpu
     try:
         return service.start_session(payload)
     except service.SessionAlreadyActive as e:
+        # Policy: routes must map typed exceptions explicitly (even if start is now idempotent)
         raise HTTPException(status_code=409, detail=str(e)) from e
     except service.SessionError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e

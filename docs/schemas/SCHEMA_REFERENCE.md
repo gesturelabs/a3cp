@@ -231,13 +231,33 @@ Notes:
 
 ### 5.2 classifier_output
 
-`classifier_output` MUST represent the fused or selected decision after modality aggregation and MUST NOT duplicate raw per-modality predictions already stored in `classifier_output_components`.
+`classifier_output` represents a per-modality confidence distribution over intent labels.
 
-+---------------------+--------+-----+-------------------------------------------+-------------------------------------------------------------+
-| Field Name          | Type   | Req | Example                                   | Description                                                 |
-+---------------------+--------+-----+-------------------------------------------+-------------------------------------------------------------+
-| classifier_output   | object | ❌  | { "intent": "eat", "confidence": 0.91 }  | Aggregate model output; keys may include `intent`, `confidence`, `ranking`, `model_version`, `timestamp` |
-+---------------------+--------+-----+-------------------------------------------+-------------------------------------------------------------+
+It MUST contain the raw distribution produced by a classifier module (e.g., `gesture_classifier`, `sound_classifier`, etc.). It MUST NOT represent only a fused top-1 decision.
+
+| Field Name        | Type                  | Req | Example                                                  | Description                                                  |
+|-------------------|-----------------------|-----|----------------------------------------------------------|--------------------------------------------------------------|
+| classifier_output | dict[string, float]   | ❌  | { "eat": 0.62, "drink": 0.21, "unknown": 0.17 }         | Per-modality confidence distribution over intent labels.    |
+
+#### Constraints
+
+- Each value MUST be between `0.0` and `1.0`.
+- The key `"unknown"` MUST always be present.
+- For reject cases:
+  - `"unknown": 1.0`
+  - All other intents MUST be `0.0`.
+- For accepted predictions:
+  - `"unknown": 0.0`
+  - Remaining values SHOULD sum to `1.0`.
+- Ranking MUST be derived by sorting confidence values in descending order.
+- Distribution normalization is enforced at module logic level, not JSON Schema.
+
+#### Notes
+
+- `classifier_output` represents the output of a single modality classifier.
+- Multimodal fusion occurs downstream (e.g., in `input_broker` and `confidence_evaluator`) and MUST NOT overwrite per-modality distributions.
+- A resolved top-1 decision, if required, is derived downstream and may populate `final_decision`, not `classifier_output`.
+- `classifier_output` MUST remain distinct from `classifier_output_components` (if used for multi-stage aggregation).
 
 
 
