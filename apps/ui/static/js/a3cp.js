@@ -591,8 +591,139 @@ class A3CPDemoController {
             this.ui.setCaptureState?.(this.state.capture);
         }
     }
-    async onStartPreview() { }
-    async onStopPreview() { }
+    async onStartPreview() {
+        // Preview-local in-flight guard (do not use global busy)
+        if (this._previewBusy) return;
+
+        // Idempotent: if already running, do nothing.
+        if (this.state.preview.status === "running") return;
+
+        if (!this.ui.previewVideo) {
+            this.ui.showError({ message: "Preview video element not found." });
+            return;
+        }
+
+        this._previewBusy = true;
+
+        // Disable ONLY preview buttons during this async operation
+        if (this.ui.btnStartPreview) this.ui.btnStartPreview.disabled = true;
+        if (this.ui.btnStopPreview) this.ui.btnStopPreview.disabled = true;
+
+        try {
+            // Defensive cleanup in case a previous stream exists
+            if (this._previewStream) {
+                try {
+                    this._previewStream.getTracks().forEach((t) => t.stop());
+                } catch (_) { }
+                this._previewStream = null;
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false,
+            });
+
+            // Keep a handle first (slightly more robust)
+            this._previewStream = stream;
+
+            // Attach stream to video
+            this.ui.previewVideo.srcObject = stream;
+
+            // Some browsers require explicit play()
+            try {
+                await this.ui.previewVideo.play();
+            } catch (_) { }
+
+            this.state.preview = { status: "running" };
+            this.ui.clearError?.();
+        } catch (e) {
+            // Ensure deterministic stopped state on failure
+            if (this._previewStream) {
+                try {
+                    this._previewStream.getTracks().forEach((t) => t.stop());
+                } catch (_) { }
+            }
+            this._previewStream = null;
+
+            if (this.ui.previewVideo) this.ui.previewVideo.srcObject = null;
+
+            this.state.preview = { status: "stopped" };
+            this.ui.showError({
+                message: `Start Preview failed: ${String(e)}`,
+            });
+        } finally {
+            this._previewBusy = false;
+            // Re-apply correct enable/disable from preview state
+            this.ui.setPreviewState?.(this.state.preview);
+            // Do not touch global busy/session/capture controls here
+        }
+    }
+
+    async onStopPreview() {
+        if (this.state.busy) return;
+        if (this.state.capture.status === "running") {
+            this.ui.debug?.("Stop Preview: capture running -> calling onStopCapture()");
+            try {
+                await this.onStopCapture(); // stub ok
+            } catch (_) {
+                // Even if capture teardown errors, continue stopping preview.
+            }
+        }
+
+        // Idempotent: if already stopped, do nothing (but ensure video cleared).
+        if (!this._previewStream && this.state.preview.status !== "running") {
+            if (this.ui.previewVideo) this.ui.previewVideo.srcObject = null;
+            this.state.preview = { status: "stopped" };
+            this.ui.setPreviewState?.(this.state.preview);
+            return;
+        }
+
+        if (!this.ui.previewVideo) {
+            // Still try to stop tracks even without the element.
+            if (this._previewStream) {
+                try {
+                    this._previewStream.getTracks().forEach((t) => t.stop());
+                } catch (_) { }
+                this._previewStream = null;
+            }
+            this.state.preview = { status: "stopped" };
+            this.ui.setPreviewState?.(this.state.preview);
+            return;
+        }
+
+        this.state.busy = true;
+        this.ui.setBusy(true);
+
+        try {
+            const stream = this._previewStream || this.ui.previewVideo.srcObject;
+
+            if (stream && typeof stream.getTracks === "function") {
+                stream.getTracks().forEach((track) => {
+                    try {
+                        track.stop();
+                    } catch (_) { }
+                });
+            }
+
+            this._previewStream = null;
+
+            // Clear video element.
+            this.ui.previewVideo.pause?.();
+            this.ui.previewVideo.srcObject = null;
+
+            this.state.preview = { status: "stopped" };
+            this.ui.clearError?.();
+            this.ui.setPreviewState?.(this.state.preview);
+        } catch (e) {
+            this.ui.showError({ message: `Stop Preview error: ${String(e)}` });
+        } finally {
+            this.state.busy = false;
+            this.ui.setBusy(false);
+            this.ui.setSessionState?.(this.state.session);
+            this.ui.setPreviewState?.(this.state.preview);
+            this.ui.setCaptureState?.(this.state.capture);
+        }
+    }
 
     async onStartCapture() { }
     async onStopCapture() { }

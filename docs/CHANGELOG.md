@@ -9,6 +9,29 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## [Unreleased] – A3CP MVP Phase 3: Preview-Only Media Lifecycle. Feb. 23, 2026
+
+### UI Layout
+- Refactored `/a3cp` layout into two-column structure:
+  - Controls (left)
+  - Always-visible Viewer (right)
+- Preview window now has fixed aspect ratio and remains visible when stopped.
+
+### Preview Lifecycle (No WebSocket)
+- Implemented `onStartPreview()` using `navigator.mediaDevices.getUserMedia({ video: true })`
+- Attached media stream to `<video id="preview_video">`
+- Implemented `onStopPreview()`:
+  - Stops all media tracks
+  - Clears `video.srcObject`
+- Preview busy state isolated from global session busy state.
+
+### Verification
+- Permission prompt confirmed working.
+- No duplicate streams (single track while running; Start disabled when active).
+- Tracks stop cleanly (`srcObject === null`; camera indicator off).
+- Capture teardown coupling implemented in code path (verification deferred to Phase 6 when capture is active).
+
 ## [Unreleased] — Session Manager Contract & Wrong-Session Safety. Feb. 23, 2026
 
 ### Service Layer

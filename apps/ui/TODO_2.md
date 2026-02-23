@@ -158,29 +158,29 @@ Behavior:
 - [x ] Standardize validate_session to return "closed"
 - [x ] Update router comment to reflect "active" | "closed" | "invalid"
 - [x ] Re-run pytest after status normalization
-- [ ] Manually verify: ended session → refresh → validate → transitions to idle
-- [ ] Explicitly test: sessions.end with wrong session_id does not clear another active session
-- [ ] Confirm sessions.end wrong-session behavior matches invariant and document it
+- [x ] Manually verify: ended session → refresh → validate → transitions to idle
+- [x ] Explicitly test: sessions.end with wrong session_id does not clear another active session
+- [x ] Confirm sessions.end wrong-session behavior matches invariant and document it
 
 # PHASE 3 — PREVIEW ONLY (NO WEBSOCKET)
 
 Goal: Isolate media lifecycle.
 
 UI:
-- [ ] Start Preview
-- [ ] Stop Preview
-- [ ] Always-visible preview window
+- [ x] Start Preview
+- [x ] Stop Preview
+- [ x] Always-visible preview window
 
 Behavior:
-- [ ] Start Preview → getUserMedia(video)
-- [ ] Attach stream to <video>
-- [ ] Stop Preview → stop tracks
-- [ ] If capturing → Stop Preview triggers capture teardown
+- [ x] Start Preview → getUserMedia(video)
+- [ x] Attach stream to <video>
+- [x ] Stop Preview → stop tracks
+
 
 Verify:
-- [ ] Permission works
-- [ ] No duplicate streams
-- [ ] Tracks stop cleanly
+- [x ] Permission works
+- [x ] No duplicate streams
+- [ x] Tracks stop cleanly
 
 ---
 
@@ -213,6 +213,7 @@ Behavior:
   - [ ] Preview remains active
 
 Verify:
+- [ ] If capturing → Stop Preview triggers capture teardown
 - [ ] `capture.open` accepted
 - [ ] Strict meta → binary ordering preserved from first frame
 - [ ] No protocol violations
