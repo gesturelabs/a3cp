@@ -9,7 +9,31 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [Unreleased] — Session Manager Contract & Wrong-Session Safety. Feb. 23, 2026
 
+### Service Layer
+
+- Added unit test: `test_end_session_with_other_users_session_id_does_not_close_active_session`
+  - Verifies `SessionUserMismatch` is raised when attempting to end another user’s session.
+  - Asserts no active session is closed as a side effect.
+  - Confirms service-level no-mutation invariant.
+
+### Routing
+
+- Confirmed explicit HTTP exception mappings:
+  - `SessionNotFound` → 404
+  - `SessionUserMismatch` → 403
+  - `SessionAlreadyClosed` → 409
+  - `SessionError` → 400
+- Verified route mapping policy test enforces typed exception handling (no heuristic string checks).
+
+### Documentation
+
+- Added `apps/session_manager/CONTRACT.md`
+  - Defines `sessions.start`, `sessions.end`, and `sessions.validate` behavior.
+  - Documents wrong-session safety invariant.
+  - Documents status-code mappings.
+  - Clarifies idempotency and no-side-effects guarantees.
 
 ### Frontend (/a3cp) — Silent Session Validation Coherence Fix Feb. 23, 2026
 

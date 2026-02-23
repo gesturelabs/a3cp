@@ -131,3 +131,57 @@ def test_session_manager_never_opens_jsonl_files(
         end_time=datetime.now(timezone.utc),
     )
     sm_service.end_session(end_payload)
+
+
+def test_end_session_with_other_users_session_id_does_not_close_active_session(
+    tmp_path: Path,
+) -> None:
+    # Logs to tmp_path, clean state
+    recorder_config.LOG_ROOT = tmp_path / "logs"
+    sm_service._sessions.clear()
+
+    # Start session for user A
+    a_start = SessionManagerStartInput(
+        schema_version="1.0.1",
+        record_id=uuid4(),
+        user_id="user_a",
+        timestamp=datetime.now(timezone.utc),
+        performer_id="tester",
+        is_training_data=False,
+        session_notes=None,
+        training_intent_label=None,
+    )
+    a_out = sm_service.start_session(a_start)
+    sess_a = str(a_out.session_id)
+
+    # Start session for user B
+    b_start = SessionManagerStartInput(
+        schema_version="1.0.1",
+        record_id=uuid4(),
+        user_id="user_b",
+        timestamp=datetime.now(timezone.utc),
+        performer_id="tester",
+        is_training_data=False,
+        session_notes=None,
+        training_intent_label=None,
+    )
+    b_out = sm_service.start_session(b_start)
+    sess_b = str(b_out.session_id)
+
+    # Attempt to end B's session while claiming to be user A
+    end_payload = SessionManagerEndInput(
+        schema_version="1.0.1",
+        record_id=uuid4(),
+        user_id="user_a",
+        session_id=sess_b,  # wrong: belongs to user_b
+        timestamp=datetime.now(timezone.utc),
+        performer_id="tester",
+        end_time=datetime.now(timezone.utc),
+    )
+
+    with pytest.raises(sm_service.SessionUserMismatch):
+        sm_service.end_session(end_payload)
+
+    # Assert: neither session was closed
+    assert sm_service._sessions[sess_a]["status"] == "active"
+    assert sm_service._sessions[sess_b]["status"] == "active"
