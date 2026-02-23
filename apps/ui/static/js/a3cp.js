@@ -15,8 +15,6 @@ class A3CPDemoUI {
         this.btnStartSession = root.getElementById("btn_start_session");
         this.btnEndSession = root.getElementById("btn_end_session");
         this.btnResetDemo = root.getElementById("btn_reset_demo");
-        this.sessionStorageUserKey = "a3cp_demo_user_id";
-        this.sessionStoragePerformerKey = "a3cp_demo_performer_id";
 
         // Preview
         this.previewVideo = root.getElementById("preview_video");
@@ -223,16 +221,13 @@ class A3CPDemoController {
 
         // Initialize from current input values if present.
         const restoredSessionId = sessionStorage.getItem(this.sessionStorageKey) || "";
-        const restoredUserId = sessionStorage.getItem(this.sessionStorageUserKey) || "";
-        const restoredPerformerId =
-            sessionStorage.getItem(this.sessionStoragePerformerKey) || restoredUserId;
 
-        // If no restored ids, fall back to DOM (fresh load case)
+        // DOM is the only source of user_id / performer_id (no persistence)
         const domUserId = this.ui.userId?.value?.trim() ?? "";
         const domPerformerId = this.ui.performerId?.value?.trim() ?? domUserId;
 
-        const userId = restoredUserId || domUserId;
-        const performerId = restoredPerformerId || domPerformerId;
+        const userId = domUserId;
+        const performerId = domPerformerId;
 
         this.state.session = {
             status: restoredSessionId ? "active" : "idle",
@@ -340,13 +335,9 @@ class A3CPDemoController {
                 return;
             }
 
-            // Canonicalize from server response
+
+            // Canonicalize from server response (only persisted key allowed)
             sessionStorage.setItem(this.sessionStorageKey, sessionId);
-            sessionStorage.setItem(this.sessionStorageUserKey, userId);
-            sessionStorage.setItem(
-                this.sessionStoragePerformerKey,
-                serverPerformerId
-            );
 
             this.state.session = {
                 status: "active",
@@ -371,6 +362,23 @@ class A3CPDemoController {
     async _silentValidateRestoredSession() {
         const sessionId = (this.state.session.sessionId || "").trim();
         const userId = (this.state.session.userId || "").trim();
+
+        // Strict coherence rule:
+        // If we have a stored session_id but no user_id to validate with,
+        // treat the client state as invalid and clear the session_id locally.
+        if (sessionId && !userId) {
+            sessionStorage.removeItem(this.sessionStorageKey);
+
+            this.state.session = {
+                status: "idle",
+                userId: this.state.session.userId,
+                performerId: this.state.session.performerId,
+                sessionId: "",
+            };
+
+            this.ui.setSessionState?.(this.state.session);
+            return;
+        }
 
         if (!sessionId || !userId) return;
 
@@ -412,8 +420,8 @@ class A3CPDemoController {
                 return;
             }
 
-            // "ended" or "invalid" => clear local session
-            if (status === "ended" || status === "invalid") {
+            // "closed" or "invalid" => clear local session
+            if (status === "closed" || status === "invalid") {
                 sessionStorage.removeItem(this.sessionStorageKey);
 
                 this.state.session = {
@@ -429,6 +437,7 @@ class A3CPDemoController {
             // Silent by design
         }
     }
+
     async onEndSession() {
         if (this.state.busy) return;
         if (this.state.capture.status === "running") return;
@@ -476,10 +485,9 @@ class A3CPDemoController {
                 return;
             }
 
-            // Treat any 200 ("ended" or "already_ended") as success
+            // Treat any 200 ("closed" or "already_closed") as success
             sessionStorage.removeItem(this.sessionStorageKey);
-            sessionStorage.removeItem(this.sessionStorageUserKey);
-            sessionStorage.removeItem(this.sessionStoragePerformerKey);
+
 
             this.state.session = {
                 status: "idle",
@@ -551,8 +559,7 @@ class A3CPDemoController {
 
             // 3) Clear client persistence
             sessionStorage.removeItem(this.sessionStorageKey);
-            sessionStorage.removeItem(this.sessionStorageUserKey);
-            sessionStorage.removeItem(this.sessionStoragePerformerKey);
+
 
             // 4) Deterministically reset state (do not replace entire state object)
             this.state.session = { status: "idle", userId: "", performerId: "", sessionId: "" };

@@ -123,49 +123,44 @@ Behavior:
   - Reset controller session state to `idle`
 
 
-- [ ] Make sessions.start idempotent (remove 409 for already active)
-- [ ] Ensure sessions.end is idempotent and clears active-session pointer
-- [ ] Ensure sessions.validate returns only "active" | "ended" | "invalid" with 200
-- [ ] Update onStartSession() to accept both 200 and 201 and overwrite local state from server response
-- [ ] Manually test: Fresh Start → End → Start
-- [ ] Manually test: Start → refresh → validate
-- [ ] Manually test: Start → simulate lost sessionStorage → Start
-- [ ] Manually test: Start → Reset → Start
+- [x ] Make sessions.start idempotent (remove 409 for already active)
+- [ x] Ensure sessions.end is idempotent and clears active-session pointer
+- [ x] Ensure sessions.validate returns only "active" | "ended" | "invalid" with 200
+- [ x] Manually test: Fresh Start → End → Start
+- [ x] Manually test: Start → refresh → validate
+- [x ] Manually test: Start → simulate lost sessionStorage → Start
+- [x ] Manually test: Start → Reset → Start
 
-Verify:
-- [ ] Start → active
-- [ ] Refresh → restored
-- [ ] End → idle
-- [ ] Invalid session auto-clears
-- [ ] Buttons disable correctly
 
-### Behavior
-- [ ] Reset Demo:
-  - Clears `sessionStorage` (`a3cp_demo_session_id`)
-  - Resets controller state to `idle`
-  - Unlocks `user_id` and `performer_id`
-  - Disabled while capturing
+
 
 ### Verify
-- [ ] Reset clears session and UI state
-- [ ] Preview remains unaffected
-- [ ] Capture must not be active when Reset is clickable
-- [ ] sessions.start must return 201 and create a new active session when no active session exists for the user
-- [ ] sessions.start must return 200 and the existing session_id when a session is already active for the user (idempotent start)
-- [ ] sessions.start must never return 409 for “already active”
+- [ x] Reset clears session and UI state
+- [x ] Preview remains unaffected
+- [ x] Capture must not be active when Reset is clickable
+- [x ] sessions.start must return 201 and create a new active session when no active session exists for the user
+- [x ] sessions.start must return 200 and the existing session_id when a session is already active for the user (idempotent start)
+- [x ] sessions.start must never return 409 for “already active”
 
-- [ ] sessions.end must clear the server-side active session mapping for the user
-- [ ] sessions.end must be idempotent (ending an already-ended session returns 200)
-- [ ] sessions.end must not clear or alter a different active session when given a wrong session_id
+- [ x] sessions.end must clear the server-side active session mapping for the user
+- [x ] sessions.end must be idempotent (ending an already-ended session returns 200)
 
-- [ ] sessions.validate must return status "active" for an active session
+- [x ] sessions.validate must return status "active" for an active session
 - [ ] sessions.validate must return status "ended" for an ended session
-- [ ] sessions.validate must return status "invalid" for an unknown session_id
+- [x ] sessions.validate must return status "invalid" for an unknown session_id
 
-- [ ] Repeated Start after lost client session_id must reattach to the existing active session (no 409 loop)
+- [x ] Repeated Start after lost client session_id must reattach to the existing active session (no 409 loop)
 ---
 
 
+### Remaining Session Lifecycle Tasks
+
+- [x ] Standardize validate_session to return "closed"
+- [x ] Update router comment to reflect "active" | "closed" | "invalid"
+- [x ] Re-run pytest after status normalization
+- [ ] Manually verify: ended session → refresh → validate → transitions to idle
+- [ ] Explicitly test: sessions.end with wrong session_id does not clear another active session
+- [ ] Confirm sessions.end wrong-session behavior matches invariant and document it
 
 # PHASE 3 — PREVIEW ONLY (NO WEBSOCKET)
 

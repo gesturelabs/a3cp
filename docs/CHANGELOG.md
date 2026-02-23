@@ -10,6 +10,15 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+
+### Frontend (/a3cp) — Silent Session Validation Coherence Fix Feb. 23, 2026
+
+- Enforced strict client coherence: if `session_id` exists but `user_id` is empty at bootstrap, clear `session_id` locally (no network call).
+- Ensured unvalidated `session_id` is never treated as authoritative.
+- Removed persistence of `a3cp_demo_user_id` and `a3cp_demo_performer_id`; only `a3cp_demo_session_id` remains in sessionStorage.
+- Updated init() to source `user_id` / `performer_id` exclusively from DOM (no storage rehydration).
+- Eliminated partial-storage dead state where silent validate would not run and stale `session_id` remained.
+
 ## [Unreleased] – Session Lifecycle Stabilization (A3CP MVP) Feb. 20, 2026
 
 ### Backend
