@@ -9,6 +9,34 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## [Unreleased] — A3CP MVP Phase 6.6 (Single-Frame Meta→Binary Validation). Feb. 24, 2026
+
+### UI (/a3cp)
+- Implemented single-frame capture pipeline:
+  - Captured preview frame to canvas
+  - Encoded frame to JPEG (Blob → ArrayBuffer)
+  - Stored encoded bytes for transmission
+- Sent schema-valid `capture.frame_meta` with:
+  - `seq = 1`
+  - `timestamp_frame`
+  - `byte_length`
+- Immediately followed with binary JPEG frame (strict meta → binary ordering)
+- Incremented internal `seq`
+- Updated `Frames Sent` UI counter to 1
+
+### WebSocket / Protocol Validation
+- Verified strict meta → binary ordering accepted by `camera_feed_worker`
+- Confirmed correct `byte_length` alignment
+- No 1008 (policy violation) or 1011 (server error) closes
+- Clean 1000 close after single-frame transmission
+- Validated full domain dispatch path (`capture.open` → `capture.frame_meta` → binary)
+
+### Stability
+- Confirmed no record_id duplication
+- Confirmed no protocol violations
+- Confirmed server-side validation alignment with `CameraFeedWorkerInput`
+
 ## [Unreleased] — A3CP MVP Demo Phase 6 (Capture Open Handshake)  Feb. 24, 2026
 
 ### UI (/a3cp)

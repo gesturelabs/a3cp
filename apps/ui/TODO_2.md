@@ -196,21 +196,63 @@ Behavior:
   - [x ] Start preview if not already active
   - [x ] Generate new `capture_id` (hidden)
   - [x ] Open WS `/camera_feed_worker/capture`
-  - [ ] Send `capture.open` (new `record_id`)
-- [ ] Loop frames (bounded interval):
-  - [ ] Capture frame to canvas
-  - [ ] Encode JPEG
-  - [ ] Send `capture.frame_meta` (new `record_id`)
-  - [ ] Send binary JPEG bytes (strict ordering)
-  - [ ] Increment `seq`
-  - [ ] Update Frames Sent
-- [ ] Manual Stop:
-  - [ ] Send `capture.close` (new `record_id`)
-  - [ ] Close WS cleanly
-- [ ] Unexpected WS close:
-  - [ ] Stop loop immediately
-  - [ ] Mark capture stopped
-  - [ ] Preview remains active
+  - [x ] Send `capture.open` (new `record_id`)
+
+
+## Step 6.6 — Single Frame Validation (No Loop Yet)
+
+Goal: Prove strict meta → binary ordering and server domain acceptance.
+
+- [x ] Capture one frame to canvas
+- [ x] Encode to JPEG (Blob → ArrayBuffer)
+- [x ] Send `capture.frame_meta` (new `record_id`)
+  - include `seq = 1`
+  - include `timestamp_frame`
+  - include `byte_length`
+- [x ] Immediately send binary JPEG bytes
+- [x ] Increment `seq`
+- [x ] Update `Frames Sent` to 1
+- [ x] Confirm WS remains open (no 1008 / 1011)
+- [x ] Confirm no protocol violations
+
+---
+
+## Step 6.7 — Bounded Interval Loop
+
+Goal: Deterministic streaming without runaway behavior.
+
+- [ ] Introduce bounded interval (e.g., 100–200 ms)
+- [ ] Repeat meta → binary ordering
+- [ ] Increment `seq` per frame
+- [ ] Update `Frames Sent`
+- [ ] Ensure no memory growth
+- [ ] Ensure no record_id duplication
+- [ ] Ensure forward buffer limits respected
+
+---
+
+## Step 6.8 — Manual Stop
+
+- [ ] Send `capture.close` (new `record_id`)
+- [ ] Close WS cleanly (code 1000)
+- [ ] Stop interval loop
+- [ ] Reset capture state to stopped
+- [ ] Leave preview running
+
+---
+
+## Step 6.9 — Unexpected Close Handling
+
+- [ ] On WS close:
+  - Stop interval loop immediately
+  - Mark capture stopped
+  - Surface error (if non-1000)
+  - Keep preview active
+- [ ] Verify deterministic teardown in:
+  - Session closed mid-capture
+  - Network drop
+  - Forward failure
+  - Limit violation
 
 Verify:
 - [ ] If capturing → Stop Preview triggers capture teardown

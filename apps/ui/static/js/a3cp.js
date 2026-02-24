@@ -198,6 +198,8 @@ function initOnce() {
 document.addEventListener("DOMContentLoaded", initOnce);
 
 
+
+
 class A3CPDemoController {
     constructor(ui) {
         this.ui = ui;
@@ -208,6 +210,7 @@ class A3CPDemoController {
         this.sessionStorageKey = "a3cp_demo_session_id";
         this.sessionStorageUserKey = "a3cp_demo_user_id";
         this.sessionStoragePerformerKey = "a3cp_demo_performer_id";
+
 
 
         // Phase 2 HTTP endpoints (adjust if your session_manager routes differ)
@@ -230,8 +233,12 @@ class A3CPDemoController {
         this._captureSeq = 1;
         this._framesSent = 0;
 
+
         // Phase 6 — WebSocket handle (initially null)
         this._ws = null;
+        this._lastJpegBytes = null;
+
+
 
 
     }
@@ -302,6 +309,42 @@ class A3CPDemoController {
         void this._silentValidateRestoredSession();
 
     }
+    _getOrCreateCaptureCanvas() {
+        if (!this._captureCanvas) {
+            this._captureCanvas = document.createElement("canvas");
+        }
+        return this._captureCanvas;
+    }
+
+    async _encodeCanvasToJpegBytes(canvas, quality = 0.85) {
+        const blob = await new Promise((resolve) => {
+            canvas.toBlob(resolve, "image/jpeg", quality);
+        });
+        if (!blob) throw new Error("JPEG encode failed (toBlob returned null)");
+
+        const buf = await blob.arrayBuffer();
+        return new Uint8Array(buf);
+    }
+
+    _drawPreviewFrameToCanvas() {
+        const video = this.ui.previewVideo;
+        if (!video) throw new Error("preview_video not found");
+        if (video.readyState < 2) throw new Error("preview video not ready");
+
+        const w = Number(video.videoWidth) || 0;
+        const h = Number(video.videoHeight) || 0;
+        if (!w || !h) throw new Error("preview video has no dimensions");
+
+        const canvas = this._getOrCreateCaptureCanvas();
+        canvas.width = w;
+        canvas.height = h;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("canvas 2d context not available");
+
+        ctx.drawImage(video, 0, 0, w, h);
+        return canvas;
+    }
 
     _readIdsFromUI() {
         const userId = this.ui.userId?.value?.trim() ?? "";
@@ -310,6 +353,7 @@ class A3CPDemoController {
 
         return { userId, performerId };
     }
+
 
     async onStartSession() {
         if (this.state.busy) return;
@@ -808,7 +852,7 @@ class A3CPDemoController {
 
             this._ws = new WebSocket(wsUrl);
 
-            this._ws.onopen = () => {
+            this._ws.onopen = async () => {
                 this.ui.debug?.("WS open");
 
                 const recordId = crypto.randomUUID();
@@ -840,6 +884,48 @@ class A3CPDemoController {
                 };
 
                 this._ws.send(JSON.stringify(msg));
+                try {
+                    const canvas = this._drawPreviewFrameToCanvas();
+                    const jpegBytes = await this._encodeCanvasToJpegBytes(canvas);
+                    this.ui.debug?.(`Encoded JPEG bytes=${jpegBytes.byteLength} (no send yet)`);
+                    this._lastJpegBytes = jpegBytes;
+                    // ---- NEW STEP (send meta only) ----
+                    const recordIdMeta = crypto.randomUUID();
+                    this.ui.setRecordId?.(recordIdMeta);
+
+                    const now = new Date().toISOString();
+
+                    const meta = {
+                        schema_version: this.schemaVersion,
+                        record_id: recordIdMeta,
+                        user_id: this.state.session.userId,
+                        session_id: this.state.session.sessionId,
+                        timestamp: now,
+                        modality: "image",
+                        source: "ui",
+                        event: "capture.frame_meta",
+                        capture_id: this._captureId,
+                        seq: 1,
+                        timestamp_frame: now,
+                        byte_length: jpegBytes.byteLength,
+                    };
+
+                    this._ws.send(JSON.stringify(meta));
+                    this.ui.debug?.("Sent capture.frame_meta (no binary yet)");
+
+                    this._ws.send(jpegBytes);
+                    this.ui.debug?.(`Sent binary JPEG bytes=${jpegBytes.byteLength}`);
+
+                    this._captureSeq = 2;          // since we just sent seq=1
+                    this._framesSent = 1;
+                    this.ui.setFramesSent?.(this._framesSent);
+
+
+
+
+                } catch (e) {
+                    this.ui.showError({ message: `JPEG encode failed: ${String(e)}` });
+                }
             };
 
             this._ws.onclose = (ev) => {
