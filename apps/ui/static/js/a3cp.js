@@ -232,6 +232,8 @@ class A3CPDemoController {
         this._captureId = "";
         this._captureSeq = 1;
         this._framesSent = 0;
+        this._captureInterval = null;
+
 
 
         // Phase 6 — WebSocket handle (initially null)
@@ -883,11 +885,12 @@ class A3CPDemoController {
                     encoding: "jpeg",
                 };
 
+
+
                 this._ws.send(JSON.stringify(msg));
                 try {
                     const canvas = this._drawPreviewFrameToCanvas();
                     const jpegBytes = await this._encodeCanvasToJpegBytes(canvas);
-                    this.ui.debug?.(`Encoded JPEG bytes=${jpegBytes.byteLength} (no send yet)`);
                     this._lastJpegBytes = jpegBytes;
                     // ---- NEW STEP (send meta only) ----
                     const recordIdMeta = crypto.randomUUID();
@@ -911,24 +914,95 @@ class A3CPDemoController {
                     };
 
                     this._ws.send(JSON.stringify(meta));
-                    this.ui.debug?.("Sent capture.frame_meta (no binary yet)");
 
                     this._ws.send(jpegBytes);
-                    this.ui.debug?.(`Sent binary JPEG bytes=${jpegBytes.byteLength}`);
 
                     this._captureSeq = 2;          // since we just sent seq=1
                     this._framesSent = 1;
                     this.ui.setFramesSent?.(this._framesSent);
 
-
-
-
                 } catch (e) {
                     this.ui.showError({ message: `JPEG encode failed: ${String(e)}` });
+                }
+
+
+                // interval starts here (only if try succeeded)
+                if (this._captureInterval) {
+                    clearInterval(this._captureInterval);
+                    this._captureInterval = null;
+                }
+
+                this._captureInterval = setInterval(async () => {
+                    if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return;
+                    if (this._tickInFlight) return;
+                    this._tickInFlight = true;
+
+                    try {
+                        const canvas = this._drawPreviewFrameToCanvas();
+                        const jpegBytes = await this._encodeCanvasToJpegBytes(canvas);
+
+                        const recordIdMeta = crypto.randomUUID();
+                        this.ui.setRecordId?.(recordIdMeta);
+
+                        const now = new Date().toISOString();
+                        const seq = this._captureSeq;
+
+                        const meta = {
+                            schema_version: this.schemaVersion,
+                            record_id: recordIdMeta,
+                            user_id: this.state.session.userId,
+                            session_id: this.state.session.sessionId,
+                            timestamp: now,
+                            modality: "image",
+                            source: "ui",
+                            event: "capture.frame_meta",
+                            capture_id: this._captureId,
+                            seq,
+                            timestamp_frame: now,
+                            byte_length: jpegBytes.byteLength,
+                        };
+
+                        this._ws.send(JSON.stringify(meta));
+                        this._ws.send(jpegBytes);
+
+                        this._captureSeq += 1;
+                        this._framesSent += 1;
+                        this.ui.setFramesSent?.(this._framesSent);
+                    } catch (e) {
+                        this.ui.showError({ message: `Capture tick failed: ${String(e)}` });
+                    }
+                    finally {
+                        this._tickInFlight = false;
+                    }
+                }, 150);
+
+            };
+
+            this._ws.onmessage = (ev) => {
+                if (typeof ev.data !== "string") return;
+
+                this.ui.debug?.(`WS msg: ${ev.data}`);
+
+                try {
+                    const msg = JSON.parse(ev.data);
+                    if (msg?.event === "capture.abort") {
+                        this.ui.showError({
+                            message: "Capture aborted by server",
+                            errorCode: msg?.error_code || "",
+                        });
+                    }
+                } catch (_) {
+                    // ignore
                 }
             };
 
             this._ws.onclose = (ev) => {
+                if (this._captureInterval) {
+                    clearInterval(this._captureInterval);
+                    this._captureInterval = null;
+                    this.ui.debug?.("capture interval cleared");
+                }
+
                 this.ui.debug?.(
                     `WS close code=${ev.code} clean=${ev.wasClean} reason=${ev.reason || "(none)"}`
                 );

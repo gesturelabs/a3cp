@@ -10,6 +10,33 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## [Unreleased] — A3CP MVP Phase 6.7 (Bounded Streaming Loop). Feb. 24, 2026
+
+### UI (/a3cp)
+- Replaced single-frame validation with bounded streaming loop (150 ms interval).
+- Implemented strict per-frame pipeline:
+  - draw preview frame → encode JPEG → send `capture.frame_meta` → send binary.
+- Incremented `seq` per frame.
+- Updated `Frames Sent` counter per tick.
+- Added `_tickInFlight` guard to prevent overlapping async ticks.
+- Cleared interval deterministically on WebSocket close.
+- Added WS `onmessage` handler to surface `capture.abort` with `error_code`.
+
+### Protocol Validation
+- Verified strict meta → binary ordering under continuous streaming.
+- Confirmed no record_id duplication.
+- Confirmed no 1008 / 1011 protocol closes.
+- Verified server-enforced duration limit via:
+  - `capture.abort`
+  - `error_code = limit_duration_exceeded`
+  - Clean 1000 close.
+
+### Stability
+- No runaway interval behavior.
+- No memory growth observed.
+- Deterministic teardown in duration-limit path.
+
+
 ## [Unreleased] — A3CP MVP Phase 6.6 (Single-Frame Meta→Binary Validation). Feb. 24, 2026
 
 ### UI (/a3cp)
