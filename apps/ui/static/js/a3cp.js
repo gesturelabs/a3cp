@@ -845,6 +845,10 @@ class A3CPDemoController {
         this.ui.setFramesSent?.(0);
         this.ui.clearError?.();
 
+        // NEW: mark capture running so Stop button activates
+        this.state.capture = { status: "running" };
+        this.ui.setCaptureState?.(this.state.capture);
+
         // Step 6.4: Open WebSocket (no protocol messages yet)
         try {
             const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
@@ -997,6 +1001,12 @@ class A3CPDemoController {
             };
 
             this._ws.onclose = (ev) => {
+                // NEW: mark capture stopped
+                if (this.state.capture.status !== "stopped") {
+                    this.state.capture = { status: "stopped" };
+                    this.ui.setCaptureState?.(this.state.capture);
+                }
+
                 if (this._captureInterval) {
                     clearInterval(this._captureInterval);
                     this._captureInterval = null;
@@ -1020,12 +1030,71 @@ class A3CPDemoController {
         } catch (e) {
             this.ui.showError({ message: `WebSocket open failed: ${String(e)}` });
             this._ws = null;
+
+            // Revert capture state (WS never established)
+            this.state.capture = { status: "stopped" };
+            this.ui.setCaptureState?.(this.state.capture);
+
             return;
         }
 
 
     }
-    async onStopCapture() { }
+    async onStopCapture() {
+        // Idempotent stop: safe to call multiple times
+        // 1) stop interval immediately
+        if (this._captureInterval) {
+            clearInterval(this._captureInterval);
+            this._captureInterval = null;
+            this.ui.debug?.("capture interval cleared (manual stop)");
+        }
+
+        // 2) Mark capture stopped deterministically (UI should unblock Reset immediately)
+        if (this.state.capture.status !== "stopped") {
+            this.state.capture = { status: "stopped" };
+            this.ui.setCaptureState?.(this.state.capture);
+        }
+
+        // 3) If WS is open, send capture.close then close socket cleanly (1000)
+        const ws = this._ws;
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            const recordIdClose = crypto.randomUUID();
+            this.ui.setRecordId?.(recordIdClose);
+
+            const now = new Date().toISOString();
+
+            const closeMsg = {
+                schema_version: this.schemaVersion,
+                record_id: recordIdClose,
+                user_id: this.state.session.userId,
+                session_id: this.state.session.sessionId,
+                timestamp: now,
+                modality: "image",
+                source: "ui",
+                event: "capture.close",
+                capture_id: this._captureId,
+                timestamp_end: now,
+            };
+
+            try {
+                ws.send(JSON.stringify(closeMsg));
+                this.ui.debug?.("Sent capture.close");
+            } catch (_) {
+                // ignore; we still attempt to close
+            }
+
+            try {
+                ws.close(1000);
+            } catch (_) {
+                // ignore
+            }
+        }
+
+        // 4) Clear capture runtime handles (do not touch preview)
+        this._tickInFlight = false;
+        this._ws = null;
+        this._captureId = "";
+    }
 
     async onClearError() { }
 }

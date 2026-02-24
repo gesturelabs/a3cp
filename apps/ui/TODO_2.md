@@ -221,38 +221,38 @@ Goal: Prove strict meta → binary ordering and server domain acceptance.
 
 Goal: Deterministic streaming without runaway behavior.
 
-- [ ] Introduce bounded interval (e.g., 100–200 ms)
-- [ ] Repeat meta → binary ordering
-- [ ] Increment `seq` per frame
-- [ ] Update `Frames Sent`
-- [ ] Ensure no memory growth
-- [ ] Ensure no record_id duplication
-- [ ] Ensure forward buffer limits respected
+- [ x] Introduce bounded interval (e.g., 100–200 ms)
+- [x ] Repeat meta → binary ordering
+- [ x] Increment `seq` per frame
+- [x ] Update `Frames Sent`
+- [x] Ensure no memory growth
+- [ x] Ensure no record_id duplication
+- [ x] Ensure forward buffer limits respected
 
 ---
 
 ## Step 6.8 — Manual Stop
 
-- [ ] Send `capture.close` (new `record_id`)
-- [ ] Close WS cleanly (code 1000)
-- [ ] Stop interval loop
-- [ ] Reset capture state to stopped
-- [ ] Leave preview running
+- [x ] Send `capture.close` (new `record_id`)
+- [ x] Close WS cleanly (code 1000)
+- [x ] Stop interval loop
+- [x ] Reset capture state to stopped
+- [ x] Leave preview running
 
 ---
 
 ## Step 6.9 — Unexpected Close Handling
 
-- [ ] On WS close:
-  - Stop interval loop immediately
-  - Mark capture stopped
-  - Surface error (if non-1000)
-  - Keep preview active
+- [x ] On WS close:
+  - [ x]Stop interval loop immediately
+  - [x ]Mark capture stopped
+  - [ x]Surface error (if non-1000)
+  - [x ] Keep preview active
 - [ ] Verify deterministic teardown in:
-  - Session closed mid-capture
-  - Network drop
-  - Forward failure
-  - Limit violation
+  - [ x] Session closed mid-capture
+  - [ ] Network drop
+  - [ ] Forward failure
+  - [x ]Limit violation
 
 Verify:
 - [ ] If capturing → Stop Preview triggers capture teardown

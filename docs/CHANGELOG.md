@@ -9,6 +9,26 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [Unreleased] – A3CP MVP: Capture Teardown Hardening (Step 6.8 + 6.9 Partial). Feb. 24, 2026
+
+### /a3cp – Capture Lifecycle
+
+#### Step 6.8 — Manual Stop (Complete)
+- Emit `capture.close` with new `record_id`.
+- Client-initiated WebSocket close uses code `1000`.
+- Interval loop cleared immediately on manual stop.
+- Capture state deterministically reset to `stopped`.
+- Preview stream remains active after capture stop.
+
+#### Step 6.9 — Unexpected Close Handling (Partial)
+- On any WebSocket `onclose`:
+  - Interval loop cleared immediately.
+  - Capture state marked `stopped` (idempotent).
+  - Non-1000 close codes surface user-visible error.
+  - Preview remains active.
+- Verified deterministic teardown for:
+  - Session closed mid-capture.
+  - Limit violation (`limit_duration_exceeded`).
 
 ## [Unreleased] — A3CP MVP Phase 6.7 (Bounded Streaming Loop). Feb. 24, 2026
 
