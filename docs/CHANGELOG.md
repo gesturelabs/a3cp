@@ -9,7 +9,25 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [Unreleased] — A3CP MVP Demo Phase 6 (Capture Open Handshake)  Feb. 24, 2026
 
+### UI (/a3cp)
+- Enforced capture gating: Start Capture requires active session.
+- Auto-start preview when initiating capture (if not already running).
+- Generated per-capture `capture_id` on Start Capture.
+- Disabled Capture controls when session is idle.
+- Prevented Reset from leaving preview stream active (fixed busy ordering bug).
+
+### WebSocket Integration
+- Corrected WS path to `/api/camera_feed_worker/capture`.
+- Opened WS only on Start Capture (not on page load).
+- Implemented schema-valid `capture.open` message.
+- Populated `record_id` per outbound control message.
+- Verified successful WS handshake and open event without 1008/1006 errors.
+
+### Stability
+- Eliminated premature 1008 closes caused by invalid `capture.open` payload.
+- Confirmed server-side validation alignment with `CameraFeedWorkerInput`.
 
 ## [Unreleased] – A3CP MVP Phase 3: Preview-Only Media Lifecycle. Feb. 23, 2026
 

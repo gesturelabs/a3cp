@@ -192,10 +192,10 @@ Goal: Full streaming lifecycle (open → stream → close) with deterministic te
 
 Behavior:
 - [ ] Start Capture:
-  - [ ] Require active session
-  - [ ] Start preview if not already active
-  - [ ] Generate new `capture_id` (hidden)
-  - [ ] Open WS `/camera_feed_worker/capture`
+  - [x] Require active session
+  - [x ] Start preview if not already active
+  - [x ] Generate new `capture_id` (hidden)
+  - [x ] Open WS `/camera_feed_worker/capture`
   - [ ] Send `capture.open` (new `record_id`)
 - [ ] Loop frames (bounded interval):
   - [ ] Capture frame to canvas

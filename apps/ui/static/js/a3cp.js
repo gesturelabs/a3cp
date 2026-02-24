@@ -98,6 +98,10 @@ class A3CPDemoUI {
         if (this.userId) this.userId.readOnly = isActive;
         if (this.performerId) this.performerId.readOnly = isActive;
 
+        // Capture is only actionable when session is active
+        if (this.btnStartCapture) this.btnStartCapture.disabled = !isActive;
+        if (this.btnStopCapture) this.btnStopCapture.disabled = true; // until capture exists
+
         // Buttons: conservative defaults (controller will refine later)
         if (this.btnStartSession) this.btnStartSession.disabled = isActive;
         if (this.btnEndSession) this.btnEndSession.disabled = !isActive;
@@ -113,13 +117,27 @@ class A3CPDemoUI {
 
     // UI-only: capture state reflection.
     // state: { status: "stopped"|"running" }
+    // UI-only: capture state reflection.
+    // state: { status: "stopped"|"running" }
     setCaptureState(state) {
         const running = state.status === "running";
-        if (this.btnStartCapture) this.btnStartCapture.disabled = running;
-        if (this.btnStopCapture) this.btnStopCapture.disabled = !running;
 
-        // Reset must be disabled while capturing (locked invariant)
-        if (this.btnResetDemo) this.btnResetDemo.disabled = running;
+        if (running) {
+            // While running, force Start disabled and Stop enabled
+            if (this.btnStartCapture) this.btnStartCapture.disabled = true;
+            if (this.btnStopCapture) this.btnStopCapture.disabled = false;
+
+            // Reset must be disabled while capturing (locked invariant)
+            if (this.btnResetDemo) this.btnResetDemo.disabled = true;
+            return;
+        }
+
+        // Stopped: do NOT enable Start here (session-state decides).
+        // Always disable Stop while stopped.
+        if (this.btnStopCapture) this.btnStopCapture.disabled = true;
+
+        // Reset allowed when not capturing (session-state/busy may still disable elsewhere)
+        if (this.btnResetDemo) this.btnResetDemo.disabled = false;
     }
 
     setFramesSent(n) {
@@ -186,7 +204,7 @@ class A3CPDemoController {
 
         // Locked invariants
         this.schemaVersion = "1.0.1";
-        this.wsPath = "/camera_feed_worker/capture";
+        this.wsPath = "/api/camera_feed_worker/capture";
         this.sessionStorageKey = "a3cp_demo_session_id";
         this.sessionStorageUserKey = "a3cp_demo_user_id";
         this.sessionStoragePerformerKey = "a3cp_demo_performer_id";
@@ -207,7 +225,18 @@ class A3CPDemoController {
             capture: { status: "stopped" },
             busy: false,
         };
+        // Phase 6 — Capture runtime fields (not part of state object)
+        this._captureId = "";
+        this._captureSeq = 1;
+        this._framesSent = 0;
+
+        // Phase 6 — WebSocket handle (initially null)
+        this._ws = null;
+
+
     }
+
+
 
     init() {
         this.ui.bind(this);
@@ -517,6 +546,16 @@ class A3CPDemoController {
             return;
         }
 
+        // 1) Best-effort stop preview (must run even when reset is about to go busy)
+        try {
+            if (this.state.preview.status === "running") {
+                await this.onStopPreview();
+            }
+        } catch (_) {
+            // ignore on reset
+        }
+
+        // Now enter busy mode for the rest of reset
         this.state.busy = true;
         this.ui.setBusy(true);
 
@@ -725,7 +764,107 @@ class A3CPDemoController {
         }
     }
 
-    async onStartCapture() { }
+    async onStartCapture() {
+        if (this.state.busy) return;
+
+        // Step 6.1: Require active session
+        const sessionId = (this.state.session.sessionId || "").trim();
+        const userId = (this.state.session.userId || "").trim();
+
+        if (!sessionId || !userId) {
+            this.ui.showError({
+                message: "Start Capture requires an active session (user_id + session_id)."
+            });
+            return;
+        }
+
+        // Step 6.2: Ensure preview is running
+        if (this.state.preview.status !== "running") {
+            await this.onStartPreview();
+
+            if (this.state.preview.status !== "running") {
+                this.ui.showError({
+                    message: "Start Capture blocked: preview is not running."
+                });
+                return;
+            }
+        }
+
+        // Step 6.3: Generate capture_id + initialize counters (no WS yet)
+        this._captureId = crypto.randomUUID();
+        this._captureSeq = 1;
+        this._framesSent = 0;
+
+        this.ui.setCaptureId?.(this._captureId);
+        this.ui.setFramesSent?.(0);
+        this.ui.clearError?.();
+
+        // Step 6.4: Open WebSocket (no protocol messages yet)
+        try {
+            const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+            const wsUrl = `${wsScheme}://${window.location.host}${this.wsPath}`;
+
+            this.ui.debug?.(`WS connecting: ${wsUrl}`);
+
+            this._ws = new WebSocket(wsUrl);
+
+            this._ws.onopen = () => {
+                this.ui.debug?.("WS open");
+
+                const recordId = crypto.randomUUID();
+                this.ui.setRecordId?.(recordId);
+
+                // Derive width/height from the actual preview stream if available
+                const width = Number(this.ui.previewVideo?.videoWidth) || 640;
+                const height = Number(this.ui.previewVideo?.videoHeight) || 480;
+
+                const now = new Date().toISOString();
+
+                const msg = {
+                    schema_version: this.schemaVersion,
+                    record_id: recordId,
+                    user_id: this.state.session.userId,
+                    session_id: this.state.session.sessionId,
+                    timestamp: now,            // BaseSchema.timestamp
+                    modality: "image",
+                    source: "ui",
+                    event: "capture.open",
+                    capture_id: this._captureId,
+
+                    // Required open-only fields
+                    timestamp_start: now,
+                    fps_target: 15,
+                    width,
+                    height,
+                    encoding: "jpeg",
+                };
+
+                this._ws.send(JSON.stringify(msg));
+            };
+
+            this._ws.onclose = (ev) => {
+                this.ui.debug?.(
+                    `WS close code=${ev.code} clean=${ev.wasClean} reason=${ev.reason || "(none)"}`
+                );
+                if (ev.code !== 1000) {
+                    this.ui.showError({
+                        message: `WebSocket closed (code=${ev.code}). See Debug for details.`,
+                    });
+                }
+            };
+
+            this._ws.onerror = () => {
+                // onerror is non-diagnostic; onclose usually contains the actionable code
+                this.ui.debug?.("WS error event (non-diagnostic).");
+            };
+        } catch (e) {
+            this.ui.showError({ message: `WebSocket open failed: ${String(e)}` });
+            this._ws = null;
+            return;
+        }
+
+
+    }
     async onStopCapture() { }
 
     async onClearError() { }
