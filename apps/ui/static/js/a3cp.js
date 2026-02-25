@@ -811,6 +811,7 @@ class A3CPDemoController {
     }
 
     async onStartCapture() {
+        this.ui.debug?.("onStartCapture() invoked");
         if (this.state.busy) return;
 
         // Step 6.1: Require active session
