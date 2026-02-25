@@ -206,7 +206,7 @@ class A3CPDemoController {
 
         // Locked invariants
         this.schemaVersion = "1.0.1";
-        this.wsPath = "/api/camera_feed_worker/capture";
+        this.wsPath = "/camera_feed_worker/capture";
         this.sessionStorageKey = "a3cp_demo_session_id";
         this.sessionStorageUserKey = "a3cp_demo_user_id";
         this.sessionStoragePerformerKey = "a3cp_demo_performer_id";
