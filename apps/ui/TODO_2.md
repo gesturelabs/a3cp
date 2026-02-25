@@ -250,7 +250,7 @@ Goal: Deterministic streaming without runaway behavior.
   - [x ] Keep preview active
 - [ ] Verify deterministic teardown in:
   - [ x] Session closed mid-capture
-  - [ ] Network drop
+  - [ x] Network drop
   - [ ] Forward failure
   - [x ]Limit violation
 
