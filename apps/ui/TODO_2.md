@@ -36,7 +36,7 @@ All DOM handled by A3CPDemoUI.
 - Each outbound schema message must include an ISO 8601 UTC `timestamp` generated client-side.
 - Preview is independent of capture (users can preview without capturing).
 -  sessions.start is idempotent: if an active session already exists for user_id, Start returns that session_id (200) and never returns 409 for “already active”
--  sessions.end is idempotent: ending an already-ended session_id returns success (200) and must not recreate or re-activate any session
+-  sessions.end is idempotent: ending an already-closed session_id returns success (200) and must not recreate or re-activate any session
 -  sessions.end must clear the server-side “active session per user_id” pointer on success (no orphan active session after End)
 -  Start must treat server-returned session_id as canonical and overwrite any client-stored session_id
 - If sessions.start returns performer_id, client must treat it as canonical for the active session and overwrite client performer_id
@@ -125,7 +125,7 @@ Behavior:
 
 - [x ] Make sessions.start idempotent (remove 409 for already active)
 - [ x] Ensure sessions.end is idempotent and clears active-session pointer
-- [ x] Ensure sessions.validate returns only "active" | "ended" | "invalid" with 200
+- [ x] Ensure sessions.validate returns only "active" | "closed" | "invalid" with 200
 - [ x] Manually test: Fresh Start → End → Start
 - [ x] Manually test: Start → refresh → validate
 - [x ] Manually test: Start → simulate lost sessionStorage → Start
@@ -143,10 +143,10 @@ Behavior:
 - [x ] sessions.start must never return 409 for “already active”
 
 - [ x] sessions.end must clear the server-side active session mapping for the user
-- [x ] sessions.end must be idempotent (ending an already-ended session returns 200)
+- [x ] sessions.end must be idempotent (ending an already-closed session returns 200)
 
 - [x ] sessions.validate must return status "active" for an active session
-- [ ] sessions.validate must return status "ended" for an ended session
+- [ ] sessions.validate must return status "closed" for closed session
 - [x ] sessions.validate must return status "invalid" for an unknown session_id
 
 - [x ] Repeated Start after lost client session_id must reattach to the existing active session (no 409 loop)
@@ -158,7 +158,7 @@ Behavior:
 - [x ] Standardize validate_session to return "closed"
 - [x ] Update router comment to reflect "active" | "closed" | "invalid"
 - [x ] Re-run pytest after status normalization
-- [x ] Manually verify: ended session → refresh → validate → transitions to idle
+- [x ] Manually verify: closed session → refresh → validate → transitions to idle
 - [x ] Explicitly test: sessions.end with wrong session_id does not clear another active session
 - [x ] Confirm sessions.end wrong-session behavior matches invariant and document it
 
@@ -253,73 +253,90 @@ Goal: Deterministic streaming without runaway behavior.
   - [ x] Network drop
   - [x ]Limit violation
 
-  - [ ] Emit `capture.abort("forward_failed")` in binary forward-failure path
-- [ ] Close cleanly (`1000`) instead of `1011` on forward failure
-- [ ] Ensure `repo.stop_forwarding()` is called before abort
-- [ ] Remove any remaining direct `1011` close for `ForwardFailed`
-- [ ] Add test: forward failure during binary phase emits abort
+  - [ x] Emit `capture.abort("forward_failed")` in binary forward-failure path
+- [x ] Close cleanly (`1000`) instead of `1011` on forward failure
+- [ x] Ensure `repo.stop_forwarding()` is called before abort
 
-Verify:
+
+# REMAINING TODO — A3CP MVP (/a3cp)
+
+## PHASE 2 — Session Lifecycle (Edge Case)
+
+- [ ] `sessions.validate` must return status `"closed"` for an closed session
+
+---
+
+## PHASE 6.9 — Unify `forward_failed` Semantics (Backend)
+
+### Binary-Phase Handler
+
+- [ ] In `_handle_binary_frame_when_expected()`, remove direct `close(1011)` on `ForwardFailed`
+- [ ] On `ForwardFailed`:
+  - [ ] Call `repo.stop_forwarding(connection_key)` first
+  - [ ] If `ActiveState` + `last_msg_for_emit`:
+    - [ ] Emit `capture.abort(error_code="forward_failed")`
+    - [ ] Close cleanly (`1000`)
+  - [ ] Fallback to `1011` only if abort cannot be constructed
+
+### Inconsistency Sweep
+
+- [ ] Search for any remaining `except ForwardFailed: close(1011)`
+- [ ] Ensure all handled `ForwardFailed` paths emit abort + close `1000`
+
+### Verification
+
+- [ ] Run loop-level forward failure test
+- [ ] Run binary-phase forward failure test
+- [ ] Confirm identical external behavior:
+  - `capture.abort("forward_failed")`
+  - Clean close (`1000`)
+
+---
+
+## Additional Verification (Not Yet Confirmed)
+
 - [ ] If capturing → Stop Preview triggers capture teardown
-- [ ] `capture.open` accepted
-- [ ] Strict meta → binary ordering preserved from first frame
-- [ ] No protocol violations
-- [ ] No buffer overflow under normal fps
-- [ ] No memory growth observed
-- [ ] No duplicate `record_id`
-- [ ] Clean teardown in all stop paths
-
-
+- [ ] Confirm strict meta → binary ordering preserved from first frame (full loop)
+- [ ] Confirm no buffer overflow under normal fps (runtime check)
+- [ ] Confirm no memory growth observed (runtime check)
+- [ ] Confirm clean teardown in all stop paths (manual re-check)
 
 ---
 
 # PHASE 7 — ABORT & EDGE CASES
 
-Goal: Deterministic teardown.
+## Scenarios
 
-Scenarios:
 - [ ] Stop Preview during capture
-- [ ] Session closed mid-capture
-- [ ] Network disconnect
-- [ ] Forward failure (if inducible)
+- [ ] Forward failure (induced test from UI)
 
-Verify:
+## Verify
+
 - [ ] Capture stops immediately
-- [ ] WS closed
+- [ ] WS closed deterministically
 - [ ] Preview remains active
 - [ ] No ghost state
-- Verify UI surfaces these abort/failure cases clearly:
-  - protocol violation (`capture.abort` with error_code)
-  - limit violation (`capture.abort` with error_code)
-  - session invalid/closed (`capture.abort` with error_code or WS close)
+- [ ] UI clearly surfaces:
+  - protocol violation (`capture.abort`)
+  - limit violation (`capture.abort`)
+  - session invalid/closed (`capture.abort` with error_code when constructible; otherwise WS close)
 
 ---
-## GLOBAL UI STRUCTURE — ADD ERROR BLOCK
 
-(Add after all main sections, at bottom of page)
+# GLOBAL UI — ERROR PANEL
 
-### Error Panel (Collapsed by Default)
 - [ ] Add bottom-of-page error block
-- [ ] Shows only most recent error
-- [ ] Displays:
+- [ ] Show only most recent error
+- [ ] Display:
   - Short error message
   - HTTP status (if applicable)
   - `error_code` (if from `capture.abort`)
 - [ ] Add `Clear Error` button
-- [ ] Panel hidden when no error
+- [ ] Hide panel when no error
 
 ### Verify
+
 - [ ] Errors from session start/end display correctly
-- [ ] `capture.abort` error_code visible
+- [ ] `capture.abort` `error_code` visible
 - [ ] Clear Error hides panel
 - [ ] No error stacking
-
-# camera_feed_worker VERIFIED WHEN
-
-- Full lifecycle works from /a3cp
-- No protocol violations
-- No record_id duplication
-- No state leakage
-- Deterministic teardown in all paths
-- Forward limits respected
-- Manual restart behaves predictably
