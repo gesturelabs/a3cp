@@ -251,8 +251,13 @@ Goal: Deterministic streaming without runaway behavior.
 - [ ] Verify deterministic teardown in:
   - [ x] Session closed mid-capture
   - [ x] Network drop
-  - [ ] Forward failure
   - [x ]Limit violation
+
+  - [ ] Emit `capture.abort("forward_failed")` in binary forward-failure path
+- [ ] Close cleanly (`1000`) instead of `1011` on forward failure
+- [ ] Ensure `repo.stop_forwarding()` is called before abort
+- [ ] Remove any remaining direct `1011` close for `ForwardFailed`
+- [ ] Add test: forward failure during binary phase emits abort
 
 Verify:
 - [ ] If capturing → Stop Preview triggers capture teardown
