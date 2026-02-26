@@ -417,6 +417,40 @@ def _build_forward_item_or_none(
     )
 
 
+async def _handle_forward_failed_in_binary_phase(
+    websocket: WebSocket,
+    *,
+    connection_key: str,
+    last_msg_for_emit: CameraFeedWorkerInput | None,
+) -> bool:
+    """
+    Returns True if no ForwardFailed occurred.
+    Returns False if ForwardFailed occurred and the websocket was closed.
+    """
+    try:
+        repo.raise_if_forward_failed(connection_key)
+        return True
+    except ForwardFailed:
+        repo.stop_forwarding(connection_key)
+
+        state = repo.get_state(connection_key)
+        if isinstance(state, ActiveState) and last_msg_for_emit is not None:
+            now_ingest = datetime.now(timezone.utc)
+            await _emit_abort_and_close(
+                websocket,
+                connection_key=connection_key,
+                now_ingest=now_ingest,
+                current_state=state,
+                capture_id=str(state.capture_id),
+                error_code="forward_failed",
+                last_msg_for_emit=last_msg_for_emit,
+            )
+            return False
+
+        await websocket.close(code=1011)
+        return False
+
+
 # NEW (replace the whole function body with this version)
 async def _handle_binary_frame_when_expected(
     websocket: WebSocket,
@@ -439,10 +473,12 @@ async def _handle_binary_frame_when_expected(
         await websocket.close(code=1008)
         return False
 
-    try:
-        repo.raise_if_forward_failed(connection_key)
-    except ForwardFailed:
-        await websocket.close(code=1011)
+    ok = await _handle_forward_failed_in_binary_phase(
+        websocket,
+        connection_key=connection_key,
+        last_msg_for_emit=last_msg_for_emit,
+    )
+    if not ok:
         return False
 
     now_ingest = datetime.now(timezone.utc)

@@ -262,7 +262,7 @@ Goal: Deterministic streaming without runaway behavior.
 
 ## PHASE 2 — Session Lifecycle (Edge Case)
 
-- [ ] `sessions.validate` must return status `"closed"` for an closed session
+- `sessions.validate` must return status `"closed"` for closed session
 
 ---
 
@@ -270,24 +270,24 @@ Goal: Deterministic streaming without runaway behavior.
 
 ### Binary-Phase Handler
 
-- [ ] In `_handle_binary_frame_when_expected()`, remove direct `close(1011)` on `ForwardFailed`
-- [ ] On `ForwardFailed`:
-  - [ ] Call `repo.stop_forwarding(connection_key)` first
-  - [ ] If `ActiveState` + `last_msg_for_emit`:
-    - [ ] Emit `capture.abort(error_code="forward_failed")`
-    - [ ] Close cleanly (`1000`)
-  - [ ] Fallback to `1011` only if abort cannot be constructed
+- [x ] In `_handle_binary_frame_when_expected()`, remove direct `close(1011)` on `ForwardFailed`
+- [x ] On `ForwardFailed`:
+  - [x ] Call `repo.stop_forwarding(connection_key)` first
+  - [x ] If `ActiveState` + `last_msg_for_emit`:
+    - [x ] Emit `capture.abort(error_code="forward_failed")`
+    - [x ] Close cleanly (`1000`)
+  - [ x] Fallback to `1011` only if abort cannot be constructed
 
 ### Inconsistency Sweep
 
-- [ ] Search for any remaining `except ForwardFailed: close(1011)`
-- [ ] Ensure all handled `ForwardFailed` paths emit abort + close `1000`
+- [x ] Search for any remaining `except ForwardFailed: close(1011)`
+- [x] Ensure all handled `ForwardFailed` paths emit abort + close `1000`
 
 ### Verification
 
-- [ ] Run loop-level forward failure test
-- [ ] Run binary-phase forward failure test
-- [ ] Confirm identical external behavior:
+- [x ] Run loop-level forward failure test
+- [x ] Run binary-phase forward failure test
+- [x ] Confirm identical external behavior:
   - `capture.abort("forward_failed")`
   - Clean close (`1000`)
 

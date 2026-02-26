@@ -154,3 +154,42 @@ def test_ws_emits_abort_on_forward_failed_during_binary_phase(
 
         with pytest.raises(WebSocketDisconnect):
             ws.receive_text()
+
+
+def test_ws_forward_failed_fallback_closes_1011_when_abort_not_constructible(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    If forward failure occurs before any valid control message is processed
+    (so last_msg_for_emit is None), the server cannot construct capture.abort
+    and must fall back to closing with 1011.
+    """
+    # Session validation irrelevant here, but keep deterministic.
+    monkeypatch.setattr(
+        cfw_router_mod, "validate_session", lambda user_id, session_id: "active"
+    )
+
+    # Raise immediately on first loop iteration (before any message parsed),
+    # ensuring last_msg_for_emit is still None.
+    def _raise_if_forward_failed(_: str) -> None:
+        raise ForwardFailed("forced forward failure before any control message")
+
+    monkeypatch.setattr(
+        cfw_router_mod.repo, "raise_if_forward_failed", _raise_if_forward_failed
+    )
+
+    from fastapi.testclient import TestClient
+
+    from api.main import app
+
+    client = TestClient(app)
+
+    with client.websocket_connect("/camera_feed_worker/capture") as ws:
+        # Server should close quickly; any receive should disconnect.
+        with pytest.raises(WebSocketDisconnect) as exc:
+            ws.receive_text()
+
+        # Prefer asserting close code if available in this Starlette version.
+        code = getattr(exc.value, "code", None)
+        if code is not None:
+            assert code == 1011

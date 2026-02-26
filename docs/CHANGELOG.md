@@ -9,7 +9,26 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
-## [Unreleased] – A3CP MVP: Capture Teardown Hardening (Step 6.8 + 6.9 Partial). Feb. 24, 2026
+
+##  Forward Failure Semantics Unification (Phase 6.9) Feb. 26, 2026
+
+### Backend — camera_feed_worker
+
+- Unified `ForwardFailed` handling across loop-level and binary-phase paths.
+- `_handle_binary_frame_when_expected()` now:
+  - Calls `repo.stop_forwarding()` before any close.
+  - Emits `capture.abort(error_code="forward_failed")` when abort is constructible.
+  - Closes cleanly (`1000`) after abort.
+  - Falls back to `1011` only when abort cannot be constructed.
+- Verified loop-level forward failure already conformed to unified semantics.
+
+### Tests
+
+- Confirmed loop-level forward failure test passes.
+- Confirmed binary-phase forward failure test passes.
+- Added fallback test ensuring `1011` close when abort cannot be constructed.
+
+## [Unreleased] – A3CP MVP: Capture Teardown Hardening (Step 6.8 + 6.9 Partial). Feb. 25, 2026
 
 ### /a3cp – Capture Lifecycle
 
@@ -30,7 +49,7 @@ Maintainer: Dmitri Katz
   - Session closed mid-capture.
   - Limit violation (`limit_duration_exceeded`).
 
-## [Unreleased] — A3CP MVP Phase 6.7 (Bounded Streaming Loop). Feb. 24, 2026
+## [Unreleased] — A3CP MVP Phase 6.7 (Bounded Streaming Loop). Feb. 25, 2026
 
 ### UI (/a3cp)
 - Replaced single-frame validation with bounded streaming loop (150 ms interval).
