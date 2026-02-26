@@ -9,6 +9,39 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [Unreleased] – Phase 7 MVP Finalization (A3CP Demo) Feb. 26, 2026
+
+### UI – Capture Teardown Verification
+- Verified deterministic teardown when **Stop Preview** is clicked during active capture.
+- Confirmed:
+  - Capture interval clears immediately.
+  - `capture.close` is sent before socket shutdown.
+  - WebSocket closes cleanly with code `1000`.
+  - Capture state transitions to `"stopped"` without UI deadlock.
+  - Capture can be restarted without page reload.
+
+### UI – Error Surface Improvements
+- Confirmed single-message error panel behavior.
+- Ensured:
+  - `error_code` from `capture.abort` is displayed.
+  - Non-1000 WebSocket close codes surface as user-visible errors.
+  - Error state clears automatically on new capture start.
+- Implemented `onClearError()` to enable manual clearing via UI button.
+
+### Routing Stabilization
+- Standardized WebSocket path to `/api/camera_feed_worker/capture`.
+- Confirmed production Nginx routing supports `/api/` prefix.
+- Eliminated environment-specific mount mismatch between local and production.
+
+### Internal Consistency
+- Updated `apps/ui/TODO_2.md` to reflect completion of:
+  - Stop Preview during capture validation.
+  - Minimal error surface requirements.
+- Refined `apps/ui/static/js/a3cp.js`:
+  - Deterministic interval clearing.
+  - Clean WebSocket close handling.
+  - Error panel integration.
+
 
 ##  Forward Failure Semantics Unification (Phase 6.9) Feb. 26, 2026
 

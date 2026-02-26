@@ -299,44 +299,48 @@ Goal: Deterministic streaming without runaway behavior.
 - [x ] Confirm strict meta → binary ordering preserved from first frame (full loop)
 - [x ] Confirm no buffer overflow under normal fps (runtime check)
 - [x ] Confirm no memory growth observed (runtime check)
-- [ ] Confirm clean teardown in all stop paths (manual re-check)
+- [x ] Confirm clean teardown in all stop paths (manual re-check)
 
 ---
 
-# PHASE 7 — ABORT & EDGE CASES
+# PHASE 7 — FINAL EDGE VERIFICATION (MVP)
 
-## Scenarios
+# PHASE 7 — MVP FINALIZATION (FIRST SLICE)
 
-- [ ] Stop Preview during capture
-- [ ] Forward failure (induced test from UI)
-
-## Verify
-
-- [ ] Capture stops immediately
-- [ ] WS closed deterministically
-- [ ] Preview remains active
-- [ ] No ghost state
-- [ ] UI clearly surfaces:
-  - protocol violation (`capture.abort`)
-  - limit violation (`capture.abort`)
-  - session invalid/closed (`capture.abort` with error_code when constructible; otherwise WS close)
+Goal: Ensure demo stability and visible failure handling.
+No new architecture. No new protocol features.
 
 ---
 
-# GLOBAL UI — ERROR PANEL
+## 1) Stop Preview During Capture (Manual Verification)
 
-- [ ] Add bottom-of-page error block
-- [ ] Show only most recent error
-- [ ] Display:
-  - Short error message
-  - HTTP status (if applicable)
+- [ x] Start capture
+- [x ] Click Stop Preview
+- [x ] Confirm:
+  - Capture loop stops immediately
+  - WebSocket closes cleanly (1000)
+  - No further frames are sent
+  - UI state is not stuck in "capturing"
+  - Capture can be started again cleanly
+
+---
+
+## 2) Minimal Error Surface (UI)
+
+Goal: User must see when capture fails.
+
+- [x ] Add simple “Last error” display (single message only)
+- [x ] Show:
   - `error_code` (if from `capture.abort`)
-- [ ] Add `Clear Error` button
-- [ ] Hide panel when no error
+  - WebSocket close code (if non-1000)
+- [x ] Clear error automatically on new capture start
+- [x ] (Optional) Add “Clear Error” button if trivial
 
-### Verify
+---
 
-- [ ] Errors from session start/end display correctly
-- [ ] `capture.abort` `error_code` visible
-- [ ] Clear Error hides panel
-- [ ] No error stacking
+## Deferred (Post-MVP Hardening)
+
+- Protocol violation sanity testing
+- Exhaustive edge-case matrix
+- Error history or stacking
+- Additional UI refinements

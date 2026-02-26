@@ -1097,5 +1097,7 @@ class A3CPDemoController {
         this._captureId = "";
     }
 
-    async onClearError() { }
+    async onClearError() {
+        this.ui.clearError?.();
+    }
 }
