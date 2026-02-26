@@ -295,10 +295,10 @@ Goal: Deterministic streaming without runaway behavior.
 
 ## Additional Verification (Not Yet Confirmed)
 
-- [ ] If capturing → Stop Preview triggers capture teardown
-- [ ] Confirm strict meta → binary ordering preserved from first frame (full loop)
-- [ ] Confirm no buffer overflow under normal fps (runtime check)
-- [ ] Confirm no memory growth observed (runtime check)
+- [ x] If capturing → Stop Preview triggers capture teardown
+- [x ] Confirm strict meta → binary ordering preserved from first frame (full loop)
+- [x ] Confirm no buffer overflow under normal fps (runtime check)
+- [x ] Confirm no memory growth observed (runtime check)
 - [ ] Confirm clean teardown in all stop paths (manual re-check)
 
 ---
