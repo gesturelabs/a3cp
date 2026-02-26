@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Any, MutableMapping
@@ -29,6 +30,8 @@ from apps.camera_feed_worker.service import (
 )
 from apps.session_manager.service import validate_session
 from schemas import CameraFeedWorkerInput, CameraFeedWorkerOutput
+
+logger = logging.getLogger(__name__)
 
 RECEIVE_TIMEOUT_S = (
     1.0  # ticks run even if client is silent; ensures session recheck ≤ 5s
@@ -736,8 +739,10 @@ async def _ws_control_plane_loop(websocket: WebSocket) -> None:
                 await websocket.close(code=1011)
                 return
 
-    except WebSocketDisconnect:
-        pass
+    except WebSocketDisconnect as e:
+        logger.info(
+            "camera_feed_worker.ws disconnect code=%s", getattr(e, "code", None)
+        )
     finally:
         repo.stop_forwarding(connection_key)
         repo.clear(connection_key)

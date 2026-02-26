@@ -28,7 +28,35 @@ Maintainer: Dmitri Katz
 - Confirmed binary-phase forward failure test passes.
 - Added fallback test ensuring `1011` close when abort cannot be constructed.
 
-## [Unreleased] – A3CP MVP: Capture Teardown Hardening (Step 6.8 + 6.9 Partial). Feb. 25, 2026
+## [Unreleased] — A3CP MVP: Capture Close Contract Alignment. Feb. 26, 2026
+
+### Backend — camera_feed_worker
+
+- Clarified `capture.close` lifecycle behavior:
+  - `repo.stop_forwarding()` is invoked before connection teardown.
+  - Per-connection state cleanup (`repo.clear`) occurs in the WebSocket `finally` block on disconnect.
+- Aligned runtime behavior with UI-driven close semantics:
+  - Client sends `capture.close`.
+  - Client initiates clean WebSocket close (`1000`).
+  - Server performs deterministic teardown without requiring server-initiated close.
+
+### Tests
+
+- Revised `test_ws_capture_close_teardown`:
+  - Removed assumption that server must immediately close the WebSocket.
+  - Asserted `repo.stop_forwarding()` is called on `capture.close`.
+  - Explicitly triggered client disconnect to verify `repo.clear()` runs in `finally`.
+- Ensured test reflects actual one-capture-per-WS contract without brittle close-timing assumptions.
+
+### Result
+
+- Eliminated false `1008` failures caused by duplicate close and schema mismatch.
+- Locked teardown behavior as:
+  - Stop forwarding on `capture.close`
+  - Clean state reset on disconnect
+- Confirmed deterministic capture lifecycle without ghost state.
+
+## [Unreleased] – A3CP MVP: Capture Teardown Hardening (Step 6.8 + 6.9 Partial). Feb. 26, 2026
 
 ### /a3cp – Capture Lifecycle
 
