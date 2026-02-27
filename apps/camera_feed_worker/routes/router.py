@@ -19,15 +19,13 @@ from apps.camera_feed_worker.repository import (
 )
 from apps.camera_feed_worker.service import (
     AbortCapture,
-    ActiveState,
     ForwardFrame,
-    IdleState,
     ProtocolViolation,
     RequestSessionRecheck,
     RequestSessionValidation,
-    State,
     dispatch,
 )
+from apps.camera_feed_worker.state import ActiveState, IdleState, State
 from apps.session_manager.service import validate_session
 from schemas import CameraFeedWorkerInput, CameraFeedWorkerOutput
 
@@ -109,6 +107,7 @@ async def _tick_and_enforce_session(
     pre_state = repo.get_state(connection_key)
 
     new_state, actions = dispatch(
+        connection_key=connection_key,
         current_state=pre_state,
         event_kind="tick",
         event=None,
@@ -281,6 +280,7 @@ async def _apply_domain_and_handle_actions(
 
     try:
         new_state, actions = dispatch(
+            connection_key=connection_key,
             current_state=current_state,
             event_kind=msg.event,
             event=msg,
@@ -488,6 +488,7 @@ async def _handle_binary_frame_when_expected(
     current_state = repo.get_state(connection_key)
 
     new_state, actions = dispatch(
+        connection_key=connection_key,
         current_state=current_state,
         event_kind="capture.frame_bytes",
         event=len(data_bytes),

@@ -8,6 +8,15 @@ from pydantic import Field, field_validator
 from schemas.base.base import BaseSchema
 
 
+class Annotation(BaseSchema):
+    """Capture-time human annotation (fallible, training-oriented)."""
+
+    intent: Annotated[
+        str,
+        Field(description="Human-provided intent label at capture.open"),
+    ]
+
+
 class A3CPMessage(BaseSchema):
     """
     Canonical runtime message schema for A3CP internal communication + session JSONL logging.
@@ -28,6 +37,10 @@ class A3CPMessage(BaseSchema):
             Field(description="Bounded capture/window correlator (one per capture)"),
         ]
     ] = None
+
+    # Capture-time human annotation (dataset label; only valid on capture.open)
+    annotation: Optional[Annotation] = None
+
     classifier_output: Optional[Dict[str, Annotated[float, Field(ge=0.0, le=1.0)]]] = (
         None
     )
@@ -43,6 +56,18 @@ class A3CPMessage(BaseSchema):
             return v
         if "unknown" not in v:
             raise ValueError('classifier_output must include key "unknown"')
+        return v
+
+    @field_validator("annotation")
+    @classmethod
+    def _annotation_only_on_capture_open(cls, v, info):
+        if v is None:
+            return v
+
+        event = info.data.get("event")
+        if event != "capture.open":
+            raise ValueError("annotation is only allowed on capture.open events")
+
         return v
 
     @staticmethod
@@ -66,6 +91,7 @@ def example_input() -> dict:
         "source": "camera_feed_worker",  # emitting module name (string)
         "performer_id": "carer01",  # actor; "system" for system-generated
         "capture_id": "11111111-2222-3333-4444-555555555555",
+        "annotation": {"intent": "hungry"},
         # optional extra fields allowed, e.g.:
         # "raw_features_ref": {...},
         # "classifier_output": {...},

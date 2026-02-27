@@ -199,6 +199,36 @@ It documents the progression from:
 Used by: classifier modules, input broker, clarification planner, feedback logger, CARE engine.
 
 ---
+## 5.0 Human Annotation (Capture-Time)
+
+This subsection defines dataset-time human-provided intent labels attached at the moment of capture.
+
+These labels represent the human’s best interpretation at recording time.
+They are fallible and must not be treated as philosophical ground truth.
+They are independent of classifier outputs and clarification results.
+
+The `annotation` object is optional and MUST only appear on the `capture.open` event for a given `capture_id`.
+If present, it is immutable for that capture segment.
+Changing the annotation requires a new capture.
+
++---------------------+--------+-----+------------------+--------------------------------------------------------------+
+| Field Path          | Type   | Req | Example          | Description                                                  |
++---------------------+--------+-----+------------------+--------------------------------------------------------------+
+| annotation.intent   | string | ❌* | "hungry"         | Human-provided intent label at capture time.                |
++---------------------+--------+-----+------------------+--------------------------------------------------------------+
+
+(*) Required if the `annotation` object is present.
+
+Rules:
+- `annotation` MUST NOT appear on `capture.frame_meta`, `capture.close`, or classifier-emitted messages.
+- `annotation.intent` MUST remain unchanged for the lifetime of the associated `capture_id`.
+- This field is used for dataset construction and training only.
+- It MUST remain distinct from:
+  - `classifier_output`
+  - `label_correction`
+  - `final_decision`
+
+---
 
 ### 5.1 classifier_output_components
 

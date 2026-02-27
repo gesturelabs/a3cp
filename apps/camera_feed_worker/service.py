@@ -18,7 +18,8 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Any, Literal
-from uuid import UUID  # ensure imported at top
+
+from apps.camera_feed_worker.state import ActiveState, IdleState, PendingMeta, State
 
 # =============================================================================
 # Sprint 1 locked limits
@@ -97,63 +98,6 @@ class SessionInvalid(CameraFeedWorkerError):
 
 class SessionClosed(CameraFeedWorkerError):
     error_code = "session_closed"
-
-
-# =============================================================================
-# State data
-# =============================================================================
-
-
-@dataclass(frozen=True)
-class PendingMeta:
-    seq: int
-    timestamp_frame: datetime  # event-time
-    byte_length: int
-    meta_ingest_timestamp: datetime  # server ingest-time
-
-
-@dataclass(frozen=True)
-class IdleState:
-    kind: Literal["idle"] = "idle"
-
-
-@dataclass(frozen=True)
-class ActiveState:
-    kind: Literal["active"] = "active"
-
-    # identifiers
-    record_id: UUID | None = None
-    capture_id: str = ""
-    user_id: str = ""
-    session_id: str = ""
-
-    # event-time
-    timestamp_start: datetime | None = None
-    last_frame_timestamp: datetime | None = None
-
-    # ingest-time
-    ingest_timestamp_open: datetime | None = None
-
-    # params
-    fps_target: int = 0
-    width: int = 0
-    height: int = 0
-    encoding: str = "jpeg"
-
-    # counters
-    frame_count: int = 0
-    total_bytes: int = 0
-    expected_next_seq: int = 1
-
-    # meta
-    pending_meta: PendingMeta | None = None
-
-    # ingest-time bookkeeping for tick rules
-    last_meta_ingest_timestamp: datetime | None = None
-    last_session_check_ingest_timestamp: datetime | None = None
-
-
-State = IdleState | ActiveState
 
 
 # =============================================================================
@@ -254,7 +198,10 @@ def _require_idle(state: State) -> IdleState:
 
 
 def handle_open(
-    current_state: State, open_event: Any, now_ingest: datetime
+    connection_key: str,
+    current_state: State,
+    open_event: Any,
+    now_ingest: datetime,
 ) -> tuple[State, list[Action]]:
     _require_idle(current_state)
 
@@ -273,8 +220,15 @@ def handle_open(
         fps_target=int(fps_target), width=int(width), height=int(height)
     )
 
+    # --- NEW: capture-time annotation immutability enforcement ---
+    annotation_intent = None
+    if getattr(open_event, "annotation", None) is not None:
+        annotation_intent = str(open_event.annotation.intent)
+    # ---------------------------------------------------------------
+
     new_state = ActiveState(
         record_id=_get(open_event, "record_id"),
+        annotation_intent=annotation_intent,
         capture_id=str(capture_id),
         user_id=str(user_id),
         session_id=str(session_id),
@@ -300,7 +254,10 @@ def handle_open(
 
 
 def handle_frame_meta(
-    current_state: State, meta_event: Any, now_ingest: datetime
+    connection_key: str,
+    current_state: State,
+    meta_event: Any,
+    now_ingest: datetime,
 ) -> tuple[State, list[Action]]:
     s = _require_active(current_state)
 
@@ -335,7 +292,10 @@ def handle_frame_meta(
 
 
 def handle_frame_bytes(
-    current_state: State, byte_length: int, now_ingest: datetime
+    connection_key: str,
+    current_state: State,
+    byte_length: int,
+    now_ingest: datetime,
 ) -> tuple[State, list[Action]]:
     s = _require_active(current_state)
 
@@ -383,7 +343,10 @@ def handle_frame_bytes(
 
 
 def handle_close(
-    current_state: State, close_event: Any, now_ingest: datetime
+    connection_key: str,
+    current_state: State,
+    close_event: Any,
+    now_ingest: datetime,
 ) -> tuple[State, list[Action]]:
     s = _require_active(current_state)
 
@@ -406,11 +369,15 @@ def handle_close(
         raise LimitDurationExceeded("event-time duration exceeds max_duration_s")
 
     # Success close → cleanup and return to idle
+    # Success close → cleanup and return to idle
+
     return IdleState(), [CleanupCapture(capture_id=s.capture_id)]
 
 
 def handle_tick(
-    current_state: State, now_ingest: datetime
+    connection_key: str,
+    current_state: State,
+    now_ingest: datetime,
 ) -> tuple[State, list[Action]]:
     if isinstance(current_state, IdleState):
         return current_state, []
@@ -469,33 +436,32 @@ EventKind = Literal[
 
 
 def dispatch(
-    current_state: State, event_kind: EventKind, event: Any, now_ingest: datetime
+    connection_key: str,
+    current_state: State,
+    event_kind: EventKind,
+    event: Any,
+    now_ingest: datetime,
 ) -> tuple[State, list[Action]]:
-    """
-    Single entry point that applies Sprint 1 abort semantics.
-
-    - Calls the corresponding handler.
-    - If a CameraFeedWorkerError is raised while in ActiveState:
-        emits AbortCapture(error_code, capture_id) + CleanupCapture(capture_id),
-        returns IdleState.
-    - If error occurs in IdleState:
-        re-raises (protocol violation).
-    """
     try:
         if event_kind == "capture.open":
-            return handle_open(current_state, event, now_ingest)
+            return handle_open(connection_key, current_state, event, now_ingest)
+
         if event_kind == "capture.frame_meta":
-            return handle_frame_meta(current_state, event, now_ingest)
+            return handle_frame_meta(connection_key, current_state, event, now_ingest)
+
         if event_kind == "capture.frame_bytes":
-            # event is expected to be an int byte_length or have byte_length attr
             byte_len = int(
                 event if isinstance(event, int) else _get(event, "byte_length")
             )
-            return handle_frame_bytes(current_state, byte_len, now_ingest)
+            return handle_frame_bytes(
+                connection_key, current_state, byte_len, now_ingest
+            )
+
         if event_kind == "capture.close":
-            return handle_close(current_state, event, now_ingest)
+            return handle_close(connection_key, current_state, event, now_ingest)
+
         if event_kind == "tick":
-            return handle_tick(current_state, now_ingest)
+            return handle_tick(connection_key, current_state, now_ingest)
 
         raise ProtocolViolation(f"Unknown event_kind: {event_kind}")
 
@@ -510,7 +476,6 @@ def dispatch(
         raise
 
     except Exception as e:
-        # Convert unexpected errors into typed domain error
         if isinstance(current_state, ActiveState):
             capture_id = current_state.capture_id
             actions: list[Action] = [
