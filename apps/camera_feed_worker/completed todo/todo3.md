@@ -117,3 +117,60 @@ Optional (only if trivial):
 - Annotation exists only in `ActiveState`
 - No new behavioral surface area beyond annotation storage
 - All existing capture flows remain stable
+
+
+# TODO — A3CP UI Annotation Field (Capture Intent)
+
+## Goal
+
+Expose `annotation.intent` in the UI Capture section and send it only on `capture.open`, preserving all existing capture behavior.
+
+---
+
+## Phase 1 — UI Surface (No Protocol Change)
+
+- [x ] Add text input under **Capture** section:
+  - Label: "Annotation intent (optional)"
+  - Placeholder: e.g. "wave", "point", "yes", etc.
+- [ x] Bind input value to controller state (e.g. `this._annotationIntent`)
+- [ x] Trim whitespace on read
+- [x ] Confirm:
+  - Capture works exactly as before
+  - No schema errors
+  - No protocol regressions
+
+---
+
+## Phase 2 — Protocol Wiring (capture.open Only)
+
+- [x ] Modify `capture.open` message construction:
+  - If trimmed intent is non-empty:
+    - Add:
+      ```json
+      "annotation": { "intent": "<value>" }
+      ```
+  - Else:
+    - Omit `annotation` entirely
+- [x ] Ensure:
+  - `capture.frame_meta` contains no `annotation`
+  - `capture.close` contains no `annotation`
+
+---
+
+## Phase 3 — Validation & Stability
+
+- [x ] Manually verify:
+  - Open capture with annotation → no abort
+  - Open capture without annotation → no change
+  - Invalid whitespace-only input → treated as empty
+- [x ] Confirm no unexpected `capture.abort`
+- [ x] Confirm server logs show correct `annotation_intent` in `ActiveState`
+
+---
+
+## Explicitly Out of Scope
+
+- Persistence
+- Model training integration
+- Annotation editing after open
+- Displaying annotation in UI viewer

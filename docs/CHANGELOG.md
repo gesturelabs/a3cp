@@ -10,6 +10,26 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## [Unreleased] – Capture Annotation Intent Integration  Feb. 27, 2026
+
+- Added optional annotation intent input to A3CP UI (`a3cp.html`, `a3cp.js`)
+- Trimmed input; whitespace-only treated as empty
+- Included annotation only in `capture.open`
+- Ensured `capture.frame_meta` and `capture.close` never include annotation
+- Reset Demo clears annotation field and controller state
+- `capture.open` sets `ActiveState.annotation_intent`
+- `capture.close` transitions to `IdleState` (annotation cleared implicitly)
+- No router-level or repo-level annotation-specific logic added
+- Enforced schema rule: annotation allowed only when `event == "capture.open"`
+
+### Tests (`test_annotation_intent.py`)
+- `capture.open` sets intent correctly
+- No annotation → intent is `None`
+- Valid `open → frame_meta → frame_bytes → close` emits no `AbortCapture`
+- `close` returns `IdleState`
+
+Epic complete with full schema, domain, and lifecycle coverage.
+
 ## [Unreleased] – Capture Annotation Integration (A3CP Demo) Feb. 27, 2026
 
 ### Backend – camera_feed_worker (State + Annotation)

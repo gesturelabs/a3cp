@@ -27,6 +27,7 @@ class A3CPDemoUI {
         this.framesSent = root.getElementById("frames_sent");
         this.btnStartCapture = root.getElementById("btn_start_capture");
         this.btnStopCapture = root.getElementById("btn_stop_capture");
+        this.annotationIntent = root.getElementById("annotation_intent");
 
         // Debug
         this.debugOut = root.getElementById("debug_out");
@@ -233,6 +234,7 @@ class A3CPDemoController {
         this._captureSeq = 1;
         this._framesSent = 0;
         this._captureInterval = null;
+        this._annotationIntent = "";
 
 
 
@@ -249,6 +251,12 @@ class A3CPDemoController {
 
     init() {
         this.ui.bind(this);
+
+        this._annotationIntent = (this.ui.annotationIntent?.value ?? "").trim();
+
+        this.ui.annotationIntent?.addEventListener("input", () => {
+            this._annotationIntent = (this.ui.annotationIntent?.value ?? "").trim();
+        });
 
         // Phase 1: deterministic initial UI state (no network).
         // Defaults: idle session, preview stopped, capture stopped, frames=0, no error.
@@ -655,6 +663,8 @@ class A3CPDemoController {
             if (this.ui.userId) this.ui.userId.value = "";
             if (this.ui.performerId) this.ui.performerId.value = "";
             if (this.ui.sessionId) this.ui.sessionId.value = "";
+            if (this.ui.annotationIntent) this.ui.annotationIntent.value = "";
+            this._annotationIntent = "";
 
             this.ui.setFramesSent?.(0);
             this.ui.setRecordId?.("");
@@ -870,6 +880,7 @@ class A3CPDemoController {
                 const height = Number(this.ui.previewVideo?.videoHeight) || 480;
 
                 const now = new Date().toISOString();
+                const intent = (this._annotationIntent || "").trim();
 
                 const msg = {
                     schema_version: this.schemaVersion,
@@ -888,6 +899,7 @@ class A3CPDemoController {
                     width,
                     height,
                     encoding: "jpeg",
+                    ...(intent ? { annotation: { intent } } : {}),
                 };
 
 
