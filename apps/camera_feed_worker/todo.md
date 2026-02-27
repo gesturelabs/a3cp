@@ -87,17 +87,17 @@ No additional router features.
 ## 5. Tests (Minimum Required)
 
 ### Schema
-- [ ] Reject `annotation` when `event != "capture.open"`
-- [ ]  Add a test confirming the annotation validator actually triggers based on event, i.e., that event is reliably available at validation time (either via BaseSchema or explicit field).
+- [x] Reject `annotation` when `event != "capture.open"`
+- [ x]  Add a test confirming the annotation validator actually triggers based on event, i.e., that event is reliably available at validation time (either via BaseSchema or explicit field).
 
 ### Domain
-- [ ] `capture.open` sets `ActiveState.annotation_intent`
-- [ ] After `capture.close`, state is `IdleState`
-- [ ] After abort, state is `IdleState`
-- [ ] Annotation isolated per connection_key
+- [x ] `capture.open` sets `ActiveState.annotation_intent`
+- [x ] After `capture.close`, state is `IdleState`
+- [ x] After abort, state is `IdleState`
+- [x ] Annotation isolated per connection_key
 
 Optional (only if trivial):
-- [ ] Reject second `capture.open` while active
+- [x ] Reject second `capture.open` while active
 
 ---
 

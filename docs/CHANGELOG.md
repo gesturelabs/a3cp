@@ -9,6 +9,42 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## [Unreleased] – Capture Annotation Integration (A3CP Demo) Feb. 27, 2026
+
+### Backend – camera_feed_worker (State + Annotation)
+- Broke circular import by extracting state types into `apps/camera_feed_worker/state.py`:
+  - `PendingMeta`, `IdleState`, `ActiveState`, `State`.
+- Removed repository dependency from `apps/camera_feed_worker/service.py` (pure domain logic; no repo imports).
+- Implemented capture-time immutable annotation storage:
+  - `ActiveState.annotation_intent: str | None`
+  - Set only during `capture.open` (`handle_open`), never mutated elsewhere.
+  - Cleared implicitly by transitioning to `IdleState` on `capture.close` and all abort paths.
+- Removed repository annotation tracking:
+  - Deleted `capture_annotation` storage and associated getter/setter/clear methods.
+  - Confirmed no remaining call sites.
+
+### Schemas – Input Guardrails
+- Added `annotation: Optional[Annotation]` to `CameraFeedWorkerInput`.
+- Added `Annotation(intent: str)`.
+- Enforced schema rule: `annotation` is allowed **only** when `event == "capture.open"`.
+
+### Tests
+- Schema:
+  - Reject `annotation` on non-`capture.open` events.
+  - Proved validator triggers based on `event` availability at validation time.
+- Domain:
+  - `capture.open` sets `ActiveState.annotation_intent`.
+  - `capture.close` returns `IdleState`.
+  - Abort returns `IdleState`.
+  - Annotation is isolated per `connection_key`.
+  - Existing test already covers rejecting a second `capture.open` while active.
+
+### Stability
+- Server boots cleanly (no circular import).
+- Existing capture WS flow unchanged; UI does not send annotation unless explicitly added later.
+- Full test suite passing after updating service tests for `dispatch(..., now_ingest=...)`.
+
 ## [Unreleased] – Phase 7 MVP Finalization (A3CP Demo) Feb. 26, 2026
 
 ### UI – Capture Teardown Verification

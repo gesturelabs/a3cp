@@ -25,6 +25,7 @@ class OpenEvent:
         width=640,
         height=480,
         encoding="jpeg",
+        annotation=None,
     ):
         self.capture_id = capture_id
         self.record_id = record_id
@@ -35,6 +36,7 @@ class OpenEvent:
         self.width = width
         self.height = height
         self.encoding = encoding
+        self.annotation = annotation
 
 
 class CloseEvent:
@@ -114,3 +116,117 @@ def test_unknown_event_kind_raises_protocol_violation_in_idle(connection_key: st
             object(),
             now_ingest=now_ingest,
         )
+
+
+def test_capture_open_sets_annotation_intent(connection_key: str):
+    now_ingest = _dt("2026-02-04T12:00:00Z")
+    state0 = service.IdleState()
+
+    annotation_obj = type("AnnotationObj", (), {"intent": "wave"})()
+
+    state1, _ = service.dispatch(
+        connection_key,
+        state0,
+        "capture.open",
+        OpenEvent(annotation=annotation_obj),
+        now_ingest=now_ingest,
+    )
+
+    assert isinstance(state1, service.ActiveState)
+    assert state1.annotation_intent == "wave"
+
+
+def test_capture_close_returns_idle_state(connection_key: str):
+    now_ingest = _dt("2026-02-04T12:00:00Z")
+
+    annotation_obj = type("AnnotationObj", (), {"intent": "wave"})()
+
+    # Open -> Active
+    active_state, _ = service.dispatch(
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(annotation=annotation_obj),
+        now_ingest=now_ingest,
+    )
+    assert isinstance(active_state, service.ActiveState)
+    assert active_state.annotation_intent == "wave"
+
+    # Close -> Idle
+    state2, actions = service.dispatch(
+        connection_key,
+        active_state,
+        "capture.close",
+        CloseEvent(timestamp_end=_dt("2026-02-04T12:00:01Z")),
+        now_ingest=_dt("2026-02-04T12:00:01Z"),
+    )
+
+    assert isinstance(state2, service.IdleState)
+    assert any(isinstance(a, service.CleanupCapture) for a in actions)
+
+
+def test_abort_returns_idle_state(connection_key: str):
+    now_ingest = _dt("2026-02-04T12:00:00Z")
+
+    annotation_obj = type("AnnotationObj", (), {"intent": "wave"})()
+
+    # Open -> Active (with annotation)
+    active_state, _ = service.dispatch(
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(annotation=annotation_obj),
+        now_ingest=now_ingest,
+    )
+    assert isinstance(active_state, service.ActiveState)
+    assert active_state.annotation_intent == "wave"
+
+    # Trigger a domain error while active:
+    # frame_bytes without pending_meta => ProtocolViolation => abort wrapper => Idle
+    state2, actions = service.dispatch(
+        connection_key,
+        active_state,
+        "capture.frame_bytes",
+        10,  # any byte length
+        now_ingest=_dt("2026-02-04T12:00:00Z"),
+    )
+
+    assert isinstance(state2, service.IdleState)
+    assert any(isinstance(a, service.AbortCapture) for a in actions)
+    assert any(isinstance(a, service.CleanupCapture) for a in actions)
+
+    abort = next(a for a in actions if isinstance(a, service.AbortCapture))
+    assert abort.error_code == "protocol_violation"
+    assert abort.capture_id == active_state.capture_id
+
+
+def test_annotation_isolated_per_connection_key():
+    now_ingest = _dt("2026-02-04T12:00:00Z")
+
+    ann_a = type("AnnotationObj", (), {"intent": "wave"})()
+    ann_b = type("AnnotationObj", (), {"intent": "point"})()
+
+    # Connection A
+    state_a, _ = service.dispatch(
+        "conn-a",
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(capture_id="cap-a", annotation=ann_a),
+        now_ingest=now_ingest,
+    )
+    assert isinstance(state_a, service.ActiveState)
+    assert state_a.annotation_intent == "wave"
+
+    # Connection B
+    state_b, _ = service.dispatch(
+        "conn-b",
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(capture_id="cap-b", annotation=ann_b),
+        now_ingest=now_ingest,
+    )
+    assert isinstance(state_b, service.ActiveState)
+    assert state_b.annotation_intent == "point"
+
+    # Ensure no cross-contamination
+    assert state_a.annotation_intent != state_b.annotation_intent
