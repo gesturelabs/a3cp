@@ -10,6 +10,29 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## [Unreleased] — Landmark Extractor Schema Refactor (Bounded-Capture Slice) Feb. 27, 2026
+
+### Added
+- Introduced `LandmarkExtractorFrameInput` (inherits from `BaseSchema`)
+  - Explicit `capture_id`, `seq`, and `timestamp_frame`
+  - Event set to `"capture.frame"` (internal forward boundary)
+- Introduced `LandmarkExtractorTerminalInput`
+  - Supports `"capture.close"` and `"capture.abort"`
+  - Enforces `error_code` required for abort, forbidden for close
+- Added discriminated union:
+  - `LandmarkExtractorIngest` (frame | terminal)
+
+### Changed
+- Migrated ingest schemas to inherit from `BaseSchema` (aligns with Session Spine)
+- Converted event-time fields to `datetime` with UTC coercion
+- Standardized `modality="image"` and `source="camera_feed_worker"` defaults
+
+### Deprecated (Slice-Scoped)
+- Per-frame `LandmarkExtractorOutput` as primary output
+  - Bounded-capture slice now defines NPZ artifact + feature-ref A3CPMessage as authoritative output
+- Retained overlay landmark payloads as demo-only (non-authoritative)
+
+
 ## [Unreleased] – Capture Annotation Intent Integration  Feb. 27, 2026
 
 - Added optional annotation intent input to A3CP UI (`a3cp.html`, `a3cp.js`)
