@@ -46,23 +46,28 @@ class CloseEvent:
         self.timestamp_end = timestamp_end or _dt("2026-02-04T12:00:01Z")
 
 
-def _open_active(now_ingest: datetime) -> service.ActiveState:
+def _open_active(connection_key: str, now_ingest: datetime) -> service.ActiveState:
     st, _ = service.dispatch(
-        service.IdleState(), "capture.open", OpenEvent(), now_ingest
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(),
+        now_ingest=now_ingest,
     )
     assert isinstance(st, service.ActiveState)
     return st
 
 
-def test_frame_meta_correct_seq_accepted():
+def test_frame_meta_correct_seq_accepted(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now_ingest)
+    active = _open_active(connection_key, now_ingest)
 
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(seq=1, byte_length=123),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
 
     assert isinstance(st2, service.ActiveState)
@@ -72,15 +77,16 @@ def test_frame_meta_correct_seq_accepted():
     assert actions == []
 
 
-def test_frame_meta_wrong_seq_aborts_and_cleans_up():
+def test_frame_meta_wrong_seq_aborts_and_cleans_up(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now_ingest)
+    active = _open_active(connection_key, now_ingest)
 
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(seq=2, byte_length=10),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -92,28 +98,30 @@ def test_frame_meta_wrong_seq_aborts_and_cleans_up():
     assert abort.error_code == "protocol_violation"
 
 
-def test_frame_meta_when_pending_meta_exists_aborts_and_cleans_up():
+def test_frame_meta_when_pending_meta_exists_aborts_and_cleans_up(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now_ingest)
+    active = _open_active(connection_key, now_ingest)
 
     # First meta sets pending_meta
     st1, _ = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(seq=1, byte_length=10),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st1, service.ActiveState)
     assert st1.pending_meta is not None
 
     # Second meta without bytes should abort
     st2, actions = service.dispatch(
+        connection_key,
         st1,
         "capture.frame_meta",
         FrameMetaEvent(
             seq=1, byte_length=10
         ),  # seq doesn't matter; pending_meta violation first
-        _dt("2026-02-04T12:00:00.020Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.020Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -121,15 +129,16 @@ def test_frame_meta_when_pending_meta_exists_aborts_and_cleans_up():
     assert any(isinstance(a, service.CleanupCapture) for a in actions)
 
 
-def test_frame_bytes_without_pending_meta_aborts_and_cleans_up():
+def test_frame_bytes_without_pending_meta_aborts_and_cleans_up(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now_ingest)
+    active = _open_active(connection_key, now_ingest)
 
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.frame_bytes",
         10,  # byte_length
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -137,24 +146,26 @@ def test_frame_bytes_without_pending_meta_aborts_and_cleans_up():
     assert any(isinstance(a, service.CleanupCapture) for a in actions)
 
 
-def test_frame_bytes_mismatched_byte_length_aborts_and_cleans_up():
+def test_frame_bytes_mismatched_byte_length_aborts_and_cleans_up(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now_ingest)
+    active = _open_active(connection_key, now_ingest)
 
     st1, _ = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(seq=1, byte_length=100),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st1, service.ActiveState)
     assert st1.pending_meta is not None
 
     st2, actions = service.dispatch(
+        connection_key,
         st1,
         "capture.frame_bytes",
         99,  # mismatch
-        _dt("2026-02-04T12:00:00.020Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.020Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -165,24 +176,28 @@ def test_frame_bytes_mismatched_byte_length_aborts_and_cleans_up():
     assert abort.error_code == "protocol_violation"
 
 
-def test_capture_close_with_pending_meta_present_aborts_and_cleans_up():
+def test_capture_close_with_pending_meta_present_aborts_and_cleans_up(
+    connection_key: str,
+):
     now_ingest = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now_ingest)
+    active = _open_active(connection_key, now_ingest)
 
     st1, _ = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(seq=1, byte_length=10),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st1, service.ActiveState)
     assert st1.pending_meta is not None
 
     st2, actions = service.dispatch(
+        connection_key,
         st1,
         "capture.close",
         CloseEvent(timestamp_end=_dt("2026-02-04T12:00:01Z")),
-        _dt("2026-02-04T12:00:01Z"),
+        now_ingest=_dt("2026-02-04T12:00:01Z"),
     )
 
     assert isinstance(st2, service.IdleState)

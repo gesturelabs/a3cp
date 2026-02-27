@@ -40,24 +40,34 @@ class CloseEvent:
 
 
 def _open_active(
-    now_ingest: datetime, *, timestamp_start: datetime | None = None
+    connection_key: str,
+    now_ingest: datetime,
+    *,
+    timestamp_start: datetime | None = None,
 ) -> service.ActiveState:
     ev = OpenEvent(timestamp_start=timestamp_start) if timestamp_start else OpenEvent()
-    st, _ = service.dispatch(service.IdleState(), "capture.open", ev, now_ingest)
+    st, _ = service.dispatch(
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        ev,
+        now_ingest=now_ingest,
+    )
     assert isinstance(st, service.ActiveState)
     return st
 
 
-def test_ingest_time_duration_exceeded_during_tick_aborts():
+def test_ingest_time_duration_exceeded_during_tick_aborts(connection_key: str):
     # Open at ingest-time 12:00:00Z
-    active = _open_active(_dt("2026-02-04T12:00:00Z"))
+    active = _open_active(connection_key, _dt("2026-02-04T12:00:00Z"))
 
     # Tick after >15s
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "tick",
         object(),
-        _dt("2026-02-04T12:00:16Z"),
+        now_ingest=_dt("2026-02-04T12:00:16Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -68,19 +78,21 @@ def test_ingest_time_duration_exceeded_during_tick_aborts():
     assert abort.error_code == "limit_duration_exceeded"
 
 
-def test_event_time_duration_exceeded_on_close_aborts():
+def test_event_time_duration_exceeded_on_close_aborts(connection_key: str):
     # Event-time start at 12:00:00Z
     active = _open_active(
+        connection_key,
         now_ingest=_dt("2026-02-04T12:00:00Z"),
         timestamp_start=_dt("2026-02-04T12:00:00Z"),
     )
 
     # Close with event-time end at 12:00:16Z (>15s)
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.close",
         CloseEvent(timestamp_end=_dt("2026-02-04T12:00:16Z")),
-        _dt("2026-02-04T12:00:16Z"),
+        now_ingest=_dt("2026-02-04T12:00:16Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -91,17 +103,19 @@ def test_event_time_duration_exceeded_on_close_aborts():
     assert abort.error_code == "limit_duration_exceeded"
 
 
-def test_valid_duration_close_returns_idle_and_cleanup():
+def test_valid_duration_close_returns_idle_and_cleanup(connection_key: str):
     active = _open_active(
+        connection_key,
         now_ingest=_dt("2026-02-04T12:00:00Z"),
         timestamp_start=_dt("2026-02-04T12:00:00Z"),
     )
 
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.close",
         CloseEvent(timestamp_end=_dt("2026-02-04T12:00:05Z")),
-        _dt("2026-02-04T12:00:05Z"),
+        now_ingest=_dt("2026-02-04T12:00:05Z"),
     )
 
     assert isinstance(st2, service.IdleState)

@@ -12,7 +12,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Annotated, Literal, Optional
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from schemas import BaseSchema
 
@@ -25,6 +25,10 @@ CameraFeedWorkerEventIn = Literal[
     "capture.frame_meta",
     "capture.close",
 ]
+
+
+class Annotation(BaseModel):
+    intent: str
 
 
 class CameraFeedWorkerInput(BaseSchema):
@@ -58,6 +62,9 @@ class CameraFeedWorkerInput(BaseSchema):
     encoding: Optional[
         Annotated[str, Field(description="Frame encoding (e.g., 'jpeg')")]
     ] = None
+
+    # --- Open-only (annotation) ---
+    annotation: Optional[Annotation] = None
 
     # --- Frame-meta-only fields ---
     seq: Optional[
@@ -104,6 +111,10 @@ class CameraFeedWorkerInput(BaseSchema):
     @model_validator(mode="after")
     def _validate_required_fields_by_event(self):
         # Keep validation structural only; protocol/limits live in service.py.
+        # --- NEW: annotation constraint ---
+        if self.annotation is not None and self.event != "capture.open":
+            raise ValueError("annotation is only allowed on capture.open")
+
         if self.event == "capture.open":
             missing = [
                 f

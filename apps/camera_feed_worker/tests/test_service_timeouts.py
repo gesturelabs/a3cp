@@ -41,36 +41,42 @@ class FrameMetaEvent:
         self.byte_length = byte_length
 
 
-def _open_active(now_ingest: datetime) -> service.ActiveState:
+def _open_active(connection_key: str, now_ingest: datetime) -> service.ActiveState:
     st, _ = service.dispatch(
-        service.IdleState(), "capture.open", OpenEvent(), now_ingest
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(),
+        now_ingest=now_ingest,
     )
     assert isinstance(st, service.ActiveState)
     return st
 
 
-def test_meta_to_bytes_timeout_aborts():
+def test_meta_to_bytes_timeout_aborts(connection_key: str):
     # open at ingest 12:00:00
-    active = _open_active(_dt("2026-02-04T12:00:00Z"))
+    active = _open_active(connection_key, _dt("2026-02-04T12:00:00Z"))
 
     # meta at ingest 12:00:00.010 (sets pending_meta with meta_ingest_timestamp)
     st1, _ = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(
             seq=1, timestamp_frame=_dt("2026-02-04T12:00:00.100Z"), byte_length=10
         ),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st1, service.ActiveState)
     assert st1.pending_meta is not None
 
     # tick at >2s after meta ingest
     st2, actions = service.dispatch(
+        connection_key,
         st1,
         "tick",
         object(),
-        _dt("2026-02-04T12:00:02.011Z"),
+        now_ingest=_dt("2026-02-04T12:00:02.011Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -78,16 +84,17 @@ def test_meta_to_bytes_timeout_aborts():
     assert abort.error_code == "protocol_violation"
 
 
-def test_idle_timeout_no_meta_aborts():
+def test_idle_timeout_no_meta_aborts(connection_key: str):
     # open at ingest 12:00:00; last_meta_ingest_timestamp baseline set in handle_open
-    active = _open_active(_dt("2026-02-04T12:00:00Z"))
+    active = _open_active(connection_key, _dt("2026-02-04T12:00:00Z"))
 
     # tick at >5s with no frame_meta ever received
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "tick",
         object(),
-        _dt("2026-02-04T12:00:05.001Z"),
+        now_ingest=_dt("2026-02-04T12:00:05.001Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -95,15 +102,16 @@ def test_idle_timeout_no_meta_aborts():
     assert abort.error_code == "protocol_violation"
 
 
-def test_no_timeouts_within_limits_remains_active():
-    active = _open_active(_dt("2026-02-04T12:00:00Z"))
+def test_no_timeouts_within_limits_remains_active(connection_key: str):
+    active = _open_active(connection_key, _dt("2026-02-04T12:00:00Z"))
 
     # tick at 1s: within duration, within idle timeout baseline (5s), no pending_meta
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "tick",
         object(),
-        _dt("2026-02-04T12:00:01Z"),
+        now_ingest=_dt("2026-02-04T12:00:01Z"),
     )
 
     assert isinstance(st2, service.ActiveState)

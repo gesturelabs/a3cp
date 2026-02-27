@@ -42,29 +42,43 @@ class CloseEvent:
         self.timestamp_end = timestamp_end or _dt("2026-02-04T12:00:01Z")
 
 
-def test_capture_open_from_idle_to_active():
+def test_capture_open_from_idle_to_active(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
     state0 = service.IdleState()
 
-    state1, actions = service.dispatch(state0, "capture.open", OpenEvent(), now_ingest)
+    state1, actions = service.dispatch(
+        connection_key,
+        state0,
+        "capture.open",
+        OpenEvent(),
+        now_ingest=now_ingest,
+    )
 
     assert isinstance(state1, service.ActiveState)
     assert state1.kind == "active"
     assert any(isinstance(a, service.RequestSessionValidation) for a in actions)
 
 
-def test_capture_open_from_active_aborts_and_cleans_up():
+def test_capture_open_from_active_aborts_and_cleans_up(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
 
     # First open → active
     active_state, _ = service.dispatch(
-        service.IdleState(), "capture.open", OpenEvent(), now_ingest
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(),
+        now_ingest=now_ingest,
     )
     assert isinstance(active_state, service.ActiveState)
 
     # Second open while active → abort semantics
     state2, actions = service.dispatch(
-        active_state, "capture.open", OpenEvent(), now_ingest
+        connection_key,
+        active_state,
+        "capture.open",
+        OpenEvent(),
+        now_ingest=now_ingest,
     )
 
     assert isinstance(state2, service.IdleState)
@@ -76,20 +90,27 @@ def test_capture_open_from_active_aborts_and_cleans_up():
     assert abort.error_code == "protocol_violation"
 
 
-def test_capture_close_from_idle_raises_protocol_violation():
+def test_capture_close_from_idle_raises_protocol_violation(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
     with pytest.raises(service.ProtocolViolation):
         # In idle state, close is invalid and should raise (no abort wrapper)
-        service.dispatch(service.IdleState(), "capture.close", CloseEvent(), now_ingest)
+        service.dispatch(
+            connection_key,
+            service.IdleState(),
+            "capture.close",
+            CloseEvent(),
+            now_ingest=now_ingest,
+        )
 
 
-def test_unknown_event_kind_raises_protocol_violation_in_idle():
+def test_unknown_event_kind_raises_protocol_violation_in_idle(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
 
     with pytest.raises(service.ProtocolViolation):
         service.dispatch(
+            connection_key,
             service.IdleState(),
             "capture.nope",  # type: ignore[arg-type]
             object(),
-            now_ingest,
+            now_ingest=now_ingest,
         )

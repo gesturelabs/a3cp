@@ -43,25 +43,32 @@ class FrameMetaEvent:
         self.byte_length = byte_length
 
 
-def _open_active(now_ingest: datetime) -> service.ActiveState:
+def _open_active(connection_key: str, now_ingest: datetime) -> service.ActiveState:
     st, _ = service.dispatch(
-        service.IdleState(), "capture.open", OpenEvent(), now_ingest
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(),
+        now_ingest=now_ingest,
     )
     assert isinstance(st, service.ActiveState)
     return st
 
 
-def test_any_domain_error_in_active_state_returns_idle_and_emits_abort_and_cleanup():
-    active = _open_active(_dt("2026-02-04T12:00:00Z"))
+def test_any_domain_error_in_active_state_returns_idle_and_emits_abort_and_cleanup(
+    connection_key: str,
+):
+    active = _open_active(connection_key, _dt("2026-02-04T12:00:00Z"))
 
     # Trigger a CameraFeedWorkerError in ActiveState: wrong seq
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(
             seq=999, timestamp_frame=_dt("2026-02-04T12:00:00.100Z"), byte_length=10
         ),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -74,16 +81,19 @@ def test_any_domain_error_in_active_state_returns_idle_and_emits_abort_and_clean
     assert cleanup.capture_id == active.capture_id
 
 
-def test_idle_state_errors_are_reraised_no_abort_wrapper():
+def test_idle_state_errors_are_reraised_no_abort_wrapper(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
 
     # capture.frame_meta is invalid in IdleState, should raise ProtocolViolation (not return Idle+actions)
     with pytest.raises(service.ProtocolViolation):
         service.dispatch(
+            connection_key,
             service.IdleState(),
             "capture.frame_meta",
             FrameMetaEvent(
-                seq=1, timestamp_frame=_dt("2026-02-04T12:00:00.100Z"), byte_length=10
+                seq=1,
+                timestamp_frame=_dt("2026-02-04T12:00:00.100Z"),
+                byte_length=10,
             ),
-            now_ingest,
+            now_ingest=now_ingest,
         )

@@ -46,25 +46,27 @@ class CloseEvent:
         self.timestamp_end = timestamp_end
 
 
-def test_full_valid_flow_open_meta_bytes_close():
+def test_full_valid_flow_open_meta_bytes_close(connection_key: str):
     # 1) open
     st0, actions0 = service.dispatch(
+        connection_key,
         service.IdleState(),
         "capture.open",
         OpenEvent(timestamp_start=_dt("2026-02-04T12:00:00Z")),
-        _dt("2026-02-04T12:00:00Z"),
+        now_ingest=_dt("2026-02-04T12:00:00Z"),
     )
     assert isinstance(st0, service.ActiveState)
     assert any(isinstance(a, service.RequestSessionValidation) for a in actions0)
 
     # 2) meta
     st1, actions1 = service.dispatch(
+        connection_key,
         st0,
         "capture.frame_meta",
         FrameMetaEvent(
             seq=1, timestamp_frame=_dt("2026-02-04T12:00:00.100Z"), byte_length=123
         ),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st1, service.ActiveState)
     assert actions1 == []
@@ -72,10 +74,11 @@ def test_full_valid_flow_open_meta_bytes_close():
 
     # 3) bytes
     st2, actions2 = service.dispatch(
+        connection_key,
         st1,
         "capture.frame_bytes",
         123,
-        _dt("2026-02-04T12:00:00.020Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.020Z"),
     )
     assert isinstance(st2, service.ActiveState)
     assert any(isinstance(a, service.ForwardFrame) for a in actions2)
@@ -88,10 +91,11 @@ def test_full_valid_flow_open_meta_bytes_close():
 
     # 4) close
     st3, actions3 = service.dispatch(
+        connection_key,
         st2,
         "capture.close",
         CloseEvent(timestamp_end=_dt("2026-02-04T12:00:01Z")),
-        _dt("2026-02-04T12:00:01Z"),
+        now_ingest=_dt("2026-02-04T12:00:01Z"),
     )
     assert isinstance(st3, service.IdleState)
     assert any(isinstance(a, service.CleanupCapture) for a in actions3)

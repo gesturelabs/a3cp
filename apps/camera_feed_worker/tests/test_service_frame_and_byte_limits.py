@@ -41,15 +41,20 @@ class FrameMetaEvent:
         self.byte_length = byte_length
 
 
-def _open_active(now_ingest: datetime) -> service.ActiveState:
+def _open_active(connection_key: str, now_ingest: datetime) -> service.ActiveState:
     st, _ = service.dispatch(
-        service.IdleState(), "capture.open", OpenEvent(), now_ingest
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(),
+        now_ingest=now_ingest,
     )
     assert isinstance(st, service.ActiveState)
     return st
 
 
 def _accept_frame(
+    connection_key: str,
     active: service.ActiveState,
     *,
     seq: int,
@@ -58,28 +63,33 @@ def _accept_frame(
     now_ingest: datetime,
 ) -> service.ActiveState:
     st1, _ = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(seq=seq, timestamp_frame=ts_frame, byte_length=byte_length),
-        now_ingest,
+        now_ingest=now_ingest,
     )
     assert isinstance(st1, service.ActiveState)
+
     st2, _ = service.dispatch(
+        connection_key,
         st1,
         "capture.frame_bytes",
         byte_length,
-        now_ingest,
+        now_ingest=now_ingest,
     )
     assert isinstance(st2, service.ActiveState)
     return st2
 
 
-def test_frame_count_exceeds_max_frames_aborts():
+def test_frame_count_exceeds_max_frames_aborts(connection_key: str):
     now = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now)
+    active = _open_active(connection_key, now)
 
     # Set state right below limit (MAX_FRAMES - 1), with expected seq = 1
     active = service.ActiveState(
+        record_id=active.record_id,
+        annotation_intent=getattr(active, "annotation_intent", None),
         capture_id=active.capture_id,
         user_id=active.user_id,
         session_id=active.session_id,
@@ -99,20 +109,22 @@ def test_frame_count_exceeds_max_frames_aborts():
     )
 
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(
             seq=1, timestamp_frame=_dt("2026-02-04T12:00:00.100Z"), byte_length=10
         ),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st2, service.ActiveState)
 
     st3, actions = service.dispatch(
+        connection_key,
         st2,
         "capture.frame_bytes",
         10,
-        _dt("2026-02-04T12:00:00.020Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.020Z"),
     )
 
     assert isinstance(st3, service.IdleState)
@@ -120,27 +132,29 @@ def test_frame_count_exceeds_max_frames_aborts():
     assert abort.error_code == "limit_frame_count_exceeded"
 
 
-def test_single_frame_exceeds_max_frame_bytes_aborts():
+def test_single_frame_exceeds_max_frame_bytes_aborts(connection_key: str):
     now = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now)
+    active = _open_active(connection_key, now)
 
     too_big = service.MAX_FRAME_BYTES + 1
 
     st2, _ = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(
             seq=1, timestamp_frame=_dt("2026-02-04T12:00:00.100Z"), byte_length=too_big
         ),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st2, service.ActiveState)
 
     st3, actions = service.dispatch(
+        connection_key,
         st2,
         "capture.frame_bytes",
         too_big,
-        _dt("2026-02-04T12:00:00.020Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.020Z"),
     )
 
     assert isinstance(st3, service.IdleState)
@@ -148,12 +162,14 @@ def test_single_frame_exceeds_max_frame_bytes_aborts():
     assert abort.error_code == "limit_frame_bytes_exceeded"
 
 
-def test_total_bytes_exceeds_max_total_bytes_aborts():
+def test_total_bytes_exceeds_max_total_bytes_aborts(connection_key: str):
     now = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now)
+    active = _open_active(connection_key, now)
 
     # Set state near max total bytes
     active = service.ActiveState(
+        record_id=active.record_id,
+        annotation_intent=getattr(active, "annotation_intent", None),
         capture_id=active.capture_id,
         user_id=active.user_id,
         session_id=active.session_id,
@@ -173,20 +189,22 @@ def test_total_bytes_exceeds_max_total_bytes_aborts():
     )
 
     st2, _ = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(
             seq=1, timestamp_frame=_dt("2026-02-04T12:00:00.100Z"), byte_length=10
         ),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st2, service.ActiveState)
 
     st3, actions = service.dispatch(
+        connection_key,
         st2,
         "capture.frame_bytes",
         10,
-        _dt("2026-02-04T12:00:00.020Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.020Z"),
     )
 
     assert isinstance(st3, service.IdleState)
@@ -194,11 +212,12 @@ def test_total_bytes_exceeds_max_total_bytes_aborts():
     assert abort.error_code == "limit_total_bytes_exceeded"
 
 
-def test_valid_frame_increments_counters_correctly():
+def test_valid_frame_increments_counters_correctly(connection_key: str):
     now = _dt("2026-02-04T12:00:00Z")
-    active = _open_active(now)
+    active = _open_active(connection_key, now)
 
     st2 = _accept_frame(
+        connection_key,
         active,
         seq=1,
         ts_frame=_dt("2026-02-04T12:00:00.100Z"),

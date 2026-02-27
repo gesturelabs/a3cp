@@ -14,18 +14,18 @@ Definition of done:
 
 ## 0. Blocking: Break Circular Import (Do First)
 
-- [ ] Create `apps/camera_feed_worker/state.py`
-- [ ] Move from `service.py` to `state.py`:
-  - [ ] `PendingMeta`
-  - [ ] `IdleState`
-  - [ ] `ActiveState`
-  - [ ] `State`
-- [ ] Add `annotation_intent: str | None = None` to `ActiveState`
-- [ ] Update imports:
-  - [ ] `service.py` imports state types from `state.py`
-  - [ ] `repository.py` imports state types from `state.py`
-- [ ] Remove `from ...repository import repo` from `service.py`
-- [ ] Confirm server boots
+- [x ] Create `apps/camera_feed_worker/state.py`
+- [x ] Move from `service.py` to `state.py`:
+  - [x ] `PendingMeta`
+  - [ x] `IdleState`
+  - [ x] `ActiveState`
+  - [ x] `State`
+- [x ] Add `annotation_intent: str | None = None` to `ActiveState`
+- [x ] Update imports:
+  - [x ] `service.py` imports state types from `state.py`
+  - [ x] `repository.py` imports state types from `state.py`
+- [ x] Remove `from ...repository import repo` from `service.py`
+- [x ] Confirm server boots
 
 ---
 
@@ -33,12 +33,12 @@ Definition of done:
 
 State location (Sprint 1): `ActiveState.annotation_intent`
 
-- [ ] In `handle_open()`:
-  - [ ] If `open_event.annotation` exists → set `annotation_intent`
-  - [ ] Else → `annotation_intent = None`
-- [ ] Do NOT mutate `annotation_intent` anywhere else
-- [ ] On `capture.close` → return `IdleState()` (annotation cleared implicitly)
-- [ ] On abort → return `IdleState()` (annotation cleared implicitly)
+- [x ] In `handle_open()`:
+  - x[ ] If `open_event.annotation` exists → set `annotation_intent`
+  - [ x] Else → `annotation_intent = None`
+- [x ] Do NOT mutate `annotation_intent` anywhere else
+- [x ] On `capture.close` → return `IdleState()` (annotation cleared implicitly)
+- [x ] On abort → return `IdleState()` (annotation cleared implicitly)
 
 No repo involvement in annotation logic.
 
@@ -46,12 +46,12 @@ No repo involvement in annotation logic.
 
 ## 2. Remove Repository Annotation Tracking
 
-- [ ] Remove `"capture_annotation"` from `_ensure()` record
-- [ ] Remove:
-  - [ ] `get_capture_annotation`
-  - [ ] `set_capture_annotation`
-  - [ ] `clear_capture_annotation`
-- [ ] Ensure no remaining calls to these methods
+- [x ] Remove `"capture_annotation"` from `_ensure()` record
+- [ x] Remove:
+  - [ x] `get_capture_annotation`
+  - [x ] `set_capture_annotation`
+  - [x ] `clear_capture_annotation`
+- [ x] Ensure no remaining calls to these methods
 
 Repository owns:
 - state
@@ -63,22 +63,22 @@ Nothing else.
 
 ## 3. Schema Constraints
 
-- [ ] Confirm `annotation: Optional[Annotation]` exists on input schema
-- [ ] Confirm `Annotation.intent: str` defined
-- [ ] Enforce: `annotation` allowed only when `event == "capture.open"`
-- [ ] Ensure examples reflect:
-  - [ ] `annotation` present only on `capture.open`
-  - [ ] Never present in output schema
+- [x ] Confirm `annotation: Optional[Annotation]` exists on input schema
+- [x ] Confirm `Annotation.intent: str` defined
+- [x ] Enforce: `annotation` allowed only when `event == "capture.open"`
+- [x ] Ensure examples reflect:
+  - [x ] `annotation` present only on `capture.open`
+  - [ x] Never present in output schema
 
 ---
 
 ## 4. Router / UI Guardrails
 
-- [ ] Ensure UI sends `annotation.intent` only on `capture.open`
-- [ ] Ensure UI never sends `annotation` on:
-  - [ ] `capture.frame_meta`
-  - [ ] `capture.close`
-- [ ] Ensure router contains no annotation-specific repo calls
+- [ x] Ensure UI sends `annotation.intent` only on `capture.open`
+- [x ] Ensure UI never sends `annotation` on:
+  - [ xx] `capture.frame_meta`
+  - [x ] `capture.close`
+- [x ] Ensure router contains no annotation-specific repo calls
 
 No additional router features.
 

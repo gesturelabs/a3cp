@@ -46,17 +46,24 @@ class CloseEvent:
         self.timestamp_end = timestamp_end
 
 
-def _open_active(now_ingest: datetime) -> service.ActiveState:
+def _open_active(connection_key: str, now_ingest: datetime) -> service.ActiveState:
     st, _ = service.dispatch(
-        service.IdleState(), "capture.open", OpenEvent(), now_ingest
+        connection_key,
+        service.IdleState(),
+        "capture.open",
+        OpenEvent(),
+        now_ingest=now_ingest,
     )
     assert isinstance(st, service.ActiveState)
     return st
 
 
-def _accept_one_frame(active: service.ActiveState) -> service.ActiveState:
+def _accept_one_frame(
+    connection_key: str, active: service.ActiveState
+) -> service.ActiveState:
     # meta at t=0.100s, bytes length 10, then bytes accepted
     st1, _ = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(
@@ -64,27 +71,29 @@ def _accept_one_frame(active: service.ActiveState) -> service.ActiveState:
             timestamp_frame=_dt("2026-02-04T12:00:00.100Z"),
             byte_length=10,
         ),
-        _dt("2026-02-04T12:00:00.010Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.010Z"),
     )
     assert isinstance(st1, service.ActiveState)
 
     st2, _ = service.dispatch(
+        connection_key,
         st1,
         "capture.frame_bytes",
         10,
-        _dt("2026-02-04T12:00:00.020Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.020Z"),
     )
     assert isinstance(st2, service.ActiveState)
     assert st2.last_frame_timestamp == _dt("2026-02-04T12:00:00.100Z")
     return st2
 
 
-def test_timestamp_frame_less_than_last_frame_timestamp_aborts():
-    active = _open_active(_dt("2026-02-04T12:00:00Z"))
-    active = _accept_one_frame(active)
+def test_timestamp_frame_less_than_last_frame_timestamp_aborts(connection_key: str):
+    active = _open_active(connection_key, _dt("2026-02-04T12:00:00Z"))
+    active = _accept_one_frame(connection_key, active)
 
     # Next meta has timestamp earlier than last_frame_timestamp
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.frame_meta",
         FrameMetaEvent(
@@ -92,7 +101,7 @@ def test_timestamp_frame_less_than_last_frame_timestamp_aborts():
             timestamp_frame=_dt("2026-02-04T12:00:00.090Z"),  # earlier than 0.100Z
             byte_length=10,
         ),
-        _dt("2026-02-04T12:00:00.030Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.030Z"),
     )
 
     assert isinstance(st2, service.IdleState)
@@ -100,23 +109,25 @@ def test_timestamp_frame_less_than_last_frame_timestamp_aborts():
     assert any(isinstance(a, service.CleanupCapture) for a in actions)
 
 
-def test_timestamp_end_less_than_timestamp_start_aborts():
+def test_timestamp_end_less_than_timestamp_start_aborts(connection_key: str):
     now_ingest = _dt("2026-02-04T12:00:00Z")
 
     # Open with event-time start at 12:00:10Z (future relative to end)
     st0, _ = service.dispatch(
+        connection_key,
         service.IdleState(),
         "capture.open",
         OpenEvent(timestamp_start=_dt("2026-02-04T12:00:10Z")),
-        now_ingest,
+        now_ingest=now_ingest,
     )
     assert isinstance(st0, service.ActiveState)
 
     st1, actions = service.dispatch(
+        connection_key,
         st0,
         "capture.close",
         CloseEvent(timestamp_end=_dt("2026-02-04T12:00:09Z")),  # < start
-        _dt("2026-02-04T12:00:09Z"),
+        now_ingest=_dt("2026-02-04T12:00:09Z"),
     )
 
     assert isinstance(st1, service.IdleState)
@@ -124,16 +135,17 @@ def test_timestamp_end_less_than_timestamp_start_aborts():
     assert any(isinstance(a, service.CleanupCapture) for a in actions)
 
 
-def test_timestamp_end_less_than_last_frame_timestamp_aborts():
-    active = _open_active(_dt("2026-02-04T12:00:00Z"))
-    active = _accept_one_frame(active)
+def test_timestamp_end_less_than_last_frame_timestamp_aborts(connection_key: str):
+    active = _open_active(connection_key, _dt("2026-02-04T12:00:00Z"))
+    active = _accept_one_frame(connection_key, active)
 
     # Close with timestamp_end earlier than last_frame_timestamp (0.100Z)
     st2, actions = service.dispatch(
+        connection_key,
         active,
         "capture.close",
         CloseEvent(timestamp_end=_dt("2026-02-04T12:00:00.090Z")),
-        _dt("2026-02-04T12:00:00.090Z"),
+        now_ingest=_dt("2026-02-04T12:00:00.090Z"),
     )
 
     assert isinstance(st2, service.IdleState)
