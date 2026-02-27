@@ -9,6 +9,26 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## [Unreleased] — Landmark Extractor Schema Refactor (Bounded-Capture Slice) Feb. 27, 2026
+## Status
+
+- `pytest` is now passing again after aligning the camera_feed_worker forward adapter with `BaseSchema` typing (`record_id: UUID`).
+- Root cause was a schema/interface mismatch:
+  - `BaseSchema.record_id` is `UUID` (required), but the forward adapter was constructing a frame ingest message with a `str` record_id (and previously with an outdated landmark_extractor input shape), which caused downstream validation failure → forwarder task exception → `forward_failed` aborts in happy-path tests.
+
+## Relevant BaseSchema constraints (confirming correctness)
+
+- `record_id`: required `UUID`
+- `timestamp`: accepts `str` or `datetime`, coerced to UTC
+- `modality` and `source`: optional (subclasses may constrain via Literal with defaults)
+- `schema_version`: semver enforced (`MAJOR.MINOR.PATCH`)
+
+## Implication for forwarding boundary
+
+- Any per-frame ingest message built in `camera_feed_worker.forward_adapter` must supply:
+  - `record_id` as an actual `UUID` instance (e.g., `uuid.uuid4()`)
+  - `timestamp` as `datetime` (or ISO string), UTC-coercible
+  - plus whatever landmark_extractor frame schema requires (`event`, `capture_id`, `seq`, `timestamp_frame`, `frame_data`, etc.)
 
 ## [Unreleased] — Landmark Extractor Schema Refactor (Bounded-Capture Slice) Feb. 27, 2026
 

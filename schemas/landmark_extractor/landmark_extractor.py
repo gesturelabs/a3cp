@@ -51,11 +51,6 @@ class LandmarkExtractorFrameInput(BaseSchema):
         ),
     ]
 
-    frame_id: Optional[str] = Field(
-        None,
-        description="Optional frame identifier (legacy). Prefer deriving from (capture_id, seq).",
-    )
-
     @field_validator("timestamp_frame", mode="before")
     @classmethod
     def _coerce_timestamp_frame_utc(cls, v):
@@ -165,3 +160,16 @@ class LandmarkExtractorOverlayOutput(BaseModel):
     seq: int
     timestamp_frame: str
     landmarks: LandmarkVector
+
+
+# -------------------------------------------------------------------
+# Canonical public module schema surface (required by project convention)
+# -------------------------------------------------------------------
+
+# Input: union of frame + terminal (authoritative ingest surface)
+LandmarkExtractorInput = LandmarkExtractorIngest
+
+# Output: module output surface (keep demo/legacy output for now)
+# In bounded-capture slice the primary output is NPZ + feature-ref A3CPMessage via schema_recorder,
+# but we still provide a formal Output schema to satisfy the "module has Input/Output" convention.
+LandmarkExtractorOutput = LandmarkExtractorOverlayOutput
