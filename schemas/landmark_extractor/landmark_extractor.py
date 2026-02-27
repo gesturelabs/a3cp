@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Annotated, Dict, Literal, Optional, Union
+from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -18,7 +19,13 @@ class LandmarkExtractorFrameInput(BaseSchema):
         Field(description="Per-frame ingest event (image payload included)"),
     ] = "capture.frame"
 
-    # FIX: provide defaults when overriding BaseSchema fields
+    # Override BaseSchema optionality with required session_id for ingest contract
+    session_id: str = Field(
+        default=...,
+        description="Session ID from session_manager (required for ingest)",
+    )
+
+    # Provide defaults when overriding BaseSchema optional fields
     modality: Annotated[
         Literal["image"],
         Field(description="Sensor modality (aligned with capture stream)"),
@@ -30,7 +37,8 @@ class LandmarkExtractorFrameInput(BaseSchema):
     ] = "camera_feed_worker"
 
     capture_id: Annotated[
-        str, Field(..., description="Stable capture identifier (same for all frames)")
+        UUID,
+        Field(..., description="Stable capture identifier (same for all frames)"),
     ]
     seq: Annotated[
         int, Field(..., ge=1, description="Frame sequence number (starts at 1)")
@@ -81,7 +89,13 @@ class LandmarkExtractorTerminalInput(BaseSchema):
         Field(..., description="Terminal event for this capture"),
     ]
 
-    # FIX: provide defaults when overriding BaseSchema fields
+    # Override BaseSchema optionality with required session_id for ingest contract
+    session_id: str = Field(
+        default=...,
+        description="Session ID from session_manager (required for ingest)",
+    )
+
+    # Provide defaults when overriding BaseSchema optional fields
     modality: Annotated[
         Literal["image"],
         Field(description="Sensor modality (aligned with capture stream)"),
@@ -93,7 +107,8 @@ class LandmarkExtractorTerminalInput(BaseSchema):
     ] = "camera_feed_worker"
 
     capture_id: Annotated[
-        str, Field(..., description="Stable capture identifier to finalize")
+        UUID,
+        Field(..., description="Stable capture identifier to finalize"),
     ]
     timestamp_end: Annotated[
         datetime,
@@ -102,7 +117,9 @@ class LandmarkExtractorTerminalInput(BaseSchema):
 
     error_code: Optional[str] = Field(
         None,
-        description="Required if event == capture.abort. Must be None if event == capture.close.",
+        description=(
+            "Required if event == 'capture.abort'. Must be None if event == 'capture.close'."
+        ),
     )
 
     @field_validator("timestamp_end", mode="before")
@@ -156,9 +173,9 @@ class LandmarkVector(BaseModel):
 
 
 class LandmarkExtractorOverlayOutput(BaseModel):
-    capture_id: str
+    capture_id: UUID  # aligned with ingest contract (UUID, not str)
     seq: int
-    timestamp_frame: str
+    timestamp_frame: datetime
     landmarks: LandmarkVector
 
 
