@@ -98,6 +98,7 @@ class CameraFeedWorkerRepository:
                 # Sprint 1C
                 "state": IdleState(),
                 "seen_record_ids": set(),
+                "terminal_emitted": False,
                 # Sprint 1D (forwarding boundary; JSON-only work may leave these unused)
                 "forward_queue": None,  # asyncio.Queue[ForwardItem] | None
                 "forward_frames": 0,
@@ -131,6 +132,12 @@ class CameraFeedWorkerRepository:
 
     def mark_record_id_seen(self, connection_key: str, record_id: str) -> None:
         self._ensure(connection_key)["seen_record_ids"].add(record_id)
+
+    def has_emitted_terminal(self, connection_key: str) -> bool:
+        return bool(self._ensure(connection_key).get("terminal_emitted", False))
+
+    def mark_terminal_emitted(self, connection_key: str) -> None:
+        self._ensure(connection_key)["terminal_emitted"] = True
 
     # ---------------------------------------------------------------------
     # Forwarding boundary (Sprint 1D): API surface only (implementation next)

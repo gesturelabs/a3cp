@@ -9,6 +9,75 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## [Unreleased] – WebSocket Control Plane Stabilization (camera_feed_worker) Mar. 9, 2026
+
+### Fixed
+
+#### Abort Handling Stability
+- Fixed several abort paths that previously resulted in raw WebSocket `1011` closes instead of emitting a deterministic `capture.abort`.
+- Ensured abort emission occurs before socket closure in all reachable domain paths.
+
+#### ActiveState Loss During Abort
+- Fixed a state-loss condition where abort handling re-read repository state after domain transition, producing `IdleState` instead of the expected `ActiveState`.
+- Abort emission now uses the correct active capture state.
+
+#### Binary Gate Behavior
+- Corrected binary gate lifecycle so that:
+  - `capture.frame_meta` arms the gate.
+  - Successful frame bytes clear the gate.
+  - Subsequent text control messages are accepted normally.
+- Prevented rejected `capture.frame_meta` events from incorrectly arming the binary gate.
+
+#### Domain-Rejected Frame Meta
+- Invalid `capture.frame_meta` (e.g., incorrect `seq`) now triggers deterministic abort handling instead of protocol close.
+
+#### Forward Failure Path
+- Fixed loop-level `ForwardFailed` handling so the control plane emits:
+  - `capture.abort`
+  - `error_code="forward_failed"`
+  - before closing the socket.
+- Prevented premature `1011` close during forward failure conditions.
+
+#### Terminal Emission Ordering
+- Corrected ordering in abort path:
+  - `capture.abort` message is emitted before terminal ingest + socket close.
+- Ensures client always receives the abort message.
+
+### Tests
+
+#### WebSocket Control Plane
+- Stabilized integration tests covering:
+  - binary gate behavior
+  - invalid `frame_meta`
+  - unexpected control-plane exceptions
+  - forward failure detection
+  - deterministic abort emission
+- Updated tests to use valid UUID `capture_id` values to match schema requirements.
+
+### Diagnostics (temporary)
+- Added temporary runtime guards during debugging to identify invalid control-plane state transitions.
+- Guards removed after resolving state consistency issues.
+
+### Result
+
+- Full `pytest` suite now passes.
+- WebSocket control plane now deterministically emits abort events across:
+  - domain validation errors
+  - forward failures
+  - protocol violations
+  - unexpected control-plane exceptions.
+
+### Outstanding Work (Terminal Integration)
+
+Remaining tasks for the bounded-capture slice:
+
+- Deliver terminal ingest messages to the landmark_extractor ingest boundary.
+- Canonicalize abort emission paths through `_emit_abort_and_close`.
+- Remove duplicate terminal emission logic across router paths.
+- Define multi-capture semantics per WebSocket connection.
+- Add explicit exactly-once terminal emission tests.
+
 ## [Unreleased] — Landmark Extractor Schema Refactor (Bounded-Capture Slice) Feb. 27, 2026
 ## Status
 

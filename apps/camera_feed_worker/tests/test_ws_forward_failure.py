@@ -46,7 +46,7 @@ def test_ws_emits_abort_on_forward_failed(monkeypatch: pytest.MonkeyPatch) -> No
 
     with client.websocket_connect("/camera_feed_worker/capture") as ws:
         now = _iso_now()
-        capture_id = f"cap-{uuid.uuid4()}"
+        capture_id = str(uuid.uuid4())
 
         open_msg = {
             "schema_version": "1.0.1",
@@ -106,7 +106,7 @@ def test_ws_emits_abort_on_forward_failed_during_binary_phase(
 
     with client.websocket_connect("/camera_feed_worker/capture") as ws:
         now = _iso_now()
-        capture_id = f"cap-{uuid.uuid4()}"
+        capture_id = str(uuid.uuid4())
 
         open_msg = {
             "schema_version": "1.0.1",

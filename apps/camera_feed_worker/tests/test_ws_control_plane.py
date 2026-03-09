@@ -211,109 +211,6 @@ def test_ws_rejects_byte_length_mismatch() -> None:
             signal.signal(signal.SIGALRM, old)
 
 
-def test_ws_clears_binary_gate_after_successful_bytes() -> None:
-    """
-    Given: binary gate armed by capture.frame_meta
-    When: client sends matching bytes (success)
-    Then: gate clears and next TEXT control message is accepted
-          (socket remains open; no protocol close 1008).
-    """
-    client = TestClient(app)
-
-    capture_id = str(uuid.uuid4())
-    user_id = "user_1"
-    session_id = str(uuid.uuid4())
-
-    sm_service._sessions[str(session_id)] = {
-        "user_id": str(user_id),
-        "status": "active",
-    }
-
-    with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
-        ws.send_text(
-            json.dumps(
-                {
-                    "schema_version": "1.0.1",
-                    "record_id": str(uuid.uuid4()),
-                    "user_id": user_id,
-                    "session_id": session_id,
-                    "timestamp": _iso_now(),
-                    "modality": "image",
-                    "source": "browser",
-                    "event": "capture.open",
-                    "capture_id": capture_id,
-                    "timestamp_start": _iso_now(),
-                    "fps_target": 15,
-                    "width": 640,
-                    "height": 480,
-                    "encoding": "jpeg",
-                }
-            )
-        )
-
-        ws.send_text(
-            json.dumps(
-                {
-                    "schema_version": "1.0.1",
-                    "record_id": str(uuid.uuid4()),
-                    "user_id": user_id,
-                    "session_id": session_id,
-                    "timestamp": _iso_now(),
-                    "modality": "image",
-                    "source": "browser",
-                    "event": "capture.frame_meta",
-                    "capture_id": capture_id,
-                    "seq": 1,
-                    "timestamp_frame": _iso_now(),
-                    "byte_length": 5,
-                }
-            )
-        )
-
-        ws.send_bytes(b"12345")
-
-        # If gate was NOT cleared, this text would be treated as invalid and close the socket.
-        ws.send_text(
-            json.dumps(
-                {
-                    "schema_version": "1.0.1",
-                    "record_id": str(uuid.uuid4()),
-                    "user_id": user_id,
-                    "session_id": session_id,
-                    "timestamp": _iso_now(),
-                    "modality": "image",
-                    "source": "browser",
-                    "event": "capture.close",
-                    "capture_id": capture_id,
-                    "timestamp_end": _iso_now(),
-                }
-            )
-        )
-
-        # Prove socket is still open by sending another text frame.
-        # If the previous text triggered protocol close, this will raise WebSocketDisconnect.
-        ws.send_text(
-            json.dumps(
-                {
-                    "schema_version": "1.0.1",
-                    "record_id": str(uuid.uuid4()),
-                    "user_id": user_id,
-                    "session_id": session_id,
-                    "timestamp": _iso_now(),
-                    "modality": "image",
-                    "source": "browser",
-                    "event": "capture.open",
-                    "capture_id": str(uuid.uuid4()),
-                    "timestamp_start": _iso_now(),
-                    "fps_target": 15,
-                    "width": 640,
-                    "height": 480,
-                    "encoding": "jpeg",
-                }
-            )
-        )
-
-
 def test_ws_protocol_violation_does_not_leak_gate_or_state_to_next_connection() -> None:
     """
     Given: a connection hits protocol violation (text while expecting bytes) and is closed
@@ -991,3 +888,93 @@ def test_ws_session_closed_mid_capture_emits_abort_and_closes_1000() -> None:
         close_evt = ws.receive()
         assert close_evt.get("type") == "websocket.close"
         assert close_evt.get("code") == 1000
+
+
+def test_ws_clears_binary_gate_after_successful_bytes() -> None:
+    """
+    Given: binary gate armed by capture.frame_meta
+    When: client sends matching bytes successfully
+    Then: the binary gate clears and the next valid TEXT control message
+          (another capture.frame_meta while still active) is accepted.
+    """
+    client = TestClient(app)
+
+    capture_id = str(uuid.uuid4())
+    user_id = "user_1"
+    session_id = str(uuid.uuid4())
+
+    sm_service._sessions[str(session_id)] = {
+        "user_id": str(user_id),
+        "status": "active",
+    }
+
+    with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
+        ws.send_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0.1",
+                    "record_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "timestamp": _iso_now(),
+                    "modality": "image",
+                    "source": "browser",
+                    "event": "capture.open",
+                    "capture_id": capture_id,
+                    "timestamp_start": _iso_now(),
+                    "fps_target": 15,
+                    "width": 640,
+                    "height": 480,
+                    "encoding": "jpeg",
+                }
+            )
+        )
+
+        # Arm binary gate
+        ws.send_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0.1",
+                    "record_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "timestamp": _iso_now(),
+                    "modality": "image",
+                    "source": "browser",
+                    "event": "capture.frame_meta",
+                    "capture_id": capture_id,
+                    "seq": 1,
+                    "timestamp_frame": _iso_now(),
+                    "byte_length": 5,
+                }
+            )
+        )
+
+        # Satisfy binary gate
+        ws.send_bytes(b"12345")
+
+        # If gate was not cleared, this valid text control message would be
+        # treated as invalid while still expecting binary and the socket would close.
+        ws.send_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0.1",
+                    "record_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "timestamp": _iso_now(),
+                    "modality": "image",
+                    "source": "browser",
+                    "event": "capture.frame_meta",
+                    "capture_id": capture_id,
+                    "seq": 2,
+                    "timestamp_frame": _iso_now(),
+                    "byte_length": 4,
+                }
+            )
+        )
+
+        # Prove second frame_meta was accepted by successfully satisfying its
+        # own binary gate as well. If the preceding text frame had triggered a
+        # protocol close, this send_bytes would raise WebSocketDisconnect.
+        ws.send_bytes(b"ABCD")
