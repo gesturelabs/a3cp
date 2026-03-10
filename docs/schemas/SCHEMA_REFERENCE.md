@@ -452,8 +452,10 @@ Example `raw_features_ref` structure (using `.npz`):
 {
   "uri": "/data/u01/gesture_000023.npz",
   "hash": "sha256:abcdef1234567890...",
-  "encoding": "landmark_v2.1",
+  "encoding": "holistic_landmarks_v1;fps=15;extractor_tag=v0.5.4",
   "dims": 128,
+  "shape": [42, 128],
+  "dtype": "float32",
   "format": "npz"
 }
 
