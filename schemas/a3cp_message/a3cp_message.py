@@ -3,7 +3,7 @@
 from typing import Annotated, Dict, Optional
 from uuid import UUID
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from schemas.base.base import BaseSchema
 
@@ -15,6 +15,78 @@ class Annotation(BaseSchema):
         str,
         Field(description="Human-provided intent label at capture.open"),
     ]
+
+
+class RawFeaturesRef(BaseModel):
+    """Structured reference to an external feature artifact."""
+
+    uri: Annotated[
+        str,
+        Field(description="Path or URI to the external .npz feature artifact"),
+    ]
+    hash: Annotated[
+        str,
+        Field(
+            description="SHA-256 content hash of the referenced file, including the sha256: prefix"
+        ),
+    ]
+    encoding: Annotated[
+        str,
+        Field(
+            description="Descriptive identifier of the encoding or extractor configuration used"
+        ),
+    ]
+    shape: Annotated[
+        list[int],
+        Field(description="Two-element shape [T, D] of the stored feature matrix"),
+    ]
+    dtype: Annotated[
+        str,
+        Field(
+            description="Declared data type or storage type descriptor for the stored feature matrix"
+        ),
+    ]
+    format: Annotated[
+        str,
+        Field(description='File format; must be "npz" for this configuration'),
+    ]
+
+    @field_validator("uri")
+    @classmethod
+    def _uri_must_be_npz(cls, v: str) -> str:
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("uri must be a non-empty string")
+        if not v.endswith(".npz"):
+            raise ValueError("uri must reference a .npz file")
+        return v
+
+    @field_validator("hash")
+    @classmethod
+    def _hash_must_be_sha256_prefixed(cls, v: str) -> str:
+        if not isinstance(v, str) or not v.startswith("sha256:"):
+            raise ValueError('hash must include the "sha256:" prefix')
+        return v
+
+    @field_validator("encoding", "dtype")
+    @classmethod
+    def _non_empty_string(cls, v: str) -> str:
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("value must be a non-empty string")
+        return v
+
+    @field_validator("shape")
+    @classmethod
+    def _shape_must_be_td(cls, v: list[int]) -> list[int]:
+        if len(v) != 2:
+            raise ValueError("shape must contain exactly two integers: [T, D]")
+        return v
+
+    @field_validator("format")
+    @classmethod
+    def _format_must_be_npz(cls, v: str) -> str:
+        if v != "npz":
+            raise ValueError('format must be "npz"')
+        return v
 
 
 class A3CPMessage(BaseSchema):
@@ -40,6 +112,8 @@ class A3CPMessage(BaseSchema):
 
     # Capture-time human annotation (dataset label; only valid on capture.open)
     annotation: Optional[Annotation] = None
+
+    raw_features_ref: Optional[RawFeaturesRef] = None
 
     classifier_output: Optional[Dict[str, Annotated[float, Field(ge=0.0, le=1.0)]]] = (
         None
@@ -92,8 +166,15 @@ def example_input() -> dict:
         "performer_id": "carer01",  # actor; "system" for system-generated
         "capture_id": "11111111-2222-3333-4444-555555555555",
         "annotation": {"intent": "hungry"},
+        "raw_features_ref": {
+            "uri": "/data/u01/gesture_000023.npz",
+            "hash": "sha256:abcdef1234567890...",
+            "encoding": "holistic_landmarks_v1;fps=15;extractor_tag=v0.5.4",
+            "shape": [42, 128],
+            "dtype": "float32",
+            "format": "npz",
+        },
         # optional extra fields allowed, e.g.:
-        # "raw_features_ref": {...},
         # "classifier_output": {...},
         # "context_location": "kitchen",
     }
@@ -111,4 +192,12 @@ def example_output() -> dict:
         "performer_id": "system",
         "capture_id": "11111111-2222-3333-4444-555555555555",
         "classifier_output": {"go_outside": 0.84, "hungry": 0.12, "unknown": 0.04},
+        "raw_features_ref": {
+            "uri": "/data/u01/gesture_000023.npz",
+            "hash": "sha256:abcdef1234567890...",
+            "encoding": "holistic_landmarks_v1;fps=15;extractor_tag=v0.5.4",
+            "shape": [42, 128],
+            "dtype": "float32",
+            "format": "npz",
+        },
     }

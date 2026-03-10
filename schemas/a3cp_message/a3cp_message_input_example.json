@@ -1,7 +1,21 @@
 {
+  "annotation": {
+    "intent": "hungry"
+  },
   "capture_id": "11111111-2222-3333-4444-555555555555",
   "modality": "gesture",
   "performer_id": "carer01",
+  "raw_features_ref": {
+    "dtype": "float32",
+    "encoding": "holistic_landmarks_v1;fps=15;extractor_tag=v0.5.4",
+    "format": "npz",
+    "hash": "sha256:abcdef1234567890...",
+    "shape": [
+      42,
+      128
+    ],
+    "uri": "/data/u01/gesture_000023.npz"
+  },
   "record_id": "07e4c9ff-9b8e-4d3e-bc7c-2b1b1731df56",
   "schema_version": "1.0.1",
   "session_id": "sess_2025-06-15_elias01",

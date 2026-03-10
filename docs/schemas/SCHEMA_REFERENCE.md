@@ -435,17 +435,19 @@ Notes:
 This section defines how input features are represented numerically for inference, training, and reproducibility. To ensure auditability and compact logging, feature vectors should be stored externally and referenced via hash-validatable metadata.
 
 ---
-
 ### 8.1 External Feature Reference
 
-| Field Path               | Type   | Req | Example              | Description                                                      |
-|--------------------------|--------|-----|----------------------|------------------------------------------------------------------|
-| `raw_features_ref`       | object | ❌  | See schema below     | Structured reference to an external feature file.               |
+| Field Path         | Type   | Req | Example          | Description |
+|--------------------|--------|-----|------------------|-------------|
+| `raw_features_ref` | object | ❌  | See schema below | Structured reference to an external feature artifact. |
 
 Notes:
-- `raw_features_ref` is used to reference externally stored feature vectors.
+- `raw_features_ref` is used to reference externally stored feature artifacts.
 - Inline embedding of full feature arrays in production logs is prohibited.
-
+- For the current landmark-extractor slice, the referenced artifact format is fixed to `.npz`.
+- For bounded-capture landmark extraction, the referenced artifact represents a 2D feature matrix with shape `[T, D]`, where:
+  - `T` = number of frames / time steps
+  - `D` = number of feature columns
 
 Example `raw_features_ref` structure (using `.npz`):
 
@@ -453,7 +455,6 @@ Example `raw_features_ref` structure (using `.npz`):
   "uri": "/data/u01/gesture_000023.npz",
   "hash": "sha256:abcdef1234567890...",
   "encoding": "holistic_landmarks_v1;fps=15;extractor_tag=v0.5.4",
-  "dims": 128,
   "shape": [42, 128],
   "dtype": "float32",
   "format": "npz"
@@ -461,22 +462,19 @@ Example `raw_features_ref` structure (using `.npz`):
 
 Constraints:
 - `uri` MUST reference a valid `.npz` file.
-- `hash` MUST be a SHA-256 content hash of the `.npz` file.
-- `encoding` MUST specify encoder name and version.
-- `dims` MUST match the dimensionality of the stored vector.
+- `hash` MUST be a SHA-256 content hash and MUST include the `sha256:` prefix.
+- `encoding` MUST be a non-empty descriptive string identifying the encoding used.
+- `shape` MUST describe a 2D artifact as `[T, D]`.
 - `format` MUST be `"npz"` for this configuration.
 
-
-
-| Subfield   | Type    | Req | Description                                                                 |
-|------------|---------|-----|-----------------------------------------------------------------------------|
-| `uri`      | string  | ✅  | Path or URI to the external `.npz` feature file.                          |
-| `hash`     | string  | ✅  | SHA-256 content hash of the referenced file for integrity verification.   |
-| `encoding` | string  | ✅  | Encoder name and version (e.g., `"landmark_v2.1"`).                        |
-| `dims`     | integer | ✅  | Dimensionality of the encoded feature vector.                               |
-| `format`   | string  | ✅  | File format; MUST be `"npz"` for this configuration.                       |
-
-
+| Subfield   | Type              | Req | Description |
+|------------|-------------------|-----|-------------|
+| `uri`      | string            | ✅  | Path or URI to the external `.npz` feature artifact. |
+| `hash`     | string            | ✅  | SHA-256 content hash of the referenced file, including the `sha256:` prefix. |
+| `encoding` | string            | ✅  | Descriptive identifier of the encoding or extractor configuration used. |
+| `shape`    | array\[int, int\] | ✅  | Two-element shape `[T, D]` of the stored feature matrix. |
+| `dtype`    | string            | ✅  | Declared data type or storage type descriptor for the stored feature matrix. |
+| `format`   | string            | ✅  | File format; MUST be `"npz"` for this configuration. |
 ---
 
 ### 8.2 Versioning

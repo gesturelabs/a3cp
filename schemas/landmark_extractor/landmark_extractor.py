@@ -1,6 +1,5 @@
 # schemas/landmark_extractor.py
 
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Annotated, Dict, Literal, Optional, Union

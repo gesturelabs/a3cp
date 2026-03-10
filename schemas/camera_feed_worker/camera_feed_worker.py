@@ -7,7 +7,6 @@
 # - BaseSchema.timestamp      = message creation / ingest timestamp (control-plane)
 # - timestamp_start/frame/end = event-time timestamps (data-plane)
 
-from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Annotated, Literal, Optional

@@ -5,97 +5,52 @@
   "description": "Schema for a3cp_message input and output messages.",
   "type": "object",
   "$defs": {
-    "BaseSchema": {
+    "RawFeaturesRef": {
+      "description": "Structured reference to an external feature artifact.",
       "properties": {
-        "schema_version": {
-          "description": "Semantic version (MAJOR.MINOR.PATCH)",
-          "title": "Schema Version",
+        "uri": {
+          "description": "Path or URI to the external .npz feature artifact",
+          "title": "Uri",
           "type": "string"
         },
-        "record_id": {
-          "description": "Unique ID for this message (UUIDv4)",
-          "format": "uuid",
-          "title": "Record Id",
+        "hash": {
+          "description": "SHA-256 content hash of the referenced file, including the sha256: prefix",
+          "title": "Hash",
           "type": "string"
         },
-        "user_id": {
-          "description": "Pseudonymous user identifier",
-          "title": "User Id",
+        "encoding": {
+          "description": "Descriptive identifier of the encoding or extractor configuration used",
+          "title": "Encoding",
           "type": "string"
         },
-        "session_id": {
-          "anyOf": [
-            {
-              "description": "Session ID from session_manager",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Session Id"
+        "shape": {
+          "description": "Two-element shape [T, D] of the stored feature matrix",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
         },
-        "timestamp": {
-          "description": "UTC ISO 8601 with milliseconds and 'Z' suffix",
-          "format": "date-time",
-          "title": "Timestamp",
+        "dtype": {
+          "description": "Declared data type or storage type descriptor for the stored feature matrix",
+          "title": "Dtype",
           "type": "string"
         },
-        "modality": {
-          "anyOf": [
-            {
-              "description": "Input/message modality",
-              "enum": [
-                "gesture",
-                "audio",
-                "speech",
-                "image",
-                "multimodal"
-              ],
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Modality"
-        },
-        "source": {
-          "anyOf": [
-            {
-              "description": "Originating component (e.g., 'gesture_classifier')",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Source"
-        },
-        "performer_id": {
-          "anyOf": [
-            {
-              "description": "Actor producing input; 'system' for system-generated",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Performer Id"
+        "format": {
+          "description": "File format; must be \"npz\" for this configuration",
+          "title": "Format",
+          "type": "string"
         }
       },
       "required": [
-        "schema_version",
-        "record_id",
-        "user_id",
-        "timestamp"
+        "uri",
+        "hash",
+        "encoding",
+        "shape",
+        "dtype",
+        "format"
       ],
-      "title": "BaseSchema",
+      "title": "RawFeaturesRef",
       "type": "object"
     }
   }

@@ -5,17 +5,55 @@
   "description": "Schema for camera_feed_worker input and output messages.",
   "type": "object",
   "$defs": {
-    "CameraFrameMetadata": {
+    "CameraFeedWorkerOutput": {
+      "description": "Canonical JSON control-message output for camera_feed_worker (Sprint 1 minimal).\n\nOnly abort messages are defined at schema level.\nSuccess-path behavior is transport-defined (e.g., close without error) and/or\nexpressed via service actions, not via JSON output schemas.",
       "properties": {
+        "schema_version": {
+          "description": "Semantic version (MAJOR.MINOR.PATCH)",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "description": "Unique ID for this message (UUIDv4)",
+          "format": "uuid",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Pseudonymous user identifier",
+          "title": "User Id",
+          "type": "string"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "description": "Session ID from session_manager",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        },
         "timestamp": {
-          "description": "UTC ISO 8601 timestamp of video frame capture",
+          "description": "UTC ISO 8601 with milliseconds and 'Z' suffix",
           "format": "date-time",
           "title": "Timestamp",
           "type": "string"
         },
-        "device_id": {
+        "modality": {
           "anyOf": [
             {
+              "description": "Input/message modality",
+              "enum": [
+                "gesture",
+                "audio",
+                "speech",
+                "image",
+                "multimodal"
+              ],
               "type": "string"
             },
             {
@@ -23,65 +61,61 @@
             }
           ],
           "default": null,
-          "description": "Device ID or index used for capture",
-          "title": "Device Id"
-        },
-        "modality": {
-          "const": "image",
-          "default": "image",
-          "title": "Modality",
-          "type": "string"
+          "title": "Modality"
         },
         "source": {
-          "const": "communicator",
-          "default": "communicator",
-          "title": "Source",
+          "anyOf": [
+            {
+              "description": "Originating component (e.g., 'gesture_classifier')",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "performer_id": {
+          "anyOf": [
+            {
+              "description": "Actor producing input; 'system' for system-generated",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Performer Id"
+        },
+        "event": {
+          "const": "capture.abort",
+          "description": "Control message type emitted by camera_feed_worker",
+          "title": "Event",
           "type": "string"
         },
-        "frame_index": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Index of the frame in the current stream or segment",
-          "title": "Frame Index"
+        "capture_id": {
+          "description": "Capture ID associated with this response",
+          "title": "Capture Id",
+          "type": "string"
         },
-        "stream_segment_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Optional window or chunk ID for stream segmentation",
-          "title": "Stream Segment Id"
-        },
-        "error": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Optional error message if frame read failed",
-          "title": "Error"
+        "error_code": {
+          "description": "Stable error_code for abort events",
+          "title": "Error Code",
+          "type": "string"
         }
       },
       "required": [
-        "timestamp"
+        "schema_version",
+        "record_id",
+        "user_id",
+        "timestamp",
+        "event",
+        "capture_id",
+        "error_code"
       ],
-      "title": "CameraFrameMetadata",
+      "title": "CameraFeedWorkerOutput",
       "type": "object"
     }
   }

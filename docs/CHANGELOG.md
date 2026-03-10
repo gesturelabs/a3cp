@@ -10,6 +10,29 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## Unreleased
+
+### Schema — External Feature Artifact Reference.  Mar. 10, 2026
+- Extended `raw_features_ref` specification to support bounded-capture feature artifacts.
+- Removed redundant `dims` field from `raw_features_ref`.
+- Added new fields:
+  - `shape` — two-element array `[T, D]` representing the stored feature matrix.
+  - `dtype` — descriptor for stored feature data type.
+- Constrained artifact format to `"npz"` for the current landmark extractor slice.
+- Required `hash` to include the `sha256:` prefix.
+- Updated `SCHEMA_REFERENCE.md` section **8.1 External Feature Reference** to reflect the new artifact structure.
+
+### Schema — A3CPMessage
+- Added typed `RawFeaturesRef` nested model.
+- Added optional `raw_features_ref` field to `A3CPMessage`.
+- Updated example payloads to demonstrate external feature artifact references.
+
+### Schema Generation
+- Fixed schema generation failure caused by postponed annotations in `schemas/landmark_extractor.py`.
+- Removed `from __future__ import annotations` to ensure generator can resolve runtime types.
+- Regenerated all JSON schema examples successfully.
+
+
 ## [Unreleased] — camera_feed_worker → landmark_extractor Terminal Finalization Tests.  Mar. 10, 2026
 
 ### Forward Adapter
