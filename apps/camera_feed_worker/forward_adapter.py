@@ -20,7 +20,7 @@ def forward_item_to_landmark_input(item: ForwardItem) -> LandmarkExtractorFrameI
         modality="image",
         source="camera_feed_worker",
         # correlation
-        capture_id=item.capture_id,
+        capture_id=uuid.UUID(item.capture_id),
         seq=item.seq,
         timestamp_frame=item.timestamp_frame,
         # payload (raw base64 is fine)

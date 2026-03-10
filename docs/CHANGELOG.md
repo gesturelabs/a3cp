@@ -10,6 +10,48 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## [Unreleased] — camera_feed_worker → landmark_extractor Terminal Finalization Tests.  Mar. 10, 2026
+
+### Forward Adapter
+- Fixed type mismatch in `forward_adapter.py`
+- Converted `ForwardItem.capture_id` from `str` to `UUID` when constructing `LandmarkExtractorFrameInput`
+- Ensures compatibility with `LandmarkExtractorFrameInput.capture_id: UUID`
+
+### Terminal Delivery Validation
+Added comprehensive tests verifying bounded-capture finalization semantics between `camera_feed_worker` and `landmark_extractor`.
+
+New test file:
+- `apps/camera_feed_worker/tests/test_terminal_delivery.py`
+
+Test coverage includes:
+
+- `capture.close` emits exactly one terminal ingest message
+- `capture.abort` emits exactly one terminal ingest message
+- binary-phase forward failure emits exactly one terminal ingest message
+- duplicate terminal attempts are prevented
+- terminal emission is guarded by `repo.has_emitted_terminal`
+- terminal ingest occurs before forwarder shutdown
+- terminal ingest is not dropped during shutdown/abort
+- terminal emission slot is consumed even if ingest fails (prevents duplicate attempts)
+
+### Ordering Guarantees Verified
+Tests confirm the required shutdown ordering:
+
+1. terminal ingest attempt
+2. `repo.mark_terminal_emitted`
+3. `repo.stop_forwarding`
+4. `websocket.close`
+
+### Architecture Clarification (MVP)
+- System guarantees **exactly-once terminal emission attempt**
+- Terminal slot is consumed even if ingest fails
+- Prevents duplicate terminal emissions
+- Downstream delivery is **best-effort**, not guaranteed (acceptable for MVP)
+
+### Documentation
+- Updated `apps/camera_feed_worker/todo 4.md` to reflect verified terminal delivery semantics and remaining cleanup items.
+
+
 ## [Unreleased] – WebSocket Control Plane Stabilization (camera_feed_worker) Mar. 9, 2026
 
 ### Fixed
