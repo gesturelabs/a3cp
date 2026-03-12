@@ -36,20 +36,29 @@ camera_feed_worker → `capture.frame × N` → `capture.close | capture.abort`
 
 Purpose: internal pure data structures used by `service.py`.
 
-## Capture state
-- [ ] Define capture state keyed by `capture_id`
-- [ ] Define minimum fields:
-  - [ ] `capture_id`
-  - [ ] `user_id`
-  - [ ] `session_id`
-  - [ ] buffered feature rows
+
+
+## Capture state (Invariant)
+
+The extractor maintains capture state keyed by `capture_id`.
+Minimum state fields:
+- `capture_id`
+- `user_id`
+- `session_id`
+- `feature_rows` (ordered list of feature rows for the capture)
+
+Constraints:
+- State stores **only extracted feature rows**, never raw frames.
+- Feature rows are appended **in frame arrival order**.
+- Frame sequencing correctness is enforced upstream by `camera_feed_worker`.
+- `landmark_extractor` does **not** store or validate `seq`.
 
 ## Feature structures
-- [ ] Define feature row representation `(D,)`
-- [ ] Define feature matrix representation `(T, D)`
+- [x] Define feature row representation `(D,)` as `list[float]`
+- [x] FeatureMatrix = list[list[float]] (until finalize)
 
 ## Finalization structures
-- [ ] Define finalize result structure returned to service layer, if needed
+- [x] Define finalize result structure returned to service layer, if needed
 
 
 

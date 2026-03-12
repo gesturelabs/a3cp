@@ -9,6 +9,66 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## Added — apps/landmark_extractor/domain.py  Mar. 12, 2026
+
+Implemented the domain model for the `landmark_extractor` module. This file defines the internal in-memory data structures used by `service.py` to manage bounded capture buffering and feature aggregation.
+
+### Structures introduced
+
+**FeatureRow**
+- Defined as `list[float]`
+- Represents a single frame feature vector `(D,)`
+
+**FeatureRows**
+- Defined as `list[FeatureRow]`
+- Ordered collection of rows accumulated during capture
+
+**FeatureMatrix**
+- Conceptual `(T, D)` matrix representation
+- Implemented as `list[list[float]]` until finalization
+- Converted to NumPy during artifact writing
+
+**CaptureState (dataclass)**
+- Represents the in-memory state of an active capture
+- Fields:
+  - `capture_id`
+  - `user_id`
+  - `session_id`
+  - `feature_rows`
+
+Capture state invariants:
+- Stores **feature rows only**, never raw frames
+- Rows are buffered **in frame arrival order**
+- Frame sequencing validation is enforced upstream by `camera_feed_worker`
+- `landmark_extractor` does **not** store or validate `seq`
+
+**FinalizeResult (dataclass)**
+- Pure internal structure returned to the service layer on successful capture finalization
+- Contains:
+  - `capture_id`
+  - `user_id`
+  - `session_id`
+  - `feature_matrix`
+
+### Architectural constraints
+
+`domain.py` is strictly limited to pure internal data structures.
+
+It intentionally contains **no**:
+- filesystem I/O
+- MediaPipe execution
+- artifact writing
+- schema_recorder usage
+- landmark extraction logic
+- missing-landmark fill logic
+
+This establishes a clean separation between:
+- **state representation** (`domain.py`)
+- **feature extraction logic** (`extractor.py`)
+- **lifecycle orchestration** (`service.py`)
+- **artifact persistence** (`artifact_writer.py`)
+
+
 
 ## Unreleased
 

@@ -9,6 +9,48 @@ camera_feed_worker → `capture.frame × N` → `capture.close | capture.abort`
 
 ---
 
+## domain.py
+**Role:** internal pure data structures
+
+Responsibilities:
+- Define capture state keyed by `capture_id`
+- Define minimum capture state fields:
+  - `capture_id`
+  - `user_id`
+  - `session_id`
+  - `feature_rows`
+- Define `FeatureRow` representation as `list[float]` for one `(D,)` frame feature vector
+- Define buffered feature row collection as `list[FeatureRow]`
+- Define feature matrix representation conceptually as `(T, D)` from ordered buffered rows
+- Define finalize result structures returned to the service layer, if needed
+
+Capture-state invariants:
+- `feature_rows` stores extracted feature rows only
+- raw frames are never stored in domain state
+- rows are buffered in frame arrival order
+- `landmark_extractor` does not store or validate `seq`
+- frame sequencing correctness is enforced upstream by `camera_feed_worker`
+
+
+
+`CaptureState` will be implemented as a **Python `dataclass`**.
+Rationale:
+- `CaptureState` represents a coherent internal domain object (one active buffered capture), not a generic mapping.
+- A `dataclass` provides clear structure, explicit fields, and readable attribute access (`state.capture_id`).
+- It improves type safety and reasoning in the service layer compared to dictionary-based structures.
+- It preserves the design goal that `domain.py` contains **explicit internal state models**, not loosely structured data.
+
+
+Properties:
+- pure Python only
+- no filesystem IO
+- no schema_recorder usage
+- no MediaPipe execution
+- no artifact writing
+- no landmark-to-feature conversion logic
+- no missing-landmark fill logic
+---
+
 # File Structure and Responsibilities
 
 ## ingest_boundary.py
@@ -30,6 +72,9 @@ Must NOT:
 - write `.npz` artifacts
 - append JSONL events
 - act as a persistent sink stub in final MVP behavior
+
+
+
 
 
 ## service.py
@@ -94,25 +139,7 @@ Must NOT:
 
 ---
 
-## domain.py
-**Role:** internal pure data structures
 
-Responsibilities:
-- Define capture buffering state keyed by `capture_id`
-- Define feature row representation `(D,)`
-- Define feature matrix representation `(T, D)`
-- Define finalize result structures returned to the service layer
-- Provide deterministic feature ordering utilities for landmark → feature row conversion
-- Provide helpers for handling missing landmarks `(0.0, 0.0)`
-
-Properties:
-- pure Python logic
-- no filesystem IO
-- no schema_recorder usage
-- no MediaPipe execution
-- no artifact writing
-
----
 
 ## config.py
 **Role:** extractor configuration and constants
