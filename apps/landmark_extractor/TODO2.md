@@ -71,31 +71,40 @@ Constraints:
 
 ---
 
-# 2. config.py
+# 2. config.py Done
 
 Purpose: extractor configuration and deterministic feature layout.
+1. MediaPipe MVP settings
+   - HOLISTIC_STATIC_IMAGE_MODE
+   - HOLISTIC_MODEL_COMPLEXITY
+   - HOLISTIC_SMOOTH_LANDMARKS
+   - HOLISTIC_ENABLE_SEGMENTATION
+   - HOLISTIC_SMOOTH_SEGMENTATION
+   - HOLISTIC_REFINE_FACE_LANDMARKS
+   - HOLISTIC_MIN_DETECTION_CONFIDENCE
+   - HOLISTIC_MIN_TRACKING_CONFIDENCE
 
-## MediaPipe configuration
-- [ ] Define MediaPipe Holistic settings used for MVP
+2. Landmark-selection contract
+   - selected landmark groups for MVP
+   - canonical ordered landmark identifiers
+   - total ordered landmark count
 
-## Landmark contract
-- [ ] Define selected landmark set used for MVP extraction
-- [ ] Define canonical ordered landmark list used for feature-column construction
+3. Feature-layout constants
+   - FEATURE_COORDS_PER_LANDMARK = 2
+   - FEATURE_COORD_NAMES = ("x", "y")
+   - FEATURE_INCLUDE_Z = False
+   - FEATURE_DIM = ordered_landmark_count * 2
 
-## Feature layout
-- [ ] Lock coordinates persisted per landmark = 2 (`x`, `y`)
-- [ ] Exclude `z` from MVP feature layout
-- [ ] Derive feature dimension `D` from ordered landmark count × 2
+4. Encoding and artifact constants
+   - FEATURE_ENCODING_ID
+   - FEATURE_ARTIFACT_FORMAT = "npz"
+   - FEATURE_DTYPE
+   - RAW_FEATURES_REF_ENCODING = FEATURE_ENCODING_ID
 
-## Encoding configuration
-- [ ] Define canonical feature encoding identifier
-- [ ] Ensure encoding identifier is emitted in `raw_features_ref.encoding`
-
-## Feature constants
-- [ ] Define missing-landmark encoding `(0.0, 0.0)`
-- [ ] Define artifact format constant `format="npz"`
-- [ ] Define feature dtype constant
-
+5. Missing-value constants
+   - MISSING_LANDMARK_X = 0.0
+   - MISSING_LANDMARK_Y = 0.0
+   - MISSING_LANDMARK_PAIR = (0.0, 0.0)
 ---
 # 3. extractor.py
 

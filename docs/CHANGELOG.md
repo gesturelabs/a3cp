@@ -9,6 +9,26 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+
+## Changelog — apps/landmark_extractor/config.py Mar. 12, 2026
+
+Added initial `config.py` defining the deterministic feature extraction contract for the Landmark Extractor MVP.
+
+- Added MediaPipe Holistic configuration constants.
+- Defined landmark selection policy:
+  - full pose landmarks (33)
+  - full left-hand landmarks (21)
+  - full right-hand landmarks (21)
+  - reduced expressive face subset including iris landmarks.
+- Added explicit `FACE_LANDMARK_INDICES` for the face subset.
+- Defined canonical `ORDERED_LANDMARKS` to lock deterministic feature column ordering.
+- Added feature layout constants (`FEATURE_COORDS_PER_LANDMARK`, `FEATURE_COORD_NAMES`, `FEATURE_INCLUDE_Z`).
+- Added derived feature layout values (`LANDMARK_COUNT`, `FEATURE_DIM`).
+- Added artifact encoding metadata (`FEATURE_ENCODING_ID`, `FEATURE_ARTIFACT_FORMAT`, `FEATURE_DTYPE`).
+- Added missing landmark encoding constants.
+
+Result: `config.py` now fully defines the extractor’s deterministic feature layout and artifact encoding contract for the MVP.
+
 ## Added — apps/landmark_extractor/domain.py  Mar. 12, 2026
 
 Implemented the domain model for the `landmark_extractor` module. This file defines the internal in-memory data structures used by `service.py` to manage bounded capture buffering and feature aggregation.
