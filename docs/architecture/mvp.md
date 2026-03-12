@@ -1,6 +1,7 @@
 # MVP Modules (must be implemented)
 
 - session_manager
+- schema_recorder
 - camera_feed_worker
 - audio_feed_worker
 - landmark_extractor
@@ -12,7 +13,6 @@
 - output_expander (minimal mapping)
 - output_planner (minimal)
 - partner_ui (minimal demonstrator UI)
-- schema_recorder
 - recorded_schemas
 - model_trainer (basic per-user training)
 - model_registry (basic artifact lookup)

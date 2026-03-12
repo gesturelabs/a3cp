@@ -24,7 +24,7 @@ This establishes NPZ landmark tensors as the stable storage boundary for gesture
 ----
 
 ## Storage Layout (filesystem)
-- `data/users/<user_id>/sessions/<session_id>/features/<record_id>.npz`
+- `data/users/<user_id>/sessions/<session_id>/features/<capture_id>.npz`
 - `models/users/<user_id>/<modality>/<model_version>/model.bin` (e.g., .pkl/.onnx)
 - All file references must be accompanied by `sha256` and encoder/version metadata.
 

@@ -1,3 +1,332 @@
+# apps/landmark_extractor/TODO.md — Revised Section Outline
+
+
+## 1. Lock MVP scope and invariants
+
+- Module scope: bounded-capture gesture feature extraction
+- Pipeline model: `capture.frame × N → terminal event → artifact + event`
+
+### Success and abort rules
+- Success rule: `capture.close` produces exactly one `.npz` artifact and appends exactly one feature-ref `A3CPMessage`
+- Abort rule: `capture.abort` writes no artifact and appends no event
+- Only `capture.close` may produce a persisted artifact
+
+### Logging rule
+- Session JSONL writes occur only through `schema_recorder.append_event()`
+- `landmark_extractor` performs no direct JSONL file writes
+- Exactly one event is emitted per successful capture
+
+### Persistence boundaries
+- Persist landmark-derived feature matrices only
+- Do not persist raw frames or raw video payloads
+- Artifact format: `.npz` containing feature matrix `(T, D)`
+- Artifacts stored under `data/users/<user_id>/sessions/<session_id>/features/<capture_id>.npz`
+
+### Feature encoding rules
+- Each selected landmark contributes `(x, y)` coordinates only
+- `z` coordinates are not persisted in MVP
+- Missing landmarks encoded as `(0.0, 0.0)`
+- Each processed frame produces exactly one fixed-length feature row
+- Feature row column ordering must be deterministic and stable across runs
+
+### Extraction backend
+- Use MediaPipe Holistic for landmark detection
+
+### Commit rule
+- Artifact write and feature-ref event append form one commit unit
+- If event append fails, the written artifact must be rolled back and finalize must fail
+
+### Configuration rule
+- Landmark set used for feature extraction is defined in a dedicated settings/config file
+- Feature layout and dimension `D` derive from that configuration
+
+### Explicit MVP non-goals
+- No gesture classification
+- No streaming inference
+- No replay helpers
+- No dataset management tooling
+- No CI guardrails specific to this module
+
+## 2. Define module structure, configuration, and responsibilities
+Purpose: define the minimal file set, configuration location, and clear responsibility boundaries for service, repository, routes, and internal models.
+- [x ] Define module ingest entrypoint accepting:
+      LandmarkExtractorFrameInput
+      LandmarkExtractorTerminalInput
+
+### Minimal MVP file set
+- [x ] Create `apps/landmark_extractor/service.py`
+- [x ] Create `apps/landmark_extractor/artifact_writer.py`
+- [x ] Create `apps/landmark_extractor/domain.py`
+- [x ] Create `apps/landmark_extractor/config.py`
+- [x ] Create `apps/landmark_extractor/routes/__init__.py`
+- [x ] Create `apps/landmark_extractor/routes/router.py`
+- [x ] Create `apps/landmark_extractor/tests/`
+
+
+
+
+### Config responsibilities
+- Define MediaPipe Holistic settings used by MVP
+- Define landmark selection used for feature extraction
+- Define deterministic landmark ordering for feature-row construction
+-Define canonical feature encoding/version identifier used in persisted artifacts and emitted raw_features_ref
+
+### Service responsibilities
+
+**Public ingest boundary**
+
+- The module ingest entrypoint lives in `apps/landmark_extractor/service.py`
+- It accepts validated `LandmarkExtractorInput`
+- `LandmarkExtractorInput` is the discriminated union of:
+  - `LandmarkExtractorFrameInput`
+  - `LandmarkExtractorTerminalInput`
+
+**Core responsibilities**
+
+- Accept validated `LandmarkExtractorInput`
+- Manage capture lifecycle keyed by `capture_id`
+- Buffer per-frame feature rows in memory
+- Finalize capture on `capture.close`
+- Discard capture state on `capture.abort`
+- Call repository/artifact writer for feature artifact persistence
+- Build and append exactly one feature-ref `A3CPMessage` via `schema_recorder.append_event()`
+- Enforce the commit unit:
+  - artifact write
+  - event append
+  - artifact rollback if event append fails
+
+### Repository responsibilities
+- Decode and prepare frame input for MediaPipe Holistic
+- Extract selected landmarks and convert them into one fixed-length feature row
+- Write finalized `.npz` artifact
+- Compute sha256 over written artifact bytes
+- Return artifact metadata needed for `raw_features_ref`
+
+### Domain responsibilities
+- Represent internal capture state only
+- Define the in-memory capture state shape used by the service layer
+
+### Route responsibilities
+- Thin adapter layer only
+- Accept or forward validated ingest input
+- No business logic
+- No direct artifact writes
+- No direct JSONL writes
+
+
+
+## 3. Define capture state and ingest lifecycle
+
+### In-memory capture state
+- [ ] Define capture state keyed by `capture_id`
+- [ ] Define minimum state fields:
+  - [ ] `capture_id`
+  - [ ] `user_id`
+  - [ ] `session_id`
+  - [ ] buffered feature rows
+
+
+### `capture.frame` behavior
+- [ ] Resolve capture state by `capture_id`
+- [ ] Create new capture state on first frame for a `capture_id`
+- [ ] Call repository to extract one feature row from the frame
+- [ ] Append one feature row to the in-memory buffer
+
+### `capture.close` behavior
+- [ ] Require active capture state for `capture_id`
+- [ ] Finalize exactly once
+- [ ] Convert buffered rows into one feature artifact
+- [ ] Append exactly one feature-ref `A3CPMessage`
+- [ ] Clear capture state only after successful finalize
+
+### `capture.abort` behavior
+- [ ] Require active capture state for `capture_id`
+- [ ] Discard buffered feature rows
+- [ ] Write no artifact
+- [ ] Append no feature-ref event
+- [ ] Clear capture state
+
+### Minimal terminal edge cases
+- [ ] Handle terminal event for unknown `capture_id`
+- [ ] Handle duplicate terminal after cleanup
+- [ ] Handle frame ingest after finalize
+- [ ] Handle frame ingest after abort
+
+## 4. Implement feature extraction boundary
+
+### Frame decode and MediaPipe boundary
+- [ ] Define repository entrypoint for frame → feature-row extraction
+- [ ] Decode `frame_data` from base64 input
+- [ ] Convert decoded bytes into an image/frame object suitable for MediaPipe
+- [ ] Run MediaPipe Holistic on each ingested frame
+
+### Landmark selection and row construction
+- [ ] Define the MVP landmark set in a dedicated settings/config file
+- [ ] Derive feature layout from the configured landmark set
+- [ ] Convert selected landmarks into one fixed-length feature row
+- [ ] Persist `(x, y)` coordinates only
+- [ ] Exclude `z` from MVP feature rows
+
+### Missing-landmark handling
+- [ ] Encode missing landmarks deterministically as `(0.0, 0.0)`
+- [ ] Ensure each processed frame yields exactly one fixed-length feature row
+
+### Minimal extraction failure handling
+- [ ] Define hard failure behavior for unreadable or unprocessable frames
+- [ ] Ensure only true decode/processing failures fail extraction
+- [ ] Do not treat partial landmark absence as extraction failure
+
+
+
+## 5. Implement artifact writing
+
+### Feature matrix finalization
+- [ ] Define repository entrypoint for writing one finalized feature artifact
+- [ ] Convert buffered feature rows into one feature matrix `(T, D)`
+
+### Artifact path rules
+- [ ] Add artifact path helper to `utils/paths.py`:
+  - [ ] `feature_artifact_path(data_root, user_id, session_id, capture_id)`
+- [ ] Define canonical artifact path:
+  - [ ] `data/users/<user_id>/sessions/<session_id>/features/<capture_id>.npz`
+- [ ] Resolve artifact paths through runtime path utilities
+- [ ] Keep the path helper pure:
+  - [ ] no IO
+  - [ ] no mkdir
+  - [ ] treat IDs as opaque path segments
+
+### Artifact write and metadata
+- [ ] Write the feature matrix as `.npz`
+- Compute sha256 over the finalized `.npz` artifact
+- [ ] Derive artifact metadata from the written artifact:
+  - [ ] `uri`
+  - [ ] `hash`
+  - [ ] `shape`
+  - [ ] `dtype`
+  - [ ] `format="npz"`
+- [ ] Return artifact metadata required to build `raw_features_ref`
+
+
+
+## 6. Implement feature-ref event append
+
+### Feature-ref message construction
+- [ ] Build `raw_features_ref` from written artifact metadata (`uri`, `hash`, `encoding`, `shape`, `dtype`, `format`)
+- [ ] Generate a new unique `record_id`
+- [ ] Build one feature-ref `A3CPMessage` with capture/session identifiers, `modality="gesture"`, `source="landmark_extractor"`, and `raw_features_ref`
+
+### Emission and commit rule
+- [ ] Emit exactly one feature-ref event per successful capture
+- [ ] Emit only after artifact write succeeds
+- [ ] Append only via `schema_recorder.append_event()`
+- [ ] Emit no feature-ref event on `capture.abort`
+- [ ] Treat artifact write + event append as one commit unit
+- [ ] If `append_event()` fails after artifact write, delete the artifact, fail finalize, and require capture to be redone
+
+
+
+
+## 7. Implement cleanup and failure handling
+- [ ] Define finalize-failure cleanup rule when artifact commit does not complete
+- [ ] On finalize failure, no artifact may remain persisted
+
+### Successful finalize cleanup
+- [ ] Clear in-memory capture state after successful finalize
+
+### Abort cleanup
+- [ ] On `capture.abort`, discard buffered feature rows and clear capture state
+
+### Duplicate and post-terminal protection
+- [ ] Prevent duplicate terminal handling from causing double-finalize, duplicate artifact writes, or duplicate event appends
+- [ ] Handle post-terminal frame input per MVP rule
+- [ ] Handle repeated terminal input after cleanup per MVP rule
+
+
+
+
+
+
+## 8. Add MVP tests
+
+### Service-level success path
+- [ ] Add test: frames + `capture.close` writes one `.npz` artifact
+- [ ] Add test: frames + `capture.close` appends one feature-ref `A3CPMessage`
+- [ ] Add test: frames + `capture.close` clears capture state after successful finalize
+
+### Service-level abort path
+- [ ] Add test: frames + `capture.abort` writes no artifact
+- [ ] Add test: frames + `capture.abort` appends no feature-ref event
+- [ ] Add test: frames + `capture.abort` clears capture state
+
+### Service-level terminal edge cases
+- [ ] Add test: `capture.close` for unknown `capture_id`
+- [ ] Add test: `capture.abort` for unknown `capture_id`
+- [ ] Add test: duplicate terminal does not double-write artifact
+- [ ] Add test: duplicate terminal does not double-append event
+- [ ] Add test: frame after close follows MVP rule
+- [ ] Add test: frame after abort follows MVP rule
+
+### Repository-level extraction boundary
+- [ ] Add test: base64 frame decode path
+- [ ] Add test: MediaPipe Holistic extraction returns one feature row
+- [ ] Add test: feature row shape is fixed for configured landmark set
+- [ ] Add test: missing landmarks are encoded deterministically as `(0.0, 0.0)`
+
+### Repository-level artifact writing
+- [ ] Add test: `.npz` artifact is written at the expected path
+- [ ] Add test: artifact metadata reflects the written file
+- [ ] Add test: sha256 is computed from written artifact bytes
+
+### Commit-semantics failure path
+- [ ] Add test: if `append_event()` fails after artifact write, the artifact is deleted
+- [ ] Add test: if `append_event()` fails after artifact write, finalize reports failure
+- [ ] Add test: if `append_event()` fails after artifact write, capture state is cleared
+
+## 9. Define MVP exit criteria
+
+### End-to-end success path
+- [ ] A valid bounded capture completes end-to-end:
+  - [ ] `capture.frame × N`
+  - [ ] `capture.close`
+  - [ ] one `.npz` artifact written
+  - [ ] one feature-ref `A3CPMessage` appended
+
+### Artifact correctness
+- [ ] Artifact exists at the expected capture-scoped path
+- [ ] Stored feature matrix has shape `(T, D)`
+- [ ] `raw_features_ref` metadata matches the written artifact (`shape`, `dtype`, `format`, `hash`)
+
+### Logging correctness
+- [ ] Session JSONL contains exactly one feature-ref event for the capture
+- [ ] No per-frame JSONL events are written
+
+### Abort correctness
+- [ ] `capture.abort` produces no artifact
+- [ ] `capture.abort` produces no feature-ref event
+- [ ] Capture state is cleaned up
+
+### Commit rollback correctness
+- [ ] If `append_event()` fails after artifact write:
+  - [ ] the artifact is deleted
+  - [ ] finalize reports failure
+
+
+
+
+
+
+
+
+
+
+
+
+## -------------------------------- old--------------------
+## -------------------------------- old--------------------
+## -------------------------------- old--------------------
+
+
+
 # apps/landmark_extractor/TODO.md
 
 
