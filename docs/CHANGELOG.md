@@ -10,6 +10,43 @@ Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
 
+## Landmark Extractor — MediaPipe Backend + Tests. Mar. 13, 2026
+
+### Added
+- Implemented `MediaPipeLandmarkBackend` in `apps/landmark_extractor/landmark_mediapipe.py`
+- Adapter initializes MediaPipe Tasks detectors once and reuses them across frame calls:
+  - `PoseLandmarker`
+  - `HandLandmarker`
+  - `FaceLandmarker`
+- Backend runs detectors in `VIDEO` mode using `detect_for_video(...)`
+- Frame processing pipeline implemented:
+  - BGR → RGB conversion
+  - `mp.Image` construction
+  - `timestamp_frame` → `timestamp_ms` conversion
+- Detector outputs normalized into internal `NormalizedLandmarks` structure
+- Returned data contains only normalized `(x, y)` pairs
+- Left/right hands resolved using MediaPipe handedness classification
+- Raw MediaPipe objects are not exposed outside the adapter
+
+### Error Handling
+- Added backend exception hierarchy:
+  - `MediaPipeBackendError`
+  - `MediaPipeBackendInitError`
+  - `MediaPipeExtractionError`
+- Initialization failures wrapped in `MediaPipeBackendInitError`
+- Runtime extraction failures wrapped in `MediaPipeExtractionError`
+- Adapter enforces minimal preconditions (`frame is not None`)
+
+### Tests
+Added `apps/landmark_extractor/tests/test_landmark_mediapipe.py`:
+
+- Smoke test verifying backend runs on a dummy frame
+- Validation that returned object is `NormalizedLandmarks`
+- Validation that all outputs are `(x, y)` float pairs
+- Test ensuring `None` frame raises `MediaPipeExtractionError`
+- Test ensuring missing model files raise `MediaPipeBackendInitError`
+
+
 ## Changelog — apps/landmark_extractor/config.py Mar. 12, 2026
 
 Added initial `config.py` defining the deterministic feature extraction contract for the Landmark Extractor MVP.

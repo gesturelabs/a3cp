@@ -6,7 +6,7 @@ apps.landmark_extractor.config
 Extractor configuration and constants for the Landmark Extractor MVP.
 
 This module defines deterministic configuration used for:
-- MediaPipe Holistic initialization
+- MediaPipe Tasks model, running-mode, and detector configuration
 - Landmark selection
 - Feature layout construction
 - Feature artifact encoding
@@ -17,18 +17,21 @@ Constraints:
 - no filesystem IO
 """
 
+
 # ------------------------------------------------------------
-# MediaPipe Holistic configuration (MVP)
+# MediaPipe Tasks configuration (MVP)
 # ------------------------------------------------------------
 
-HOLISTIC_STATIC_IMAGE_MODE = False
-HOLISTIC_MODEL_COMPLEXITY = 1
-HOLISTIC_SMOOTH_LANDMARKS = True
-HOLISTIC_ENABLE_SEGMENTATION = False
-HOLISTIC_SMOOTH_SEGMENTATION = False
-HOLISTIC_REFINE_FACE_LANDMARKS = True
-HOLISTIC_MIN_DETECTION_CONFIDENCE = 0.5
-HOLISTIC_MIN_TRACKING_CONFIDENCE = 0.5
+
+MEDIAPIPE_RUNNING_MODE = "VIDEO"
+
+POSE_LANDMARKER_MODEL_PATH = "models/mediapipe/pose_landmarker.task"
+HAND_LANDMARKER_MODEL_PATH = "models/mediapipe/hand_landmarker.task"
+FACE_LANDMARKER_MODEL_PATH = "models/mediapipe/face_landmarker.task"
+
+POSE_MAX_RESULTS = 1
+HAND_MAX_NUM_HANDS = 2
+FACE_MAX_NUM_FACES = 1
 
 # ------------------------------------------------------------
 # Landmark selection contract
@@ -145,7 +148,7 @@ FEATURE_DIM = LANDMARK_COUNT * FEATURE_COORDS_PER_LANDMARK
 # ------------------------------------------------------------
 
 # Identifier emitted in raw_features_ref.encoding
-FEATURE_ENCODING_ID = "holistic_xy_v1"
+FEATURE_ENCODING_ID = "mediapipe_tasks_video_xy_v1"
 
 # Artifact format
 FEATURE_ARTIFACT_FORMAT = "npz"

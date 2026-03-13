@@ -51,6 +51,94 @@ Properties:
 - no missing-landmark fill logic
 ---
 
+
+## config.py
+**Role:** extractor configuration and constants
+
+Responsibilities:
+- Define MediaPipe Holistic configuration used for MVP extraction
+- Define the landmark selection set used to build feature rows
+- Define deterministic landmark ordering for feature column construction
+- Define missing-landmark encoding rule `(0.0, 0.0)`
+- Define the feature encoding identifier used in `raw_features_ref.encoding`
+- Define artifact format constants (`format="npz"`, dtype, etc.)
+- Define feature dimension constant `D` derived from the selected landmarks
+
+Properties:
+- no runtime logic
+- no filesystem IO
+- no schema_recorder usage
+
+# 3a. landmark_mediapipe.py
+
+Purpose: run MediaPipe Tasks landmark detectors on one decoded frame and return normalized landmark data.
+
+## Public module surface
+- Expose backend class `MediaPipeLandmarkBackend`
+- Expose backend exceptions:
+  - `MediaPipeBackendError`
+  - `MediaPipeBackendInitError`
+  - `MediaPipeExtractionError`
+- Keep helper functions private to this file
+
+## Backend construction
+- Implement reusable adapter class `MediaPipeLandmarkBackend`
+- Expose constructor:
+  - `__init__(pose_model_path, hand_model_path, face_model_path)`
+- Constructor accepts `str | Path` model paths and normalizes them to `Path`
+- Initialize `PoseLandmarker`, `HandLandmarker`, and `FaceLandmarker` once in the constructor
+- Reuse initialized detectors across frame calls
+- Wrap detector/model initialization failures in `MediaPipeBackendInitError`
+- Preserve original exception context via `raise ... from exc`
+
+## Backend execution
+- Expose method:
+  - `extract_landmarks(frame, timestamp_frame) -> NormalizedLandmarks`
+- Accept decoded frame image
+- Accept `timestamp_frame` for MediaPipe VIDEO mode
+- Assume caller provides a valid decoded frame image
+- Do not duplicate upstream transport or schema validation
+- Enforce only minimal adapter-local preconditions:
+  - reject `frame is None`
+  - reject missing `timestamp_frame`
+- Convert BGR frame to RGB
+- Convert RGB frame into `mp.Image`
+- Convert `timestamp_frame` to MediaPipe `timestamp_ms`
+- Execute `PoseLandmarker`
+- Execute `HandLandmarker`
+- Execute `FaceLandmarker`
+- Extract pose landmarks into normalized internal mapping
+- Extract handedness and map detected hand landmarks into `left_hand` and `right_hand`
+- Extract face / iris landmarks into normalized internal mapping
+- Return `NormalizedLandmarks` to caller
+- Wrap runtime extraction failures in `MediaPipeExtractionError`
+- Preserve original exception context via `raise ... from exc`
+
+## Output contract
+- Return `NormalizedLandmarks`
+- Output contains normalized 2D landmark maps only:
+  - `pose`
+  - `left_hand`
+  - `right_hand`
+  - `face`
+- Return all detected normalized landmarks produced by the detectors
+- Do not apply configured feature selection in this file
+- Do not apply deterministic feature ordering in this file
+- Do not apply missing-landmark fill in this file
+- Absent landmarks remain absent from the returned maps
+
+## Constraints
+- No capture state
+- No artifact writing
+- No JSONL writes
+- No feature-row flattening
+- No drawing or visualization logic
+- No missing-landmark fill beyond what MediaPipe actually returns
+- No raw MediaPipe result objects exposed outside this file
+- No backend-specific helper functions exposed outside this file
+
+
+
 # File Structure and Responsibilities
 
 ## ingest_boundary.py
@@ -141,22 +229,6 @@ Must NOT:
 
 
 
-## config.py
-**Role:** extractor configuration and constants
-
-Responsibilities:
-- Define MediaPipe Holistic configuration used for MVP extraction
-- Define the landmark selection set used to build feature rows
-- Define deterministic landmark ordering for feature column construction
-- Define missing-landmark encoding rule `(0.0, 0.0)`
-- Define the feature encoding identifier used in `raw_features_ref.encoding`
-- Define artifact format constants (`format="npz"`, dtype, etc.)
-- Define feature dimension constant `D` derived from the selected landmarks
-
-Properties:
-- no runtime logic
-- no filesystem IO
-- no schema_recorder usage
 
 ---
 ## routes/router.py

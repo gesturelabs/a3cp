@@ -27,8 +27,10 @@ Jinja2==3.1.6
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2
+mediapipe==0.10.32
 mypy_extensions==1.1.0
 nodeenv==1.9.1
+opencv-python==4.13.0.92
 orjson==3.11.1
 outcome==1.3.0.post0
 packaging==25.0

@@ -14,7 +14,7 @@ camera_feed_worker → `capture.frame × N` → `capture.close | capture.abort`
 - Scope = bounded-capture gesture feature extraction only
 - Raw frames must never be persisted
 - Only landmark-derived feature matrices are stored
-- MediaPipe Holistic used for landmark detection
+- MediaPipe PoseLandmarker, HandLandmarker, and FaceLandmarker used for landmark detection
 - Persist `(x, y)` only (no `z`)
 - Missing landmarks encoded as `(0.0, 0.0)`
 - Each processed frame produces exactly one feature row
@@ -106,6 +106,51 @@ Purpose: extractor configuration and deterministic feature layout.
    - MISSING_LANDMARK_Y = 0.0
    - MISSING_LANDMARK_PAIR = (0.0, 0.0)
 ---
+
+# 3a. landmark_mediapipe.py
+
+Purpose: run MediaPipe Tasks landmark detectors and return normalized landmark data.
+
+
+## Backend execution
+- Implement backend class `MediaPipeLandmarkBackend`
+- Implement the MediaPipe backend as a reusable adapter class that initializes detectors once and reuses them across frame calls
+- Expose constructor `__init__(pose_model_path, hand_model_path, face_model_path)`
+- Constructor accepts `str | Path` model paths and normalizes them to `Path`
+- Initialize `PoseLandmarker`, `HandLandmarker`, and `FaceLandmarker` once in the backend constructor
+- Expose backend method `extract_landmarks(frame, timestamp_frame)` returning `NormalizedLandmarks`
+- Accept decoded frame image
+- Accept `timestamp_frame` for MediaPipe VIDEO mode
+- Assume caller provides a valid decoded frame image
+- Do not duplicate upstream transport or schema validation
+- Enforce minimal adapter-local preconditions only:
+  - reject `frame is None` with a clear error
+  - reject missing `timestamp_frame` with a clear error
+- Convert BGR frame to RGB
+- Convert RGB frame into `mp.Image`
+- Convert `timestamp_frame` into MediaPipe `timestamp_ms`
+- Execute `PoseLandmarker` in VIDEO mode
+- Execute `HandLandmarker` in VIDEO mode
+- Execute `FaceLandmarker` in VIDEO mode
+- Extract pose landmarks into normalized internal mapping
+- Extract hand landmarks and use handedness classification to map to `left_hand` and `right_hand`
+- Extract face / iris landmarks into normalized internal mapping
+- Return all detected normalized landmarks produced by the detectors
+- Do not apply configured feature selection in this file
+- Do not apply missing-landmark fill in this file
+- Return `NormalizedLandmarks` to caller
+- Wrap detector/model initialization failures in `MediaPipeBackendInitError`
+- Wrap runtime extraction failures in `MediaPipeExtractionError`
+- Preserve original exception context via `raise ... from exc`
+
+## Public module surface
+- Expose backend class `MediaPipeLandmarkBackend`
+- Expose backend exceptions:
+  - `MediaPipeBackendError`
+  - `MediaPipeBackendInitError`
+  - `MediaPipeExtractionError`
+- Keep helper functions private to this file
+-----------
 # 3. extractor.py
 
 Purpose: convert extracted landmarks into deterministic feature rows.
@@ -125,21 +170,9 @@ Purpose: convert extracted landmarks into deterministic feature rows.
 - [ ] Implement missing-landmark fill helper `(0.0, 0.0)`
 
 
-# 3a. landmark_mediapipe.py
 
-Purpose: run MediaPipe Holistic and return normalized landmark data.
 
-## Backend execution
-- [ ] Accept incoming frame image payload
-- [ ] Execute MediaPipe Holistic
-- [ ] Normalize extracted landmarks into module-internal structure
-- [ ] Return normalized landmark data for `extractor.py`
 
-Constraints:
-- No capture state
-- No artifact writing
-- No JSONL writes
-- No feature-row flattening
 
 
 # 4. service.py
