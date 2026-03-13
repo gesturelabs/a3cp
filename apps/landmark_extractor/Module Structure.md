@@ -139,7 +139,57 @@ Purpose: run MediaPipe Tasks landmark detectors on one decoded frame and return 
 
 
 
-# File Structure and Responsibilities
+# 3. extractor.py
+
+Purpose: convert normalized landmark maps into one deterministic fixed-length feature row.
+
+## Public module surface
+- Expose pure function:
+  - `build_feature_row(landmarks: NormalizedLandmarks) -> FeatureRow`
+- Keep helper functions private to this file
+
+## Feature-row construction
+- Accept `NormalizedLandmarks`
+- Accept normalized landmark maps produced by `landmark_mediapipe.py`
+- Read configured landmark contract from `config.py`
+- Use configured deterministic landmark ordering from `ORDERED_LANDMARKS`
+- Resolve each configured `(region, landmark_index)` against the corresponding landmark map:
+  - `pose`
+  - `left_hand`
+  - `right_hand`
+  - `face`
+- Extract normalized `(x, y)` when the landmark is present
+- Apply configured missing-landmark fill when the landmark is absent:
+  - `MISSING_LANDMARK_PAIR`
+- Flatten ordered landmark pairs into one feature row
+- Produce one fixed-length `FeatureRow`
+
+## Output contract
+- Return `FeatureRow`
+- Output contains only flattened `x, y` values
+- Output ordering matches `ORDERED_LANDMARKS` exactly
+- Output length is exactly `FEATURE_DIM`
+- Output contains one `(x, y)` pair per configured landmark
+- Missing configured landmarks are encoded as `MISSING_LANDMARK_PAIR`
+- No landmarks outside the configured contract are included in the output
+
+## Helper functions
+- Implement private helper to resolve one configured landmark from `NormalizedLandmarks`
+- Implement private helper to return configured missing-landmark fill
+- Implement private helper to convert ordered landmark pairs into one flat `FeatureRow`
+
+## Constraints
+- No MediaPipe calls
+- No capture state
+- No artifact writing
+- No JSONL writes
+- No visualization logic
+- No schema validation duplication
+- No reordering outside the configured `ORDERED_LANDMARKS`
+- No exposure of helper functions outside this file
+
+
+
 
 ## ingest_boundary.py
 **Role:** public validated ingest boundary

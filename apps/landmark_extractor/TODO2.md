@@ -150,25 +150,46 @@ Purpose: run MediaPipe Tasks landmark detectors and return normalized landmark d
   - `MediaPipeBackendInitError`
   - `MediaPipeExtractionError`
 - Keep helper functions private to this file
+
+
+
 -----------
 # 3. extractor.py
 
-Purpose: convert extracted landmarks into deterministic feature rows.
+Purpose: convert `NormalizedLandmarks` into one deterministic fixed-length feature row.
 
+## Public surface
+- [ ] Expose pure function:
+  - [ ] `build_feature_row(landmarks: NormalizedLandmarks) -> FeatureRow`
 
 ## Frame → feature row
-- [ ] Accept normalized landmark data from MediaPipe
-- [ ] Select configured landmarks from `config.py`
-- [ ] Apply deterministic landmark ordering
-- [ ] Convert landmarks → `(x, y)` pairs
-- [ ] Apply missing landmark fill `(0.0, 0.0)`
-- [ ] Produce fixed-length feature row `(D,)`
+- [ ] Accept `NormalizedLandmarks` from `landmark_mediapipe.py`
+- [ ] Read configured landmark contract from `config.py`
+- [ ] Iterate through `ORDERED_LANDMARKS` in exact configured order
+- [ ] For each `(region, landmark_index)`:
+  - [ ] resolve the corresponding source map (`pose`, `left_hand`, `right_hand`, `face`)
+  - [ ] extract `(x, y)` if present
+  - [ ] otherwise emit configured missing pair `(0.0, 0.0)`
+- [ ] Flatten ordered landmark pairs into one `FeatureRow`
+- [ ] Produce fixed-length row with length `FEATURE_DIM`
 
+## Output invariants
+- [ ] Output type is `FeatureRow` (`list[float]`)
+- [ ] Output ordering is exactly `ORDERED_LANDMARKS`
+- [ ] Output contains only `x, y` values
+- [ ] Output length is exactly `FEATURE_DIM`
 
 ## Helper functions
-- [ ] Implement deterministic landmark → feature-row conversion helper
-- [ ] Implement missing-landmark fill helper `(0.0, 0.0)`
+- [ ] Implement pure helper to resolve one configured landmark from `NormalizedLandmarks`
+- [ ] Implement pure helper to convert ordered landmark selections into one flat feature row
+- [ ] Implement pure helper for missing-landmark fill using `MISSING_LANDMARK_PAIR`
 
+## Non-goals
+- [ ] No MediaPipe calls in this file
+- [ ] No feature artifact writing
+- [ ] No JSONL writes
+- [ ] No capture state management
+- [ ] No visualization logic
 
 
 

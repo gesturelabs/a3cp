@@ -9,6 +9,29 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## Landmark Extractor — Feature Row Extraction Mar. 13, 2026
+
+### Added
+- Implemented `build_feature_row()` in `apps/landmark_extractor/extractor.py`
+- Converts `NormalizedLandmarks` into a deterministic flattened feature row
+- Landmark ordering driven by `ORDERED_LANDMARKS` from `config.py`
+- Missing landmarks encoded using `MISSING_LANDMARK_PAIR`
+- Output length enforced to match `FEATURE_DIM`
+
+### Tests
+Added `apps/landmark_extractor/tests/test_extractor.py`:
+
+- `test_build_feature_row_returns_fixed_length_row`
+- `test_build_feature_row_preserves_configured_order`
+- `test_build_feature_row_fills_missing_landmarks`
+- `test_build_feature_row_all_missing_returns_only_missing_pairs`
+
+### Guarantees
+- Feature rows are deterministic and fixed-length
+- Output contains only normalized `(x, y)` coordinates
+- No MediaPipe dependency inside the extractor
+- No artifact writing, logging, or capture-state logic in this module
+
 
 ## Landmark Extractor — MediaPipe Backend + Tests. Mar. 13, 2026
 
