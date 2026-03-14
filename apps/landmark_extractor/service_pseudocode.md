@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import base64
 import binascii
+from typing import Final
+from uuid import UUID
 from datetime import datetime
-from uuid import UUID, uuid4
 
 import cv2
 import numpy as np
@@ -16,9 +17,12 @@ from apps.landmark_extractor.artifact_writer import (
     delete_feature_artifact,
     write_feature_artifact,
 )
+
 from apps.landmark_extractor.config import (
     FACE_LANDMARKER_MODEL_PATH,
+    FEATURE_ARTIFACT_FORMAT,
     FEATURE_DIM,
+    FEATURE_DTYPE,
     FEATURE_ENCODING_ID,
     HAND_LANDMARKER_MODEL_PATH,
     POSE_LANDMARKER_MODEL_PATH,
@@ -26,6 +30,7 @@ from apps.landmark_extractor.config import (
 from apps.landmark_extractor.domain import CaptureState, FeatureMatrix, FinalizeResult
 from apps.landmark_extractor.extractor import build_feature_row
 from apps.landmark_extractor.landmark_mediapipe import (
+    MediaPipeBackendInitError,
     MediaPipeExtractionError,
     MediaPipeLandmarkBackend,
 )
@@ -41,7 +46,6 @@ from schemas import (
 # ============================================================
 # Exceptions
 # ============================================================
-
 
 class LandmarkExtractorServiceError(Exception):
     """Base exception for service-layer failures."""
@@ -84,11 +88,6 @@ Backend initialization failure surfaces immediately at import time.
 # Public entrypoint
 # ============================================================
 
-# ============================================================
-# Public entrypoint
-# ============================================================
-
-
 async def handle_message(message: LandmarkExtractorInput) -> None:
     """
     Orchestrate one validated landmark_extractor message.
@@ -104,25 +103,14 @@ async def handle_message(message: LandmarkExtractorInput) -> None:
     - capture.abort  → _handle_abort(message: LandmarkExtractorTerminalInput)
     """
 
-    if message.event == "capture.frame":
-        _handle_frame(message)
-        return
+    # Dispatch by event type
+    # Unsupported events raise LandmarkExtractorServiceError
 
-    if message.event == "capture.close":
-        _handle_close(message)
-        return
-
-    if message.event == "capture.abort":
-        _handle_abort(message)
-        return
-
-    raise LandmarkExtractorServiceError(f"Unsupported event: {message.event}")
 
 
 # ============================================================
 # Event handlers
 # ============================================================
-
 
 def _handle_frame(message: LandmarkExtractorFrameInput) -> None:
     """
@@ -143,23 +131,6 @@ def _handle_frame(message: LandmarkExtractorFrameInput) -> None:
         - append no feature row
         - preserve existing capture state
     """
-    capture_id = message.capture_id
-
-    _reject_if_terminal(capture_id)
-
-    state = _get_or_create_capture_state(message)
-
-    try:
-        frame = _decode_frame_data(message.frame_data)
-        landmarks = _BACKEND.extract_landmarks(frame, message.timestamp_frame)
-        feature_row = build_feature_row(landmarks)
-    except (MediaPipeExtractionError, LandmarkExtractorFrameError) as exc:
-        raise LandmarkExtractorFrameError(str(exc)) from exc
-    except Exception as exc:
-        raise LandmarkExtractorFrameError("Frame processing failed") from exc
-
-    state.feature_rows.append(feature_row)
-
 
 def _handle_close(message: LandmarkExtractorTerminalInput) -> None:
     """
@@ -194,47 +165,6 @@ def _handle_close(message: LandmarkExtractorTerminalInput) -> None:
         - preserve active capture state (do not clear)
         - require capture to be redone
     """
-    capture_id = message.capture_id
-
-    _ensure_close_message(message)
-    _reject_if_terminal(capture_id)
-
-    state = _get_active_capture_state(capture_id)
-
-    try:
-        _ensure_non_empty_feature_rows(state)
-
-        finalize_result = _build_finalize_result(state)
-
-        _ensure_feature_matrix_shape(finalize_result.feature_matrix)
-
-        artifact_result = write_feature_artifact(
-            user_id=finalize_result.user_id,
-            session_id=finalize_result.session_id,
-            capture_id=finalize_result.capture_id,
-            feature_matrix=finalize_result.feature_matrix,
-        )
-
-        feature_ref_message = _build_feature_ref_message(
-            finalize_result=finalize_result,
-            artifact_result=artifact_result,
-            timestamp_end=message.timestamp_end,
-            schema_version=message.schema_version,
-        )
-
-        _append_feature_ref_event(feature_ref_message)
-
-    except Exception as exc:
-        if "artifact_result" in locals():
-            try:
-                _rollback_artifact(artifact_result)
-            except Exception:
-                pass
-        raise LandmarkExtractorFinalizeError(str(exc)) from exc
-
-    _clear_active_capture_state(capture_id)
-    _mark_terminal(capture_id)
-
 
 def _handle_abort(message: LandmarkExtractorTerminalInput) -> None:
     """
@@ -256,68 +186,38 @@ def _handle_abort(message: LandmarkExtractorTerminalInput) -> None:
     - unknown capture_id raises service-level failure
     - duplicate terminal event raises service-level failure
     """
-    capture_id = message.capture_id
-
-    _ensure_abort_message(message)
-    _reject_if_terminal(capture_id)
-    _get_active_capture_state(capture_id)
-
-    _clear_active_capture_state(capture_id)
-    _mark_terminal(capture_id)
-
 
 # ============================================================
 # Capture-state helpers
 # ============================================================
 
-
 def _get_or_create_capture_state(message: LandmarkExtractorFrameInput) -> CaptureState:
     """Return existing CaptureState or create one on first frame for the capture_id."""
-    capture_id = message.capture_id
-
-    state = _ACTIVE_CAPTURES.get(capture_id)
-    if state is not None:
-        return state
-
-    state = CaptureState(
-        capture_id=capture_id,
-        user_id=message.user_id,
-        session_id=message.session_id,
-    )
-    _ACTIVE_CAPTURES[capture_id] = state
-    return state
 
 
 def _get_active_capture_state(capture_id: UUID) -> CaptureState:
     """Return active CaptureState or raise LandmarkExtractorServiceError for unknown or inactive capture."""
-    state = _ACTIVE_CAPTURES.get(capture_id)
-    if state is None:
-        raise LandmarkExtractorServiceError(
-            f"Unknown or inactive capture_id: {capture_id}"
-        )
-    return state
 
 
 def _clear_active_capture_state(capture_id: UUID) -> None:
     """Remove capture_id from the active capture state map."""
-    _ACTIVE_CAPTURES.pop(capture_id, None)
 
 
 def _mark_terminal(capture_id: UUID) -> None:
     """Record capture_id as terminal to reject later frames or terminal events."""
-    _TERMINAL_CAPTURE_IDS.add(capture_id)
 
 
 def _reject_if_terminal(capture_id: UUID) -> None:
     """Raise LandmarkExtractorServiceError if capture_id has already been closed or aborted."""
-    if capture_id in _TERMINAL_CAPTURE_IDS:
-        raise LandmarkExtractorServiceError(f"Capture already terminal: {capture_id}")
 
 
 # ============================================================
 # Frame decoding helpers
 # ============================================================
 
+# ============================================================
+# Frame decoding helpers
+# ============================================================
 
 def _decode_frame_data(frame_data: str) -> np.ndarray:
     """
@@ -333,14 +233,7 @@ def _decode_frame_data(frame_data: str) -> np.ndarray:
     Raises:
     - LandmarkExtractorFrameError if base64 decoding or image decoding fails.
     """
-    try:
-        raw_b64 = _strip_data_url_prefix(frame_data)
-        image_bytes = _decode_base64_bytes(raw_b64)
-        return _bytes_to_frame(image_bytes)
-    except LandmarkExtractorFrameError:
-        raise
-    except Exception as exc:
-        raise LandmarkExtractorFrameError("Frame decode failed") from exc
+    raise NotImplementedError
 
 
 def _strip_data_url_prefix(frame_data: str) -> str:
@@ -348,22 +241,12 @@ def _strip_data_url_prefix(frame_data: str) -> str:
     Return raw base64 content with any data URL prefix removed
     (e.g. "data:image/jpeg;base64,...").
     """
-    if frame_data.startswith("data:"):
-        try:
-            _, b64_part = frame_data.split(",", 1)
-        except ValueError as exc:
-            raise LandmarkExtractorFrameError("Invalid data URL image payload") from exc
-        return b64_part
-
-    return frame_data
+    raise NotImplementedError
 
 
 def _decode_base64_bytes(frame_data: str) -> bytes:
     """Decode base64 string into bytes or raise LandmarkExtractorFrameError."""
-    try:
-        return base64.b64decode(frame_data, validate=True)
-    except (binascii.Error, ValueError) as exc:
-        raise LandmarkExtractorFrameError("Invalid base64 image payload") from exc
+    raise NotImplementedError
 
 
 def _bytes_to_frame(image_bytes: bytes) -> np.ndarray:
@@ -373,22 +256,10 @@ def _bytes_to_frame(image_bytes: bytes) -> np.ndarray:
     Raises:
     - LandmarkExtractorFrameError if decoding fails.
     """
-    try:
-        buffer = np.frombuffer(image_bytes, dtype=np.uint8)
-        frame = cv2.imdecode(buffer, cv2.IMREAD_COLOR)
-    except Exception as exc:
-        raise LandmarkExtractorFrameError("Failed to decode image bytes") from exc
-
-    if frame is None:
-        raise LandmarkExtractorFrameError("OpenCV returned empty frame during decode")
-
-    return frame
-
-
+    raise NotImplementedError
 # ============================================================
 # Finalize helpers
 # ============================================================
-
 
 def _build_finalize_result(state: CaptureState) -> FinalizeResult:
     """
@@ -398,21 +269,7 @@ def _build_finalize_result(state: CaptureState) -> FinalizeResult:
     - capture contains at least one feature row
     - finalized matrix shape is (T, D)
     """
-    rows = state.feature_rows
-
-    if not rows:
-        raise LandmarkExtractorFinalizeError(
-            "Cannot finalize capture with zero feature rows"
-        )
-
-    feature_matrix: FeatureMatrix = rows
-
-    return FinalizeResult(
-        capture_id=state.capture_id,
-        user_id=state.user_id,
-        session_id=state.session_id,
-        feature_matrix=feature_matrix,
-    )
+    raise NotImplementedError
 
 
 def _build_feature_ref_message(
@@ -420,7 +277,6 @@ def _build_feature_ref_message(
     finalize_result: FinalizeResult,
     artifact_result: ArtifactWriteResult,
     timestamp_end: datetime,
-    schema_version: str,
 ) -> A3CPMessage:
     """
     Build one derived A3CPMessage referencing the persisted feature artifact.
@@ -439,30 +295,7 @@ def _build_feature_ref_message(
     Returns:
     - A3CPMessage
     """
-    raw_features_ref = RawFeaturesRef(
-        uri=artifact_result.artifact_path,
-        hash=artifact_result.artifact_hash,
-        encoding=FEATURE_ENCODING_ID,
-        shape=list(artifact_result.shape),
-        dtype=artifact_result.dtype,
-        format=artifact_result.format,
-    )
-
-    return A3CPMessage.model_validate(
-        {
-            "schema_version": schema_version,
-            "record_id": uuid4(),
-            "user_id": finalize_result.user_id,
-            "session_id": finalize_result.session_id,
-            "timestamp": timestamp_end,
-            "modality": "gesture",
-            "source": "landmark_extractor",
-            "performer_id": "system",
-            "capture_id": finalize_result.capture_id,
-            "event": "raw_features.ready",
-            "raw_features_ref": raw_features_ref,
-        }
-    )
+    raise NotImplementedError
 
 
 def _append_feature_ref_event(message: A3CPMessage) -> None:
@@ -472,11 +305,7 @@ def _append_feature_ref_event(message: A3CPMessage) -> None:
     Recorder call contract:
     - append_event(user_id=message.user_id, session_id=message.session_id, message=message)
     """
-    append_event(
-        user_id=message.user_id,
-        session_id=str(message.session_id),
-        message=message,
-    )
+    raise NotImplementedError
 
 
 def _rollback_artifact(artifact_result: ArtifactWriteResult) -> None:
@@ -489,52 +318,31 @@ def _rollback_artifact(artifact_result: ArtifactWriteResult) -> None:
     - do not clear capture state
     - used only inside the commit-unit rollback path
     """
-    try:
-        delete_feature_artifact(artifact_path=artifact_result.artifact_path)
-    except Exception:
-        pass
+    raise NotImplementedError
 
 
 # ============================================================
 # Validation / invariant helpers
 # ============================================================
 
-
 def _ensure_close_message(message: LandmarkExtractorTerminalInput) -> None:
     """Require event == 'capture.close'."""
-    if message.event != "capture.close":
-        raise LandmarkExtractorServiceError(
-            f"Expected event 'capture.close', got '{message.event}'"
-        )
+    raise NotImplementedError
 
 
 def _ensure_abort_message(message: LandmarkExtractorTerminalInput) -> None:
     """Require event == 'capture.abort'."""
-    if message.event != "capture.abort":
-        raise LandmarkExtractorServiceError(
-            f"Expected event 'capture.abort', got '{message.event}'"
-        )
+    raise NotImplementedError
 
 
 def _ensure_non_empty_feature_rows(state: CaptureState) -> None:
     """Reject capture.close with zero buffered feature rows."""
-    if not state.feature_rows:
-        raise LandmarkExtractorFinalizeError(
-            f"capture.close received with zero feature rows (capture_id={state.capture_id})"
-        )
+    raise NotImplementedError
 
 
 def _ensure_feature_matrix_shape(feature_matrix: FeatureMatrix) -> None:
     """Check finalized matrix shape is (T, D) with D == FEATURE_DIM."""
-    if not feature_matrix:
-        raise LandmarkExtractorFinalizeError("Feature matrix is empty")
-
-    for row in feature_matrix:
-        if len(row) != FEATURE_DIM:
-            raise LandmarkExtractorFinalizeError(
-                f"Feature row dimension mismatch: expected {FEATURE_DIM}, got {len(row)}"
-            )
-
+    raise NotImplementedError
 
 # ============================================================
 # Notes for current slice

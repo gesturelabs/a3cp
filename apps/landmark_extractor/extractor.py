@@ -1,4 +1,4 @@
-# apps/landmark_extractor/extractor.py^
+# apps/landmark_extractor/extractor.py
 
 from __future__ import annotations
 

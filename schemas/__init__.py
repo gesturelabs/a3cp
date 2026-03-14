@@ -11,7 +11,7 @@ not from this public package.
 """
 
 # Canonical runtime message used across modules (and by schema_recorder)
-from .a3cp_message.a3cp_message import A3CPMessage
+from .a3cp_message.a3cp_message import A3CPMessage, RawFeaturesRef
 
 # Re-export BaseSchema first to avoid circular import issues
 from .base.base import BaseSchema, example_input
@@ -54,6 +54,7 @@ __all__ = [
     "SessionManagerEndOutput",
     # canonical message
     "A3CPMessage",
+    "RawFeaturesRef",
     "example_input",
     # camera_feed_worker
     "CameraFeedWorkerInput",

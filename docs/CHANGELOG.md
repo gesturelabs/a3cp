@@ -9,6 +9,22 @@ Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
 
+## Landmark Extractor — Service.py Mar. 14, 2026
+
+### Added
+- Implemented first orchestration pass for `apps/landmark_extractor/service.py`.
+- Added module-local active/terminal capture tracking.
+- Added async `handle_message(...)` event dispatch for `capture.frame`, `capture.close`, and `capture.abort`.
+- Added frame processing flow: terminal rejection, capture-state creation, frame decoding, landmark extraction, feature-row buffering.
+- Added close/finalize flow: finalize result construction, feature-matrix validation, artifact write call, feature-ref message construction, schema recorder append, and rollback hook.
+- Added abort flow for terminal capture discard without artifact or event emission.
+- Added frame decoding helpers for data-URL and raw base64 image payloads.
+- Added validation/invariant helpers for terminal-event and feature-matrix checks.
+
+### Notes
+- `artifact_writer.py` remains a placeholder skeleton and is not yet implemented.
+- Service behavior is now ready for targeted unit tests.
+
 ## Landmark Extractor — Feature Row Extraction Mar. 13, 2026
 
 ### Added

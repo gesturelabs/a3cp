@@ -191,17 +191,44 @@ Purpose: convert `NormalizedLandmarks` into one deterministic fixed-length featu
 - [ ] No capture state management
 - [ ] No visualization logic
 
-
-
-
+---------------------
 
 
 # 4. service.py
 
 Purpose: module orchestration and capture lifecycle management.
 
+## Public module surface
+- [ ] Expose async orchestration entrypoint:
+  - [ ] `handle_message(message: LandmarkExtractorInput) -> None`
+- [ ] Keep helper functions private to this file
+
+## Service dependencies
+- [ ] Maintain one module-local reusable `MediaPipeLandmarkBackend`
+- [ ] Initialize the backend once at module import time
+- [ ] Reuse the same backend instance across frame calls
+- [ ] Do not construct detectors per frame
+- [ ] Fail fast if backend initialization fails
+
+## Frame decoding
+- [ ] Decode `frame_data` inside `service.py`
+- [ ] Accept validated `frame_data` from `LandmarkExtractorFrameInput`
+- [ ] Support both:
+  - [ ] data URL base64 payloads
+  - [ ] raw base64 payloads
+- [ ] Convert decoded bytes into one image frame for the landmark backend
+- [ ] Raise service-level failure if frame decoding fails
+
+## Service exceptions
+- [ ] Expose service exceptions:
+  - [ ] `LandmarkExtractorServiceError`
+  - [ ] `LandmarkExtractorFrameError`
+  - [ ] `LandmarkExtractorFinalizeError`
+- [ ] Use `LandmarkExtractorFrameError` for per-frame decode or extraction failures
+- [ ] Use `LandmarkExtractorFinalizeError` for close/finalize failures, including artifact rollback cases
+- [ ] Keep helper functions private to this file
+
 ## Service skeleton
-- [ ] Implement internal orchestration entrypoint
 - [ ] Accept validated `LandmarkExtractorInput`
 - [ ] Dispatch by event type:
   - [ ] `capture.frame`
@@ -210,50 +237,112 @@ Purpose: module orchestration and capture lifecycle management.
 
 ## Capture lifecycle
 - [ ] Maintain capture state keyed by `capture_id`
+- [ ] Track terminalized `capture_id`s separately from active capture state so duplicate and post-terminal events can be rejected
 
+## Terminal event rules
+- [ ] `capture.close` requires active capture state
+- [ ] `capture.abort` requires active capture state
+- [ ] Unknown `capture_id` on terminal event raises service-level failure
+- [ ] Duplicate terminal events are rejected
+- [ ] Frame ingest after `capture.close` is rejected
+- [ ] Frame ingest after `capture.abort` is rejected
+- [ ] `capture.close` with zero buffered feature rows is rejected
+
+## Frame-event handling
 ### `capture.frame`
-- [ ] Resolve capture state
+- [ ] Require `LandmarkExtractorFrameInput`
+- [ ] Resolve capture state by `capture_id`
 - [ ] Create capture state on first frame
-- [ ] Read the incoming frame image payload from the validated frame input
-- [ ] Call landmark backend to extract normalized landmarks from the incoming frame
-- [ ] Pass detected landmarks to `extractor.py`
+- [ ] Decode `frame_data` into one image frame
+- [ ] Call the module-local `MediaPipeLandmarkBackend`
+- [ ] Pass returned `NormalizedLandmarks` to `build_feature_row(...)`
 - [ ] Return one fixed-length feature row `(D,)`
-- [ ] Append feature row to buffer
-- [ ] Define service behavior if extraction fails on a frame
+- [ ] Append exactly one feature row to the capture buffer
+- [ ] If frame decode or landmark extraction fails:
+  - [ ] raise `LandmarkExtractorFrameError`
+  - [ ] append no feature row for that frame
+  - [ ] keep existing capture state unchanged except for prior successful rows
 
+## Close-event handling
 ### `capture.close`
-- [ ] Require active capture state
+- [ ] Require `LandmarkExtractorTerminalInput`
+- [ ] Require `event == "capture.close"`
+- [ ] Resolve active capture state by `capture_id`
+- [ ] Require at least one buffered feature row
 - [ ] Ensure finalize occurs exactly once
-- [ ] Convert buffered rows → feature matrix `(T, D)`
-- [ ] Call artifact writer
-- [ ] Build feature-ref `A3CPMessage`
+- [ ] Convert buffered rows into feature matrix `(T, D)`
+- [ ] Call `artifact_writer.write_feature_artifact()`
+- [ ] Build one derived feature-ref `A3CPMessage`
+- [ ] Emit event `raw_features.ready`
 - [ ] Append event via `schema_recorder.append_event()`
-- [ ] Clear capture state only after successful finalize
-- [ ] Define service behavior if finalize fails after artifact rollback
+- [ ] Clear capture state only after full finalize success
+- [ ] If finalize fails:
+  - [ ] raise `LandmarkExtractorFinalizeError`
+  - [ ] do not silently recover
 
+## Abort-event handling
 ### `capture.abort`
-- [ ] Require active capture state
-- [ ] Discard buffered rows
+- [ ] Require `LandmarkExtractorTerminalInput`
+- [ ] Require `event == "capture.abort"`
+- [ ] Resolve active capture state by `capture_id`
+- [ ] Discard buffered feature rows
 - [ ] Write no artifact
 - [ ] Emit no event
 - [ ] Clear capture state
+- [ ] Abort is terminal for the capture
+- [ ] Reject any later frame or terminal event for the same `capture_id`
 
-## Terminal edge cases
-- [ ] Handle `capture.close` for unknown `capture_id`
-- [ ] Handle `capture.abort` for unknown `capture_id`
-- [ ] Handle duplicate terminal events
-- [ ] Handle frame ingest after finalize
-- [ ] Handle frame ingest after abort
-
-## Commit rule
+## Commit unit
 - [ ] Treat artifact write + event append as one commit unit
-- [ ] If append fails:
-  - [ ] delete artifact
-  - [ ] fail finalize
-  - [ ] propagate finalize failure to caller
-  - [ ] require capture redo
+- [ ] On `capture.close`:
+  - [ ] write artifact first
+  - [ ] build one derived feature-ref `A3CPMessage`
+  - [ ] emit event `raw_features.ready`
+  - [ ] append event via `schema_recorder.append_event()`
+- [ ] If event append fails:
+  - [ ] delete the written artifact
+  - [ ] raise `LandmarkExtractorFinalizeError`
+  - [ ] preserve capture state for diagnostic visibility
+  - [ ] require the capture to be redone
+- [ ] Clear capture state only after full finalize success
 
----
+## Constraints
+- [ ] Do not validate external input
+- [ ] Do not write JSONL directly
+- [ ] Do not perform low-level filesystem operations
+- [ ] Do not contain MediaPipe configuration constants
+
+
+------------------------
+
+# 6. ingest_boundary.py
+
+Purpose: public module ingest boundary.
+
+## Ingest interface
+- [ ] Expose the single public ingest entrypoint
+- [ ] Accept validated `LandmarkExtractorInput`
+
+## Input union
+- [ ] Support:
+  - [ ] `LandmarkExtractorFrameInput`
+  - [ ] `LandmarkExtractorTerminalInput`
+
+## Forwarding behavior
+- [ ] Replace sink behavior with forward-to-service behavior
+- [ ] Forward validated messages to `service.py`
+
+Constraints:
+- No schema validation logic (handled by Pydantic)
+- No capture state
+- No MediaPipe execution
+- No artifact writing
+- No JSONL writes
+
+----------------------
+
+
+-----------------------
 # 5. artifact_writer.py
 
 Purpose: feature artifact persistence.
@@ -287,29 +376,7 @@ Purpose: feature artifact persistence.
 
 ---
 
-# 6. ingest_boundary.py
 
-Purpose: public module ingest boundary.
-
-## Ingest interface
-- [ ] Expose the single public ingest entrypoint
-- [ ] Accept validated `LandmarkExtractorInput`
-
-## Input union
-- [ ] Support:
-  - [ ] `LandmarkExtractorFrameInput`
-  - [ ] `LandmarkExtractorTerminalInput`
-
-## Forwarding behavior
-- [ ] Replace sink behavior with forward-to-service behavior
-- [ ] Forward validated messages to `service.py`
-
-Constraints:
-- No schema validation logic (handled by Pydantic)
-- No capture state
-- No MediaPipe execution
-- No artifact writing
-- No JSONL writes
 ---
 
 # 7. routes/router.py
