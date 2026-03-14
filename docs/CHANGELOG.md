@@ -8,6 +8,176 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+# Changelog — Landmark Extractor Service Test Suite Mar. 14, 2026
+
+## Scope
+Add comprehensive unit tests for `apps.landmark_extractor.service` covering routing, frame handling, capture lifecycle, artifact finalization, helper utilities, and failure/rollback behavior.
+
+All tests follow project testing conventions:
+- pure pytest
+- no async plugins
+- deterministic state control
+- monkeypatch isolation for external boundaries
+
+---
+
+# Added Test Files
+
+## apps/landmark_extractor/tests/test_service_handle_message.py
+
+Tests message routing logic in `handle_message()`.
+
+Coverage:
+- routes `capture.frame` → `_handle_frame`
+- routes `capture.close` → `_handle_close`
+- routes `capture.abort` → `_handle_abort`
+- raises error for unsupported events
+
+Purpose:
+Ensures the public ingest boundary correctly dispatches validated schema messages.
+
+---
+
+## apps/landmark_extractor/tests/test_service_frame.py
+
+Tests `_handle_frame()` capture-frame processing.
+
+Coverage:
+- creates capture state on first frame
+- appends feature rows to existing capture
+- rejects frames for terminal captures
+- preserves state when decode fails
+- raises frame error when backend extraction fails
+- raises frame error when feature row build fails
+- does not append feature row on processing failure
+
+Purpose:
+Ensures frame-level processing is deterministic and state-safe.
+
+---
+
+## apps/landmark_extractor/tests/test_service_close_success.py
+
+Tests successful capture finalization via `_handle_close()`.
+
+Coverage:
+- rejects terminal captures
+- raises for unknown capture
+- raises when feature rows are empty
+- writes artifact before emitting event
+- builds valid `raw_features_ref` A3CPMessage
+- appends event through `schema_recorder`
+- clears active capture state on success
+- marks capture as terminal on success
+
+Purpose:
+Verifies the successful commit path for bounded capture finalization.
+
+---
+
+## apps/landmark_extractor/tests/test_service_close_failure.py
+
+Tests failure and rollback paths during `_handle_close()`.
+
+Coverage:
+- raises finalize error when feature matrix empty
+- raises finalize error on feature row dimension mismatch
+- raises finalize error when artifact write fails
+- rolls back artifact if event append fails
+- preserves active capture state on append failure
+- does not mark capture terminal when append fails
+- rollback delete failure is swallowed while still raising finalize error
+
+Purpose:
+Ensures the commit unit guarantees are enforced:
+artifact write + event append behave atomically.
+
+---
+
+## apps/landmark_extractor/tests/test_service_abort.py
+
+Tests `_handle_abort()` behavior.
+
+Coverage:
+- rejects terminal captures
+- raises for unknown capture
+- clears active capture state
+- marks capture terminal
+- does not write artifacts
+- does not emit events
+
+Purpose:
+Ensures abort path is clean and side-effect safe.
+
+---
+
+## apps/landmark_extractor/tests/test_service_decode_helpers.py
+
+Tests frame decoding helper utilities.
+
+Coverage:
+- strips data URL prefix correctly
+- accepts raw base64 input
+- rejects invalid data URLs
+- decodes valid base64
+- raises on invalid base64
+- raises when OpenCV decode returns `None`
+- decodes frame data from raw base64
+- decodes frame data from data URL format
+
+Purpose:
+Validates transport payload decoding layer.
+
+---
+
+## apps/landmark_extractor/tests/test_service_state_helpers.py
+
+Tests internal capture-state helpers.
+
+Coverage:
+- create new capture state
+- reuse existing capture state
+- retrieve active capture state
+- raise for unknown capture
+- clear active capture state
+- mark capture terminal
+- reject terminal captures
+
+Purpose:
+Ensures deterministic management of the capture lifecycle state machine.
+
+---
+
+## apps/landmark_extractor/tests/test_service_finalize_helpers.py
+
+Tests finalize helpers used by `_handle_close()`.
+
+Coverage:
+- build finalize result from buffered feature rows
+- reject zero-row matrices
+- build valid feature-ref `A3CPMessage`
+- validate feature matrix shape
+- reject empty feature matrices
+- reject row dimension mismatches
+
+Purpose:
+Ensures correctness of artifact metadata and feature matrix validation prior to persistence.
+
+---
+
+# Result
+
+The landmark extractor service now has full unit test coverage for:
+
+- message routing
+- frame ingestion
+- capture lifecycle management
+- artifact finalization
+- commit-unit rollback behavior
+- helper utilities
+- transport decoding
+
+This suite establishes deterministic behavior and protects the bounded-capture invariants required by the A3CP pipeline.
 
 ## Landmark Extractor — Service.py Mar. 14, 2026
 
