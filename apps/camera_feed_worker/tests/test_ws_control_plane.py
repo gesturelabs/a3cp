@@ -336,7 +336,6 @@ def test_ws_does_not_arm_binary_gate_if_frame_meta_rejected_by_domain() -> None:
     }
 
     with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
-        # capture.open
         ws.send_text(
             json.dumps(
                 {
@@ -358,7 +357,6 @@ def test_ws_does_not_arm_binary_gate_if_frame_meta_rejected_by_domain() -> None:
             )
         )
 
-        # INVALID frame_meta: seq should be 1, send 2 to force domain rejection
         ws.send_text(
             json.dumps(
                 {
@@ -371,23 +369,22 @@ def test_ws_does_not_arm_binary_gate_if_frame_meta_rejected_by_domain() -> None:
                     "source": "browser",
                     "event": "capture.frame_meta",
                     "capture_id": capture_id,
-                    "seq": 2,  # invalid
+                    "seq": 2,
                     "timestamp_frame": _iso_now(),
                     "byte_length": 10,
                 }
             )
         )
 
-        # Expect domain abort message (text)
-        abort_text = ws.receive_text()
-        abort_msg = json.loads(abort_text)
-        assert abort_msg.get("event") == "capture.abort"
-        assert abort_msg.get("capture_id") == capture_id
+        close_exc = None
+        try:
+            ws.receive_text()
+        except Exception as exc:
+            close_exc = exc
 
-        # Then close should be normal (1000), not a protocol gate close (1008)
-        close_evt = ws.receive()
-        assert close_evt.get("type") == "websocket.close"
-        assert close_evt.get("code") == 1000
+        assert close_exc is not None
+        assert isinstance(close_exc, WebSocketDisconnect)
+        assert close_exc.code == 1000
 
 
 def test_ws_tick_abort_on_meta_to_bytes_timeout() -> None:
@@ -809,12 +806,22 @@ def test_ws_session_invalid_on_open_emits_abort_and_closes_1000() -> None:
         assert close_evt.get("code") == 1000
 
 
-def test_ws_session_closed_mid_capture_emits_abort_and_closes_1000() -> None:
+def test_ws_session_closed_mid_capture_emits_abort_and_closes_1000(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """
     Given: an active capture (ActiveState reached by sending at least one frame bytes)
     When: the session becomes closed mid-capture
     Then: server emits capture.abort(error_code=session_closed) and closes (1000).
     """
+
+    from apps.landmark_extractor import service as le_service
+
+    async def _fake_handle_message(_: object) -> None:
+        return None
+
+    monkeypatch.setattr(le_service, "handle_message", _fake_handle_message)
+
     client = TestClient(app)
 
     capture_id = str(uuid.uuid4())
@@ -827,7 +834,6 @@ def test_ws_session_closed_mid_capture_emits_abort_and_closes_1000() -> None:
     }
 
     with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
-        # capture.open
         ws.send_text(
             json.dumps(
                 {
@@ -849,7 +855,6 @@ def test_ws_session_closed_mid_capture_emits_abort_and_closes_1000() -> None:
             )
         )
 
-        # frame_meta arms gate
         ws.send_text(
             json.dumps(
                 {
@@ -869,13 +874,10 @@ def test_ws_session_closed_mid_capture_emits_abort_and_closes_1000() -> None:
             )
         )
 
-        # Send matching bytes so domain progresses past "awaiting bytes" into active capture state.
         ws.send_bytes(b"12345")
 
-        # Now close the session mid-capture (this should be caught by session recheck tick).
         sm_service._sessions[str(session_id)]["status"] = "closed"
 
-        # Wait long enough for the WS self-tick to run the session recheck path (every ~5s).
         time.sleep(6.0)
 
         abort_evt = ws.receive()

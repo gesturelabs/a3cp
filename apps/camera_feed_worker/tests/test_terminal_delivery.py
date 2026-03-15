@@ -13,7 +13,7 @@ from starlette.websockets import WebSocketState
 
 import apps.camera_feed_worker.routes.router as cfw_router_mod
 from apps.camera_feed_worker.state import ActiveState, IdleState
-from apps.landmark_extractor.ingest_boundary import INGEST_SINK, ingest
+from apps.landmark_extractor import service as le_service
 from apps.session_manager import service as sm_service
 from main import app
 from schemas import CameraFeedWorkerInput, LandmarkExtractorTerminalInput
@@ -41,8 +41,10 @@ def _iso_now() -> str:
     )
 
 
-def test_capture_close_delivers_exactly_one_terminal_ingest_message() -> None:
-    INGEST_SINK.clear()
+def test_capture_close_delivers_exactly_one_terminal_ingest_message(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: list[LandmarkExtractorTerminalInput] = []
     client = TestClient(app)
 
     capture_id = str(uuid.uuid4())
@@ -53,6 +55,12 @@ def test_capture_close_delivers_exactly_one_terminal_ingest_message() -> None:
         "user_id": user_id,
         "status": "active",
     }
+
+    async def _record_handle_message(message: object) -> None:
+        assert isinstance(message, LandmarkExtractorTerminalInput)
+        captured.append(message)
+
+    monkeypatch.setattr(le_service, "handle_message", _record_handle_message)
 
     with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
         ws.send_text(
@@ -119,9 +127,8 @@ def test_capture_close_delivers_exactly_one_terminal_ingest_message() -> None:
 
     terminal_msgs = [
         m
-        for m in INGEST_SINK
-        if getattr(m, "event", None) == "capture.close"
-        and str(getattr(m, "capture_id", "")) == capture_id
+        for m in captured
+        if m.event == "capture.close" and str(m.capture_id) == capture_id
     ]
 
     assert len(terminal_msgs) == 1
@@ -131,8 +138,10 @@ def test_capture_close_delivers_exactly_one_terminal_ingest_message() -> None:
     assert terminal.user_id == user_id
 
 
-def test_capture_abort_delivers_exactly_one_terminal_ingest_message() -> None:
-    INGEST_SINK.clear()
+def test_capture_abort_delivers_exactly_one_terminal_ingest_message(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: list[LandmarkExtractorTerminalInput] = []
     client = TestClient(app)
 
     capture_id = str(uuid.uuid4())
@@ -143,6 +152,12 @@ def test_capture_abort_delivers_exactly_one_terminal_ingest_message() -> None:
         "user_id": user_id,
         "status": "active",
     }
+
+    async def _record_handle_message(message: object) -> None:
+        assert isinstance(message, LandmarkExtractorTerminalInput)
+        captured.append(message)
+
+    monkeypatch.setattr(le_service, "handle_message", _record_handle_message)
 
     with client.websocket_connect("/api/camera_feed_worker/ws") as ws:
         ws.send_text(
@@ -199,15 +214,13 @@ def test_capture_abort_delivers_exactly_one_terminal_ingest_message() -> None:
 
     terminal_msgs = [
         m
-        for m in INGEST_SINK
-        if getattr(m, "event", None) == "capture.abort"
-        and str(getattr(m, "capture_id", "")) == capture_id
+        for m in captured
+        if m.event == "capture.abort" and str(m.capture_id) == capture_id
     ]
 
     assert len(terminal_msgs) == 1
 
     terminal = terminal_msgs[0]
-    assert isinstance(terminal, LandmarkExtractorTerminalInput)
     assert terminal.session_id == session_id
     assert terminal.user_id == user_id
     assert terminal.error_code == "protocol_violation"
@@ -216,7 +229,11 @@ def test_capture_abort_delivers_exactly_one_terminal_ingest_message() -> None:
 def test_duplicate_terminal_attempts_do_not_produce_second_terminal_ingest_message() -> (
     None
 ):
-    INGEST_SINK.clear()
+    captured: list[LandmarkExtractorTerminalInput] = []
+
+    async def _record_ingest(payload: object) -> None:
+        assert isinstance(payload, LandmarkExtractorTerminalInput)
+        captured.append(payload)
 
     connection_key = "dup-terminal-test"
     cfw_router_mod.repo.clear(connection_key)
@@ -275,7 +292,7 @@ def test_duplicate_terminal_attempts_do_not_produce_second_terminal_ingest_messa
             capture_id=capture_id,
             error_code="protocol_violation",
             last_msg_for_emit=last_msg,
-            ingest_fn=ingest,
+            ingest_fn=_record_ingest,
         )
     )
     assert result1 is False
@@ -290,26 +307,28 @@ def test_duplicate_terminal_attempts_do_not_produce_second_terminal_ingest_messa
             capture_id=capture_id,
             error_code="forward_failed",
             last_msg_for_emit=last_msg,
-            ingest_fn=ingest,
+            ingest_fn=_record_ingest,
         )
     )
     assert result2 is False
 
     terminal_msgs = [
         m
-        for m in INGEST_SINK
-        if getattr(m, "event", None) == "capture.abort"
-        and str(getattr(m, "capture_id", "")) == capture_id
+        for m in captured
+        if m.event == "capture.abort" and str(m.capture_id) == capture_id
     ]
     assert len(terminal_msgs) == 1
 
     terminal = terminal_msgs[0]
-    assert isinstance(terminal, LandmarkExtractorTerminalInput)
     assert terminal.error_code == "protocol_violation"
 
 
 def test_terminal_emission_is_guarded_by_repo_has_emitted_terminal() -> None:
-    INGEST_SINK.clear()
+    captured: list[LandmarkExtractorTerminalInput] = []
+
+    async def _record_ingest(payload: object) -> None:
+        assert isinstance(payload, LandmarkExtractorTerminalInput)
+        captured.append(payload)
 
     connection_key = "terminal-guard-test"
     cfw_router_mod.repo.clear(connection_key)
@@ -369,12 +388,12 @@ def test_terminal_emission_is_guarded_by_repo_has_emitted_terminal() -> None:
             capture_id=capture_id,
             error_code="protocol_violation",
             last_msg_for_emit=last_msg,
-            ingest_fn=ingest,
+            ingest_fn=_record_ingest,
         )
     )
 
     assert result is False
-    assert len(INGEST_SINK) == 0
+    assert len(captured) == 0
 
     abort_payloads = [json.loads(text) for text in ws.sent_texts]
     assert len(abort_payloads) == 1
@@ -492,7 +511,7 @@ def test_terminal_ingest_not_dropped_when_forward_failure_triggers_shutdown(
     message is still delivered before the websocket closes.
     """
 
-    INGEST_SINK.clear()
+    captured: list[LandmarkExtractorTerminalInput] = []
 
     connection_key = "terminal-cancel-test"
     cfw_router_mod.repo.clear(connection_key)
@@ -525,7 +544,8 @@ def test_terminal_ingest_not_dropped_when_forward_failure_triggers_shutdown(
     cfw_router_mod.repo.set_state(connection_key, state)
 
     async def _record_ingest(payload: object) -> None:
-        await ingest(payload)
+        assert isinstance(payload, LandmarkExtractorTerminalInput)
+        captured.append(payload)
 
     class _DummyWebSocket:
         def __init__(self) -> None:
@@ -560,14 +580,12 @@ def test_terminal_ingest_not_dropped_when_forward_failure_triggers_shutdown(
 
     terminal_msgs = [
         m
-        for m in INGEST_SINK
-        if getattr(m, "event", None) == "capture.abort"
-        and str(getattr(m, "capture_id", "")) == capture_id
+        for m in captured
+        if m.event == "capture.abort" and str(m.capture_id) == capture_id
     ]
 
     assert len(terminal_msgs) == 1
     terminal = terminal_msgs[0]
-    assert isinstance(terminal, LandmarkExtractorTerminalInput)
     assert terminal.error_code == "forward_failed"
 
 

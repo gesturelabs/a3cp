@@ -8,6 +8,42 @@
 Tag: v0.2.1-dev
 Start Date: 2025-06-11
 Maintainer: Dmitri Katz
+
+
+## 2026-03-14 — Landmark Extractor Ingest Boundary Refactor & Test Stabilization Mar. 15, 2026
+
+### Summary
+Refactored the `landmark_extractor` ingest boundary to remove the legacy `INGEST_SINK` testing mechanism and align the module with the production ingest contract. Updated all affected tests in `camera_feed_worker` and `landmark_extractor` to use controlled ingest injection and service stubbing where appropriate.
+
+### Changes
+
+#### Ingest Boundary
+- Removed `INGEST_SINK` from `apps/landmark_extractor/ingest_boundary.py`
+- Boundary now strictly validates input and forwards messages to the extractor service
+- Test-only side effects eliminated from runtime code
+
+#### Test Suite Updates
+Updated tests that previously depended on `INGEST_SINK`:
+
+- `apps/camera_feed_worker/tests/test_terminal_delivery.py`
+- `apps/camera_feed_worker/tests/test_ws_control_plane.py`
+- `apps/camera_feed_worker/tests/test_ws_happy_path.py`
+- `apps/landmark_extractor/tests/test_ingest_boundary_validation.py`
+
+Adjustments include:
+- Replacing sink inspection with controlled ingest injection
+- Stubbing `landmark_extractor.service.handle_message` for happy-path WS tests
+- Fixing type checks for terminal ingest messages
+- Correcting pytest typing (`pytest.MonkeyPatch`)
+- Ensuring WebSocket tests tolerate Starlette close semantics
+- Aligning tests with current terminal emission guard logic
+
+### Result
+- All tests passing (`193` tests)
+- Ingest boundary now cleanly separated from test instrumentation
+- Test suite aligned with production module contracts
+
+
 # Changelog — Landmark Extractor Service Test Suite Mar. 14, 2026
 
 ## Scope

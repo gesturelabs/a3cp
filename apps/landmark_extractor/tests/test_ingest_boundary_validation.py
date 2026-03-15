@@ -7,13 +7,18 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from apps.landmark_extractor.ingest_boundary import INGEST_SINK, ingest
+from apps.landmark_extractor import service
+from apps.landmark_extractor.ingest_boundary import ingest
 
 
-def test_ingest_boundary_validates_union():
-    INGEST_SINK.clear()
+def test_ingest_boundary_validates_union(monkeypatch):
+    captured = {"messages": []}
 
-    # ---- valid frame ----
+    async def fake_handle_message(message):
+        captured["messages"].append(message)
+
+    monkeypatch.setattr(service, "handle_message", fake_handle_message)
+
     frame_msg = {
         "schema_version": "1.0.1",
         "record_id": str(uuid4()),
@@ -24,13 +29,13 @@ def test_ingest_boundary_validates_union():
         "capture_id": str(uuid4()),
         "seq": 1,
         "timestamp_frame": datetime.now(timezone.utc),
-        "frame_data": "ZmFrZQ==",  # base64
+        "frame_data": "ZmFrZQ==",
     }
 
     asyncio.run(ingest(frame_msg))
-    assert len(INGEST_SINK) == 1
+    assert len(captured["messages"]) == 1
+    assert captured["messages"][0].event == "capture.frame"
 
-    # ---- valid terminal close ----
     terminal_msg = {
         "schema_version": "1.0.1",
         "record_id": str(uuid4()),
@@ -44,9 +49,9 @@ def test_ingest_boundary_validates_union():
     }
 
     asyncio.run(ingest(terminal_msg))
-    assert len(INGEST_SINK) == 2
+    assert len(captured["messages"]) == 2
+    assert captured["messages"][1].event == "capture.close"
 
-    # ---- invalid terminal (missing required error_code on abort) ----
     bad_terminal = {
         "schema_version": "1.0.1",
         "record_id": str(uuid4()),
@@ -56,7 +61,6 @@ def test_ingest_boundary_validates_union():
         "event": "capture.abort",
         "capture_id": str(uuid4()),
         "timestamp_end": datetime.now(timezone.utc),
-        # missing error_code
     }
 
     with pytest.raises(ValidationError):
